@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@lvstudio/core": "workspace:*",
+    "@lvstudio/quality": "workspace:*",
     "@lvstudio/providers": "workspace:*"
   }
 }

@@ -60,10 +60,19 @@ importers:
       '@lvstudio/providers':
         specifier: workspace:*
         version: link:../providers
+      '@lvstudio/quality':
+        specifier: workspace:*
+        version: link:../quality
 
   packages/core: {}
 
   packages/providers:
+    dependencies:
+      '@lvstudio/core':
+        specifier: workspace:*
+        version: link:../core
+
+  packages/quality:
     dependencies:
       '@lvstudio/core':
         specifier: workspace:*

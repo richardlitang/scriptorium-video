@@ -10,6 +10,7 @@ import {
   validateProject
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
+import { runQualityChecks } from "@lvstudio/quality";
 import { createProject } from "./create-project.js";
 import { generateCaptions } from "./captions.js";
 import { generateTTS } from "./generate-tts.js";
@@ -114,6 +115,7 @@ program
   .argument("<project-id>")
   .option("--quality <quality>", "draft or final", "draft")
   .option("--no-sync", "use existing timeline.json")
+  .option("--force", "render even if quality checks fail")
   .option("--provider <provider>", "override renderer provider id")
   .action(async (projectId, options) => {
     await validateProject(projectId);
@@ -121,6 +123,12 @@ program
       await syncProject(projectId);
     }
     const bundle = await buildRenderBundle({ projectId });
+    const qualityResult = await runQualityChecks(projectId);
+    if (qualityResult.status === "fail" && options.force !== true) {
+      throw new Error(
+        `Render blocked by quality checks. Run 'lvstudio check ${projectId}' for details or pass --force.`
+      );
+    }
     const providerId = options.provider ?? bundle.videoPlan.providers.renderer;
     const renderer = rendererProviders[providerId];
     if (!renderer) {
@@ -137,6 +145,18 @@ program
       quality
     });
     console.log(`Rendered ${result.outputPath}`);
+  });
+
+program
+  .command("check")
+  .argument("<project-id>")
+  .action(async (projectId) => {
+    await validateProject(projectId);
+    const result = await runQualityChecks(projectId);
+    console.log(JSON.stringify(result, null, 2));
+    if (result.status === "fail") {
+      process.exitCode = 1;
+    }
   });
 
 await program.parseAsync(process.argv);
