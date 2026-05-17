@@ -61,6 +61,29 @@ function text(data: unknown) {
   };
 }
 
+type ToolError = {
+  code: string;
+  message: string;
+  path?: string;
+};
+
+function okResult<T>(message: string, data?: T, warnings?: string[]) {
+  return text({
+    ok: true,
+    message,
+    data,
+    warnings
+  });
+}
+
+function failResult(message: string, errors?: ToolError[]) {
+  return text({
+    ok: false,
+    message,
+    errors
+  });
+}
+
 const server = new Server(
   {
     name: "lvstudio-mcp-server",
@@ -257,48 +280,45 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
           updatedAt: loaded.project.updatedAt
         });
       }
-      return text({ ok: true, projects });
+      return okResult("Projects listed.", { projects });
     }
     case "lvstudio_create_project": {
       const input = CreateProjectInput.parse(args ?? {});
       await createProjectScaffold(input.projectId, input.mode, input.targetPlatform);
-      return text({ ok: true, projectId: input.projectId });
+      return okResult("Project created.", { projectId: input.projectId });
     }
     case "lvstudio_get_project_status": {
       const input = ProjectIdInput.parse(args ?? {});
       const loaded = await loadProject(input.projectId);
-      return text({
-        ok: true,
-        data: {
+      return okResult("Project status loaded.", {
           project: loaded.project,
           mode: loaded.videoPlan.mode,
           targetPlatform: loaded.videoPlan.targetPlatform,
           assets: loaded.assetManifest.assets.length,
           captions: loaded.captions?.captions.length ?? 0
-        }
       });
     }
     case "lvstudio_validate_project": {
       const input = ProjectIdInput.parse(args ?? {});
       await validateProject(input.projectId);
-      return text({ ok: true, projectId: input.projectId });
+      return okResult("Project validated.", { projectId: input.projectId });
     }
     case "lvstudio_resolve_config": {
       const input = ProjectIdInput.parse(args ?? {});
       const loaded = await validateProject(input.projectId);
       const config = await resolveConfig(loaded.videoPlan);
-      return text({ ok: true, config });
+      return okResult("Resolved config.", { config });
     }
     case "lvstudio_sync_project": {
       const input = ProjectIdInput.parse(args ?? {});
       const sync = await syncProject(input.projectId);
-      return text({ ok: true, timeline: sync.timeline, issues: sync.issues });
+      return okResult("Project synced.", { timeline: sync.timeline, issues: sync.issues });
     }
     case "lvstudio_run_quality_checks":
     case "lvstudio_get_quality_report": {
       const input = ProjectIdInput.parse(args ?? {});
       const result = await runQualityChecks(input.projectId);
-      return text({ ok: true, result });
+      return okResult("Quality checks completed.", { result });
     }
     case "lvstudio_render_project": {
       const input = RenderProjectInput.parse(args ?? {});
@@ -308,20 +328,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       }
       const quality = await runQualityChecks(input.projectId);
       if (quality.status === "fail" && !input.force) {
-        return text({
-          ok: false,
-          message: "Render blocked by failing quality checks.",
-          result: quality
-        });
+        return failResult("Render blocked by failing quality checks.", [
+          {
+            code: "quality.fail",
+            message: JSON.stringify(quality)
+          }
+        ]);
       }
       const bundle = await buildRenderBundle({ projectId: input.projectId });
       const providerId = bundle.videoPlan.providers.renderer;
       const renderer = rendererProviders[providerId];
       if (!renderer) {
-        return text({
-          ok: false,
-          message: `Unknown renderer provider: ${providerId}`
-        });
+        return failResult(`Unknown renderer provider: ${providerId}`, [
+          { code: "provider.renderer.unknown", message: providerId }
+        ]);
       }
       const projectPaths = getProjectPaths(input.projectId);
       await mkdir(projectPaths.rendersDir, { recursive: true });
@@ -332,36 +352,44 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         outputPath,
         quality: input.quality
       });
-      return text({ ok: true, renderResult, quality });
+      return okResult("Render completed.", { renderResult, quality });
     }
     case "lvstudio_generate_tts": {
       const input = GenerateTTSInput.parse(args ?? {});
       const loaded = await validateProject(input.projectId);
       const providerId = input.provider ?? loaded.videoPlan.providers.tts;
       const provider = ttsProviders[providerId];
-      if (!provider) return text({ ok: false, message: `Unknown TTS provider: ${providerId}` });
+      if (!provider) {
+        return failResult(`Unknown TTS provider: ${providerId}`, [
+          { code: "provider.tts.unknown", message: providerId }
+        ]);
+      }
       const result = await generateTTSForProject(input.projectId, provider, {
         force: input.force,
         noCache: input.noCache,
         onlySection: input.onlySection,
         onlyBeat: input.onlyBeat
       });
-      return text({ ok: true, providerId, result });
+      return okResult("TTS generation completed.", { providerId, result });
     }
     case "lvstudio_transcribe_project": {
       const input = TranscribeInput.parse(args ?? {});
       const loaded = await validateProject(input.projectId);
       const providerId = input.provider ?? loaded.videoPlan.providers.transcription;
       const provider = transcriptionProviders[providerId];
-      if (!provider) return text({ ok: false, message: `Unknown transcription provider: ${providerId}` });
+      if (!provider) {
+        return failResult(`Unknown transcription provider: ${providerId}`, [
+          { code: "provider.transcription.unknown", message: providerId }
+        ]);
+      }
       const result = await transcribeProject(input.projectId, provider);
-      return text({ ok: true, providerId, result });
+      return okResult("Transcription completed.", { providerId, result });
     }
     case "lvstudio_generate_captions": {
       const input = ProjectIdInput.parse(args ?? {});
       await validateProject(input.projectId);
       const result = await generateCaptionsForProject(input.projectId);
-      return text({ ok: true, result });
+      return okResult("Captions generated.", { result });
     }
     case "lvstudio_import_media": {
       const input = ImportMediaInput.parse(args ?? {});
@@ -372,10 +400,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         section: input.section,
         copy: input.copy
       });
-      return text({ ok: true, result });
+      return okResult("Media imported.", { result });
     }
     default:
-      return text({ ok: false, message: `Unknown tool: ${name}` });
+      return failResult(`Unknown tool: ${name}`, [{ code: "tool.unknown", message: name }]);
   }
 });
 
