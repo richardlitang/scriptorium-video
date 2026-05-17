@@ -1,65 +1,9 @@
-import path from "node:path";
-import { copyFile, mkdir } from "node:fs/promises";
 import {
-  AssetManifestSchema,
-  getProjectPaths,
-  probeMedia,
-  readJsonFile,
-  type ProbeResult,
-  writeJsonFile
+  importMediaToProject,
+  type ImportMediaOptions
 } from "@lvstudio/core";
 
-type ImportMediaOptions = {
-  beat: string;
-  role: "primary_visual" | "broll" | "screen" | "overlay";
-  section?: string;
-  copy?: boolean;
-};
-
-function mediaTypeFromPath(filePath: string): "image" | "video" {
-  const ext = path.extname(filePath).toLowerCase();
-  if ([".mp4", ".mov", ".webm", ".mkv"].includes(ext)) return "video";
-  return "image";
-}
-
 export async function importMedia(projectId: string, filePath: string, options: ImportMediaOptions): Promise<void> {
-  const paths = getProjectPaths(projectId);
-  const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
-  const type = mediaTypeFromPath(filePath);
-  const sourceAbsolute = path.resolve(filePath);
-  const assetsDir = type === "video" ? path.join(paths.projectDir, "assets", "video") : path.join(paths.projectDir, "assets", "images");
-  await mkdir(assetsDir, { recursive: true });
-
-  const fileName = path.basename(sourceAbsolute);
-  const targetAbsolute = path.join(assetsDir, fileName);
-  if (options.copy !== false) {
-    await copyFile(sourceAbsolute, targetAbsolute);
-  }
-
-  const relativePath = path.relative(paths.projectDir, targetAbsolute);
-  const probed: ProbeResult = await probeMedia(targetAbsolute).catch(() => ({}));
-  const now = new Date().toISOString();
-  const id = `media-${options.beat}-${Date.now()}`;
-
-  manifest.assets.push({
-    id,
-    type: type === "video" ? "video" : "image",
-    role: options.role,
-    sectionId: options.section,
-    beatId: options.beat,
-    path: relativePath,
-    source: {
-      kind: "imported",
-      originalPath: sourceAbsolute
-    },
-    durationSeconds: probed.durationSeconds,
-    width: probed.width,
-    height: probed.height,
-    status: "generated",
-    createdAt: now,
-    updatedAt: now
-  });
-
-  await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
-  console.log(`Imported media as ${relativePath}`);
+  const result = await importMediaToProject(projectId, filePath, options);
+  console.log(`Imported media as ${result.relativePath}`);
 }

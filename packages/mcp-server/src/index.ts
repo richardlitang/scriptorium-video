@@ -7,13 +7,17 @@ import { z } from "zod";
 import {
   buildRenderBundle,
   createProjectScaffold,
+  generateCaptionsForProject,
+  generateTTSForProject,
   getProjectPaths,
+  importMediaToProject,
   loadProject,
   resolveConfig,
   syncProject,
+  transcribeProject,
   validateProject
 } from "@lvstudio/core";
-import { rendererProviders } from "@lvstudio/providers";
+import { rendererProviders, transcriptionProviders, ttsProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
 
 const CreateProjectInput = z.object({
@@ -29,6 +33,26 @@ const RenderProjectInput = z.object({
   quality: z.enum(["draft", "final"]).default("draft"),
   force: z.boolean().optional(),
   noSync: z.boolean().optional()
+});
+const GenerateTTSInput = z.object({
+  projectId: z.string().min(1),
+  provider: z.string().optional(),
+  force: z.boolean().optional(),
+  noCache: z.boolean().optional(),
+  onlySection: z.string().optional(),
+  onlyBeat: z.string().optional()
+});
+const TranscribeInput = z.object({
+  projectId: z.string().min(1),
+  provider: z.string().optional()
+});
+const ImportMediaInput = z.object({
+  projectId: z.string().min(1),
+  filePath: z.string().min(1),
+  beat: z.string().min(1),
+  role: z.enum(["primary_visual", "broll", "screen", "overlay"]).default("primary_visual"),
+  section: z.string().optional(),
+  copy: z.boolean().optional()
 });
 
 function text(data: unknown) {
@@ -148,6 +172,65 @@ server.setRequestHandler(ListToolsRequestSchema, async () => ({
         required: ["projectId"],
         additionalProperties: false
       }
+    },
+    {
+      name: "lvstudio_generate_tts",
+      description: "Generate per-beat voiceover assets through the selected TTS provider.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectId: { type: "string" },
+          provider: { type: "string" },
+          force: { type: "boolean" },
+          noCache: { type: "boolean" },
+          onlySection: { type: "string" },
+          onlyBeat: { type: "string" }
+        },
+        required: ["projectId"],
+        additionalProperties: false
+      }
+    },
+    {
+      name: "lvstudio_transcribe_project",
+      description: "Generate transcript JSON from voiceover assets.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectId: { type: "string" },
+          provider: { type: "string" }
+        },
+        required: ["projectId"],
+        additionalProperties: false
+      }
+    },
+    {
+      name: "lvstudio_generate_captions",
+      description: "Generate captions from transcript and timeline.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectId: { type: "string" }
+        },
+        required: ["projectId"],
+        additionalProperties: false
+      }
+    },
+    {
+      name: "lvstudio_import_media",
+      description: "Import a local media file and register it to a beat in asset-manifest.",
+      inputSchema: {
+        type: "object",
+        properties: {
+          projectId: { type: "string" },
+          filePath: { type: "string" },
+          beat: { type: "string" },
+          role: { type: "string", enum: ["primary_visual", "broll", "screen", "overlay"] },
+          section: { type: "string" },
+          copy: { type: "boolean" }
+        },
+        required: ["projectId", "filePath", "beat"],
+        additionalProperties: false
+      }
     }
   ]
 }));
@@ -250,6 +333,46 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         quality: input.quality
       });
       return text({ ok: true, renderResult, quality });
+    }
+    case "lvstudio_generate_tts": {
+      const input = GenerateTTSInput.parse(args ?? {});
+      const loaded = await validateProject(input.projectId);
+      const providerId = input.provider ?? loaded.videoPlan.providers.tts;
+      const provider = ttsProviders[providerId];
+      if (!provider) return text({ ok: false, message: `Unknown TTS provider: ${providerId}` });
+      const result = await generateTTSForProject(input.projectId, provider, {
+        force: input.force,
+        noCache: input.noCache,
+        onlySection: input.onlySection,
+        onlyBeat: input.onlyBeat
+      });
+      return text({ ok: true, providerId, result });
+    }
+    case "lvstudio_transcribe_project": {
+      const input = TranscribeInput.parse(args ?? {});
+      const loaded = await validateProject(input.projectId);
+      const providerId = input.provider ?? loaded.videoPlan.providers.transcription;
+      const provider = transcriptionProviders[providerId];
+      if (!provider) return text({ ok: false, message: `Unknown transcription provider: ${providerId}` });
+      const result = await transcribeProject(input.projectId, provider);
+      return text({ ok: true, providerId, result });
+    }
+    case "lvstudio_generate_captions": {
+      const input = ProjectIdInput.parse(args ?? {});
+      await validateProject(input.projectId);
+      const result = await generateCaptionsForProject(input.projectId);
+      return text({ ok: true, result });
+    }
+    case "lvstudio_import_media": {
+      const input = ImportMediaInput.parse(args ?? {});
+      await validateProject(input.projectId);
+      const result = await importMediaToProject(input.projectId, input.filePath, {
+        beat: input.beat,
+        role: input.role,
+        section: input.section,
+        copy: input.copy
+      });
+      return text({ ok: true, result });
     }
     default:
       return text({ ok: false, message: `Unknown tool: ${name}` });

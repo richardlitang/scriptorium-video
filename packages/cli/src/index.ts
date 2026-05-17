@@ -17,7 +17,7 @@ import { generateCaptions } from "./captions.js";
 import { generateTTS } from "./generate-tts.js";
 import { importMedia } from "./import-media.js";
 import { projectStatus } from "./status.js";
-import { transcribeProject } from "./transcribe.js";
+import { transcribeProjectCli } from "./transcribe.js";
 
 const program = new Command();
 
@@ -128,7 +128,7 @@ program
   .option("--provider <provider>", "override transcription provider id")
   .action(async (projectId, options) => {
     await validateProject(projectId);
-    await transcribeProject(projectId, { provider: options.provider });
+    await transcribeProjectCli(projectId, { provider: options.provider });
   });
 
 program

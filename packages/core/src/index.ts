@@ -1,5 +1,8 @@
 export * from "./config-resolver.js";
+export * from "./generate-captions.js";
+export * from "./generate-tts.js";
 export * from "./hash.js";
+export * from "./import-media.js";
 export * from "./json.js";
 export * from "./media-probe.js";
 export * from "./paths.js";
@@ -14,5 +17,6 @@ export * from "./schemas/timeline.schema.js";
 export * from "./schemas/transcript.schema.js";
 export * from "./schemas/video-plan.schema.js";
 export * from "./sync-project.js";
+export * from "./transcribe-project.js";
 export * from "./transcription-provider.js";
 export * from "./tts-provider.js";
