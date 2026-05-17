@@ -11,7 +11,8 @@
     "render": "pnpm lvstudio render",
     "smoke": "pnpm lvstudio validate demo && pnpm lvstudio sync demo && pnpm lvstudio check demo && pnpm lvstudio render demo --quality draft && ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 content/projects/demo/renders/draft.mp4",
     "build": "tsc -b",
-    "check:renderer-boundary": "bash scripts/check-renderer-boundary.sh"
+    "check:renderer-boundary": "bash scripts/check-renderer-boundary.sh",
+    "mcp:server": "pnpm -s build && node packages/mcp-server/dist/index.js"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.443",

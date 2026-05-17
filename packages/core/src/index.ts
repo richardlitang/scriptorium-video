@@ -3,6 +3,7 @@ export * from "./hash.js";
 export * from "./json.js";
 export * from "./media-probe.js";
 export * from "./paths.js";
+export * from "./project-scaffold.js";
 export * from "./project-service.js";
 export * from "./render/build-render-bundle.js";
 export * from "./renderer-provider.js";
