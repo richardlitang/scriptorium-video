@@ -19,7 +19,7 @@ export class RemotionRenderer implements RendererProvider {
     supportsPartialRender: false,
     supportsAlpha: false,
     supportsAudioMixing: true,
-    supportedTemplates: ["vertical-story"]
+    supportedTemplates: ["vertical-story", "documentary-longform"]
   };
 
   private async browserExecutable(): Promise<string | null> {

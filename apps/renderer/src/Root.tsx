@@ -1,4 +1,5 @@
 import { Composition, type CalculateMetadataFunction } from "remotion";
+import { DocumentaryLongformTemplate } from "./templates/DocumentaryLongformTemplate";
 import { VerticalStoryTemplate } from "./templates/VerticalStoryTemplate";
 import type { RenderBundle } from "@lvstudio/core";
 
@@ -111,15 +112,27 @@ const calculateMetadata: CalculateMetadataFunction<RemotionInputProps> = ({ prop
 
 export const RemotionRoot: React.FC = () => {
   return (
-    <Composition
-      id="vertical-story"
-      component={VerticalStoryTemplate}
-      durationInFrames={90}
-      fps={30}
-      width={1080}
-      height={1920}
-      defaultProps={defaultProps}
-      calculateMetadata={calculateMetadata}
-    />
+    <>
+      <Composition
+        id="vertical-story"
+        component={VerticalStoryTemplate}
+        durationInFrames={90}
+        fps={30}
+        width={1080}
+        height={1920}
+        defaultProps={defaultProps}
+        calculateMetadata={calculateMetadata}
+      />
+      <Composition
+        id="documentary-longform"
+        component={DocumentaryLongformTemplate}
+        durationInFrames={1800}
+        fps={30}
+        width={1920}
+        height={1080}
+        defaultProps={defaultProps}
+        calculateMetadata={calculateMetadata}
+      />
+    </>
   );
 };

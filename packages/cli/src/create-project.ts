@@ -29,14 +29,30 @@ export async function createProject(
     status: "draft"
   });
 
+  const modeDefaults =
+    mode === "long_documentary"
+      ? {
+          templateId: "documentary-longform",
+          exportProfile: "youtube-1080p",
+          targetDurationSeconds: 600
+        }
+      : {
+          templateId: "vertical-story",
+          exportProfile: "shorts-1080x1920",
+          targetDurationSeconds: 60
+        };
+
   await writeJsonFile(path.join(projectDir, "video-plan.json"), {
     schemaVersion: 1,
     title: projectId,
     mode,
     targetPlatform: platform,
     stylePackId: "default",
-    templateId: "vertical-story",
-    overrides: {},
+    templateId: modeDefaults.templateId,
+    exportProfile: modeDefaults.exportProfile,
+    overrides: {
+      targetDurationSeconds: modeDefaults.targetDurationSeconds
+    },
     providers: {
       llm: "manual",
       tts: "manual",

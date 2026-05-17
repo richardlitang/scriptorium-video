@@ -12,6 +12,7 @@ import {
 import { rendererProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
 import { createProject } from "./create-project.js";
+import { exportProject } from "./export-project.js";
 import { generateCaptions } from "./captions.js";
 import { generateTTS } from "./generate-tts.js";
 import { transcribeProject } from "./transcribe.js";
@@ -157,6 +158,14 @@ program
     if (result.status === "fail") {
       process.exitCode = 1;
     }
+  });
+
+program
+  .command("export")
+  .argument("<project-id>")
+  .action(async (projectId) => {
+    await validateProject(projectId);
+    await exportProject(projectId);
   });
 
 await program.parseAsync(process.argv);

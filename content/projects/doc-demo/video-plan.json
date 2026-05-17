@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "title": "doc-demo",
+  "mode": "long_documentary",
+  "targetPlatform": "youtube",
+  "stylePackId": "default",
+  "templateId": "documentary-longform",
+  "exportProfile": "youtube-1080p",
+  "overrides": {
+    "targetDurationSeconds": 600
+  },
+  "providers": {
+    "llm": "manual",
+    "tts": "manual",
+    "transcription": "manual",
+    "media": "manual-media",
+    "renderer": "remotion"
+  },
+  "voice": {
+    "provider": "manual",
+    "voiceId": "manual-voice",
+    "format": "wav",
+    "options": {}
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "title": "Intro",
+      "purpose": "Open the story.",
+      "beats": [
+        {
+          "id": "intro-001",
+          "order": 1,
+          "narration": "Replace this narration with your first beat.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "intro-001-visual",
+              "type": "image",
+              "role": "primary_visual",
+              "localPath": "assets/images/intro-001.svg",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
