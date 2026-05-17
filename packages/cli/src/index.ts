@@ -15,6 +15,7 @@ import { createProject } from "./create-project.js";
 import { exportProject } from "./export-project.js";
 import { generateCaptions } from "./captions.js";
 import { generateTTS } from "./generate-tts.js";
+import { projectStatus } from "./status.js";
 import { transcribeProject } from "./transcribe.js";
 
 const program = new Command();
@@ -40,6 +41,14 @@ program
   .action(async (projectId) => {
     await validateProject(projectId);
     console.log(`Project ${projectId} is valid.`);
+  });
+
+program
+  .command("status")
+  .argument("<project-id>")
+  .action(async (projectId) => {
+    await validateProject(projectId);
+    await projectStatus(projectId);
   });
 
 program

@@ -16,7 +16,7 @@
       "durationSeconds": 4.2,
       "status": "generated",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-17T19:56:55.541Z"
+      "updatedAt": "2026-05-17T20:01:45.459Z"
     },
     {
       "id": "image-intro-001",
@@ -33,7 +33,7 @@
       "height": 1920,
       "status": "locked_by_user",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-17T19:56:55.532Z"
+      "updatedAt": "2026-05-17T20:01:45.447Z"
     }
   ]
 }
