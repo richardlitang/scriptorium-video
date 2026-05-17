@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Local Video Studio</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <aside class="sidebar">
+        <h1>Projects</h1>
+        <div id="project-list"></div>
+      </aside>
+      <section class="content">
+        <header class="topbar">
+          <h2 id="project-title">Select a project</h2>
+          <button id="render-btn" disabled>Render Draft</button>
+        </header>
+        <div class="grid">
+          <article class="panel">
+            <h3>Project</h3>
+            <pre id="project-meta"></pre>
+          </article>
+          <article class="panel">
+            <h3>Quality Report</h3>
+            <pre id="quality-output"></pre>
+          </article>
+          <article class="panel panel-wide">
+            <h3>Video Plan</h3>
+            <pre id="plan-output"></pre>
+          </article>
+          <article class="panel">
+            <h3>Timeline</h3>
+            <pre id="timeline-output"></pre>
+          </article>
+          <article class="panel">
+            <h3>Captions</h3>
+            <pre id="captions-output"></pre>
+          </article>
+        </div>
+      </section>
+    </main>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

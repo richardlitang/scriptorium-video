@@ -1,0 +1,78 @@
+:root {
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  font-family: Inter, system-ui, sans-serif;
+  background: #0e1116;
+  color: #e8ecf3;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+.sidebar {
+  border-right: 1px solid #242b36;
+  padding: 16px;
+}
+.content {
+  padding: 16px;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+button {
+  border: 1px solid #3a4659;
+  background: #151b24;
+  color: #e8ecf3;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.project-item {
+  border: 1px solid #2f3746;
+  border-radius: 6px;
+  padding: 10px;
+  margin-bottom: 8px;
+  background: #131822;
+  cursor: pointer;
+}
+.project-item.active {
+  border-color: #6f8dff;
+}
+.grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.panel {
+  border: 1px solid #242b36;
+  border-radius: 8px;
+  background: #121722;
+  padding: 12px;
+}
+.panel-wide {
+  grid-column: 1 / -1;
+}
+h1, h2, h3 {
+  margin: 0 0 10px;
+  font-size: 15px;
+}
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  color: #cdd5e4;
+  max-height: 320px;
+  overflow: auto;
+}

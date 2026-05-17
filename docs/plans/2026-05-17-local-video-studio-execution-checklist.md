@@ -36,7 +36,7 @@ Use this as the resumable implementation tracker.
 - `check` command implemented.
 - Render blocks on failing quality checks unless forced.
 
-7. `[~]` Milestone 7: MCP control server
+7. `[x]` Milestone 7: MCP control server
 - Base tool set implemented:
   - `lvstudio_list_projects`
   - `lvstudio_create_project`
@@ -57,15 +57,24 @@ Use this as the resumable implementation tracker.
 - Documentary template and section title cards added.
 - Export command writes chapters + description files.
 
-9. `[ ]` Milestone 9: Local UI
-- Not started (intentionally deferred).
+9. `[~]` Milestone 9: Local UI
+- `apps/studio` lightweight local UI scaffold added.
+- Implemented:
+  - project list
+  - project status/details view
+  - quality report panel
+  - timeline/caption preview panels
+  - render draft button wired to CLI
+- Remaining:
+  - editable video-plan form
+  - richer media preview
+  - persistent quality history
 
 ## Current Remaining Work
 
-1. Finish and verify new MCP tools compile and run.
-2. Confirm smoke path still passes after refactor.
-3. Add minimal MCP usage docs (commands + expected payloads).
-4. Start Milestone 9 only after MCP path is stable.
+1. Add editable video-plan workflow to Studio UI.
+2. Add media thumbnail/clip preview in Studio.
+3. Add quality history/log persistence for Studio.
 
 ## Verification Commands
 
