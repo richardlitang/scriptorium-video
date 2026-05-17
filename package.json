@@ -5,11 +5,12 @@
   "type": "module",
   "packageManager": "pnpm@10.11.0",
   "scripts": {
-    "lvstudio": "tsx packages/cli/src/index.ts",
+    "lvstudio": "node --import tsx packages/cli/src/index.ts",
     "validate": "pnpm lvstudio validate",
     "sync": "pnpm lvstudio sync",
     "render": "pnpm lvstudio render",
-    "build": "tsc -b"
+    "build": "tsc -b",
+    "check:renderer-boundary": "bash scripts/check-renderer-boundary.sh"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.443",
