@@ -11,7 +11,9 @@ import {
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
 import { createProject } from "./create-project.js";
+import { generateCaptions } from "./captions.js";
 import { generateTTS } from "./generate-tts.js";
+import { transcribeProject } from "./transcribe.js";
 
 const program = new Command();
 
@@ -88,6 +90,23 @@ program
       onlySection: options.onlySection,
       onlyBeat: options.onlyBeat
     });
+  });
+
+program
+  .command("transcribe")
+  .argument("<project-id>")
+  .option("--provider <provider>", "override transcription provider id")
+  .action(async (projectId, options) => {
+    await validateProject(projectId);
+    await transcribeProject(projectId, { provider: options.provider });
+  });
+
+program
+  .command("captions")
+  .argument("<project-id>")
+  .action(async (projectId) => {
+    await validateProject(projectId);
+    await generateCaptions(projectId);
   });
 
 program

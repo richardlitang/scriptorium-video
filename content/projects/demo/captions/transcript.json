@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "provider": "mock",
+    "audioAssetIds": [
+      "voice-intro-001"
+    ]
+  },
+  "text": "Local Video Studio turns structured plans into rendered local videos.",
+  "segments": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 4.2,
+      "text": "Local Video Studio turns structured plans into rendered local videos."
+    }
+  ],
+  "words": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 0.42,
+      "word": "Local",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 0.42,
+      "endSeconds": 0.84,
+      "word": "Video",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 0.84,
+      "endSeconds": 1.26,
+      "word": "Studio",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.26,
+      "endSeconds": 1.68,
+      "word": "turns",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.68,
+      "endSeconds": 2.1,
+      "word": "structured",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.1,
+      "endSeconds": 2.52,
+      "word": "plans",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.52,
+      "endSeconds": 2.94,
+      "word": "into",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.94,
+      "endSeconds": 3.36,
+      "word": "rendered",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 3.36,
+      "endSeconds": 3.78,
+      "word": "local",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 3.78,
+      "endSeconds": 4.2,
+      "word": "videos.",
+      "confidence": 1
+    }
+  ]
+}

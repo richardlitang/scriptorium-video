@@ -10,6 +10,8 @@ export * from "./schemas/asset-manifest.schema.js";
 export * from "./schemas/captions.schema.js";
 export * from "./schemas/project.schema.js";
 export * from "./schemas/timeline.schema.js";
+export * from "./schemas/transcript.schema.js";
 export * from "./schemas/video-plan.schema.js";
 export * from "./sync-project.js";
+export * from "./transcription-provider.js";
 export * from "./tts-provider.js";

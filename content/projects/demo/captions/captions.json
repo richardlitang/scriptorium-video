@@ -1,37 +1,103 @@
 {
   "schemaVersion": 1,
-  "status": "locked_by_user",
+  "status": "generated",
   "source": {
-    "transcriptionProvider": "manual",
-    "audioAssetIds": ["voice-intro-001"]
+    "transcriptionProvider": "mock",
+    "audioAssetIds": [
+      "voice-intro-001"
+    ],
+    "sourceHash": "1ae44f7aa796afd85601e94c0363737582749be3d59eca079fe95be408674a71"
   },
   "captions": [
     {
       "id": "caption-001",
       "beatId": "intro-001",
-      "startSeconds": 0.2,
-      "endSeconds": 2.2,
-      "text": "Local Video Studio",
+      "startSeconds": 0,
+      "endSeconds": 2.1,
+      "text": "Local Video Studio turns structured",
       "style": "default",
-      "words": []
+      "words": [
+        {
+          "word": "Local",
+          "startSeconds": 0,
+          "endSeconds": 0.42,
+          "emphasis": true,
+          "confidence": 1
+        },
+        {
+          "word": "Video",
+          "startSeconds": 0.42,
+          "endSeconds": 0.84,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Studio",
+          "startSeconds": 0.84,
+          "endSeconds": 1.26,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "turns",
+          "startSeconds": 1.26,
+          "endSeconds": 1.68,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "structured",
+          "startSeconds": 1.68,
+          "endSeconds": 2.1,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
     },
     {
       "id": "caption-002",
       "beatId": "intro-001",
-      "startSeconds": 2.2,
-      "endSeconds": 4.4,
-      "text": "structured plans to videos",
+      "startSeconds": 2.1,
+      "endSeconds": 4.2,
+      "text": "plans into rendered local videos.",
       "style": "default",
-      "words": []
-    },
-    {
-      "id": "caption-003",
-      "beatId": "intro-001",
-      "startSeconds": 4.4,
-      "endSeconds": 5.8,
-      "text": "rendered locally",
-      "style": "default",
-      "words": []
+      "words": [
+        {
+          "word": "plans",
+          "startSeconds": 2.1,
+          "endSeconds": 2.52,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "into",
+          "startSeconds": 2.52,
+          "endSeconds": 2.94,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "rendered",
+          "startSeconds": 2.94,
+          "endSeconds": 3.36,
+          "emphasis": true,
+          "confidence": 1
+        },
+        {
+          "word": "local",
+          "startSeconds": 3.36,
+          "endSeconds": 3.78,
+          "emphasis": true,
+          "confidence": 1
+        },
+        {
+          "word": "videos.",
+          "startSeconds": 3.78,
+          "endSeconds": 4.2,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
     }
   ]
 }
