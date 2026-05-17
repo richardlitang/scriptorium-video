@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "title": "Local Video Studio Demo",
+  "mode": "short_story",
+  "targetPlatform": "local_only",
+  "stylePackId": "default",
+  "templateId": "vertical-story",
+  "exportProfile": "shorts-1080x1920",
+  "overrides": {
+    "targetDurationSeconds": 6
+  },
+  "providers": {
+    "llm": "manual",
+    "tts": "manual",
+    "transcription": "manual",
+    "media": "manual-media",
+    "renderer": "remotion"
+  },
+  "voice": {
+    "provider": "manual",
+    "voiceId": "manual-voice",
+    "format": "wav",
+    "options": {
+      "speed": 1
+    }
+  },
+  "sections": [
+    {
+      "id": "intro",
+      "title": "Opening",
+      "purpose": "Demonstrate the renderer-first vertical slice.",
+      "estimatedDurationSeconds": 6,
+      "beats": [
+        {
+          "id": "intro-001",
+          "order": 1,
+          "narration": "Local Video Studio turns structured plans into rendered local videos.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 7,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "intro-001-visual",
+              "type": "image",
+              "role": "primary_visual",
+              "localPath": "assets/images/intro-001.svg",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": ["Local", "rendered"],
+            "style": "default"
+          }
+        }
+      ]
+    }
+  ]
+}

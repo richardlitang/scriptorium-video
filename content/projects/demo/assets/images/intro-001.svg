@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="0.55" stop-color="#365314"/>
+      <stop offset="1" stop-color="#020617"/>
+    </linearGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#bg)"/>
+  <rect x="90" y="290" width="900" height="1340" rx="34" fill="none" stroke="#e5e7eb" stroke-opacity="0.18" stroke-width="3"/>
+  <circle cx="800" cy="430" r="110" fill="#facc15" fill-opacity="0.16"/>
+  <path d="M130 1370 C290 1230 425 1240 548 1330 C688 1432 818 1388 960 1240 L960 1630 L130 1630 Z" fill="#020617" fill-opacity="0.62"/>
+  <path d="M200 1150 L380 820 L530 1100 L660 890 L900 1150 Z" fill="#f8fafc" fill-opacity="0.14"/>
+  <text x="540" y="720" fill="#f8fafc" font-family="Arial, sans-serif" font-size="74" font-weight="800" text-anchor="middle">Local Video Studio</text>
+  <text x="540" y="810" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="36" text-anchor="middle">structured plans to rendered video</text>
+</svg>

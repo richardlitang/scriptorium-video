@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "voice-intro-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "intro",
+      "beatId": "intro-001",
+      "path": "assets/audio/voice/intro-001.wav",
+      "source": {
+        "kind": "manual",
+        "provider": "manual"
+      },
+      "durationSeconds": 6,
+      "status": "locked_by_user",
+      "createdAt": "2026-05-17T19:00:00.000Z",
+      "updatedAt": "2026-05-17T19:00:00.000Z"
+    },
+    {
+      "id": "image-intro-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "intro",
+      "beatId": "intro-001",
+      "path": "assets/images/intro-001.svg",
+      "source": {
+        "kind": "manual",
+        "provider": "manual"
+      },
+      "width": 1080,
+      "height": 1920,
+      "status": "locked_by_user",
+      "createdAt": "2026-05-17T19:00:00.000Z",
+      "updatedAt": "2026-05-17T19:00:00.000Z"
+    }
+  ]
+}

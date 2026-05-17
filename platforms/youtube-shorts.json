@@ -1,0 +1,12 @@
+{
+  "id": "youtube_shorts",
+  "label": "YouTube Shorts",
+  "defaults": {
+    "aspectRatio": "9:16",
+    "resolution": {
+      "width": 1080,
+      "height": 1920
+    },
+    "fps": 30
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "local-video-studio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.11.0",
+  "scripts": {
+    "lvstudio": "tsx packages/cli/src/index.ts",
+    "validate": "pnpm lvstudio validate",
+    "sync": "pnpm lvstudio sync",
+    "render": "pnpm lvstudio render",
+    "build": "tsc -b"
+  },
+  "dependencies": {
+    "@remotion/bundler": "^4.0.443",
+    "@remotion/renderer": "^4.0.443",
+    "commander": "^14.0.2",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "remotion": "^4.0.443",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

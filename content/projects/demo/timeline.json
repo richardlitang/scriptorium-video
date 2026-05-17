@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-17T19:31:00.900Z",
+  "sourcePlanHash": "7f0c44c168c2add76c62c2bfb805086243cfbf1e3f4e6c54663be8312fbb16ca",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "durationSeconds": 6,
+  "segments": [
+    {
+      "sectionId": "intro",
+      "beatId": "intro-001",
+      "startSeconds": 0,
+      "endSeconds": 6,
+      "durationSeconds": 6,
+      "voiceAssetId": "voice-intro-001",
+      "mediaAssetIds": [
+        "image-intro-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    }
+  ]
+}

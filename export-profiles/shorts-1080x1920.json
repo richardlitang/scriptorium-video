@@ -1,0 +1,11 @@
+{
+  "id": "shorts-1080x1920",
+  "label": "Shorts 1080x1920",
+  "defaults": {
+    "resolution": {
+      "width": 1080,
+      "height": 1920
+    },
+    "fps": 30
+  }
+}

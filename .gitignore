@@ -1,0 +1,6 @@
+node_modules/
+.resolved-config.json
+dist/
+*.tsbuildinfo
+content/projects/*/renders/*.mp4
+content/projects/*/renders/*.webm

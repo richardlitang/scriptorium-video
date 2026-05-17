@@ -1,0 +1,32 @@
+{
+  "id": "long_documentary",
+  "label": "Long Documentary",
+  "description": "Long-form narrated video with sections, chapters, slower pacing, and optional captions.",
+  "defaults": {
+    "targetDurationSeconds": 900,
+    "aspectRatio": "16:9",
+    "resolution": {
+      "width": 1920,
+      "height": 1080
+    },
+    "fps": 30,
+    "captionDensity": "medium",
+    "musicBehavior": "section_based_ducked",
+    "visualChangeFrequencySeconds": 8,
+    "chaptersEnabled": true,
+    "templateId": "documentary-longform"
+  },
+  "constraints": {
+    "minDurationSeconds": 300,
+    "maxDurationSeconds": 7200,
+    "maxBeatDurationSeconds": 20,
+    "requiresHookWithinSeconds": 30,
+    "maxCaptionWords": 12
+  },
+  "qualityGates": [
+    "intro_has_clear_promise",
+    "chapters_recommended",
+    "sections_have_purpose",
+    "audio_loudness_check"
+  ]
+}

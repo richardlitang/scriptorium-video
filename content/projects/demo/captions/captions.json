@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "status": "locked_by_user",
+  "source": {
+    "transcriptionProvider": "manual",
+    "audioAssetIds": ["voice-intro-001"]
+  },
+  "captions": [
+    {
+      "id": "caption-001",
+      "beatId": "intro-001",
+      "startSeconds": 0.2,
+      "endSeconds": 2.2,
+      "text": "Local Video Studio",
+      "style": "default",
+      "words": []
+    },
+    {
+      "id": "caption-002",
+      "beatId": "intro-001",
+      "startSeconds": 2.2,
+      "endSeconds": 4.4,
+      "text": "structured plans to videos",
+      "style": "default",
+      "words": []
+    },
+    {
+      "id": "caption-003",
+      "beatId": "intro-001",
+      "startSeconds": 4.4,
+      "endSeconds": 5.8,
+      "text": "rendered locally",
+      "style": "default",
+      "words": []
+    }
+  ]
+}

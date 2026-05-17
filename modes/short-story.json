@@ -1,0 +1,32 @@
+{
+  "id": "short_story",
+  "label": "Short Story",
+  "description": "Fast-paced story video for Shorts, TikTok, Reels, or short YouTube uploads.",
+  "defaults": {
+    "targetDurationSeconds": 60,
+    "aspectRatio": "9:16",
+    "resolution": {
+      "width": 1080,
+      "height": 1920
+    },
+    "fps": 30,
+    "captionDensity": "high",
+    "musicBehavior": "continuous_ducked",
+    "visualChangeFrequencySeconds": 3,
+    "chaptersEnabled": false,
+    "templateId": "vertical-story"
+  },
+  "constraints": {
+    "minDurationSeconds": 15,
+    "maxDurationSeconds": 180,
+    "maxBeatDurationSeconds": 7,
+    "requiresHookWithinSeconds": 3,
+    "maxCaptionWords": 7
+  },
+  "qualityGates": [
+    "hook_within_first_3_seconds",
+    "no_long_static_visuals",
+    "captions_required",
+    "vertical_safe_area"
+  ]
+}
