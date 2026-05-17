@@ -11,6 +11,7 @@ import {
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
 import { createProject } from "./create-project.js";
+import { generateTTS } from "./generate-tts.js";
 
 const program = new Command();
 
@@ -68,6 +69,25 @@ program
         console.log(`Warning: ${warning.message}`);
       }
     }
+  });
+
+program
+  .command("generate:tts")
+  .argument("<project-id>")
+  .option("--provider <provider>", "override TTS provider id")
+  .option("--force", "overwrite locked/edited assets")
+  .option("--no-cache", "disable hash cache reuse")
+  .option("--only-section <section-id>", "generate for one section")
+  .option("--only-beat <beat-id>", "generate for one beat")
+  .action(async (projectId, options) => {
+    await validateProject(projectId);
+    await generateTTS(projectId, {
+      provider: options.provider,
+      force: options.force === true,
+      noCache: options.cache === false,
+      onlySection: options.onlySection,
+      onlyBeat: options.onlyBeat
+    });
   });
 
 program

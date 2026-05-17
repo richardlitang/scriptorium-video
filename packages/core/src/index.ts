@@ -1,6 +1,7 @@
 export * from "./config-resolver.js";
 export * from "./hash.js";
 export * from "./json.js";
+export * from "./media-probe.js";
 export * from "./paths.js";
 export * from "./project-service.js";
 export * from "./render/build-render-bundle.js";
@@ -11,3 +12,4 @@ export * from "./schemas/project.schema.js";
 export * from "./schemas/timeline.schema.js";
 export * from "./schemas/video-plan.schema.js";
 export * from "./sync-project.js";
+export * from "./tts-provider.js";

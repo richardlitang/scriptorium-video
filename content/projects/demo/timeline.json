@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-17T19:48:34.570Z",
+  "generatedAt": "2026-05-17T19:51:24.078Z",
   "sourcePlanHash": "7f0c44c168c2add76c62c2bfb805086243cfbf1e3f4e6c54663be8312fbb16ca",
   "fps": 30,
   "width": 1080,
   "height": 1920,
-  "durationSeconds": 6,
+  "durationSeconds": 4.2,
   "segments": [
     {
       "sectionId": "intro",
       "beatId": "intro-001",
       "startSeconds": 0,
-      "endSeconds": 6,
-      "durationSeconds": 6,
+      "endSeconds": 4.2,
+      "durationSeconds": 4.2,
       "voiceAssetId": "voice-intro-001",
       "mediaAssetIds": [
         "image-intro-001"

@@ -7,15 +7,16 @@
       "role": "voiceover",
       "sectionId": "intro",
       "beatId": "intro-001",
-      "path": "assets/audio/voice/intro-001.wav",
+      "path": "assets/audio/voice/intro-001.7f77c24312.wav",
       "source": {
-        "kind": "manual",
-        "provider": "manual"
+        "kind": "generated",
+        "provider": "mock",
+        "inputHash": "7f77c24312"
       },
-      "durationSeconds": 6,
-      "status": "locked_by_user",
+      "durationSeconds": 4.2,
+      "status": "generated",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-17T19:48:34.570Z"
+      "updatedAt": "2026-05-17T19:51:24.077Z"
     },
     {
       "id": "image-intro-001",
@@ -32,7 +33,7 @@
       "height": 1920,
       "status": "locked_by_user",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-17T19:48:34.561Z"
+      "updatedAt": "2026-05-17T19:51:24.067Z"
     }
   ]
 }
