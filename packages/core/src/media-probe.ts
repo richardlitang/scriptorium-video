@@ -9,6 +9,18 @@ export type ProbeResult = {
   height?: number;
 };
 
+function safeNumber(value: string | undefined): number | undefined {
+  if (!value) return undefined;
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed < 0) return undefined;
+  return parsed;
+}
+
+function rounded(value: number | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  return Number(value.toFixed(3));
+}
+
 export async function probeMedia(filePath: string): Promise<ProbeResult> {
   const { stdout } = await execFileAsync("ffprobe", [
     "-v",
@@ -27,8 +39,8 @@ export async function probeMedia(filePath: string): Promise<ProbeResult> {
   const duration = parsed.format?.duration ?? parsed.streams?.find((stream) => stream.duration)?.duration;
 
   return {
-    durationSeconds: duration ? Number(duration) : undefined,
-    width: videoStream?.width,
-    height: videoStream?.height
+    durationSeconds: rounded(safeNumber(duration)),
+    width: videoStream?.width && videoStream.width > 0 ? videoStream.width : undefined,
+    height: videoStream?.height && videoStream.height > 0 ? videoStream.height : undefined
   };
 }

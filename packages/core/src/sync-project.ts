@@ -8,6 +8,21 @@ import { probeMedia } from "./media-probe.js";
 import { getProjectPaths } from "./paths.js";
 import { VideoPlanSchema, type Beat } from "./schemas/video-plan.schema.js";
 
+const EPSILON = 0.001;
+
+export type SyncIssue = {
+  level: "info" | "warning";
+  assetId?: string;
+  beatId?: string;
+  message: string;
+};
+
+export type SyncResult = {
+  timeline: Timeline;
+  issues: SyncIssue[];
+  staleAssetIds: string[];
+};
+
 function findVoiceAsset(assets: Asset[], beatId: string): Asset | undefined {
   return assets.find((asset) => asset.beatId === beatId && asset.role === "voiceover");
 }
@@ -26,24 +41,62 @@ function durationForBeat(beat: Beat, voiceAsset: Asset | undefined, mediaAssets:
   return 3;
 }
 
-export async function syncProject(projectId: string, rootDir = process.cwd()): Promise<Timeline> {
+function differs(a: number | undefined, b: number | undefined): boolean {
+  if (a === undefined || b === undefined) return false;
+  return Math.abs(a - b) > EPSILON;
+}
+
+export async function syncProject(projectId: string, rootDir = process.cwd()): Promise<SyncResult> {
   const paths = getProjectPaths(projectId, rootDir);
   const plan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
   const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const resolvedConfig = await resolveConfig(plan, rootDir);
+  const issues: SyncIssue[] = [];
+  const staleAssetIds = new Set<string>();
 
   const assets = await Promise.all(
     manifest.assets.map(async (asset) => {
-      if (asset.durationSeconds || asset.width || asset.height) return asset;
+      if (asset.status === "locked_by_user") {
+        issues.push({
+          level: "info",
+          assetId: asset.id,
+          beatId: asset.beatId,
+          message: "Asset is locked_by_user; probe metadata used only for timeline computation."
+        });
+      }
+
       try {
         const probed = await probeMedia(path.resolve(paths.projectDir, asset.path));
-        return {
+        const nextAsset: Asset = {
           ...asset,
-          durationSeconds: asset.durationSeconds ?? probed.durationSeconds,
-          width: asset.width ?? probed.width,
-          height: asset.height ?? probed.height
+          durationSeconds: probed.durationSeconds ?? asset.durationSeconds,
+          width: probed.width ?? asset.width,
+          height: probed.height ?? asset.height
         };
+        const becameStale =
+          differs(asset.durationSeconds, probed.durationSeconds) ||
+          differs(asset.width, probed.width) ||
+          differs(asset.height, probed.height);
+        if (becameStale) {
+          staleAssetIds.add(asset.id);
+          issues.push({
+            level: "warning",
+            assetId: asset.id,
+            beatId: asset.beatId,
+            message:
+              "Asset metadata changed from persisted values. Marked as stale for manual review."
+          });
+          nextAsset.status = asset.status === "locked_by_user" ? "locked_by_user" : "stale";
+        }
+        nextAsset.updatedAt = new Date().toISOString();
+        return nextAsset;
       } catch {
+        issues.push({
+          level: "warning",
+          assetId: asset.id,
+          beatId: asset.beatId,
+          message: `Unable to probe media file: ${asset.path}`
+        });
         return asset;
       }
     })
@@ -89,5 +142,9 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
   });
 
   await writeJsonFile(paths.timeline, timeline);
-  return timeline;
+  return {
+    timeline,
+    issues,
+    staleAssetIds: [...staleAssetIds]
+  };
 }

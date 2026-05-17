@@ -54,10 +54,20 @@ program
   .command("sync")
   .argument("<project-id>")
   .action(async (projectId) => {
-    const timeline = await syncProject(projectId);
+    const result = await syncProject(projectId);
+    const timeline = result.timeline;
     console.log(
       `Synced ${projectId}: ${timeline.segments.length} segments, ${timeline.durationSeconds.toFixed(2)}s.`
     );
+    if (result.staleAssetIds.length > 0) {
+      console.log(`Stale assets: ${result.staleAssetIds.join(", ")}`);
+    }
+    const warnings = result.issues.filter((issue) => issue.level === "warning");
+    if (warnings.length > 0) {
+      for (const warning of warnings) {
+        console.log(`Warning: ${warning.message}`);
+      }
+    }
   });
 
 program
@@ -65,13 +75,14 @@ program
   .argument("<project-id>")
   .option("--quality <quality>", "draft or final", "draft")
   .option("--no-sync", "use existing timeline.json")
+  .option("--provider <provider>", "override renderer provider id")
   .action(async (projectId, options) => {
     await validateProject(projectId);
     if (options.sync !== false) {
       await syncProject(projectId);
     }
     const bundle = await buildRenderBundle({ projectId });
-    const providerId = bundle.videoPlan.providers.renderer;
+    const providerId = options.provider ?? bundle.videoPlan.providers.renderer;
     const renderer = rendererProviders[providerId];
     if (!renderer) {
       throw new Error(`Unknown renderer provider: ${providerId}`);

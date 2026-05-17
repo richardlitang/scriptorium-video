@@ -18,7 +18,9 @@ export async function buildRenderBundle(input: {
 
   const currentPlanHash = await hashFile(paths.videoPlan);
   if (loaded.timeline.sourcePlanHash !== currentPlanHash) {
-    throw new Error("timeline.json is stale. Run sync before rendering.");
+    throw new Error(
+      `timeline.json is stale. Expected sourcePlanHash ${currentPlanHash} but found ${loaded.timeline.sourcePlanHash}. Run sync before rendering.`
+    );
   }
 
   return {
