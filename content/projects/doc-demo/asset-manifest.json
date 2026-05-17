@@ -1,4 +1,20 @@
 {
   "schemaVersion": 1,
-  "assets": []
+  "assets": [
+    {
+      "id": "media-intro-001-1779048207189",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "intro",
+      "beatId": "intro-001",
+      "path": "assets/images/intro-001.svg",
+      "source": {
+        "kind": "imported",
+        "originalPath": "/Users/richardlitang/code/personal/scriptorium/content/projects/demo/assets/images/intro-001.svg"
+      },
+      "status": "generated",
+      "createdAt": "2026-05-17T20:03:27.189Z",
+      "updatedAt": "2026-05-17T20:03:27.189Z"
+    }
+  ]
 }

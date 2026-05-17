@@ -15,6 +15,7 @@ import { createProject } from "./create-project.js";
 import { exportProject } from "./export-project.js";
 import { generateCaptions } from "./captions.js";
 import { generateTTS } from "./generate-tts.js";
+import { importMedia } from "./import-media.js";
 import { projectStatus } from "./status.js";
 import { transcribeProject } from "./transcribe.js";
 
@@ -100,6 +101,24 @@ program
       noCache: options.cache === false,
       onlySection: options.onlySection,
       onlyBeat: options.onlyBeat
+    });
+  });
+
+program
+  .command("import:media")
+  .argument("<project-id>")
+  .argument("<file-path>")
+  .requiredOption("--beat <beat-id>", "target beat id")
+  .option("--role <role>", "asset role", "primary_visual")
+  .option("--section <section-id>", "target section id")
+  .option("--no-copy", "register file without copying into project assets")
+  .action(async (projectId, filePath, options) => {
+    await validateProject(projectId);
+    await importMedia(projectId, filePath, {
+      beat: options.beat,
+      role: options.role as "primary_visual" | "broll" | "screen" | "overlay",
+      section: options.section,
+      copy: options.copy !== false
     });
   });
 
