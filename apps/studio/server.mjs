@@ -6,6 +6,7 @@ import { createReadStream } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
+import { imageReuseKey, narrationFromImagePrompt, selectCachedImage } from "./image-cache.mjs";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -15,6 +16,7 @@ const publicDir = path.join(__dirname, "public");
 const projectsDir = path.join(rootDir, "content", "projects");
 const qualityHistoryDir = path.join(rootDir, ".studio-data", "quality-history");
 const imageHistoryDir = path.join(rootDir, ".studio-data", "image-history");
+const imageCachePath = path.join(rootDir, ".studio-data", "image-cache.ndjson");
 const projectMutationQueues = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
@@ -444,6 +446,60 @@ async function appendImageHistory(projectId, entry) {
   await appendFile(logPath, `${JSON.stringify(entry)}\n`, "utf8");
 }
 
+function imageCacheEntryFromHistory(projectId, entry) {
+  const narration = narrationFromImagePrompt(entry.prompt);
+  return {
+    projectId,
+    assetId: entry.assetId,
+    beatId: entry.beatId,
+    rootPath: path.join("content", "projects", projectId, entry.path),
+    inputHash: entry.inputHash,
+    reuseKey: entry.reuseKey ?? (narration ? imageReuseKey({
+      narration,
+      size: entry.size,
+      quality: entry.quality,
+      model: entry.model
+    }) : undefined),
+    model: entry.model,
+    size: entry.size,
+    quality: entry.quality,
+    prompt: entry.prompt,
+    generatedAt: entry.generatedAt
+  };
+}
+
+async function readImageCacheEntries() {
+  const cacheRaw = await readFile(imageCachePath, "utf8").catch(() => "");
+  const cacheEntries = cacheRaw.trim()
+    ? cacheRaw.trim().split("\n").map((line) => JSON.parse(line)).filter(Boolean)
+    : [];
+
+  const historyFiles = await readdir(imageHistoryDir, { withFileTypes: true }).catch(() => []);
+  const historyEntries = [];
+  for (const file of historyFiles) {
+    if (!file.isFile() || !file.name.endsWith(".ndjson")) continue;
+    const projectId = path.basename(file.name, ".ndjson");
+    const entries = await readImageHistory(projectId);
+    historyEntries.push(...entries.map((entry) => imageCacheEntryFromHistory(projectId, entry)));
+  }
+
+  return [...cacheEntries, ...historyEntries];
+}
+
+async function findReusableImage(query) {
+  const selected = selectCachedImage(await readImageCacheEntries(), query);
+  if (!selected) return undefined;
+  const absolutePath = path.resolve(rootDir, selected.rootPath);
+  if (!absolutePath.startsWith(rootDir + path.sep)) return undefined;
+  if (!(await stat(absolutePath).catch(() => null))) return undefined;
+  return { ...selected, absolutePath };
+}
+
+async function appendImageCacheEntry(entry) {
+  await mkdir(path.dirname(imageCachePath), { recursive: true });
+  await appendFile(imageCachePath, `${JSON.stringify(entry)}\n`, "utf8");
+}
+
 function runStatePath(projectId) {
   return path.join(rootDir, ".studio-data", "run-state", `${projectId}.json`);
 }
@@ -565,6 +621,7 @@ async function generateProjectImages(projectId, options = {}) {
   const imageResults = await mapWithConcurrency(limitedTargets, imageConcurrency, async (target) => {
     const prompt = String(promptOverrides[target.assetId] || options.prompt || target.defaultPrompt).trim();
     if (!prompt) return { target, skipped: true };
+    const hasPromptOverride = Boolean(promptOverrides[target.assetId] || options.prompt);
     await updateRunProgress(projectId, {
       status: "generating_images",
       progress: {
@@ -582,41 +639,58 @@ async function generateProjectImages(projectId, options = {}) {
       }
     });
     const version = nextImageVersion(history, target.assetId);
-    const inputHash = sha256(JSON.stringify({ prompt, size, quality, model: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-2" }));
-    let result;
-    try {
-      result = await generateImageWithOpenAi({ prompt, size, quality });
-    } catch (error) {
-      completed += 1;
-      const failure = {
-        assetId: target.assetId,
-        sectionId: target.section.id,
-        beatId: target.beat.id,
-        prompt,
-        error: error instanceof Error ? error.message : String(error)
-      };
-      failed.push(failure);
-      await updateRunProgress(projectId, {
-        status: "generating_images",
-        progress: {
-          kind: "image_generation",
-          phase: "failed",
-          completed,
-          total: limitedTargets.length,
-          generated: generated.length,
-          failed: failed.length,
-          coverage,
-          currentAssetId: target.assetId,
-          currentBeatId: target.beat.id,
-          currentSectionId: target.section.id,
-          currentSectionTitle: target.section.title
-        }
-      });
-      return { target, failure };
-    }
+    const model = process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-2";
+    const inputHash = sha256(JSON.stringify({ prompt, size, quality, model }));
+    const reuseKey = imageReuseKey({ narration: target.beat.narration, size, quality, model });
     const fileName = `${target.beat.id}.v${version}.${inputHash.slice(0, 10)}.png`;
     const absolutePath = path.join(generatedDir, fileName);
-    await writeFile(absolutePath, result.bytes);
+    const cached = await findReusableImage({
+      inputHash,
+      reuseKey,
+      size,
+      quality,
+      model,
+      allowNarrationReuse: !hasPromptOverride
+    });
+    let result;
+    let reusedFrom;
+    if (cached) {
+      await writeFile(absolutePath, await readFile(cached.absolutePath));
+      result = { model: cached.model };
+      reusedFrom = cached.rootPath;
+    } else {
+      try {
+        result = await generateImageWithOpenAi({ prompt, size, quality });
+        await writeFile(absolutePath, result.bytes);
+      } catch (error) {
+        completed += 1;
+        const failure = {
+          assetId: target.assetId,
+          sectionId: target.section.id,
+          beatId: target.beat.id,
+          prompt,
+          error: error instanceof Error ? error.message : String(error)
+        };
+        failed.push(failure);
+        await updateRunProgress(projectId, {
+          status: "generating_images",
+          progress: {
+            kind: "image_generation",
+            phase: "failed",
+            completed,
+            total: limitedTargets.length,
+            generated: generated.length,
+            failed: failed.length,
+            coverage,
+            currentAssetId: target.assetId,
+            currentBeatId: target.beat.id,
+            currentSectionId: target.section.id,
+            currentSectionTitle: target.section.title
+          }
+        });
+        return { target, failure };
+      }
+    }
     const relativePath = path.relative(projectDir, absolutePath);
     const now = new Date().toISOString();
     const dimensions = dimensionsFromSize(size);
@@ -628,9 +702,10 @@ async function generateProjectImages(projectId, options = {}) {
       beatId: target.beat.id,
       path: relativePath,
       source: {
-        kind: "generated",
+        kind: reusedFrom ? "cached" : "generated",
         provider: "openai-image",
         inputHash,
+        originalPath: reusedFrom,
         prompt
       },
       ...dimensions,
@@ -649,6 +724,8 @@ async function generateProjectImages(projectId, options = {}) {
       size,
       quality,
       inputHash,
+      reuseKey,
+      reusedFrom,
       generatedAt: now
     };
     completed += 1;
@@ -669,7 +746,20 @@ async function generateProjectImages(projectId, options = {}) {
         currentSectionTitle: target.section.title
       }
     });
-    return { target, asset, historyEntry };
+    const cacheEntry = {
+      projectId,
+      assetId: target.assetId,
+      beatId: target.beat.id,
+      rootPath: path.relative(rootDir, absolutePath),
+      inputHash,
+      reuseKey,
+      model: result.model,
+      size,
+      quality,
+      prompt,
+      generatedAt: now
+    };
+    return { target, asset, historyEntry, cacheEntry };
   });
 
   for (const item of imageResults) {
@@ -683,6 +773,7 @@ async function generateProjectImages(projectId, options = {}) {
     if (firstBeatMediaIndex === -1) nextAssets.push(item.asset);
     else nextAssets.splice(firstBeatMediaIndex, 0, item.asset);
     await appendImageHistory(projectId, item.historyEntry);
+    await appendImageCacheEntry(item.cacheEntry);
   }
 
   if (mode !== "selected" && coverage === "section") {
