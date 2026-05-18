@@ -35,6 +35,7 @@ let needsRender = false;
 let imageHistory = [];
 let currentProjectDetails = null;
 let activeRunController = null;
+let progressPollTimer = null;
 
 const storageKey = (projectId, key) => `lvstudio:${projectId}:${key}`;
 
@@ -545,6 +546,37 @@ function setRunStatus(items) {
   })));
 }
 
+function imageProgressLine(progress) {
+  if (!progress || progress.kind !== "image_generation") return undefined;
+  const coverage = progress.coverage === "beat" ? "per beat" : "per section";
+  const total = Number(progress.total) || 0;
+  const completed = Math.min(total, Number(progress.completed) || 0);
+  const current = progress.currentBeatId ? ` · ${progress.currentBeatId}` : "";
+  const generated = Number(progress.generated) || 0;
+  const failed = Number(progress.failed) || 0;
+  return `Images ${completed}/${total} (${coverage}) · generated ${generated}, failed ${failed}${current}`;
+}
+
+function startProgressPolling(projectId, baseSteps) {
+  stopProgressPolling();
+  progressPollTimer = setInterval(async () => {
+    try {
+      const details = await fetchJson(`/api/projects/${projectId}`);
+      currentProjectDetails = details.data;
+      const progressLine = imageProgressLine(details.data.runState?.progress);
+      if (progressLine) setRunStatus([...baseSteps, progressLine]);
+    } catch {
+      // The blocking operation owns the visible failure message.
+    }
+  }, 1500);
+}
+
+function stopProgressPolling() {
+  if (!progressPollTimer) return;
+  clearInterval(progressPollTimer);
+  progressPollTimer = null;
+}
+
 function runSignal() {
   return activeRunController ? { signal: activeRunController.signal } : {};
 }
@@ -581,7 +613,8 @@ async function saveCurrentPlan(options = {}) {
   return result;
 }
 
-async function generateImagesForCurrentPlan() {
+async function generateImagesForCurrentPlan(progressSteps = ["Generating images..."]) {
+  startProgressPolling(selectedProjectId, progressSteps);
   const result = await fetchJson(`/api/projects/${selectedProjectId}/generate-images`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -593,6 +626,7 @@ async function generateImagesForCurrentPlan() {
       size: "1024x1536"
     })
   });
+  stopProgressPolling();
   const coverageLabel = result.data.coverage === "beat" ? "per beat" : "per section";
   qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} new image(s), coverage ${coverageLabel}. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
   await refreshMediaPreview(selectedProjectId);
@@ -724,7 +758,7 @@ renderBtn.onclick = async () => {
         : "one photo per section, reused only inside that section";
       steps.push(`Generating ${coverageLabel}. This can take 15-30 seconds per generated photo.`);
       setRunStatus(steps);
-      const imageResult = await generateImagesForCurrentPlan();
+      const imageResult = await generateImagesForCurrentPlan(steps);
       const imageCoverageLabel = imageResult.data.coverage === "beat" ? "per beat" : "per section";
       steps[steps.length - 1] = `Generated ${imageResult.data.generated.length} new photo(s), coverage ${imageCoverageLabel}. Failed ${imageResult.data.failed?.length ?? 0}.`;
     } else {
@@ -751,6 +785,7 @@ renderBtn.onclick = async () => {
     setRunStatus(["Draft video rendered. Use the player below, or edit a photo prompt and regenerate that photo."]);
   } catch (error) {
     const stopped = error?.name === "AbortError";
+    stopProgressPolling();
     const message = stopped ? "Make Draft stopped by user. Already-created files may remain in the project." : `Make Draft failed: ${String(error)}`;
     qualityOutput.textContent = `${qualityOutput.textContent}\n\n${message}`;
     renderStoryFeedback([{ level: stopped ? "step" : "warning", text: message }]);
@@ -778,18 +813,7 @@ generateImagesBtn.onclick = async () => {
     if (hasUnsavedPlan) {
       throw new Error("Save Plan before generating images so image prompts match the current plan.");
     }
-    const result = await fetchJson(`/api/projects/${selectedProjectId}/generate-images`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        mode: imageMode.value,
-        coverage: normalizeImageCoverage(imageBudget.value),
-        quality: imageQuality.value,
-        size: "1024x1536"
-      })
-    });
-    const coverageLabel = result.data.coverage === "beat" ? "per beat" : "per section";
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} image(s), coverage ${coverageLabel}. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
+    const result = await generateImagesForCurrentPlan(["Generating images..."]);
     needsRender = true;
     await selectProject(selectedProjectId, selectedProjectElement);
     needsRender = true;
@@ -797,6 +821,7 @@ generateImagesBtn.onclick = async () => {
     await refreshQualityHistory(selectedProjectId);
     renderWorkflowState();
   } catch (error) {
+    stopProgressPolling();
     qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation failed:\n${String(error)}`;
   } finally {
     generateImagesBtn.disabled = false;

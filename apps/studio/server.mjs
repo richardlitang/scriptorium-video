@@ -425,6 +425,14 @@ async function writeRunState(projectId, state) {
   await writeFile(filePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 }
 
+async function updateRunProgress(projectId, patch) {
+  await writeRunState(projectId, {
+    ...(await readRunState(projectId)),
+    ...patch,
+    updatedAt: new Date().toISOString()
+  });
+}
+
 function nextImageVersion(history, assetId) {
   return history
     .filter((entry) => entry.assetId === assetId)
@@ -501,10 +509,38 @@ async function generateProjectImages(projectId, options = {}) {
   const generated = [];
   const failed = [];
   let nextAssets = [...(manifest.assets ?? [])];
+  await updateRunProgress(projectId, {
+    status: "generating_images",
+    progress: {
+      kind: "image_generation",
+      phase: "starting",
+      completed: 0,
+      total: limitedTargets.length,
+      generated: 0,
+      failed: 0,
+      coverage
+    }
+  });
 
-  for (const target of limitedTargets) {
+  for (const [index, target] of limitedTargets.entries()) {
     const prompt = String(promptOverrides[target.assetId] || options.prompt || target.defaultPrompt).trim();
     if (!prompt) continue;
+    await updateRunProgress(projectId, {
+      status: "generating_images",
+      progress: {
+        kind: "image_generation",
+        phase: "generating",
+        completed: index,
+        total: limitedTargets.length,
+        generated: generated.length,
+        failed: failed.length,
+        coverage,
+        currentAssetId: target.assetId,
+        currentBeatId: target.beat.id,
+        currentSectionId: target.section.id,
+        currentSectionTitle: target.section.title
+      }
+    });
     const version = nextImageVersion([...history, ...generated], target.assetId);
     const inputHash = sha256(JSON.stringify({ prompt, size, quality, model: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-2" }));
     let result;
@@ -517,6 +553,22 @@ async function generateProjectImages(projectId, options = {}) {
         beatId: target.beat.id,
         prompt,
         error: error instanceof Error ? error.message : String(error)
+      });
+      await updateRunProgress(projectId, {
+        status: "generating_images",
+        progress: {
+          kind: "image_generation",
+          phase: "failed",
+          completed: index + 1,
+          total: limitedTargets.length,
+          generated: generated.length,
+          failed: failed.length,
+          coverage,
+          currentAssetId: target.assetId,
+          currentBeatId: target.beat.id,
+          currentSectionId: target.section.id,
+          currentSectionTitle: target.section.title
+        }
       });
       continue;
     }
@@ -569,6 +621,22 @@ async function generateProjectImages(projectId, options = {}) {
     };
     generated.push(historyEntry);
     await appendImageHistory(projectId, historyEntry);
+    await updateRunProgress(projectId, {
+      status: "generating_images",
+      progress: {
+        kind: "image_generation",
+        phase: "generated",
+        completed: index + 1,
+        total: limitedTargets.length,
+        generated: generated.length,
+        failed: failed.length,
+        coverage,
+        currentAssetId: target.assetId,
+        currentBeatId: target.beat.id,
+        currentSectionId: target.section.id,
+        currentSectionTitle: target.section.title
+      }
+    });
   }
 
   if (mode !== "selected" && coverage === "section") {
@@ -620,6 +688,18 @@ async function generateProjectImages(projectId, options = {}) {
       syncResult.stdout.trim(),
       failed.length > 0 ? `Image failures:\n${JSON.stringify(failed, null, 2)}` : ""
     ].filter(Boolean).join("\n\n")
+  });
+  await updateRunProgress(projectId, {
+    status: "idle",
+    progress: {
+      kind: "image_generation",
+      phase: "complete",
+      completed: limitedTargets.length,
+      total: limitedTargets.length,
+      generated: generated.length,
+      failed: failed.length,
+      coverage
+    }
   });
   return {
     generated,
