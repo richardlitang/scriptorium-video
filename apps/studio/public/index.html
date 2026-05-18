@@ -181,31 +181,53 @@
         </div>
         <div class="settings-grid">
           <label class="settings-field settings-field-wide">
-            Voice reference path
-            <input id="voice-audio-prompt-path" type="text" placeholder="/absolute/path/to/reference.wav" />
+            <span class="field-header">
+              Voice reference path
+              <span class="field-help" title="Reference WAV/MP3 used for voice cloning. This is the strongest voice-identity control.">?</span>
+            </span>
+            <div class="inline-actions">
+              <input id="voice-audio-prompt-path" type="text" placeholder="/absolute/path/to/reference.wav" />
+              <button id="voice-pick-reference" type="button">Pick File</button>
+            </div>
+            <input id="voice-reference-file" type="file" accept=".wav,.mp3,.m4a,audio/wav,audio/mpeg,audio/mp4" hidden />
           </label>
           <label class="settings-field">
-            Model
+            <span class="field-header">
+              Model
+              <span class="field-help" title="TTS model id sent to Chatterbox API. Keep chatterbox unless your server supports alternatives.">?</span>
+            </span>
             <select id="voice-tts-model">
               <option value="chatterbox">chatterbox</option>
             </select>
           </label>
           <label class="settings-field">
-            Seed
+            <span class="field-header">
+              Seed
+              <span class="field-help" title="Locks randomness for repeatable output. Empty uses non-deterministic sampling.">?</span>
+            </span>
             <input id="voice-seed" type="number" step="1" placeholder="random" />
           </label>
           <label class="settings-field">
-            Exaggeration
+            <span class="field-header">
+              Exaggeration
+              <span class="field-help" title="Emotion intensity. Higher is more expressive but can become theatrical or unstable.">?</span>
+            </span>
             <input id="voice-exaggeration" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-exaggeration-value"></output>
           </label>
           <label class="settings-field">
-            CFG weight
+            <span class="field-header">
+              CFG weight
+              <span class="field-help" title="Guidance strength. Lower can feel looser/slower; higher can sound tighter and less natural.">?</span>
+            </span>
             <input id="voice-cfg-weight" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-cfg-weight-value"></output>
           </label>
           <label class="settings-field">
-            Temperature
+            <span class="field-header">
+              Temperature
+              <span class="field-help" title="Variation/randomness. Lower is steadier; higher increases variation and risk of inconsistency.">?</span>
+            </span>
             <input id="voice-temperature" type="range" min="0" max="2" step="0.05" />
             <output id="voice-temperature-value"></output>
           </label>

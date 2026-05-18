@@ -15,6 +15,8 @@ const voiceSettingsForm = document.getElementById("voice-settings-form");
 const voiceSettingsClose = document.getElementById("voice-settings-close");
 const voiceTtsModel = document.getElementById("voice-tts-model");
 const voiceAudioPromptPath = document.getElementById("voice-audio-prompt-path");
+const voicePickReferenceBtn = document.getElementById("voice-pick-reference");
+const voiceReferenceFile = document.getElementById("voice-reference-file");
 const voiceExaggeration = document.getElementById("voice-exaggeration");
 const voiceCfgWeight = document.getElementById("voice-cfg-weight");
 const voiceTemperature = document.getElementById("voice-temperature");
@@ -54,6 +56,8 @@ let imageHistory = [];
 let currentProjectDetails = null;
 let activeRunController = null;
 let progressPollTimer = null;
+let voicePreviewController = null;
+const voicePreviewCache = new Map();
 
 const storageKey = (projectId, key) => `lvstudio:${projectId}:${key}`;
 
@@ -129,13 +133,25 @@ async function loadVoiceSettings() {
 }
 
 async function runVoicePreview(sentence) {
-  voiceSettingsStatus.textContent = "Generating preview...";
+  const key = JSON.stringify({ settings: readVoiceSettingsForm(), sentence });
+  const cachedUrl = voicePreviewCache.get(key);
+  if (cachedUrl) {
+    voicePreviewAudio.src = cachedUrl;
+    await voicePreviewAudio.play().catch(() => {});
+    voiceSettingsStatus.textContent = "Preview ready (cached).";
+    return;
+  }
+
+  if (voicePreviewController) voicePreviewController.abort();
+  voicePreviewController = new AbortController();
+  voiceSettingsStatus.textContent = "Generating preview (first run can take longer)...";
   voicePreviewABtn.disabled = true;
   voicePreviewBBtn.disabled = true;
   try {
     const response = await fetch("/api/settings/voice/preview", {
       method: "POST",
       headers: { "content-type": "application/json" },
+      signal: voicePreviewController.signal,
       body: JSON.stringify({
         settings: readVoiceSettingsForm(),
         text: sentence
@@ -147,15 +163,41 @@ async function runVoicePreview(sentence) {
     }
     const blob = await response.blob();
     const audioUrl = URL.createObjectURL(blob);
+    voicePreviewCache.set(key, audioUrl);
+    if (voicePreviewCache.size > 10) {
+      const first = voicePreviewCache.keys().next().value;
+      const firstUrl = voicePreviewCache.get(first);
+      if (firstUrl) URL.revokeObjectURL(firstUrl);
+      voicePreviewCache.delete(first);
+    }
     voicePreviewAudio.src = audioUrl;
     await voicePreviewAudio.play().catch(() => {});
     voiceSettingsStatus.textContent = "Preview ready.";
   } catch (error) {
-    voiceSettingsStatus.textContent = String(error);
+    if (error?.name === "AbortError") {
+      voiceSettingsStatus.textContent = "Previous preview canceled.";
+    } else {
+      voiceSettingsStatus.textContent = String(error);
+    }
   } finally {
     voicePreviewABtn.disabled = false;
     voicePreviewBBtn.disabled = false;
+    voicePreviewController = null;
   }
+}
+
+async function uploadVoiceReference(file) {
+  if (!file) return;
+  voiceSettingsStatus.textContent = `Uploading ${file.name}...`;
+  const response = await fetch(`/api/settings/voice/reference?filename=${encodeURIComponent(file.name)}`, {
+    method: "PUT",
+    headers: { "content-type": file.type || "application/octet-stream" },
+    body: await file.arrayBuffer()
+  });
+  const payload = await response.json().catch(() => ({}));
+  if (!response.ok || !payload.ok) throw new Error(payload.message || "Failed to upload voice reference.");
+  voiceAudioPromptPath.value = payload.data.path;
+  voiceSettingsStatus.textContent = `Reference set: ${payload.data.path}`;
 }
 
 function applyVoicePreset(preset) {
@@ -1095,6 +1137,19 @@ voiceSettingsBtn.onclick = async () => {
 voiceSettingsClose.onclick = () => {
   voiceSettingsDialog.close();
 };
+voicePickReferenceBtn.onclick = () => {
+  voiceReferenceFile.click();
+};
+voiceReferenceFile.addEventListener("change", async () => {
+  const [file] = voiceReferenceFile.files ?? [];
+  try {
+    await uploadVoiceReference(file);
+  } catch (error) {
+    voiceSettingsStatus.textContent = String(error);
+  } finally {
+    voiceReferenceFile.value = "";
+  }
+});
 voicePreviewABtn.onclick = () => runVoicePreview("I should have turned back when the hallway lights began to flicker, but I kept walking.");
 voicePreviewBBtn.onclick = () => runVoicePreview("By the time the last train arrived, everyone on the platform had vanished except me.");
 voiceSettingsForm.addEventListener("submit", async (event) => {

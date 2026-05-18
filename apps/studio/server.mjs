@@ -19,11 +19,13 @@ const qualityHistoryDir = path.join(rootDir, ".studio-data", "quality-history");
 const imageHistoryDir = path.join(rootDir, ".studio-data", "image-history");
 const imageCachePath = path.join(rootDir, ".studio-data", "image-cache.ndjson");
 const voiceSettingsPath = path.join(rootDir, ".studio-data", "voice-settings.json");
+const voiceReferencesDir = path.join(rootDir, ".studio-data", "voice-references");
 const projectMutationQueues = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
 const CHATTERBOX_SPEECH_URL = process.env.CHATTERBOX_TTS_URL ?? "http://127.0.0.1:8000/v1/audio/speech";
+const voicePreviewCache = new Map();
 
 const port = Number(process.env.PORT ?? "4173");
 
@@ -52,6 +54,23 @@ function parseJsonBody(req) {
         reject(new Error("Invalid JSON body."));
       }
     });
+    req.on("error", reject);
+  });
+}
+
+function parseBinaryBody(req) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    let size = 0;
+    req.on("data", (chunk) => {
+      size += chunk.length;
+      if (size > 20_000_000) {
+        reject(new Error("Upload too large. Max 20MB."));
+        return;
+      }
+      chunks.push(chunk);
+    });
+    req.on("end", () => resolve(Buffer.concat(chunks)));
     req.on("error", reject);
   });
 }
@@ -87,6 +106,9 @@ async function previewVoice(settings, text) {
     seed: normalized.seed ? Number(normalized.seed) : undefined
   };
   if (!payload.input) throw new Error("Preview text is required.");
+  const cacheKey = sha256(JSON.stringify(payload));
+  const cached = voicePreviewCache.get(cacheKey);
+  if (cached) return cached;
 
   const headers = { "content-type": "application/json" };
   if (process.env.CHATTERBOX_TTS_API_KEY) headers.authorization = `Bearer ${process.env.CHATTERBOX_TTS_API_KEY}`;
@@ -99,7 +121,18 @@ async function previewVoice(settings, text) {
     const body = await response.text().catch(() => "");
     throw new Error(`Voice preview failed: ${response.status} ${body.slice(0, 300)}`.trim());
   }
-  return Buffer.from(await response.arrayBuffer());
+  const bytes = Buffer.from(await response.arrayBuffer());
+  voicePreviewCache.set(cacheKey, bytes);
+  if (voicePreviewCache.size > 24) {
+    const firstKey = voicePreviewCache.keys().next().value;
+    voicePreviewCache.delete(firstKey);
+  }
+  return bytes;
+}
+
+function safeVoiceReferenceFileName(rawName) {
+  const base = path.basename(rawName || "reference.wav");
+  return base.replace(/[^a-zA-Z0-9._-]/g, "-");
 }
 
 async function readOptionalFile(filePath) {
@@ -1136,6 +1169,16 @@ const server = createServer(async (req, res) => {
       res.writeHead(200, { "content-type": "audio/wav", "cache-control": "no-store" });
       res.end(audioBytes);
       return;
+    }
+
+    if (pathname === "/api/settings/voice/reference" && req.method === "PUT") {
+      const requestUrl = new URL(req.url ?? "/", `http://localhost:${port}`);
+      const fileName = safeVoiceReferenceFileName(requestUrl.searchParams.get("filename") ?? "reference.wav");
+      const data = await parseBinaryBody(req);
+      await mkdir(voiceReferencesDir, { recursive: true });
+      const targetPath = path.resolve(voiceReferencesDir, fileName);
+      await writeFile(targetPath, data);
+      return sendJson(res, 200, { ok: true, data: { path: targetPath } });
     }
 
     if (pathname === "/api/projects" && req.method === "POST") {
