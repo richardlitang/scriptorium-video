@@ -34,6 +34,15 @@ function chatterboxUrl(): string {
   return process.env.CHATTERBOX_TTS_URL ?? DEFAULT_CHATTERBOX_URL;
 }
 
+function chatterboxStartupHint(url: string): string {
+  return [
+    `Chatterbox TTS server is unreachable at ${url}.`,
+    "Start it before making a draft:",
+    "HF_HOME=/private/tmp/lvstudio-hf /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/chatterbox_tts_server.py",
+    "Or set CHATTERBOX_TTS_URL to a reachable Chatterbox-compatible speech endpoint."
+  ].join(" ");
+}
+
 function buildPayload(request: TTSRequest): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     model: process.env.CHATTERBOX_TTS_MODEL ?? "chatterbox",
@@ -102,11 +111,16 @@ export class ChatterboxTTSProvider implements TTSProvider {
     }
 
     const payload = buildPayload(request);
-    const response = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(payload)
-    });
+    let response: Response;
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(payload)
+      });
+    } catch (error) {
+      throw new Error(chatterboxStartupHint(url), { cause: error });
+    }
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
