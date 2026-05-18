@@ -65,8 +65,12 @@ function restoreUiState(projectId) {
   storyVisualStyle.value = readStored(projectId, "visualStyle", storyVisualStyle.value);
   imageEnabled.checked = readStored(projectId, "imageEnabled", imageEnabled.checked ? "true" : "false") === "true";
   imageMode.value = readStored(projectId, "imageMode", imageMode.value);
-  imageBudget.value = readStored(projectId, "imageBudget", imageBudget.value);
+  imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", imageBudget.value));
   imageQuality.value = readStored(projectId, "imageQuality", imageQuality.value);
+}
+
+function normalizeImageCoverage(value) {
+  return value === "beat" || value === "999" ? "beat" : "section";
 }
 
 function fmt(value) {
@@ -474,7 +478,7 @@ function renderMissingImageCard(beat) {
   const title = document.createElement("strong");
   title.textContent = beat.id;
   const note = document.createElement("p");
-  note.textContent = "No generated photo yet. Increase photo budget or regenerate this beat later.";
+  note.textContent = "No generated photo yet. Use per-beat coverage or regenerate this beat later.";
   card.append(title, note);
   return card;
 }
@@ -584,12 +588,13 @@ async function generateImagesForCurrentPlan() {
     ...runSignal(),
     body: JSON.stringify({
       mode: imageMode.value,
-      limit: Number(imageBudget.value),
+      coverage: normalizeImageCoverage(imageBudget.value),
       quality: imageQuality.value,
       size: "1024x1536"
     })
   });
-  qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} new image(s), reused images for remaining beats. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
+  const coverageLabel = result.data.coverage === "beat" ? "per beat" : "per section";
+  qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} new image(s), coverage ${coverageLabel}. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
   await refreshMediaPreview(selectedProjectId);
   return result;
 }
@@ -714,11 +719,14 @@ renderBtn.onclick = async () => {
     }
 
     if (imageEnabled.checked) {
-      const budgetLabel = imageBudget.value === "999" ? "every beat" : `up to ${imageBudget.value} key photo(s)`;
-      steps.push(`Generating ${budgetLabel}, then reusing them across uncovered beats. This can take 15-30 seconds per generated photo.`);
+      const coverageLabel = normalizeImageCoverage(imageBudget.value) === "beat"
+        ? "one accurate photo per beat"
+        : "one photo per section, reused only inside that section";
+      steps.push(`Generating ${coverageLabel}. This can take 15-30 seconds per generated photo.`);
       setRunStatus(steps);
       const imageResult = await generateImagesForCurrentPlan();
-      steps[steps.length - 1] = `Generated ${imageResult.data.generated.length} new photo(s), reused visuals for remaining beats. Failed ${imageResult.data.failed?.length ?? 0}.`;
+      const imageCoverageLabel = imageResult.data.coverage === "beat" ? "per beat" : "per section";
+      steps[steps.length - 1] = `Generated ${imageResult.data.generated.length} new photo(s), coverage ${imageCoverageLabel}. Failed ${imageResult.data.failed?.length ?? 0}.`;
     } else {
       steps.push("Skipping AI photos by request.");
     }
@@ -775,12 +783,13 @@ generateImagesBtn.onclick = async () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         mode: imageMode.value,
-        limit: Number(imageBudget.value),
+        coverage: normalizeImageCoverage(imageBudget.value),
         quality: imageQuality.value,
         size: "1024x1536"
       })
     });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} image(s). Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
+    const coverageLabel = result.data.coverage === "beat" ? "per beat" : "per section";
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} image(s), coverage ${coverageLabel}. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
     needsRender = true;
     await selectProject(selectedProjectId, selectedProjectElement);
     needsRender = true;

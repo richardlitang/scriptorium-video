@@ -125,12 +125,37 @@ function dimensionsFromSize(size) {
   return { width: Number(match[1]), height: Number(match[2]) };
 }
 
-function imagePromptForBeat(section, beat) {
+function narrationSummary(text) {
+  return String(text || "").replace(/\s+/g, " ").trim();
+}
+
+function sectionBeatContext(section, sectionIndex, beat, beatIndex, plan) {
+  const beats = section.beats ?? [];
+  const previousBeat = beats[beatIndex - 1];
+  const nextBeat = beats[beatIndex + 1];
+  return [
+    `Project title: ${plan.title}.`,
+    `Story mode: ${plan.mode}; target platform: ${plan.targetPlatform}.`,
+    `Section ${sectionIndex + 1} of ${plan.sections?.length ?? "unknown"}: ${section.title}.`,
+    section.purpose ? `Section purpose: ${section.purpose}.` : "",
+    `Beat ${beatIndex + 1} of ${beats.length} in this section.`,
+    previousBeat ? `Previous beat narration: ${narrationSummary(previousBeat.narration)}` : "Previous beat narration: none; this opens the section.",
+    `Current beat narration: ${narrationSummary(beat.narration)}`,
+    nextBeat ? `Next beat narration: ${narrationSummary(nextBeat.narration)}` : "Next beat narration: none; this closes the section."
+  ].filter(Boolean).join("\n");
+}
+
+function imagePromptForBeat(plan, section, beat, beatIndex) {
   const mediaPrompt = beat.media?.find((media) => media.role === "primary_visual" || media.role === "background")?.prompt;
   return [
+    sectionBeatContext(section, plan.sections.indexOf(section), beat, beatIndex, plan),
+    "",
+    "Visual target:",
     mediaPrompt || beat.notes || beat.narration,
-    `Story section: ${section.title}.`,
+    "",
     "Create a vertical 9:16 photorealistic cinematic still for a suspense story video.",
+    "Depict the exact current beat, not a generic mood board and not a later event.",
+    "Preserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.",
     "Use natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.",
     "Avoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.",
     "Make it look like a frame from an atmospheric indie thriller shot on a real camera."
@@ -139,40 +164,53 @@ function imagePromptForBeat(section, beat) {
 
 function imageTargetsFromPlan(plan) {
   return plan.sections.flatMap((section) =>
-    section.beats.map((beat) => ({
+    section.beats.map((beat, beatIndex) => ({
       section,
       beat,
+      beatIndex,
       assetId: `image-${beat.id}`,
-      defaultPrompt: imagePromptForBeat(section, beat)
+      defaultPrompt: imagePromptForBeat(plan, section, beat, beatIndex)
     }))
   );
 }
 
-function chooseKeyTargets(targets, limit) {
-  if (limit >= targets.length) return targets;
+function groupTargetsBySection(targets) {
   const bySection = new Map();
   for (const target of targets) {
     bySection.set(target.section.id, [...(bySection.get(target.section.id) ?? []), target]);
   }
-  const chosen = [];
-  for (const sectionTargets of bySection.values()) {
-    if (chosen.length >= limit) break;
-    chosen.push(sectionTargets[0]);
+  return bySection;
+}
+
+function sectionHasVisualAsset(assets, sectionId) {
+  return assets.some((asset) => asset.sectionId === sectionId && asset.role === "primary_visual");
+}
+
+function beatHasVisualAsset(assets, assetId, beatId) {
+  return assets.some((asset) =>
+    asset.role === "primary_visual" &&
+    (asset.id === assetId || asset.beatId === beatId)
+  );
+}
+
+function selectImageTargets(plan, manifest, mode, coverage, options) {
+  const allTargets = imageTargetsFromPlan(plan);
+  if (mode === "selected") return allTargets.filter((target) => target.assetId === options.assetId).slice(0, 1);
+
+  const assets = manifest.assets ?? [];
+  if (coverage === "beat") {
+    return allTargets.filter((target) =>
+      mode === "all" ? true : !beatHasVisualAsset(assets, target.assetId, target.beat.id)
+    );
   }
-  let cursor = 1;
-  while (chosen.length < limit) {
-    let added = false;
-    for (const sectionTargets of bySection.values()) {
-      if (chosen.length >= limit) break;
-      if (sectionTargets[cursor]) {
-        chosen.push(sectionTargets[cursor]);
-        added = true;
-      }
-    }
-    if (!added) break;
-    cursor += 1;
+
+  const bySection = groupTargetsBySection(allTargets);
+  const selected = [];
+  for (const [sectionId, sectionTargets] of bySection.entries()) {
+    if (mode === "missing" && sectionHasVisualAsset(assets, sectionId)) continue;
+    selected.push(sectionTargets[0]);
   }
-  return chosen;
+  return selected;
 }
 
 function buildPlanFromAiDraft(currentPlan, draft) {
@@ -447,18 +485,12 @@ async function generateProjectImages(projectId, options = {}) {
   const manifest = await safeReadJson(manifestPath).catch(() => ({ schemaVersion: 1, assets: [] }));
   const history = await readImageHistory(projectId);
   const mode = options.mode === "selected" ? "selected" : options.mode === "missing" ? "missing" : "all";
+  const coverage = options.coverage === "beat" ? "beat" : "section";
   const size = options.size || "1024x1536";
   const quality = options.quality || "low";
   const promptOverrides = options.promptOverrides && typeof options.promptOverrides === "object" ? options.promptOverrides : {};
-  const targets = imageTargetsFromPlan(plan).filter((target) => {
-    if (mode === "selected") return target.assetId === options.assetId;
-    if (mode === "missing") {
-      return !manifest.assets.some((asset) => asset.id === target.assetId && asset.source?.provider === "openai-image");
-    }
-    return true;
-  });
-  const limit = mode === "selected" ? 1 : Math.max(1, Math.min(999, Number(options.limit) || 4));
-  const limitedTargets = mode === "selected" ? targets.slice(0, 1) : chooseKeyTargets(targets, limit);
+  const targets = selectImageTargets(plan, manifest, mode, coverage, options);
+  const limitedTargets = targets;
 
   if (limitedTargets.length === 0) {
     return { generated: [], failed: [], skipped: "No image targets matched the selected mode." };
@@ -539,7 +571,7 @@ async function generateProjectImages(projectId, options = {}) {
     await appendImageHistory(projectId, historyEntry);
   }
 
-  if (mode !== "selected") {
+  if (mode !== "selected" && coverage === "section") {
     const allTargets = imageTargetsFromPlan(plan);
     const generatedOrExisting = (target) =>
       nextAssets.find((asset) => asset.id === target.assetId && asset.role === "primary_visual") ??
@@ -551,11 +583,10 @@ async function generateProjectImages(projectId, options = {}) {
         keyAssetsBySection.set(target.section.id, asset);
       }
     }
-    const fallbackKeyAsset = [...keyAssetsBySection.values()][0];
     const now = new Date().toISOString();
     for (const target of allTargets) {
       if (generatedOrExisting(target)) continue;
-      const sourceAsset = keyAssetsBySection.get(target.section.id) ?? fallbackKeyAsset;
+      const sourceAsset = keyAssetsBySection.get(target.section.id);
       if (!sourceAsset) continue;
       nextAssets.push({
         id: target.assetId,
@@ -595,7 +626,11 @@ async function generateProjectImages(projectId, options = {}) {
     failed,
     requested: targets.length,
     attempted: limitedTargets.length,
-    remaining: Math.max(0, targets.length - limitedTargets.length),
+    coverage,
+    remaining: coverage === "beat" ? 0 : imageTargetsFromPlan(plan).filter((target) => {
+      const hasAsset = nextAssets.some((asset) => asset.role === "primary_visual" && asset.beatId === target.beat.id);
+      return !hasAsset;
+    }).length,
     syncOutput: syncResult.stdout.trim()
   };
 }
