@@ -590,7 +590,28 @@ async function generateImagesForCurrentPlan() {
     })
   });
   qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} new image(s), reused images for remaining beats. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
+  await refreshMediaPreview(selectedProjectId);
   return result;
+}
+
+async function refreshMediaPreview(projectId) {
+  if (!projectId) return;
+  const [details, assets, history] = await Promise.all([
+    fetchJson(`/api/projects/${projectId}`),
+    fetchJson(`/api/projects/${projectId}/assets`),
+    fetchJson(`/api/projects/${projectId}/image-history`)
+  ]);
+  currentProjectDetails = details.data;
+  imageHistory = history.data.entries;
+  projectMeta.textContent = fmt({
+    status: details.data.project.status,
+    mode: details.data.plan.mode,
+    targetPlatform: details.data.plan.targetPlatform,
+    assets: details.data.assetCount,
+    captions: details.data.captionCount
+  });
+  timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
+  renderMediaPreview(projectId, details.data.plan, assets.data.assets);
 }
 
 newProjectBtn.onclick = async () => {
