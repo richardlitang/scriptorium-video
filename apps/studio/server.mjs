@@ -23,6 +23,7 @@ const projectMutationQueues = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
+const CHATTERBOX_SPEECH_URL = process.env.CHATTERBOX_TTS_URL ?? "http://127.0.0.1:8000/v1/audio/speech";
 
 const port = Number(process.env.PORT ?? "4173");
 
@@ -70,6 +71,35 @@ async function writeVoiceSettings(settings) {
   await mkdir(path.dirname(voiceSettingsPath), { recursive: true });
   await writeFile(voiceSettingsPath, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
   return normalized;
+}
+
+async function previewVoice(settings, text) {
+  const normalized = normalizeVoiceSettings(settings);
+  const payload = {
+    model: normalized.ttsModel || "chatterbox",
+    voice: "default",
+    input: String(text || "").trim(),
+    response_format: "wav",
+    audio_prompt_path: normalized.audioPromptPath || undefined,
+    exaggeration: normalized.exaggeration,
+    cfg_weight: normalized.cfgWeight,
+    temperature: normalized.temperature,
+    seed: normalized.seed ? Number(normalized.seed) : undefined
+  };
+  if (!payload.input) throw new Error("Preview text is required.");
+
+  const headers = { "content-type": "application/json" };
+  if (process.env.CHATTERBOX_TTS_API_KEY) headers.authorization = `Bearer ${process.env.CHATTERBOX_TTS_API_KEY}`;
+  const response = await fetch(CHATTERBOX_SPEECH_URL, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    const body = await response.text().catch(() => "");
+    throw new Error(`Voice preview failed: ${response.status} ${body.slice(0, 300)}`.trim());
+  }
+  return Buffer.from(await response.arrayBuffer());
 }
 
 async function readOptionalFile(filePath) {
@@ -1098,6 +1128,14 @@ const server = createServer(async (req, res) => {
         message: "Voice settings saved.",
         data: await writeVoiceSettings(body)
       });
+    }
+
+    if (pathname === "/api/settings/voice/preview" && req.method === "POST") {
+      const body = await parseJsonBody(req);
+      const audioBytes = await previewVoice(body.settings ?? {}, body.text ?? "");
+      res.writeHead(200, { "content-type": "audio/wav", "cache-control": "no-store" });
+      res.end(audioBytes);
+      return;
     }
 
     if (pathname === "/api/projects" && req.method === "POST") {

@@ -588,6 +588,18 @@ input[type="range"] {
   margin: 16px 0 10px;
 }
 
+.preview-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 10px;
+}
+
+#voice-preview-audio {
+  width: 100%;
+  margin-bottom: 8px;
+}
+
 .settings-status {
   min-height: 20px;
   color: var(--muted);

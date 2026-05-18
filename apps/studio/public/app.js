@@ -23,6 +23,9 @@ const voiceExaggerationValue = document.getElementById("voice-exaggeration-value
 const voiceCfgWeightValue = document.getElementById("voice-cfg-weight-value");
 const voiceTemperatureValue = document.getElementById("voice-temperature-value");
 const voiceSettingsStatus = document.getElementById("voice-settings-status");
+const voicePreviewABtn = document.getElementById("voice-preview-a");
+const voicePreviewBBtn = document.getElementById("voice-preview-b");
+const voicePreviewAudio = document.getElementById("voice-preview-audio");
 const savePlanBtn = document.getElementById("save-plan-btn");
 const prepareDraftBtn = document.getElementById("prepare-draft-btn");
 const renderDraftBtn = document.getElementById("render-draft-btn");
@@ -123,6 +126,36 @@ function readVoiceSettingsForm() {
 async function loadVoiceSettings() {
   const result = await fetchJson("/api/settings/voice");
   applyVoiceSettings(result.data);
+}
+
+async function runVoicePreview(sentence) {
+  voiceSettingsStatus.textContent = "Generating preview...";
+  voicePreviewABtn.disabled = true;
+  voicePreviewBBtn.disabled = true;
+  try {
+    const response = await fetch("/api/settings/voice/preview", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        settings: readVoiceSettingsForm(),
+        text: sentence
+      })
+    });
+    if (!response.ok) {
+      const message = await response.text();
+      throw new Error(message || "Preview failed.");
+    }
+    const blob = await response.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    voicePreviewAudio.src = audioUrl;
+    await voicePreviewAudio.play().catch(() => {});
+    voiceSettingsStatus.textContent = "Preview ready.";
+  } catch (error) {
+    voiceSettingsStatus.textContent = String(error);
+  } finally {
+    voicePreviewABtn.disabled = false;
+    voicePreviewBBtn.disabled = false;
+  }
 }
 
 function applyVoicePreset(preset) {
@@ -1062,6 +1095,8 @@ voiceSettingsBtn.onclick = async () => {
 voiceSettingsClose.onclick = () => {
   voiceSettingsDialog.close();
 };
+voicePreviewABtn.onclick = () => runVoicePreview("I should have turned back when the hallway lights began to flicker, but I kept walking.");
+voicePreviewBBtn.onclick = () => runVoicePreview("By the time the last train arrived, everyone on the platform had vanished except me.");
 voiceSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   voiceSettingsStatus.textContent = "Saving...";
