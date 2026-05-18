@@ -18,7 +18,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:26:52.711Z",
-      "updatedAt": "2026-05-18T12:28:20.636Z"
+      "updatedAt": "2026-05-18T14:25:42.544Z"
     },
     {
       "id": "image-the-caller-001",
@@ -37,7 +37,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:11.730Z",
-      "updatedAt": "2026-05-18T12:28:20.647Z"
+      "updatedAt": "2026-05-18T14:25:42.540Z"
     },
     {
       "id": "image-the-warning-001",
@@ -56,7 +56,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:31.575Z",
-      "updatedAt": "2026-05-18T12:28:20.621Z"
+      "updatedAt": "2026-05-18T14:25:42.538Z"
     },
     {
       "id": "image-the-footsteps-001",
@@ -75,7 +75,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.113Z",
-      "updatedAt": "2026-05-18T12:28:20.639Z"
+      "updatedAt": "2026-05-18T14:25:42.539Z"
     },
     {
       "id": "image-the-caller-002",
@@ -94,7 +94,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.114Z",
-      "updatedAt": "2026-05-18T12:28:20.663Z"
+      "updatedAt": "2026-05-18T14:25:42.544Z"
     },
     {
       "id": "image-the-caller-003",
@@ -113,7 +113,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.114Z",
-      "updatedAt": "2026-05-18T12:28:20.639Z"
+      "updatedAt": "2026-05-18T14:25:42.538Z"
     },
     {
       "id": "image-the-warning-002",
@@ -132,7 +132,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.114Z",
-      "updatedAt": "2026-05-18T12:28:20.641Z"
+      "updatedAt": "2026-05-18T14:25:42.528Z"
     },
     {
       "id": "image-a-mother-s-plea-001",
@@ -151,7 +151,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.114Z",
-      "updatedAt": "2026-05-18T12:28:20.639Z"
+      "updatedAt": "2026-05-18T14:25:42.548Z"
     },
     {
       "id": "image-turning-around-001",
@@ -170,7 +170,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.114Z",
-      "updatedAt": "2026-05-18T12:28:20.624Z"
+      "updatedAt": "2026-05-18T14:25:42.544Z"
     },
     {
       "id": "image-turning-around-002",
@@ -189,7 +189,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:53.114Z",
-      "updatedAt": "2026-05-18T12:28:20.640Z"
+      "updatedAt": "2026-05-18T14:25:42.510Z"
     },
     {
       "id": "voice-finding-the-phone-001",
@@ -206,7 +206,7 @@
       "durationSeconds": 4.752,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.520Z"
     },
     {
       "id": "voice-the-caller-001",
@@ -223,7 +223,7 @@
       "durationSeconds": 2.664,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.498Z"
     },
     {
       "id": "voice-the-caller-002",
@@ -240,7 +240,7 @@
       "durationSeconds": 4.8,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.602Z"
+      "updatedAt": "2026-05-18T14:25:42.499Z"
     },
     {
       "id": "voice-the-caller-003",
@@ -257,7 +257,7 @@
       "durationSeconds": 2.448,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.519Z"
     },
     {
       "id": "voice-the-warning-001",
@@ -265,16 +265,16 @@
       "role": "voiceover",
       "sectionId": "the-warning",
       "beatId": "the-warning-001",
-      "path": "assets/audio/voice/the-warning-001.62abe272f8.mp3",
+      "path": "assets/audio/voice/the-warning-001.2444b90156.wav",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "62abe272f8"
+        "provider": "chatterbox",
+        "inputHash": "2444b90156"
       },
-      "durationSeconds": 6.408,
+      "durationSeconds": 4.28,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.499Z"
     },
     {
       "id": "voice-the-warning-002",
@@ -282,16 +282,16 @@
       "role": "voiceover",
       "sectionId": "the-warning",
       "beatId": "the-warning-002",
-      "path": "assets/audio/voice/the-warning-002.b1d2c2b229.mp3",
+      "path": "assets/audio/voice/the-warning-002.4c0aa85d4f.wav",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "b1d2c2b229"
+        "provider": "chatterbox",
+        "inputHash": "4c0aa85d4f"
       },
-      "durationSeconds": 4.2,
+      "durationSeconds": 6.64,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.497Z"
     },
     {
       "id": "voice-the-footsteps-001",
@@ -308,7 +308,7 @@
       "durationSeconds": 7.152,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.614Z"
+      "updatedAt": "2026-05-18T14:25:42.498Z"
     },
     {
       "id": "voice-a-mother-s-plea-001",
@@ -325,7 +325,7 @@
       "durationSeconds": 6.648,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.524Z"
     },
     {
       "id": "voice-turning-around-001",
@@ -342,7 +342,7 @@
       "durationSeconds": 1.416,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.615Z"
+      "updatedAt": "2026-05-18T14:25:42.499Z"
     },
     {
       "id": "voice-turning-around-002",
@@ -359,7 +359,187 @@
       "durationSeconds": 9,
       "status": "generated",
       "createdAt": "2026-05-18T12:27:56.333Z",
-      "updatedAt": "2026-05-18T12:28:20.618Z"
+      "updatedAt": "2026-05-18T14:25:42.498Z"
+    },
+    {
+      "id": "image-the-whisper-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-whisper",
+      "beatId": "the-whisper-001",
+      "path": "assets/images/generated/the-whisper-001.v1.209d06f4ec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "209d06f4ec5c22aec8b85d0055e394e7cccbc34799f76bafb6e237909706da2e",
+        "prompt": "Project title: The Call.\nStory mode: long_documentary; target platform: youtube.\nSection 1 of 4: The Whisper.\nSection purpose: Set the tone for the unsettling events that unfold..\nBeat 1 of 1 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Every night at 2:13 AM, my baby monitor whispered the same sentence: ‘Daddy, come downstairs.’\nNext beat narration: none; this closes the section.\n\nVisual target:\nA dimly lit bedroom, shadows creeping across the walls, a baby monitor flickering with static.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:11:52.474Z",
+      "updatedAt": "2026-05-18T14:25:42.556Z"
+    },
+    {
+      "id": "image-unplugged-fear-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unplugged-fear",
+      "beatId": "unplugged-fear-001",
+      "path": "assets/images/generated/unplugged-fear-001.v1.42c0e19bc8.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "42c0e19bc87f54ecaf53057066ce648e4b7b895784a0e1bfcd2fde946e8c067a",
+        "prompt": "Project title: The Call.\nStory mode: long_documentary; target platform: youtube.\nSection 2 of 4: Unplugged Fear.\nSection purpose: Illustrate the growing tension and concern..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: The first night, I laughed it off. The second night, I unplugged the monitor.\nNext beat narration: The third night, it turned on by itself. 'Daddy, come downstairs.'\n\nVisual target:\nA hand reaching to unplug the monitor, the room dark and foreboding.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:12:16.877Z",
+      "updatedAt": "2026-05-18T14:25:42.558Z"
+    },
+    {
+      "id": "image-the-encounter-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-encounter",
+      "beatId": "the-encounter-001",
+      "path": "assets/images/generated/the-encounter-001.v1.15728b78bb.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "15728b78bb618b6ab4a2b8b8f9c999acedf64034f260187f8676affc909b96e3",
+        "prompt": "Project title: The Call.\nStory mode: long_documentary; target platform: youtube.\nSection 3 of 4: The Encounter.\nSection purpose: Build suspense as the protagonist confronts the unknown..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: This time, the voice sounded closer. I grabbed a kitchen knife and walked to the stairs.\nNext beat narration: At the bottom, I saw a little girl standing in the hallway, holding the baby monitor. She smiled at me.\n\nVisual target:\nA close-up of a kitchen knife reflecting dim light, the hand gripping it tightly, anticipation building.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:12:38.190Z",
+      "updatedAt": "2026-05-18T14:25:42.543Z"
+    },
+    {
+      "id": "image-unplugged-fear-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unplugged-fear",
+      "beatId": "unplugged-fear-002",
+      "path": "assets/images/generated/unplugged-fear-001.v1.42c0e19bc8.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-unplugged-fear-001",
+        "prompt": "Project title: The Call.\nStory mode: long_documentary; target platform: youtube.\nSection 2 of 4: Unplugged Fear.\nSection purpose: Illustrate the growing tension and concern..\nBeat 2 of 2 in this section.\nPrevious beat narration: The first night, I laughed it off. The second night, I unplugged the monitor.\nCurrent beat narration: The third night, it turned on by itself. 'Daddy, come downstairs.'\nNext beat narration: none; this closes the section.\n\nVisual target:\nThe monitor glowing eerily in a dark room, casting mysterious shadows.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:12:38.195Z",
+      "updatedAt": "2026-05-18T14:25:42.543Z"
+    },
+    {
+      "id": "image-the-encounter-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-encounter",
+      "beatId": "the-encounter-002",
+      "path": "assets/images/generated/the-encounter-001.v1.15728b78bb.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-encounter-001",
+        "prompt": "Project title: The Call.\nStory mode: long_documentary; target platform: youtube.\nSection 3 of 4: The Encounter.\nSection purpose: Build suspense as the protagonist confronts the unknown..\nBeat 2 of 2 in this section.\nPrevious beat narration: This time, the voice sounded closer. I grabbed a kitchen knife and walked to the stairs.\nCurrent beat narration: At the bottom, I saw a little girl standing in the hallway, holding the baby monitor. She smiled at me.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA little girl in a white dress, standing in the shadows, holding a glowing monitor, smiling eerily.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:12:38.195Z",
+      "updatedAt": "2026-05-18T14:25:42.540Z"
+    },
+    {
+      "id": "voice-the-whisper-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-whisper",
+      "beatId": "the-whisper-001",
+      "path": "assets/audio/voice/the-whisper-001.e7c179c20c.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "e7c179c20c"
+      },
+      "durationSeconds": 5.92,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:17:22.183Z",
+      "updatedAt": "2026-05-18T14:25:42.525Z"
+    },
+    {
+      "id": "voice-unplugged-fear-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "unplugged-fear",
+      "beatId": "unplugged-fear-001",
+      "path": "assets/audio/voice/unplugged-fear-001.c320fefe40.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "c320fefe40"
+      },
+      "durationSeconds": 3.64,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:17:22.183Z",
+      "updatedAt": "2026-05-18T14:25:42.532Z"
+    },
+    {
+      "id": "voice-unplugged-fear-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "unplugged-fear",
+      "beatId": "unplugged-fear-002",
+      "path": "assets/audio/voice/unplugged-fear-002.6e55be5829.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "6e55be5829"
+      },
+      "durationSeconds": 3.52,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:17:22.183Z",
+      "updatedAt": "2026-05-18T14:25:42.497Z"
+    },
+    {
+      "id": "voice-the-encounter-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-encounter",
+      "beatId": "the-encounter-001",
+      "path": "assets/audio/voice/the-encounter-001.a10fa3f297.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "a10fa3f297"
+      },
+      "durationSeconds": 4.08,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:17:22.183Z",
+      "updatedAt": "2026-05-18T14:25:42.483Z"
+    },
+    {
+      "id": "voice-the-encounter-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-encounter",
+      "beatId": "the-encounter-002",
+      "path": "assets/audio/voice/the-encounter-002.1a708207ca.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "1a708207ca"
+      },
+      "durationSeconds": 4.72,
+      "status": "generated",
+      "createdAt": "2026-05-18T14:17:22.183Z",
+      "updatedAt": "2026-05-18T14:25:42.504Z"
     }
   ]
 }

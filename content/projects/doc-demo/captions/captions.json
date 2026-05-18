@@ -13,93 +13,98 @@
       "voice-the-footsteps-001",
       "voice-a-mother-s-plea-001",
       "voice-turning-around-001",
-      "voice-turning-around-002"
+      "voice-turning-around-002",
+      "voice-the-whisper-001",
+      "voice-unplugged-fear-001",
+      "voice-unplugged-fear-002",
+      "voice-the-encounter-001",
+      "voice-the-encounter-002"
     ],
-    "sourceHash": "15c05140be4fb67382acd91314b43d53196cb59a99e3fefd78e0e3cf191215f6"
+    "sourceHash": "aa07d3981d411d7d0c8cf5546cee53d3f6696250d424a7d59ec4ecfc5c559b79"
   },
   "captions": [
     {
       "id": "caption-001",
-      "beatId": "finding-the-phone-001",
+      "beatId": "the-whisper-001",
       "startSeconds": 0,
-      "endSeconds": 4.021,
-      "text": "I found a phone ringing in the middle of an empty",
+      "endSeconds": 4.341,
+      "text": "Every night at 2:13 AM, my baby monitor whispered the same",
       "style": "default",
       "words": [
         {
-          "word": "I",
+          "word": "Every",
           "startSeconds": 0,
-          "endSeconds": 0.366,
+          "endSeconds": 0.395,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "found",
-          "startSeconds": 0.366,
-          "endSeconds": 0.731,
+          "word": "night",
+          "startSeconds": 0.395,
+          "endSeconds": 0.789,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "a",
-          "startSeconds": 0.731,
-          "endSeconds": 1.097,
+          "word": "at",
+          "startSeconds": 0.789,
+          "endSeconds": 1.184,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "phone",
-          "startSeconds": 1.097,
-          "endSeconds": 1.462,
+          "word": "2:13",
+          "startSeconds": 1.184,
+          "endSeconds": 1.579,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "ringing",
-          "startSeconds": 1.462,
-          "endSeconds": 1.828,
+          "word": "AM,",
+          "startSeconds": 1.579,
+          "endSeconds": 1.973,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "in",
-          "startSeconds": 1.828,
-          "endSeconds": 2.193,
+          "word": "my",
+          "startSeconds": 1.973,
+          "endSeconds": 2.368,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "baby",
+          "startSeconds": 2.368,
+          "endSeconds": 2.763,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "monitor",
+          "startSeconds": 2.763,
+          "endSeconds": 3.157,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "whispered",
+          "startSeconds": 3.157,
+          "endSeconds": 3.552,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "the",
-          "startSeconds": 2.193,
-          "endSeconds": 2.559,
+          "startSeconds": 3.552,
+          "endSeconds": 3.947,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "middle",
-          "startSeconds": 2.559,
-          "endSeconds": 2.924,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "of",
-          "startSeconds": 2.924,
-          "endSeconds": 3.29,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "an",
-          "startSeconds": 3.29,
-          "endSeconds": 3.655,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "empty",
-          "startSeconds": 3.655,
-          "endSeconds": 4.021,
+          "word": "same",
+          "startSeconds": 3.947,
+          "endSeconds": 4.341,
           "emphasis": false,
           "confidence": 1
         }
@@ -107,23 +112,86 @@
     },
     {
       "id": "caption-002",
-      "beatId": "finding-the-phone-001",
-      "startSeconds": 4.021,
-      "endSeconds": 4.752,
-      "text": "parking lot.",
+      "beatId": "the-whisper-001",
+      "startSeconds": 4.341,
+      "endSeconds": 7.74,
+      "text": "sentence: ‘Daddy, come downstairs.’ The first night, I laughed it off.",
       "style": "default",
       "words": [
         {
-          "word": "parking",
-          "startSeconds": 4.021,
-          "endSeconds": 4.386,
+          "word": "sentence:",
+          "startSeconds": 4.341,
+          "endSeconds": 4.736,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "lot.",
-          "startSeconds": 4.386,
-          "endSeconds": 4.752,
+          "word": "‘Daddy,",
+          "startSeconds": 4.736,
+          "endSeconds": 5.131,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "come",
+          "startSeconds": 5.131,
+          "endSeconds": 5.525,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "downstairs.’",
+          "startSeconds": 5.525,
+          "endSeconds": 5.92,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "The",
+          "startSeconds": 5.92,
+          "endSeconds": 6.18,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "first",
+          "startSeconds": 6.18,
+          "endSeconds": 6.44,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "night,",
+          "startSeconds": 6.44,
+          "endSeconds": 6.7,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "I",
+          "startSeconds": 6.7,
+          "endSeconds": 6.96,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "laughed",
+          "startSeconds": 6.96,
+          "endSeconds": 7.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it",
+          "startSeconds": 7.22,
+          "endSeconds": 7.48,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "off.",
+          "startSeconds": 7.48,
+          "endSeconds": 7.74,
           "emphasis": false,
           "confidence": 1
         }
@@ -131,37 +199,58 @@
     },
     {
       "id": "caption-003",
-      "beatId": "the-caller-001",
-      "startSeconds": 4.752,
-      "endSeconds": 7.416,
-      "text": "The screen said: **Mom**.",
+      "beatId": "unplugged-fear-001",
+      "startSeconds": 7.74,
+      "endSeconds": 9.56,
+      "text": "The second night, I unplugged the monitor.",
       "style": "default",
       "words": [
         {
           "word": "The",
-          "startSeconds": 4.752,
-          "endSeconds": 5.418,
+          "startSeconds": 7.74,
+          "endSeconds": 8,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "screen",
-          "startSeconds": 5.418,
-          "endSeconds": 6.084,
+          "word": "second",
+          "startSeconds": 8,
+          "endSeconds": 8.26,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "said:",
-          "startSeconds": 6.084,
-          "endSeconds": 6.75,
+          "word": "night,",
+          "startSeconds": 8.26,
+          "endSeconds": 8.52,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "**Mom**.",
-          "startSeconds": 6.75,
-          "endSeconds": 7.416,
+          "word": "I",
+          "startSeconds": 8.52,
+          "endSeconds": 8.78,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "unplugged",
+          "startSeconds": 8.78,
+          "endSeconds": 9.04,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 9.04,
+          "endSeconds": 9.3,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "monitor.",
+          "startSeconds": 9.3,
+          "endSeconds": 9.56,
           "emphasis": false,
           "confidence": 1
         }
@@ -169,37 +258,65 @@
     },
     {
       "id": "caption-004",
-      "beatId": "the-caller-002",
-      "startSeconds": 7.416,
-      "endSeconds": 9.816,
-      "text": "I almost didn’t answer.",
+      "beatId": "unplugged-fear-002",
+      "startSeconds": 9.56,
+      "endSeconds": 12.12,
+      "text": "The third night, it turned on by itself.",
       "style": "default",
       "words": [
         {
-          "word": "I",
-          "startSeconds": 7.416,
-          "endSeconds": 8.016,
+          "word": "The",
+          "startSeconds": 9.56,
+          "endSeconds": 9.88,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "almost",
-          "startSeconds": 8.016,
-          "endSeconds": 8.616,
+          "word": "third",
+          "startSeconds": 9.88,
+          "endSeconds": 10.2,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "didn’t",
-          "startSeconds": 8.616,
-          "endSeconds": 9.216,
+          "word": "night,",
+          "startSeconds": 10.2,
+          "endSeconds": 10.52,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "answer.",
-          "startSeconds": 9.216,
-          "endSeconds": 9.816,
+          "word": "it",
+          "startSeconds": 10.52,
+          "endSeconds": 10.84,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "turned",
+          "startSeconds": 10.84,
+          "endSeconds": 11.16,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "on",
+          "startSeconds": 11.16,
+          "endSeconds": 11.48,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "by",
+          "startSeconds": 11.48,
+          "endSeconds": 11.8,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "itself.",
+          "startSeconds": 11.8,
+          "endSeconds": 12.12,
           "emphasis": false,
           "confidence": 1
         }
@@ -207,37 +324,72 @@
     },
     {
       "id": "caption-005",
-      "beatId": "the-caller-002",
-      "startSeconds": 9.816,
-      "endSeconds": 12.216,
-      "text": "But something felt wrong.",
+      "beatId": "unplugged-fear-002",
+      "startSeconds": 12.12,
+      "endSeconds": 14.61,
+      "text": "'Daddy, come downstairs.' This time, the voice sounded closer.",
       "style": "default",
       "words": [
         {
-          "word": "But",
-          "startSeconds": 9.816,
-          "endSeconds": 10.416,
+          "word": "'Daddy,",
+          "startSeconds": 12.12,
+          "endSeconds": 12.44,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "something",
-          "startSeconds": 10.416,
-          "endSeconds": 11.016,
+          "word": "come",
+          "startSeconds": 12.44,
+          "endSeconds": 12.76,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "felt",
-          "startSeconds": 11.016,
-          "endSeconds": 11.616,
+          "word": "downstairs.'",
+          "startSeconds": 12.76,
+          "endSeconds": 13.08,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "wrong.",
-          "startSeconds": 11.616,
-          "endSeconds": 12.216,
+          "word": "This",
+          "startSeconds": 13.08,
+          "endSeconds": 13.335,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "time,",
+          "startSeconds": 13.335,
+          "endSeconds": 13.59,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 13.59,
+          "endSeconds": 13.845,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "voice",
+          "startSeconds": 13.845,
+          "endSeconds": 14.1,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "sounded",
+          "startSeconds": 14.1,
+          "endSeconds": 14.355,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "closer.",
+          "startSeconds": 14.355,
+          "endSeconds": 14.61,
           "emphasis": false,
           "confidence": 1
         }
@@ -245,30 +397,79 @@
     },
     {
       "id": "caption-006",
-      "beatId": "the-caller-002",
-      "startSeconds": 12.216,
-      "endSeconds": 14.664,
-      "text": "So I swiped.",
+      "beatId": "the-encounter-001",
+      "startSeconds": 14.61,
+      "endSeconds": 17.16,
+      "text": "I grabbed a kitchen knife and walked to the stairs.",
       "style": "default",
       "words": [
         {
-          "word": "So",
-          "startSeconds": 12.216,
-          "endSeconds": 13.032,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
           "word": "I",
-          "startSeconds": 13.032,
-          "endSeconds": 13.848,
+          "startSeconds": 14.61,
+          "endSeconds": 14.865,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "swiped.",
-          "startSeconds": 13.848,
-          "endSeconds": 14.664,
+          "word": "grabbed",
+          "startSeconds": 14.865,
+          "endSeconds": 15.12,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 15.12,
+          "endSeconds": 15.375,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "kitchen",
+          "startSeconds": 15.375,
+          "endSeconds": 15.63,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "knife",
+          "startSeconds": 15.63,
+          "endSeconds": 15.885,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 15.885,
+          "endSeconds": 16.14,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "walked",
+          "startSeconds": 16.14,
+          "endSeconds": 16.395,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "to",
+          "startSeconds": 16.395,
+          "endSeconds": 16.65,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 16.65,
+          "endSeconds": 16.905,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "stairs.",
+          "startSeconds": 16.905,
+          "endSeconds": 17.16,
           "emphasis": false,
           "confidence": 1
         }
@@ -276,58 +477,93 @@
     },
     {
       "id": "caption-007",
-      "beatId": "the-caller-003",
-      "startSeconds": 14.664,
-      "endSeconds": 19.15,
-      "text": "Before I could speak, a woman whispered,",
+      "beatId": "the-encounter-002",
+      "startSeconds": 17.16,
+      "endSeconds": 19.992,
+      "text": "At the bottom, I saw a little girl standing in the hallway,",
       "style": "default",
       "words": [
         {
-          "word": "Before",
-          "startSeconds": 14.664,
-          "endSeconds": 15.305,
+          "word": "At",
+          "startSeconds": 17.16,
+          "endSeconds": 17.396,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "I",
-          "startSeconds": 15.305,
-          "endSeconds": 15.946,
+          "word": "the",
+          "startSeconds": 17.396,
+          "endSeconds": 17.632,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "could",
-          "startSeconds": 15.946,
-          "endSeconds": 16.586,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "speak,",
-          "startSeconds": 16.586,
-          "endSeconds": 17.227,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "a",
-          "startSeconds": 17.227,
+          "word": "bottom,",
+          "startSeconds": 17.632,
           "endSeconds": 17.868,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "woman",
+          "word": "I",
           "startSeconds": 17.868,
-          "endSeconds": 18.509,
+          "endSeconds": 18.104,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "whispered,",
-          "startSeconds": 18.509,
-          "endSeconds": 19.15,
+          "word": "saw",
+          "startSeconds": 18.104,
+          "endSeconds": 18.34,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 18.34,
+          "endSeconds": 18.576,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "little",
+          "startSeconds": 18.576,
+          "endSeconds": 18.812,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "girl",
+          "startSeconds": 18.812,
+          "endSeconds": 19.048,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "standing",
+          "startSeconds": 19.048,
+          "endSeconds": 19.284,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "in",
+          "startSeconds": 19.284,
+          "endSeconds": 19.52,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 19.52,
+          "endSeconds": 19.756,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "hallway,",
+          "startSeconds": 19.756,
+          "endSeconds": 19.992,
           "emphasis": false,
           "confidence": 1
         }
@@ -335,51 +571,37 @@
     },
     {
       "id": "caption-008",
-      "beatId": "the-warning-001",
-      "startSeconds": 19.15,
-      "endSeconds": 23.592,
-      "text": "'Don’t turn around.' My stomach dropped.",
+      "beatId": "the-encounter-002",
+      "startSeconds": 19.992,
+      "endSeconds": 20.936,
+      "text": "holding the baby monitor.",
       "style": "default",
       "words": [
         {
-          "word": "'Don’t",
-          "startSeconds": 19.15,
-          "endSeconds": 19.79,
+          "word": "holding",
+          "startSeconds": 19.992,
+          "endSeconds": 20.228,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "turn",
-          "startSeconds": 19.79,
-          "endSeconds": 20.431,
+          "word": "the",
+          "startSeconds": 20.228,
+          "endSeconds": 20.464,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "around.'",
-          "startSeconds": 20.431,
-          "endSeconds": 21.072,
+          "word": "baby",
+          "startSeconds": 20.464,
+          "endSeconds": 20.7,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "My",
-          "startSeconds": 21.072,
-          "endSeconds": 21.912,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "stomach",
-          "startSeconds": 21.912,
-          "endSeconds": 22.752,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "dropped.",
-          "startSeconds": 22.752,
-          "endSeconds": 23.592,
+          "word": "monitor.",
+          "startSeconds": 20.7,
+          "endSeconds": 20.936,
           "emphasis": false,
           "confidence": 1
         }
@@ -387,23 +609,37 @@
     },
     {
       "id": "caption-009",
-      "beatId": "the-warning-002",
-      "startSeconds": 23.592,
-      "endSeconds": 25.272,
-      "text": "I froze.",
+      "beatId": "the-encounter-002",
+      "startSeconds": 20.936,
+      "endSeconds": 21.88,
+      "text": "She smiled at me.",
       "style": "default",
       "words": [
         {
-          "word": "I",
-          "startSeconds": 23.592,
-          "endSeconds": 24.432,
+          "word": "She",
+          "startSeconds": 20.936,
+          "endSeconds": 21.172,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "froze.",
-          "startSeconds": 24.432,
-          "endSeconds": 25.272,
+          "word": "smiled",
+          "startSeconds": 21.172,
+          "endSeconds": 21.408,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "at",
+          "startSeconds": 21.408,
+          "endSeconds": 21.644,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "me.",
+          "startSeconds": 21.644,
+          "endSeconds": 21.88,
           "emphasis": false,
           "confidence": 1
         }
@@ -411,37 +647,58 @@
     },
     {
       "id": "caption-010",
-      "beatId": "the-warning-002",
-      "startSeconds": 25.272,
-      "endSeconds": 27.656,
-      "text": "Then I heard it.",
+      "beatId": "the-warning-001",
+      "startSeconds": 21.88,
+      "endSeconds": 23.544,
+      "text": "Then the monitor in her hand crackled.",
       "style": "default",
       "words": [
         {
           "word": "Then",
-          "startSeconds": 25.272,
-          "endSeconds": 25.868,
+          "startSeconds": 21.88,
+          "endSeconds": 22.118,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "I",
-          "startSeconds": 25.868,
-          "endSeconds": 26.464,
+          "word": "the",
+          "startSeconds": 22.118,
+          "endSeconds": 22.356,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "heard",
-          "startSeconds": 26.464,
-          "endSeconds": 27.06,
+          "word": "monitor",
+          "startSeconds": 22.356,
+          "endSeconds": 22.593,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "it.",
-          "startSeconds": 27.06,
-          "endSeconds": 27.656,
+          "word": "in",
+          "startSeconds": 22.593,
+          "endSeconds": 22.831,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "her",
+          "startSeconds": 22.831,
+          "endSeconds": 23.069,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "hand",
+          "startSeconds": 23.069,
+          "endSeconds": 23.307,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "crackled.",
+          "startSeconds": 23.307,
+          "endSeconds": 23.544,
           "emphasis": false,
           "confidence": 1
         }
@@ -449,30 +706,58 @@
     },
     {
       "id": "caption-011",
-      "beatId": "the-footsteps-001",
-      "startSeconds": 27.656,
-      "endSeconds": 29.444,
-      "text": "Footsteps behind me.",
+      "beatId": "the-warning-001",
+      "startSeconds": 23.544,
+      "endSeconds": 25.209,
+      "text": "And my own voice came through it.",
       "style": "default",
       "words": [
         {
-          "word": "Footsteps",
-          "startSeconds": 27.656,
-          "endSeconds": 28.252,
+          "word": "And",
+          "startSeconds": 23.544,
+          "endSeconds": 23.782,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "behind",
-          "startSeconds": 28.252,
-          "endSeconds": 28.848,
+          "word": "my",
+          "startSeconds": 23.782,
+          "endSeconds": 24.02,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "me.",
-          "startSeconds": 28.848,
-          "endSeconds": 29.444,
+          "word": "own",
+          "startSeconds": 24.02,
+          "endSeconds": 24.258,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "voice",
+          "startSeconds": 24.258,
+          "endSeconds": 24.496,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "came",
+          "startSeconds": 24.496,
+          "endSeconds": 24.733,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "through",
+          "startSeconds": 24.733,
+          "endSeconds": 24.971,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it.",
+          "startSeconds": 24.971,
+          "endSeconds": 25.209,
           "emphasis": false,
           "confidence": 1
         }
@@ -480,16 +765,58 @@
     },
     {
       "id": "caption-012",
-      "beatId": "the-footsteps-001",
-      "startSeconds": 29.444,
-      "endSeconds": 30.04,
-      "text": "Slow.",
+      "beatId": "the-warning-001",
+      "startSeconds": 25.209,
+      "endSeconds": 26.957,
+      "text": "'Don’t go near her.' I looked down.",
       "style": "default",
       "words": [
         {
-          "word": "Slow.",
-          "startSeconds": 29.444,
-          "endSeconds": 30.04,
+          "word": "'Don’t",
+          "startSeconds": 25.209,
+          "endSeconds": 25.447,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "go",
+          "startSeconds": 25.447,
+          "endSeconds": 25.684,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "near",
+          "startSeconds": 25.684,
+          "endSeconds": 25.922,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "her.'",
+          "startSeconds": 25.922,
+          "endSeconds": 26.16,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "I",
+          "startSeconds": 26.16,
+          "endSeconds": 26.426,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "looked",
+          "startSeconds": 26.426,
+          "endSeconds": 26.691,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "down.",
+          "startSeconds": 26.691,
+          "endSeconds": 26.957,
           "emphasis": false,
           "confidence": 1
         }
@@ -497,23 +824,93 @@
     },
     {
       "id": "caption-013",
-      "beatId": "the-footsteps-001",
-      "startSeconds": 30.04,
-      "endSeconds": 31.232,
-      "text": "One step.",
+      "beatId": "the-warning-002",
+      "startSeconds": 26.957,
+      "endSeconds": 30.144,
+      "text": "My phone lit up with a calendar reminder I had never made:",
       "style": "default",
       "words": [
         {
-          "word": "One",
-          "startSeconds": 30.04,
-          "endSeconds": 30.636,
+          "word": "My",
+          "startSeconds": 26.957,
+          "endSeconds": 27.222,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "step.",
-          "startSeconds": 30.636,
-          "endSeconds": 31.232,
+          "word": "phone",
+          "startSeconds": 27.222,
+          "endSeconds": 27.488,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "lit",
+          "startSeconds": 27.488,
+          "endSeconds": 27.754,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "up",
+          "startSeconds": 27.754,
+          "endSeconds": 28.019,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "with",
+          "startSeconds": 28.019,
+          "endSeconds": 28.285,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 28.285,
+          "endSeconds": 28.55,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "calendar",
+          "startSeconds": 28.55,
+          "endSeconds": 28.816,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "reminder",
+          "startSeconds": 28.816,
+          "endSeconds": 29.082,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "I",
+          "startSeconds": 29.082,
+          "endSeconds": 29.347,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "had",
+          "startSeconds": 29.347,
+          "endSeconds": 29.613,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "never",
+          "startSeconds": 29.613,
+          "endSeconds": 29.878,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "made:",
+          "startSeconds": 29.878,
+          "endSeconds": 30.144,
           "emphasis": false,
           "confidence": 1
         }
@@ -521,23 +918,44 @@
     },
     {
       "id": "caption-014",
-      "beatId": "the-footsteps-001",
-      "startSeconds": 31.232,
-      "endSeconds": 32.424,
-      "text": "Then another.",
+      "beatId": "the-warning-002",
+      "startSeconds": 30.144,
+      "endSeconds": 31.472,
+      "text": "2:14 AM — Wake up.",
       "style": "default",
       "words": [
         {
-          "word": "Then",
-          "startSeconds": 31.232,
-          "endSeconds": 31.828,
+          "word": "2:14",
+          "startSeconds": 30.144,
+          "endSeconds": 30.41,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "another.",
-          "startSeconds": 31.828,
-          "endSeconds": 32.424,
+          "word": "AM",
+          "startSeconds": 30.41,
+          "endSeconds": 30.675,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "—",
+          "startSeconds": 30.675,
+          "endSeconds": 30.941,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Wake",
+          "startSeconds": 30.941,
+          "endSeconds": 31.206,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "up.",
+          "startSeconds": 31.206,
+          "endSeconds": 31.472,
           "emphasis": false,
           "confidence": 1
         }
@@ -545,342 +963,44 @@
     },
     {
       "id": "caption-015",
-      "beatId": "a-mother-s-plea-001",
-      "startSeconds": 32.424,
-      "endSeconds": 35.526,
-      "text": "The woman on the phone started crying.",
+      "beatId": "the-warning-002",
+      "startSeconds": 31.472,
+      "endSeconds": 32.8,
+      "text": "You forgot you died here.",
       "style": "default",
       "words": [
         {
-          "word": "The",
-          "startSeconds": 32.424,
-          "endSeconds": 32.867,
+          "word": "You",
+          "startSeconds": 31.472,
+          "endSeconds": 31.738,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "woman",
-          "startSeconds": 32.867,
-          "endSeconds": 33.31,
+          "word": "forgot",
+          "startSeconds": 31.738,
+          "endSeconds": 32.003,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "on",
-          "startSeconds": 33.31,
-          "endSeconds": 33.754,
+          "word": "you",
+          "startSeconds": 32.003,
+          "endSeconds": 32.269,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "the",
-          "startSeconds": 33.754,
-          "endSeconds": 34.197,
+          "word": "died",
+          "startSeconds": 32.269,
+          "endSeconds": 32.534,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "phone",
-          "startSeconds": 34.197,
-          "endSeconds": 34.64,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "started",
-          "startSeconds": 34.64,
-          "endSeconds": 35.083,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "crying.",
-          "startSeconds": 35.083,
-          "endSeconds": 35.526,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-016",
-      "beatId": "a-mother-s-plea-001",
-      "startSeconds": 35.526,
-      "endSeconds": 36.856,
-      "text": "'Please,' she said.",
-      "style": "default",
-      "words": [
-        {
-          "word": "'Please,'",
-          "startSeconds": 35.526,
-          "endSeconds": 35.97,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "she",
-          "startSeconds": 35.97,
-          "endSeconds": 36.413,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "said.",
-          "startSeconds": 36.413,
-          "endSeconds": 36.856,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-017",
-      "beatId": "a-mother-s-plea-001",
-      "startSeconds": 36.856,
-      "endSeconds": 40.488,
-      "text": "'He already has my son.' I turned anyway.",
-      "style": "default",
-      "words": [
-        {
-          "word": "'He",
-          "startSeconds": 36.856,
-          "endSeconds": 37.299,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "already",
-          "startSeconds": 37.299,
-          "endSeconds": 37.742,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "has",
-          "startSeconds": 37.742,
-          "endSeconds": 38.186,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "my",
-          "startSeconds": 38.186,
-          "endSeconds": 38.629,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "son.'",
-          "startSeconds": 38.629,
-          "endSeconds": 39.072,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "I",
-          "startSeconds": 39.072,
-          "endSeconds": 39.544,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "turned",
-          "startSeconds": 39.544,
-          "endSeconds": 40.016,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "anyway.",
-          "startSeconds": 40.016,
-          "endSeconds": 40.488,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-018",
-      "beatId": "turning-around-002",
-      "startSeconds": 40.488,
-      "endSeconds": 43.488,
-      "text": "And standing under the only broken streetlight...",
-      "style": "default",
-      "words": [
-        {
-          "word": "And",
-          "startSeconds": 40.488,
-          "endSeconds": 40.917,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "standing",
-          "startSeconds": 40.917,
-          "endSeconds": 41.345,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "under",
-          "startSeconds": 41.345,
-          "endSeconds": 41.774,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "the",
-          "startSeconds": 41.774,
-          "endSeconds": 42.202,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "only",
-          "startSeconds": 42.202,
-          "endSeconds": 42.631,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "broken",
-          "startSeconds": 42.631,
-          "endSeconds": 43.059,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "streetlight...",
-          "startSeconds": 43.059,
-          "endSeconds": 43.488,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-019",
-      "beatId": "turning-around-002",
-      "startSeconds": 43.488,
-      "endSeconds": 45.202,
-      "text": "was a little boy.",
-      "style": "default",
-      "words": [
-        {
-          "word": "was",
-          "startSeconds": 43.488,
-          "endSeconds": 43.917,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "a",
-          "startSeconds": 43.917,
-          "endSeconds": 44.345,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "little",
-          "startSeconds": 44.345,
-          "endSeconds": 44.774,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "boy.",
-          "startSeconds": 44.774,
-          "endSeconds": 45.202,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-020",
-      "beatId": "turning-around-002",
-      "startSeconds": 45.202,
-      "endSeconds": 47.345,
-      "text": "Holding my exact same phone.",
-      "style": "default",
-      "words": [
-        {
-          "word": "Holding",
-          "startSeconds": 45.202,
-          "endSeconds": 45.631,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "my",
-          "startSeconds": 45.631,
-          "endSeconds": 46.059,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "exact",
-          "startSeconds": 46.059,
-          "endSeconds": 46.488,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "same",
-          "startSeconds": 46.488,
-          "endSeconds": 46.917,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "phone.",
-          "startSeconds": 46.917,
-          "endSeconds": 47.345,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-021",
-      "beatId": "turning-around-002",
-      "startSeconds": 47.345,
-      "endSeconds": 49.488,
-      "text": "And it was ringing too.",
-      "style": "default",
-      "words": [
-        {
-          "word": "And",
-          "startSeconds": 47.345,
-          "endSeconds": 47.774,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "it",
-          "startSeconds": 47.774,
-          "endSeconds": 48.202,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "was",
-          "startSeconds": 48.202,
-          "endSeconds": 48.631,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "ringing",
-          "startSeconds": 48.631,
-          "endSeconds": 49.059,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "too.",
-          "startSeconds": 49.059,
-          "endSeconds": 49.488,
+          "word": "here.",
+          "startSeconds": 32.534,
+          "endSeconds": 32.8,
           "emphasis": false,
           "confidence": 1
         }

@@ -11,15 +11,15 @@
   },
   "providers": {
     "llm": "manual",
-    "tts": "openai",
+    "tts": "chatterbox",
     "transcription": "mock",
     "media": "manual-media",
     "renderer": "remotion"
   },
   "voice": {
-    "provider": "openai",
-    "voiceId": "echo",
-    "format": "mp3",
+    "provider": "chatterbox",
+    "voiceId": "clone",
+    "format": "wav",
     "options": {
       "speed": 1,
       "emotion": "engaged, suspenseful, intimate"
@@ -27,15 +27,15 @@
   },
   "sections": [
     {
-      "id": "finding-the-phone",
-      "title": "Finding the Phone",
-      "purpose": "Set the scene and establish tension.",
+      "id": "the-whisper",
+      "title": "The Whisper",
+      "purpose": "Set the tone for the unsettling events that unfold.",
       "estimatedDurationSeconds": 5,
       "beats": [
         {
-          "id": "finding-the-phone-001",
+          "id": "the-whisper-001",
           "order": 1,
-          "narration": "I found a phone ringing in the middle of an empty parking lot.",
+          "narration": "Every night at 2:13 AM, my baby monitor whispered the same sentence: ‘Daddy, come downstairs.’",
           "timing": {
             "estimatedDurationSeconds": 5,
             "preferredMinSeconds": 4,
@@ -44,292 +44,51 @@
           },
           "media": [
             {
-              "id": "finding-the-phone-001-visual",
+              "id": "the-whisper-001-visual",
               "type": "title_card",
               "role": "primary_visual",
-              "prompt": "A dimly lit, desolate parking lot at night, shadows creeping in the corners, a single phone lies face down, vibrating against the concrete, no cars in sight.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "slow_zoom_out",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "A dimly lit, desolate parking lot at night, shadows creeping in the corners, a single phone lies face down, vibrating against the concrete, no cars in sight."
-        }
-      ]
-    },
-    {
-      "id": "the-caller",
-      "title": "The Caller",
-      "purpose": "Introduce the tension and the mysterious voice.",
-      "estimatedDurationSeconds": 9,
-      "beats": [
-        {
-          "id": "the-caller-001",
-          "order": 1,
-          "narration": "The screen said: **Mom**.",
-          "timing": {
-            "estimatedDurationSeconds": 3,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "the-caller-001-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "Close-up of the phone screen showing 'Mom' as the caller ID, with a trembling hand reaching out to pick it up.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "none",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "Close-up of the phone screen showing 'Mom' as the caller ID, with a trembling hand reaching out to pick it up."
-        },
-        {
-          "id": "the-caller-002",
-          "order": 2,
-          "narration": "I almost didn’t answer. But something felt wrong.",
-          "timing": {
-            "estimatedDurationSeconds": 4,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "the-caller-002-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "A shaky hand hovering over the screen, hesitation evident in the posture, the atmosphere heavy with suspense.",
+              "prompt": "A dimly lit bedroom, shadows creeping across the walls, a baby monitor flickering with static.",
               "scaleMode": "cover",
               "placement": "background"
             }
           ],
           "motion": {
             "type": "slow_zoom_in",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "A shaky hand hovering over the screen, hesitation evident in the posture, the atmosphere heavy with suspense."
-        },
-        {
-          "id": "the-caller-003",
-          "order": 3,
-          "narration": "So I swiped.",
-          "timing": {
-            "estimatedDurationSeconds": 2,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "the-caller-003-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "Fingers swiping on the phone screen with a swift motion, the background blurred to reflect anxiety.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "none",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "Fingers swiping on the phone screen with a swift motion, the background blurred to reflect anxiety."
-        }
-      ]
-    },
-    {
-      "id": "the-warning",
-      "title": "The Warning",
-      "purpose": "Heighten the suspense and sense of danger.",
-      "estimatedDurationSeconds": 9,
-      "beats": [
-        {
-          "id": "the-warning-001",
-          "order": 1,
-          "narration": "Before I could speak, a woman whispered, 'Don’t turn around.'",
-          "timing": {
-            "estimatedDurationSeconds": 5,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "the-warning-001-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "A close-up on the protagonist's face with wide eyes, reflecting fear and confusion, the darkness around amplifying the tension.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "none",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "A close-up on the protagonist's face with wide eyes, reflecting fear and confusion, the darkness around amplifying the tension."
-        },
-        {
-          "id": "the-warning-002",
-          "order": 2,
-          "narration": "My stomach dropped. I froze.",
-          "timing": {
-            "estimatedDurationSeconds": 4,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "the-warning-002-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "Slow-motion shot of the protagonist's body going rigid, heart pounding, surrounded by darkness.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "none",
             "intensity": 0.08
           },
           "caption": {
             "emphasis": [
-              "emphasis on fear"
+              "suspense",
+              "intrigue"
             ],
             "style": "default"
           },
-          "notes": "Slow-motion shot of the protagonist's body going rigid, heart pounding, surrounded by darkness."
+          "notes": "A dimly lit bedroom, shadows creeping across the walls, a baby monitor flickering with static."
         }
       ]
     },
     {
-      "id": "the-footsteps",
-      "title": "The Footsteps",
-      "purpose": "Build suspense.",
-      "estimatedDurationSeconds": 5,
+      "id": "unplugged-fear",
+      "title": "Unplugged Fear",
+      "purpose": "Illustrate the growing tension and concern.",
+      "estimatedDurationSeconds": 8,
       "beats": [
         {
-          "id": "the-footsteps-001",
+          "id": "unplugged-fear-001",
           "order": 1,
-          "narration": "Then I heard it. Footsteps behind me. Slow. One step. Then another.",
+          "narration": "The first night, I laughed it off. The second night, I unplugged the monitor.",
           "timing": {
-            "estimatedDurationSeconds": 5,
+            "estimatedDurationSeconds": 4,
             "preferredMinSeconds": 4,
             "preferredMaxSeconds": 20,
             "mediaPolicy": "loop_or_freeze"
           },
           "media": [
             {
-              "id": "the-footsteps-001-visual",
+              "id": "unplugged-fear-001-visual",
               "type": "title_card",
               "role": "primary_visual",
-              "prompt": "Audio waves echoing through the empty lot, with the camera panning to the shadows slowly approaching, tension mounting.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "pan_right",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "Audio waves echoing through the empty lot, with the camera panning to the shadows slowly approaching, tension mounting."
-        }
-      ]
-    },
-    {
-      "id": "a-mother-s-plea",
-      "title": "A Mother's Plea",
-      "purpose": "Evoke empathy and urgency.",
-      "estimatedDurationSeconds": 6,
-      "beats": [
-        {
-          "id": "a-mother-s-plea-001",
-          "order": 1,
-          "narration": "The woman on the phone started crying. 'Please,' she said. 'He already has my son.'",
-          "timing": {
-            "estimatedDurationSeconds": 6,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "a-mother-s-plea-001-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "Close-up on the phone speaker, distorted with emotion, shadows reflecting on the protagonist's face, showcasing panic.",
-              "scaleMode": "cover",
-              "placement": "background"
-            }
-          ],
-          "motion": {
-            "type": "slow_zoom_in",
-            "intensity": 0.08
-          },
-          "caption": {
-            "emphasis": [],
-            "style": "default"
-          },
-          "notes": "Close-up on the phone speaker, distorted with emotion, shadows reflecting on the protagonist's face, showcasing panic."
-        }
-      ]
-    },
-    {
-      "id": "turning-around",
-      "title": "Turning Around",
-      "purpose": "Reveal the twist.",
-      "estimatedDurationSeconds": 11,
-      "beats": [
-        {
-          "id": "turning-around-001",
-          "order": 1,
-          "narration": "I turned anyway.",
-          "timing": {
-            "estimatedDurationSeconds": 3,
-            "preferredMinSeconds": 4,
-            "preferredMaxSeconds": 20,
-            "mediaPolicy": "loop_or_freeze"
-          },
-          "media": [
-            {
-              "id": "turning-around-001-visual",
-              "type": "title_card",
-              "role": "primary_visual",
-              "prompt": "Dramatic turn of the protagonist revealing their brave face, with a slight tilt and blur emphasizing the movement.",
+              "prompt": "A hand reaching to unplug the monitor, the room dark and foreboding.",
               "scaleMode": "cover",
               "placement": "background"
             }
@@ -339,27 +98,30 @@
             "intensity": 0.08
           },
           "caption": {
-            "emphasis": [],
+            "emphasis": [
+              "denial",
+              "tension"
+            ],
             "style": "default"
           },
-          "notes": "Dramatic turn of the protagonist revealing their brave face, with a slight tilt and blur emphasizing the movement."
+          "notes": "A hand reaching to unplug the monitor, the room dark and foreboding."
         },
         {
-          "id": "turning-around-002",
+          "id": "unplugged-fear-002",
           "order": 2,
-          "narration": "And standing under the only broken streetlight... was a little boy. Holding my exact same phone. And it was ringing too.",
+          "narration": "The third night, it turned on by itself. 'Daddy, come downstairs.'",
           "timing": {
-            "estimatedDurationSeconds": 8,
+            "estimatedDurationSeconds": 4,
             "preferredMinSeconds": 4,
             "preferredMaxSeconds": 20,
             "mediaPolicy": "loop_or_freeze"
           },
           "media": [
             {
-              "id": "turning-around-002-visual",
+              "id": "unplugged-fear-002-visual",
               "type": "title_card",
               "role": "primary_visual",
-              "prompt": "A shadowy figure of a little boy illuminated by a flickering streetlight, clutching the same phone, an ominous contrast echoing through the dark.",
+              "prompt": "The monitor glowing eerily in a dark room, casting mysterious shadows.",
               "scaleMode": "cover",
               "placement": "background"
             }
@@ -371,11 +133,159 @@
           "caption": {
             "emphasis": [
               "shock",
-              "realization"
+              "fear"
             ],
             "style": "default"
           },
-          "notes": "A shadowy figure of a little boy illuminated by a flickering streetlight, clutching the same phone, an ominous contrast echoing through the dark."
+          "notes": "The monitor glowing eerily in a dark room, casting mysterious shadows."
+        }
+      ]
+    },
+    {
+      "id": "the-encounter",
+      "title": "The Encounter",
+      "purpose": "Build suspense as the protagonist confronts the unknown.",
+      "estimatedDurationSeconds": 10,
+      "beats": [
+        {
+          "id": "the-encounter-001",
+          "order": 1,
+          "narration": "This time, the voice sounded closer. I grabbed a kitchen knife and walked to the stairs.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-encounter-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up of a kitchen knife reflecting dim light, the hand gripping it tightly, anticipation building.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "fear",
+              "danger"
+            ],
+            "style": "default"
+          },
+          "notes": "A close-up of a kitchen knife reflecting dim light, the hand gripping it tightly, anticipation building."
+        },
+        {
+          "id": "the-encounter-002",
+          "order": 2,
+          "narration": "At the bottom, I saw a little girl standing in the hallway, holding the baby monitor. She smiled at me.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-encounter-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A little girl in a white dress, standing in the shadows, holding a glowing monitor, smiling eerily.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "unsettling",
+              "innocence"
+            ],
+            "style": "default"
+          },
+          "notes": "A little girl in a white dress, standing in the shadows, holding a glowing monitor, smiling eerily."
+        }
+      ]
+    },
+    {
+      "id": "the-warning",
+      "title": "The Warning",
+      "purpose": "Deliver the climactic revelation of the story.",
+      "estimatedDurationSeconds": 10,
+      "beats": [
+        {
+          "id": "the-warning-001",
+          "order": 1,
+          "narration": "Then the monitor in her hand crackled. And my own voice came through it. 'Don’t go near her.'",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-warning-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "The monitor crackling to life, images of the girl and the protagonist reflected in its screen, anxiety palpable.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "horror",
+              "revelation"
+            ],
+            "style": "default"
+          },
+          "notes": "The monitor crackling to life, images of the girl and the protagonist reflected in its screen, anxiety palpable."
+        },
+        {
+          "id": "the-warning-002",
+          "order": 2,
+          "narration": "I looked down. My phone lit up with a calendar reminder I had never made: 2:14 AM — Wake up. You forgot you died here.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-warning-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up on a phone screen with the calendar reminder illuminated, the time eerie against the backdrop of darkness.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "shock",
+              "finality"
+            ],
+            "style": "default"
+          },
+          "notes": "A close-up on a phone screen with the calendar reminder illuminated, the time eerie against the backdrop of darkness."
         }
       ]
     }
