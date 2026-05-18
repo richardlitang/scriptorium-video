@@ -9,6 +9,20 @@ const qualityOutput = document.getElementById("quality-output");
 const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
+const voiceSettingsBtn = document.getElementById("voice-settings-btn");
+const voiceSettingsDialog = document.getElementById("voice-settings-dialog");
+const voiceSettingsForm = document.getElementById("voice-settings-form");
+const voiceSettingsClose = document.getElementById("voice-settings-close");
+const voiceTtsModel = document.getElementById("voice-tts-model");
+const voiceAudioPromptPath = document.getElementById("voice-audio-prompt-path");
+const voiceExaggeration = document.getElementById("voice-exaggeration");
+const voiceCfgWeight = document.getElementById("voice-cfg-weight");
+const voiceTemperature = document.getElementById("voice-temperature");
+const voiceSeed = document.getElementById("voice-seed");
+const voiceExaggerationValue = document.getElementById("voice-exaggeration-value");
+const voiceCfgWeightValue = document.getElementById("voice-cfg-weight-value");
+const voiceTemperatureValue = document.getElementById("voice-temperature-value");
+const voiceSettingsStatus = document.getElementById("voice-settings-status");
 const savePlanBtn = document.getElementById("save-plan-btn");
 const prepareDraftBtn = document.getElementById("prepare-draft-btn");
 const renderDraftBtn = document.getElementById("render-draft-btn");
@@ -77,6 +91,52 @@ function normalizeImageCoverage(value) {
 
 function fmt(value) {
   return JSON.stringify(value, null, 2);
+}
+
+function updateVoiceOutputs() {
+  voiceExaggerationValue.value = Number(voiceExaggeration.value || 0).toFixed(2);
+  voiceCfgWeightValue.value = Number(voiceCfgWeight.value || 0).toFixed(2);
+  voiceTemperatureValue.value = Number(voiceTemperature.value || 0).toFixed(2);
+}
+
+function applyVoiceSettings(settings) {
+  voiceTtsModel.value = settings.ttsModel ?? "chatterbox";
+  voiceAudioPromptPath.value = settings.audioPromptPath ?? "";
+  voiceExaggeration.value = settings.exaggeration ?? 0.55;
+  voiceCfgWeight.value = settings.cfgWeight ?? 0.35;
+  voiceTemperature.value = settings.temperature ?? 0.75;
+  voiceSeed.value = settings.seed ?? "";
+  updateVoiceOutputs();
+}
+
+function readVoiceSettingsForm() {
+  return {
+    ttsModel: voiceTtsModel.value,
+    audioPromptPath: voiceAudioPromptPath.value,
+    exaggeration: Number(voiceExaggeration.value),
+    cfgWeight: Number(voiceCfgWeight.value),
+    temperature: Number(voiceTemperature.value),
+    seed: voiceSeed.value
+  };
+}
+
+async function loadVoiceSettings() {
+  const result = await fetchJson("/api/settings/voice");
+  applyVoiceSettings(result.data);
+}
+
+function applyVoicePreset(preset) {
+  const presets = {
+    controlled: { exaggeration: 0.45, cfgWeight: 0.45, temperature: 0.6 },
+    suspense: { exaggeration: 0.55, cfgWeight: 0.35, temperature: 0.75 },
+    dramatic: { exaggeration: 0.7, cfgWeight: 0.3, temperature: 0.85 }
+  };
+  const values = presets[preset];
+  if (!values) return;
+  voiceExaggeration.value = values.exaggeration;
+  voiceCfgWeight.value = values.cfgWeight;
+  voiceTemperature.value = values.temperature;
+  updateVoiceOutputs();
 }
 
 async function fetchJson(url, options) {
@@ -209,6 +269,7 @@ function updateStoryButtons() {
   aiPlanBtn.disabled = !hasSelectedProject || !hasStory;
   clearStoryBtn.disabled = !hasStory;
   renderBtn.disabled = !hasSelectedProject;
+  voiceSettingsBtn.disabled = false;
 }
 
 function syncStoryButtonsSoon() {
@@ -978,6 +1039,44 @@ storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
   control.addEventListener("change", saveUiState);
 });
+[voiceExaggeration, voiceCfgWeight, voiceTemperature].forEach((control) => {
+  control.addEventListener("input", updateVoiceOutputs);
+});
+document.querySelectorAll("[data-voice-preset]").forEach((button) => {
+  button.addEventListener("click", () => {
+    applyVoicePreset(button.dataset.voicePreset);
+    voiceSettingsStatus.textContent = "";
+  });
+});
+voiceSettingsBtn.onclick = async () => {
+  voiceSettingsStatus.textContent = "Loading settings...";
+  try {
+    await loadVoiceSettings();
+    voiceSettingsStatus.textContent = "";
+    voiceSettingsDialog.showModal();
+  } catch (error) {
+    voiceSettingsStatus.textContent = String(error);
+    voiceSettingsDialog.showModal();
+  }
+};
+voiceSettingsClose.onclick = () => {
+  voiceSettingsDialog.close();
+};
+voiceSettingsForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  voiceSettingsStatus.textContent = "Saving...";
+  try {
+    const result = await fetchJson("/api/settings/voice", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(readVoiceSettingsForm())
+    });
+    applyVoiceSettings(result.data);
+    voiceSettingsStatus.textContent = "Saved. Regenerate narration to hear these settings.";
+  } catch (error) {
+    voiceSettingsStatus.textContent = String(error);
+  }
+});
 planEditor.addEventListener("input", () => {
   hasUnsavedPlan = true;
   needsPrepareDraft = true;
@@ -1016,6 +1115,10 @@ savePlanBtn.onclick = async () => {
     savePlanBtn.textContent = "Save Plan";
   }
 };
+
+loadVoiceSettings().catch((error) => {
+  voiceSettingsStatus.textContent = String(error);
+});
 
 loadProjects().catch((error) => {
   projectMeta.textContent = String(error);

@@ -1,0 +1,44 @@
+import assert from "node:assert/strict";
+import { test } from "node:test";
+import { normalizeVoiceSettings, voiceSettingsEnv } from "../voice-settings.mjs";
+
+test("voice settings normalize user input into bounded Chatterbox controls", () => {
+  const settings = normalizeVoiceSettings({
+    ttsModel: " chatterbox ",
+    audioPromptPath: " /tmp/reference.wav ",
+    exaggeration: "9",
+    cfgWeight: "-1",
+    temperature: "0.62",
+    seed: "42.9"
+  });
+
+  assert.deepEqual(settings, {
+    ttsModel: "chatterbox",
+    audioPromptPath: "/tmp/reference.wav",
+    exaggeration: 1.5,
+    cfgWeight: 0,
+    temperature: 0.62,
+    seed: "42"
+  });
+});
+
+test("voice settings produce the environment used by CLI TTS jobs", () => {
+  assert.deepEqual(
+    voiceSettingsEnv({
+      ttsModel: "chatterbox",
+      audioPromptPath: "/tmp/ref.wav",
+      exaggeration: 0.7,
+      cfgWeight: 0.3,
+      temperature: 0.8,
+      seed: "123"
+    }),
+    {
+      CHATTERBOX_TTS_MODEL: "chatterbox",
+      CHATTERBOX_EXAGGERATION: "0.7",
+      CHATTERBOX_CFG_WEIGHT: "0.3",
+      CHATTERBOX_TEMPERATURE: "0.8",
+      CHATTERBOX_AUDIO_PROMPT_PATH: "/tmp/ref.wav",
+      CHATTERBOX_SEED: "123"
+    }
+  );
+});

@@ -25,6 +25,7 @@
             <pre id="project-meta" class="project-meta"></pre>
           </div>
           <div class="hero-actions">
+            <button id="voice-settings-btn" class="ghost-btn" disabled>Voice Settings</button>
             <button id="clear-story-btn" class="ghost-btn" disabled>Clear Words</button>
             <button id="stop-run-btn" class="danger-btn" disabled>Stop</button>
             <button id="render-btn" class="primary-btn" disabled>Make Draft</button>
@@ -169,6 +170,57 @@
         </details>
       </section>
     </main>
+    <dialog id="voice-settings-dialog" class="settings-dialog">
+      <form id="voice-settings-form" method="dialog">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">Narration</p>
+            <h3>Chatterbox Voice Settings</h3>
+          </div>
+          <button id="voice-settings-close" type="button" class="ghost-btn">Close</button>
+        </div>
+        <div class="settings-grid">
+          <label class="settings-field settings-field-wide">
+            Voice reference path
+            <input id="voice-audio-prompt-path" type="text" placeholder="/absolute/path/to/reference.wav" />
+          </label>
+          <label class="settings-field">
+            Model
+            <select id="voice-tts-model">
+              <option value="chatterbox">chatterbox</option>
+            </select>
+          </label>
+          <label class="settings-field">
+            Seed
+            <input id="voice-seed" type="number" step="1" placeholder="random" />
+          </label>
+          <label class="settings-field">
+            Exaggeration
+            <input id="voice-exaggeration" type="range" min="0" max="1.5" step="0.05" />
+            <output id="voice-exaggeration-value"></output>
+          </label>
+          <label class="settings-field">
+            CFG weight
+            <input id="voice-cfg-weight" type="range" min="0" max="1.5" step="0.05" />
+            <output id="voice-cfg-weight-value"></output>
+          </label>
+          <label class="settings-field">
+            Temperature
+            <input id="voice-temperature" type="range" min="0" max="2" step="0.05" />
+            <output id="voice-temperature-value"></output>
+          </label>
+        </div>
+        <div class="preset-row">
+          <button type="button" data-voice-preset="controlled">Controlled</button>
+          <button type="button" data-voice-preset="suspense">Suspense</button>
+          <button type="button" data-voice-preset="dramatic">Dramatic</button>
+        </div>
+        <p id="voice-settings-status" class="settings-status"></p>
+        <div class="dialog-actions">
+          <button id="voice-settings-save" type="submit" class="primary-btn">Save Settings</button>
+        </div>
+      </form>
+    </dialog>
     <script type="module" src="/app.js"></script>
   </body>
 </html>

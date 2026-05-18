@@ -7,6 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { imageReuseKey, narrationFromImagePrompt, selectCachedImage } from "./image-cache.mjs";
+import { defaultVoiceSettings, normalizeVoiceSettings, voiceSettingsEnv } from "./voice-settings.mjs";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -17,6 +18,7 @@ const projectsDir = path.join(rootDir, "content", "projects");
 const qualityHistoryDir = path.join(rootDir, ".studio-data", "quality-history");
 const imageHistoryDir = path.join(rootDir, ".studio-data", "image-history");
 const imageCachePath = path.join(rootDir, ".studio-data", "image-cache.ndjson");
+const voiceSettingsPath = path.join(rootDir, ".studio-data", "voice-settings.json");
 const projectMutationQueues = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
@@ -56,6 +58,18 @@ function parseJsonBody(req) {
 async function safeReadJson(jsonPath) {
   const raw = await readFile(jsonPath, "utf8");
   return JSON.parse(raw);
+}
+
+async function readVoiceSettings() {
+  const saved = await safeReadJson(voiceSettingsPath).catch(() => defaultVoiceSettings);
+  return normalizeVoiceSettings(saved);
+}
+
+async function writeVoiceSettings(settings) {
+  const normalized = normalizeVoiceSettings(settings);
+  await mkdir(path.dirname(voiceSettingsPath), { recursive: true });
+  await writeFile(voiceSettingsPath, `${JSON.stringify(normalized, null, 2)}\n`, "utf8");
+  return normalized;
 }
 
 async function readOptionalFile(filePath) {
@@ -972,7 +986,11 @@ async function runLvstudio(args) {
   const command = ["pnpm", "lvstudio", ...args].join(" ");
   const startedAt = Date.now();
   try {
-    const { stdout, stderr } = await execFileAsync("pnpm", ["lvstudio", ...args], { cwd: rootDir });
+    const settings = await readVoiceSettings();
+    const { stdout, stderr } = await execFileAsync("pnpm", ["lvstudio", ...args], {
+      cwd: rootDir,
+      env: { ...process.env, ...voiceSettingsEnv(settings) }
+    });
     await appendCommandLog({
       command,
       ok: true,
@@ -1067,6 +1085,19 @@ const server = createServer(async (req, res) => {
   try {
     if (pathname === "/api/projects" && req.method === "GET") {
       return sendJson(res, 200, { ok: true, projects: await listProjects() });
+    }
+
+    if (pathname === "/api/settings/voice" && req.method === "GET") {
+      return sendJson(res, 200, { ok: true, data: await readVoiceSettings() });
+    }
+
+    if (pathname === "/api/settings/voice" && req.method === "PUT") {
+      const body = await parseJsonBody(req);
+      return sendJson(res, 200, {
+        ok: true,
+        message: "Voice settings saved.",
+        data: await writeVoiceSettings(body)
+      });
     }
 
     if (pathname === "/api/projects" && req.method === "POST") {

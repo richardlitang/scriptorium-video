@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import subprocess
 import tempfile
+import inspect
 from pathlib import Path
 from typing import Any
 
@@ -35,6 +36,7 @@ class SpeechRequest(BaseModel):
     exaggeration: float = 0.5
     cfg_weight: float = 0.5
     temperature: float = 0.8
+    seed: int | None = None
 
 
 app = FastAPI(title="Local Video Studio Chatterbox TTS")
@@ -83,13 +85,18 @@ def speech(request: SpeechRequest) -> Response:
         raise HTTPException(status_code=400, detail="Only wav and mp3 response formats are supported.")
 
     audio_prompt_path = request.audio_prompt_path or os.environ.get("CHATTERBOX_AUDIO_PROMPT_PATH")
-    wav = model.generate(
-        request.input,
-        audio_prompt_path=audio_prompt_path,
-        exaggeration=request.exaggeration,
-        cfg_weight=request.cfg_weight,
-        temperature=request.temperature,
-    )
+    generate_kwargs: dict[str, Any] = {
+        "audio_prompt_path": audio_prompt_path,
+        "exaggeration": request.exaggeration,
+        "cfg_weight": request.cfg_weight,
+        "temperature": request.temperature,
+    }
+    if request.seed is not None:
+        signature = inspect.signature(model.generate)
+        if "seed" in signature.parameters:
+            generate_kwargs["seed"] = request.seed
+
+    wav = model.generate(request.input, **generate_kwargs)
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
         temp_wav = Path(handle.name)
