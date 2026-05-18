@@ -11,6 +11,7 @@ const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
 const savePlanBtn = document.getElementById("save-plan-btn");
 const prepareDraftBtn = document.getElementById("prepare-draft-btn");
+const renderDraftBtn = document.getElementById("render-draft-btn");
 const generateImagesBtn = document.getElementById("generate-images-btn");
 const mediaPreview = document.getElementById("media-preview");
 const renderOutput = document.getElementById("render-output");
@@ -286,7 +287,7 @@ function renderWorkflowState() {
   const items = [];
   if (hasUnsavedPlan) items.push({ level: "step", text: "Plan has converted story changes that are not saved yet." });
   if (!hasUnsavedPlan && needsPrepareDraft) items.push({ level: "step", text: "Make Draft will regenerate narration, images if enabled, captions, and video." });
-  if (needsRender) items.push({ level: "step", text: "Rendered Output still shows the previous draft until Make Draft completes." });
+  if (needsRender) items.push({ level: "step", text: "Rendered Output still shows the previous draft. Use Render Draft Only to resume without regenerating audio or photos." });
   renderStoryFeedback(items);
 }
 
@@ -708,6 +709,7 @@ async function selectProject(projectId, element) {
   renderBtn.disabled = false;
   savePlanBtn.disabled = false;
   prepareDraftBtn.disabled = false;
+  renderDraftBtn.disabled = false;
   generateImagesBtn.disabled = false;
   hasUnsavedPlan = false;
   needsPrepareDraft = false;
@@ -878,6 +880,28 @@ prepareDraftBtn.onclick = async () => {
   } finally {
     prepareDraftBtn.disabled = false;
     prepareDraftBtn.textContent = "Prepare Draft";
+  }
+};
+
+renderDraftBtn.onclick = async () => {
+  if (!selectedProjectId) return;
+  renderDraftBtn.disabled = true;
+  renderDraftBtn.textContent = "Rendering...";
+  try {
+    const result = await fetchJson(`/api/projects/${selectedProjectId}/render?quality=draft&force=true`, { method: "POST" });
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRender:\n${result.output}`;
+    await selectProject(selectedProjectId, selectedProjectElement);
+    hasUnsavedPlan = false;
+    needsPrepareDraft = false;
+    needsRender = false;
+    await refreshRenderOutput(selectedProjectId);
+    await refreshQualityHistory(selectedProjectId);
+    renderWorkflowState();
+  } catch (error) {
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRender Draft failed:\n${String(error)}`;
+  } finally {
+    renderDraftBtn.disabled = false;
+    renderDraftBtn.textContent = "Render Draft Only";
   }
 };
 
