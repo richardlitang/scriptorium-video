@@ -1,6 +1,6 @@
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
-import { access, readFile } from "node:fs/promises";
+import { readFile } from "node:fs/promises";
 import path, { extname } from "node:path";
 import { pathToFileURL } from "node:url";
 import type { RenderRequest, RenderResult, RendererProvider } from "@lvstudio/core";
@@ -10,6 +10,14 @@ type RemotionInputProps = {
   quality: "draft" | "final";
   assetUrls: Record<string, string>;
 };
+
+function remotionPort(): number {
+  const port = Number(process.env.LVSTUDIO_REMOTION_PORT ?? "3101");
+  if (!Number.isInteger(port) || port < 1024 || port > 65535) {
+    throw new Error(`Invalid LVSTUDIO_REMOTION_PORT: ${process.env.LVSTUDIO_REMOTION_PORT}`);
+  }
+  return port;
+}
 
 export class RemotionRenderer implements RendererProvider {
   id = "remotion";
@@ -21,16 +29,6 @@ export class RemotionRenderer implements RendererProvider {
     supportsAudioMixing: true,
     supportedTemplates: ["vertical-story", "documentary-longform"]
   };
-
-  private async browserExecutable(): Promise<string | null> {
-    const chromePath = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
-    try {
-      await access(chromePath);
-      return chromePath;
-    } catch {
-      return null;
-    }
-  }
 
   private mimeFromPath(filePath: string): string | null {
     const ext = extname(filePath).toLowerCase();
@@ -74,12 +72,12 @@ export class RemotionRenderer implements RendererProvider {
     const serveUrl = await bundle({
       entryPoint: path.resolve(process.cwd(), "apps", "renderer", "src", "index.ts")
     });
-    const browserExecutable = await this.browserExecutable();
+    const port = remotionPort();
     const composition = await selectComposition({
       serveUrl,
       id: request.renderBundle.resolvedConfig.templateId,
       inputProps,
-      browserExecutable
+      port
     });
 
     await renderMedia({
@@ -88,7 +86,7 @@ export class RemotionRenderer implements RendererProvider {
       codec: "h264",
       outputLocation: request.outputPath,
       inputProps,
-      browserExecutable
+      port
     });
 
     return {

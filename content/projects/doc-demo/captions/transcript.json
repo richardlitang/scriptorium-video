@@ -1,0 +1,637 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "provider": "mock",
+    "audioAssetIds": [
+      "voice-finding-the-phone-001",
+      "voice-the-caller-001",
+      "voice-the-caller-002",
+      "voice-the-caller-003",
+      "voice-the-warning-001",
+      "voice-the-warning-002",
+      "voice-the-footsteps-001",
+      "voice-a-mother-s-plea-001",
+      "voice-turning-around-001",
+      "voice-turning-around-002"
+    ]
+  },
+  "text": "I found a phone ringing in the middle of an empty parking lot. The screen said: **Mom**. I almost didn’t answer. But something felt wrong. So I swiped. Before I could speak, a woman whispered, 'Don’t turn around.' My stomach dropped. I froze. Then I heard it. Footsteps behind me. Slow. One step. Then another. The woman on the phone started crying. 'Please,' she said. 'He already has my son.' I turned anyway. And standing under the only broken streetlight... was a little boy. Holding my exact same phone. And it was ringing too.",
+  "segments": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 4.752,
+      "text": "I found a phone ringing in the middle of an empty parking lot."
+    },
+    {
+      "startSeconds": 4.752,
+      "endSeconds": 7.416,
+      "text": "The screen said: **Mom**."
+    },
+    {
+      "startSeconds": 7.416,
+      "endSeconds": 12.216,
+      "text": "I almost didn’t answer. But something felt wrong."
+    },
+    {
+      "startSeconds": 12.216,
+      "endSeconds": 14.664,
+      "text": "So I swiped."
+    },
+    {
+      "startSeconds": 14.664,
+      "endSeconds": 21.072,
+      "text": "Before I could speak, a woman whispered, 'Don’t turn around.'"
+    },
+    {
+      "startSeconds": 21.072,
+      "endSeconds": 25.272,
+      "text": "My stomach dropped. I froze."
+    },
+    {
+      "startSeconds": 25.272,
+      "endSeconds": 32.424,
+      "text": "Then I heard it. Footsteps behind me. Slow. One step. Then another."
+    },
+    {
+      "startSeconds": 32.424,
+      "endSeconds": 39.072,
+      "text": "The woman on the phone started crying. 'Please,' she said. 'He already has my son.'"
+    },
+    {
+      "startSeconds": 39.072,
+      "endSeconds": 40.488,
+      "text": "I turned anyway."
+    },
+    {
+      "startSeconds": 40.488,
+      "endSeconds": 49.488,
+      "text": "And standing under the only broken streetlight... was a little boy. Holding my exact same phone. And it was ringing too."
+    }
+  ],
+  "words": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 0.366,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 0.366,
+      "endSeconds": 0.731,
+      "word": "found",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 0.731,
+      "endSeconds": 1.097,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.097,
+      "endSeconds": 1.462,
+      "word": "phone",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.462,
+      "endSeconds": 1.828,
+      "word": "ringing",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.828,
+      "endSeconds": 2.193,
+      "word": "in",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.193,
+      "endSeconds": 2.559,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.559,
+      "endSeconds": 2.924,
+      "word": "middle",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.924,
+      "endSeconds": 3.29,
+      "word": "of",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 3.29,
+      "endSeconds": 3.655,
+      "word": "an",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 3.655,
+      "endSeconds": 4.021,
+      "word": "empty",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 4.021,
+      "endSeconds": 4.386,
+      "word": "parking",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 4.386,
+      "endSeconds": 4.752,
+      "word": "lot.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 4.752,
+      "endSeconds": 5.418,
+      "word": "The",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 5.418,
+      "endSeconds": 6.084,
+      "word": "screen",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 6.084,
+      "endSeconds": 6.75,
+      "word": "said:",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 6.75,
+      "endSeconds": 7.416,
+      "word": "**Mom**.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 7.416,
+      "endSeconds": 8.016,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 8.016,
+      "endSeconds": 8.616,
+      "word": "almost",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 8.616,
+      "endSeconds": 9.216,
+      "word": "didn’t",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 9.216,
+      "endSeconds": 9.816,
+      "word": "answer.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 9.816,
+      "endSeconds": 10.416,
+      "word": "But",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 10.416,
+      "endSeconds": 11.016,
+      "word": "something",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 11.016,
+      "endSeconds": 11.616,
+      "word": "felt",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 11.616,
+      "endSeconds": 12.216,
+      "word": "wrong.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 12.216,
+      "endSeconds": 13.032,
+      "word": "So",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 13.032,
+      "endSeconds": 13.848,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 13.848,
+      "endSeconds": 14.664,
+      "word": "swiped.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 14.664,
+      "endSeconds": 15.305,
+      "word": "Before",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 15.305,
+      "endSeconds": 15.946,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 15.946,
+      "endSeconds": 16.586,
+      "word": "could",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 16.586,
+      "endSeconds": 17.227,
+      "word": "speak,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 17.227,
+      "endSeconds": 17.868,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 17.868,
+      "endSeconds": 18.509,
+      "word": "woman",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 18.509,
+      "endSeconds": 19.15,
+      "word": "whispered,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 19.15,
+      "endSeconds": 19.79,
+      "word": "'Don’t",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 19.79,
+      "endSeconds": 20.431,
+      "word": "turn",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 20.431,
+      "endSeconds": 21.072,
+      "word": "around.'",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 21.072,
+      "endSeconds": 21.912,
+      "word": "My",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 21.912,
+      "endSeconds": 22.752,
+      "word": "stomach",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 22.752,
+      "endSeconds": 23.592,
+      "word": "dropped.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 23.592,
+      "endSeconds": 24.432,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 24.432,
+      "endSeconds": 25.272,
+      "word": "froze.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 25.272,
+      "endSeconds": 25.868,
+      "word": "Then",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 25.868,
+      "endSeconds": 26.464,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 26.464,
+      "endSeconds": 27.06,
+      "word": "heard",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 27.06,
+      "endSeconds": 27.656,
+      "word": "it.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 27.656,
+      "endSeconds": 28.252,
+      "word": "Footsteps",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 28.252,
+      "endSeconds": 28.848,
+      "word": "behind",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 28.848,
+      "endSeconds": 29.444,
+      "word": "me.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 29.444,
+      "endSeconds": 30.04,
+      "word": "Slow.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 30.04,
+      "endSeconds": 30.636,
+      "word": "One",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 30.636,
+      "endSeconds": 31.232,
+      "word": "step.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 31.232,
+      "endSeconds": 31.828,
+      "word": "Then",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 31.828,
+      "endSeconds": 32.424,
+      "word": "another.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 32.424,
+      "endSeconds": 32.867,
+      "word": "The",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 32.867,
+      "endSeconds": 33.31,
+      "word": "woman",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 33.31,
+      "endSeconds": 33.754,
+      "word": "on",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 33.754,
+      "endSeconds": 34.197,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 34.197,
+      "endSeconds": 34.64,
+      "word": "phone",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 34.64,
+      "endSeconds": 35.083,
+      "word": "started",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 35.083,
+      "endSeconds": 35.526,
+      "word": "crying.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 35.526,
+      "endSeconds": 35.97,
+      "word": "'Please,'",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 35.97,
+      "endSeconds": 36.413,
+      "word": "she",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 36.413,
+      "endSeconds": 36.856,
+      "word": "said.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 36.856,
+      "endSeconds": 37.299,
+      "word": "'He",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 37.299,
+      "endSeconds": 37.742,
+      "word": "already",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 37.742,
+      "endSeconds": 38.186,
+      "word": "has",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 38.186,
+      "endSeconds": 38.629,
+      "word": "my",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 38.629,
+      "endSeconds": 39.072,
+      "word": "son.'",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 39.072,
+      "endSeconds": 39.544,
+      "word": "I",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 39.544,
+      "endSeconds": 40.016,
+      "word": "turned",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 40.016,
+      "endSeconds": 40.488,
+      "word": "anyway.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 40.488,
+      "endSeconds": 40.917,
+      "word": "And",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 40.917,
+      "endSeconds": 41.345,
+      "word": "standing",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 41.345,
+      "endSeconds": 41.774,
+      "word": "under",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 41.774,
+      "endSeconds": 42.202,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 42.202,
+      "endSeconds": 42.631,
+      "word": "only",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 42.631,
+      "endSeconds": 43.059,
+      "word": "broken",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 43.059,
+      "endSeconds": 43.488,
+      "word": "streetlight...",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 43.488,
+      "endSeconds": 43.917,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 43.917,
+      "endSeconds": 44.345,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 44.345,
+      "endSeconds": 44.774,
+      "word": "little",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 44.774,
+      "endSeconds": 45.202,
+      "word": "boy.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 45.202,
+      "endSeconds": 45.631,
+      "word": "Holding",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 45.631,
+      "endSeconds": 46.059,
+      "word": "my",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 46.059,
+      "endSeconds": 46.488,
+      "word": "exact",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 46.488,
+      "endSeconds": 46.917,
+      "word": "same",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 46.917,
+      "endSeconds": 47.345,
+      "word": "phone.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 47.345,
+      "endSeconds": 47.774,
+      "word": "And",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 47.774,
+      "endSeconds": 48.202,
+      "word": "it",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 48.202,
+      "endSeconds": 48.631,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 48.631,
+      "endSeconds": 49.059,
+      "word": "ringing",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 49.059,
+      "endSeconds": 49.488,
+      "word": "too.",
+      "confidence": 1
+    }
+  ]
+}

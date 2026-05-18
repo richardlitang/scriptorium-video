@@ -2,19 +2,364 @@
   "schemaVersion": 1,
   "assets": [
     {
-      "id": "media-intro-001-1779048207189",
+      "id": "image-finding-the-phone-001",
       "type": "image",
       "role": "primary_visual",
-      "sectionId": "intro",
-      "beatId": "intro-001",
-      "path": "assets/images/intro-001.svg",
+      "sectionId": "finding-the-phone",
+      "beatId": "finding-the-phone-001",
+      "path": "assets/images/generated/finding-the-phone-001.v1.1ad57a1089.png",
       "source": {
-        "kind": "imported",
-        "originalPath": "/Users/richardlitang/code/personal/scriptorium/content/projects/demo/assets/images/intro-001.svg"
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "1ad57a10890115f55e9febe0cfd1f6fe702dca02923b77e90ae5356408187951",
+        "prompt": "A dimly lit, desolate parking lot at night, shadows creeping in the corners, a single phone lies face down, vibrating against the concrete, no cars in sight.\nStory section: Finding the Phone.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
       },
+      "width": 1024,
+      "height": 1536,
       "status": "generated",
-      "createdAt": "2026-05-17T20:03:27.189Z",
-      "updatedAt": "2026-05-17T20:03:27.189Z"
+      "createdAt": "2026-05-18T12:26:52.711Z",
+      "updatedAt": "2026-05-18T12:28:20.636Z"
+    },
+    {
+      "id": "image-the-caller-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-caller",
+      "beatId": "the-caller-001",
+      "path": "assets/images/generated/the-caller-001.v1.919bb06413.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "919bb064134315a3b2e651e4cae929d97e1a42c636810118cf2cc49e9c4c452e",
+        "prompt": "Close-up of the phone screen showing 'Mom' as the caller ID, with a trembling hand reaching out to pick it up.\nStory section: The Caller.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:11.730Z",
+      "updatedAt": "2026-05-18T12:28:20.647Z"
+    },
+    {
+      "id": "image-the-warning-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-001",
+      "path": "assets/images/generated/the-warning-001.v1.085d12c417.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "085d12c4171aabb93cce93d55f1d4f72e510ce21935f4c44563c35632282230b",
+        "prompt": "A close-up on the protagonist's face with wide eyes, reflecting fear and confusion, the darkness around amplifying the tension.\nStory section: The Warning.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:31.575Z",
+      "updatedAt": "2026-05-18T12:28:20.621Z"
+    },
+    {
+      "id": "image-the-footsteps-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-footsteps",
+      "beatId": "the-footsteps-001",
+      "path": "assets/images/generated/the-footsteps-001.v1.c3a2261fe1.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "c3a2261fe18b9b4ca77a0e56464d033ecb28f465354410d4a5c1b0c8f2035b4c",
+        "prompt": "Audio waves echoing through the empty lot, with the camera panning to the shadows slowly approaching, tension mounting.\nStory section: The Footsteps.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.113Z",
+      "updatedAt": "2026-05-18T12:28:20.639Z"
+    },
+    {
+      "id": "image-the-caller-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-caller",
+      "beatId": "the-caller-002",
+      "path": "assets/images/generated/the-caller-001.v1.919bb06413.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-caller-001",
+        "prompt": "A shaky hand hovering over the screen, hesitation evident in the posture, the atmosphere heavy with suspense.\nStory section: The Caller.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.114Z",
+      "updatedAt": "2026-05-18T12:28:20.663Z"
+    },
+    {
+      "id": "image-the-caller-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-caller",
+      "beatId": "the-caller-003",
+      "path": "assets/images/generated/the-caller-001.v1.919bb06413.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-caller-001",
+        "prompt": "Fingers swiping on the phone screen with a swift motion, the background blurred to reflect anxiety.\nStory section: The Caller.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.114Z",
+      "updatedAt": "2026-05-18T12:28:20.639Z"
+    },
+    {
+      "id": "image-the-warning-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-002",
+      "path": "assets/images/generated/the-warning-001.v1.085d12c417.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-warning-001",
+        "prompt": "Slow-motion shot of the protagonist's body going rigid, heart pounding, surrounded by darkness.\nStory section: The Warning.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.114Z",
+      "updatedAt": "2026-05-18T12:28:20.641Z"
+    },
+    {
+      "id": "image-a-mother-s-plea-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "a-mother-s-plea",
+      "beatId": "a-mother-s-plea-001",
+      "path": "assets/images/generated/finding-the-phone-001.v1.1ad57a1089.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-finding-the-phone-001",
+        "prompt": "Close-up on the phone speaker, distorted with emotion, shadows reflecting on the protagonist's face, showcasing panic.\nStory section: A Mother's Plea.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.114Z",
+      "updatedAt": "2026-05-18T12:28:20.639Z"
+    },
+    {
+      "id": "image-turning-around-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "turning-around",
+      "beatId": "turning-around-001",
+      "path": "assets/images/generated/finding-the-phone-001.v1.1ad57a1089.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-finding-the-phone-001",
+        "prompt": "Dramatic turn of the protagonist revealing their brave face, with a slight tilt and blur emphasizing the movement.\nStory section: Turning Around.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.114Z",
+      "updatedAt": "2026-05-18T12:28:20.624Z"
+    },
+    {
+      "id": "image-turning-around-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "turning-around",
+      "beatId": "turning-around-002",
+      "path": "assets/images/generated/finding-the-phone-001.v1.1ad57a1089.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-finding-the-phone-001",
+        "prompt": "A shadowy figure of a little boy illuminated by a flickering streetlight, clutching the same phone, an ominous contrast echoing through the dark.\nStory section: Turning Around.\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:53.114Z",
+      "updatedAt": "2026-05-18T12:28:20.640Z"
+    },
+    {
+      "id": "voice-finding-the-phone-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "finding-the-phone",
+      "beatId": "finding-the-phone-001",
+      "path": "assets/audio/voice/finding-the-phone-001.09b56361ca.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "09b56361ca"
+      },
+      "durationSeconds": 4.752,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-the-caller-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-caller",
+      "beatId": "the-caller-001",
+      "path": "assets/audio/voice/the-caller-001.821e695e0b.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "821e695e0b"
+      },
+      "durationSeconds": 2.664,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-the-caller-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-caller",
+      "beatId": "the-caller-002",
+      "path": "assets/audio/voice/the-caller-002.9d6fa851ed.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "9d6fa851ed"
+      },
+      "durationSeconds": 4.8,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.602Z"
+    },
+    {
+      "id": "voice-the-caller-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-caller",
+      "beatId": "the-caller-003",
+      "path": "assets/audio/voice/the-caller-003.dea8ac80b7.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "dea8ac80b7"
+      },
+      "durationSeconds": 2.448,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-the-warning-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-001",
+      "path": "assets/audio/voice/the-warning-001.62abe272f8.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "62abe272f8"
+      },
+      "durationSeconds": 6.408,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-the-warning-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-002",
+      "path": "assets/audio/voice/the-warning-002.b1d2c2b229.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "b1d2c2b229"
+      },
+      "durationSeconds": 4.2,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-the-footsteps-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-footsteps",
+      "beatId": "the-footsteps-001",
+      "path": "assets/audio/voice/the-footsteps-001.b6465ee7c5.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "b6465ee7c5"
+      },
+      "durationSeconds": 7.152,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.614Z"
+    },
+    {
+      "id": "voice-a-mother-s-plea-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "a-mother-s-plea",
+      "beatId": "a-mother-s-plea-001",
+      "path": "assets/audio/voice/a-mother-s-plea-001.2da2baab55.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "2da2baab55"
+      },
+      "durationSeconds": 6.648,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-turning-around-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "turning-around",
+      "beatId": "turning-around-001",
+      "path": "assets/audio/voice/turning-around-001.a1cd5a2c67.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "a1cd5a2c67"
+      },
+      "durationSeconds": 1.416,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.615Z"
+    },
+    {
+      "id": "voice-turning-around-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "turning-around",
+      "beatId": "turning-around-002",
+      "path": "assets/audio/voice/turning-around-002.0c3dffa25b.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "0c3dffa25b"
+      },
+      "durationSeconds": 9,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:27:56.333Z",
+      "updatedAt": "2026-05-18T12:28:20.618Z"
     }
   ]
 }

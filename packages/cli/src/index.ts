@@ -98,7 +98,7 @@ program
     await generateTTS(projectId, {
       provider: options.provider,
       force: options.force === true,
-      noCache: options.cache === false,
+      noCache: options.noCache === true || options.cache === false,
       onlySection: options.onlySection,
       onlyBeat: options.onlyBeat
     });

@@ -2,5 +2,7 @@ node_modules/
 .resolved-config.json
 dist/
 *.tsbuildinfo
+.playwright-mcp/
+.studio-data/
 content/projects/*/renders/*.mp4
 content/projects/*/renders/*.webm

@@ -1,19 +1,157 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-17T20:03:27.091Z",
-  "sourcePlanHash": "d44822c5ee6199461984288387c413546533b50ca504ca29a0f59d72a5a37200",
+  "generatedAt": "2026-05-18T12:28:20.665Z",
+  "sourcePlanHash": "fd620e2f027feb6e27c718cf2a5bc78d06185e6447a1951889705b0d4b18ae7a",
   "fps": 30,
   "width": 1920,
   "height": 1080,
-  "durationSeconds": 4,
+  "durationSeconds": 49.488,
   "segments": [
     {
-      "sectionId": "intro",
-      "beatId": "intro-001",
+      "sectionId": "finding-the-phone",
+      "beatId": "finding-the-phone-001",
       "startSeconds": 0,
-      "endSeconds": 4,
-      "durationSeconds": 4,
-      "mediaAssetIds": [],
+      "endSeconds": 4.752,
+      "durationSeconds": 4.752,
+      "voiceAssetId": "voice-finding-the-phone-001",
+      "mediaAssetIds": [
+        "image-finding-the-phone-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-caller",
+      "beatId": "the-caller-001",
+      "startSeconds": 4.752,
+      "endSeconds": 7.416,
+      "durationSeconds": 2.664,
+      "voiceAssetId": "voice-the-caller-001",
+      "mediaAssetIds": [
+        "image-the-caller-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-caller",
+      "beatId": "the-caller-002",
+      "startSeconds": 7.416,
+      "endSeconds": 12.216000000000001,
+      "durationSeconds": 4.8,
+      "voiceAssetId": "voice-the-caller-002",
+      "mediaAssetIds": [
+        "image-the-caller-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-caller",
+      "beatId": "the-caller-003",
+      "startSeconds": 12.216000000000001,
+      "endSeconds": 14.664000000000001,
+      "durationSeconds": 2.448,
+      "voiceAssetId": "voice-the-caller-003",
+      "mediaAssetIds": [
+        "image-the-caller-003"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-warning",
+      "beatId": "the-warning-001",
+      "startSeconds": 14.664000000000001,
+      "endSeconds": 21.072000000000003,
+      "durationSeconds": 6.408,
+      "voiceAssetId": "voice-the-warning-001",
+      "mediaAssetIds": [
+        "image-the-warning-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-warning",
+      "beatId": "the-warning-002",
+      "startSeconds": 21.072000000000003,
+      "endSeconds": 25.272000000000002,
+      "durationSeconds": 4.2,
+      "voiceAssetId": "voice-the-warning-002",
+      "mediaAssetIds": [
+        "image-the-warning-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-footsteps",
+      "beatId": "the-footsteps-001",
+      "startSeconds": 25.272000000000002,
+      "endSeconds": 32.424,
+      "durationSeconds": 7.152,
+      "voiceAssetId": "voice-the-footsteps-001",
+      "mediaAssetIds": [
+        "image-the-footsteps-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "a-mother-s-plea",
+      "beatId": "a-mother-s-plea-001",
+      "startSeconds": 32.424,
+      "endSeconds": 39.072,
+      "durationSeconds": 6.648,
+      "voiceAssetId": "voice-a-mother-s-plea-001",
+      "mediaAssetIds": [
+        "image-a-mother-s-plea-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "turning-around",
+      "beatId": "turning-around-001",
+      "startSeconds": 39.072,
+      "endSeconds": 40.488,
+      "durationSeconds": 1.416,
+      "voiceAssetId": "voice-turning-around-001",
+      "mediaAssetIds": [
+        "image-turning-around-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "turning-around",
+      "beatId": "turning-around-002",
+      "startSeconds": 40.488,
+      "endSeconds": 49.488,
+      "durationSeconds": 9,
+      "voiceAssetId": "voice-turning-around-002",
+      "mediaAssetIds": [
+        "image-turning-around-002"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"

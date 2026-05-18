@@ -7,16 +7,16 @@
       "role": "voiceover",
       "sectionId": "intro",
       "beatId": "intro-001",
-      "path": "assets/audio/voice/intro-001.7f77c24312.wav",
+      "path": "assets/audio/voice/intro-001.310ae89bac.wav",
       "source": {
-        "kind": "generated",
-        "provider": "mock",
-        "inputHash": "7f77c24312"
+        "kind": "manual",
+        "provider": "manual",
+        "inputHash": "ddae19da7d"
       },
-      "durationSeconds": 4.2,
-      "status": "generated",
+      "durationSeconds": 6.15,
+      "status": "locked_by_user",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-17T20:01:45.459Z"
+      "updatedAt": "2026-05-18T13:28:15.975Z"
     },
     {
       "id": "image-intro-001",
@@ -33,7 +33,304 @@
       "height": 1920,
       "status": "locked_by_user",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-17T20:01:45.447Z"
+      "updatedAt": "2026-05-18T13:28:15.967Z"
+    },
+    {
+      "id": "image-the-discovery-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-discovery",
+      "beatId": "the-discovery-001",
+      "path": "assets/images/generated/the-discovery-001.v1.8cb8acbb25.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "8cb8acbb258e470ed49f1f544d32f74e82202f5756539b54a6cc09b6f88f1d3a",
+        "prompt": "Wide shot of an empty parking lot at night, dimly lit with a single streetlight.\nStory section: The Discovery.\nCreate a vertical 9:16 cinematic production still for a narrated short video.\nNo subtitles, no typography, no watermarks, no UI, no logos."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:03:36.301Z",
+      "updatedAt": "2026-05-18T13:28:15.997Z"
+    },
+    {
+      "id": "image-the-discovery-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-discovery",
+      "beatId": "the-discovery-002",
+      "path": "assets/images/generated/the-discovery-002.v1.eb7847dc1b.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "eb7847dc1b5119920b4d3b8b1af4b001665b3d0db58ff684e65b01f7e8bffebd",
+        "prompt": "Close-up shot of the phone vibrating on the ground.\nStory section: The Discovery.\nCreate a vertical 9:16 cinematic production still for a narrated short video.\nNo subtitles, no typography, no watermarks, no UI, no logos."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:03:54.216Z",
+      "updatedAt": "2026-05-18T13:28:16.000Z"
+    },
+    {
+      "id": "image-the-discovery-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-discovery",
+      "beatId": "the-discovery-003",
+      "path": "assets/images/generated/the-discovery-003.v1.afd089410e.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "afd089410e50bcf7887d30711c204d33f4672aaeeac2c3a9f542a7f7c30d9da7",
+        "prompt": "Medium shot of a hand reaching down to pick up the phone.\nStory section: The Discovery.\nCreate a vertical 9:16 cinematic production still for a narrated short video.\nNo subtitles, no typography, no watermarks, no UI, no logos."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:11.499Z",
+      "updatedAt": "2026-05-18T13:28:16.001Z"
+    },
+    {
+      "id": "image-the-call-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-call",
+      "beatId": "the-call-001",
+      "path": "assets/images/generated/the-call-001.v1.6d122f77f1.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "6d122f77f1782d91d063a084f296363311eba229d4a9019de6bd3f285cab6013",
+        "prompt": "Close-up of the phone screen displaying the name 'Mom'.\nStory section: The Call.\nCreate a vertical 9:16 cinematic production still for a narrated short video.\nNo subtitles, no typography, no watermarks, no UI, no logos."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:34.202Z",
+      "updatedAt": "2026-05-18T13:28:16.000Z"
+    },
+    {
+      "id": "voice-the-discovery-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-discovery",
+      "beatId": "the-discovery-001",
+      "path": "assets/audio/voice/the-discovery-001.55f7da51c9.1779110795803.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "55f7da51c9"
+      },
+      "durationSeconds": 2.36,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-discovery-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-discovery",
+      "beatId": "the-discovery-002",
+      "path": "assets/audio/voice/the-discovery-002.0ef125ead3.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "0ef125ead3"
+      },
+      "durationSeconds": 6.36,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-discovery-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-discovery",
+      "beatId": "the-discovery-003",
+      "path": "assets/audio/voice/the-discovery-003.7c5c3c30b6.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "7c5c3c30b6"
+      },
+      "durationSeconds": 1.8,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.971Z"
+    },
+    {
+      "id": "voice-the-call-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-call",
+      "beatId": "the-call-001",
+      "path": "assets/audio/voice/the-call-001.99f730c35f.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "99f730c35f"
+      },
+      "durationSeconds": 2.856,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-call-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-call",
+      "beatId": "the-call-002",
+      "path": "assets/audio/voice/the-call-002.a3fc2ef9f3.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "a3fc2ef9f3"
+      },
+      "durationSeconds": 5.256,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.971Z"
+    },
+    {
+      "id": "voice-the-call-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-call",
+      "beatId": "the-call-003",
+      "path": "assets/audio/voice/the-call-003.da596c4b51.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "da596c4b51"
+      },
+      "durationSeconds": 1.968,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-warning-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-001",
+      "path": "assets/audio/voice/the-warning-001.98cdf639d2.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "98cdf639d2"
+      },
+      "durationSeconds": 4.56,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.971Z"
+    },
+    {
+      "id": "voice-the-warning-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-002",
+      "path": "assets/audio/voice/the-warning-002.ea959fc0f8.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "ea959fc0f8"
+      },
+      "durationSeconds": 3.312,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-warning-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-003",
+      "path": "assets/audio/voice/the-warning-003.aa61cecd94.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "aa61cecd94"
+      },
+      "durationSeconds": 5.856,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-plea-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-plea",
+      "beatId": "the-plea-001",
+      "path": "assets/audio/voice/the-plea-001.389646d9cd.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "389646d9cd"
+      },
+      "durationSeconds": 7.104,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.971Z"
+    },
+    {
+      "id": "voice-the-plea-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-plea",
+      "beatId": "the-plea-002",
+      "path": "assets/audio/voice/the-plea-002.655b8a0d9c.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "655b8a0d9c"
+      },
+      "durationSeconds": 2.448,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-reveal-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-reveal",
+      "beatId": "the-reveal-001",
+      "path": "assets/audio/voice/the-reveal-001.c7583a8b12.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "c7583a8b12"
+      },
+      "durationSeconds": 6.912,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
+    },
+    {
+      "id": "voice-the-reveal-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-reveal",
+      "beatId": "the-reveal-002",
+      "path": "assets/audio/voice/the-reveal-002.c37748802b.mp3",
+      "source": {
+        "kind": "generated",
+        "provider": "openai",
+        "inputHash": "c37748802b"
+      },
+      "durationSeconds": 1.92,
+      "status": "generated",
+      "createdAt": "2026-05-18T12:04:37.327Z",
+      "updatedAt": "2026-05-18T13:28:15.970Z"
     }
   ]
 }

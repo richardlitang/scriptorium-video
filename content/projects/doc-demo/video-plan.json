@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "title": "doc-demo",
+  "title": "The Call",
   "mode": "long_documentary",
   "targetPlatform": "youtube",
   "stylePackId": "default",
@@ -11,41 +11,371 @@
   },
   "providers": {
     "llm": "manual",
-    "tts": "manual",
-    "transcription": "manual",
+    "tts": "openai",
+    "transcription": "mock",
     "media": "manual-media",
     "renderer": "remotion"
   },
   "voice": {
-    "provider": "manual",
-    "voiceId": "manual-voice",
-    "format": "wav",
-    "options": {}
+    "provider": "openai",
+    "voiceId": "echo",
+    "format": "mp3",
+    "options": {
+      "speed": 1,
+      "emotion": "engaged, suspenseful, intimate"
+    }
   },
   "sections": [
     {
-      "id": "intro",
-      "title": "Intro",
-      "purpose": "Open the story.",
+      "id": "finding-the-phone",
+      "title": "Finding the Phone",
+      "purpose": "Set the scene and establish tension.",
+      "estimatedDurationSeconds": 5,
       "beats": [
         {
-          "id": "intro-001",
+          "id": "finding-the-phone-001",
           "order": 1,
-          "narration": "Replace this narration with your first beat.",
+          "narration": "I found a phone ringing in the middle of an empty parking lot.",
           "timing": {
-            "estimatedDurationSeconds": 4,
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
             "mediaPolicy": "loop_or_freeze"
           },
           "media": [
             {
-              "id": "intro-001-visual",
-              "type": "image",
+              "id": "finding-the-phone-001-visual",
+              "type": "title_card",
               "role": "primary_visual",
-              "localPath": "assets/images/intro-001.svg",
+              "prompt": "A dimly lit, desolate parking lot at night, shadows creeping in the corners, a single phone lies face down, vibrating against the concrete, no cars in sight.",
               "scaleMode": "cover",
               "placement": "background"
             }
-          ]
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "A dimly lit, desolate parking lot at night, shadows creeping in the corners, a single phone lies face down, vibrating against the concrete, no cars in sight."
+        }
+      ]
+    },
+    {
+      "id": "the-caller",
+      "title": "The Caller",
+      "purpose": "Introduce the tension and the mysterious voice.",
+      "estimatedDurationSeconds": 9,
+      "beats": [
+        {
+          "id": "the-caller-001",
+          "order": 1,
+          "narration": "The screen said: **Mom**.",
+          "timing": {
+            "estimatedDurationSeconds": 3,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-caller-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of the phone screen showing 'Mom' as the caller ID, with a trembling hand reaching out to pick it up.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Close-up of the phone screen showing 'Mom' as the caller ID, with a trembling hand reaching out to pick it up."
+        },
+        {
+          "id": "the-caller-002",
+          "order": 2,
+          "narration": "I almost didn’t answer. But something felt wrong.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-caller-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A shaky hand hovering over the screen, hesitation evident in the posture, the atmosphere heavy with suspense.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "A shaky hand hovering over the screen, hesitation evident in the posture, the atmosphere heavy with suspense."
+        },
+        {
+          "id": "the-caller-003",
+          "order": 3,
+          "narration": "So I swiped.",
+          "timing": {
+            "estimatedDurationSeconds": 2,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-caller-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Fingers swiping on the phone screen with a swift motion, the background blurred to reflect anxiety.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Fingers swiping on the phone screen with a swift motion, the background blurred to reflect anxiety."
+        }
+      ]
+    },
+    {
+      "id": "the-warning",
+      "title": "The Warning",
+      "purpose": "Heighten the suspense and sense of danger.",
+      "estimatedDurationSeconds": 9,
+      "beats": [
+        {
+          "id": "the-warning-001",
+          "order": 1,
+          "narration": "Before I could speak, a woman whispered, 'Don’t turn around.'",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-warning-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up on the protagonist's face with wide eyes, reflecting fear and confusion, the darkness around amplifying the tension.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "A close-up on the protagonist's face with wide eyes, reflecting fear and confusion, the darkness around amplifying the tension."
+        },
+        {
+          "id": "the-warning-002",
+          "order": 2,
+          "narration": "My stomach dropped. I froze.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-warning-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Slow-motion shot of the protagonist's body going rigid, heart pounding, surrounded by darkness.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "emphasis on fear"
+            ],
+            "style": "default"
+          },
+          "notes": "Slow-motion shot of the protagonist's body going rigid, heart pounding, surrounded by darkness."
+        }
+      ]
+    },
+    {
+      "id": "the-footsteps",
+      "title": "The Footsteps",
+      "purpose": "Build suspense.",
+      "estimatedDurationSeconds": 5,
+      "beats": [
+        {
+          "id": "the-footsteps-001",
+          "order": 1,
+          "narration": "Then I heard it. Footsteps behind me. Slow. One step. Then another.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-footsteps-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Audio waves echoing through the empty lot, with the camera panning to the shadows slowly approaching, tension mounting.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Audio waves echoing through the empty lot, with the camera panning to the shadows slowly approaching, tension mounting."
+        }
+      ]
+    },
+    {
+      "id": "a-mother-s-plea",
+      "title": "A Mother's Plea",
+      "purpose": "Evoke empathy and urgency.",
+      "estimatedDurationSeconds": 6,
+      "beats": [
+        {
+          "id": "a-mother-s-plea-001",
+          "order": 1,
+          "narration": "The woman on the phone started crying. 'Please,' she said. 'He already has my son.'",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "a-mother-s-plea-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up on the phone speaker, distorted with emotion, shadows reflecting on the protagonist's face, showcasing panic.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Close-up on the phone speaker, distorted with emotion, shadows reflecting on the protagonist's face, showcasing panic."
+        }
+      ]
+    },
+    {
+      "id": "turning-around",
+      "title": "Turning Around",
+      "purpose": "Reveal the twist.",
+      "estimatedDurationSeconds": 11,
+      "beats": [
+        {
+          "id": "turning-around-001",
+          "order": 1,
+          "narration": "I turned anyway.",
+          "timing": {
+            "estimatedDurationSeconds": 3,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "turning-around-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Dramatic turn of the protagonist revealing their brave face, with a slight tilt and blur emphasizing the movement.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_left",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Dramatic turn of the protagonist revealing their brave face, with a slight tilt and blur emphasizing the movement."
+        },
+        {
+          "id": "turning-around-002",
+          "order": 2,
+          "narration": "And standing under the only broken streetlight... was a little boy. Holding my exact same phone. And it was ringing too.",
+          "timing": {
+            "estimatedDurationSeconds": 8,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "turning-around-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A shadowy figure of a little boy illuminated by a flickering streetlight, clutching the same phone, an ominous contrast echoing through the dark.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "shock",
+              "realization"
+            ],
+            "style": "default"
+          },
+          "notes": "A shadowy figure of a little boy illuminated by a flickering streetlight, clutching the same phone, an ominous contrast echoing through the dark."
         }
       ]
     }

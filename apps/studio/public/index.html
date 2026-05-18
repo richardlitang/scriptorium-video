@@ -7,38 +7,166 @@
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <main class="layout">
-      <aside class="sidebar">
-        <h1>Projects</h1>
-        <div id="project-list"></div>
-      </aside>
-      <section class="content">
-        <header class="topbar">
-          <h2 id="project-title">Select a project</h2>
-          <button id="render-btn" disabled>Render Draft</button>
-        </header>
-        <div class="grid">
-          <article class="panel">
-            <h3>Project</h3>
-            <pre id="project-meta"></pre>
-          </article>
-          <article class="panel">
-            <h3>Quality Report</h3>
-            <pre id="quality-output"></pre>
-          </article>
-          <article class="panel panel-wide">
-            <h3>Video Plan</h3>
-            <pre id="plan-output"></pre>
-          </article>
-          <article class="panel">
-            <h3>Timeline</h3>
-            <pre id="timeline-output"></pre>
-          </article>
-          <article class="panel">
-            <h3>Captions</h3>
-            <pre id="captions-output"></pre>
-          </article>
+    <main class="studio-shell">
+      <aside class="project-rail">
+        <div class="brand-block">
+          <p class="eyebrow">Local Video Studio</p>
+          <h1>Words to draft video.</h1>
         </div>
+        <button id="new-project-btn" class="primary-btn rail-action">New Project</button>
+        <div id="project-list" class="project-list"></div>
+      </aside>
+
+      <section class="workbench">
+        <header class="hero-panel">
+          <div>
+            <p class="eyebrow">Current Project</p>
+            <h2 id="project-title">Select a project</h2>
+            <pre id="project-meta" class="project-meta"></pre>
+          </div>
+          <div class="hero-actions">
+            <button id="clear-story-btn" class="ghost-btn" disabled>Clear Words</button>
+            <button id="stop-run-btn" class="danger-btn" disabled>Stop</button>
+            <button id="render-btn" class="primary-btn" disabled>Make Draft</button>
+          </div>
+        </header>
+
+        <section class="creation-grid">
+          <article class="script-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">01 Input</p>
+                <h3>Paste the story. No format required.</h3>
+              </div>
+            </div>
+            <textarea id="story-input" spellcheck="false" placeholder="Paste raw story prose here. Studio will turn it into a video plan, generate narration, optionally create images, and render a draft."></textarea>
+            <div class="controls-strip">
+              <label>
+                Feel
+                <select id="story-feel">
+                  <option value="cinematic supernatural suspense">Cinematic suspense</option>
+                  <option value="quiet literary dread">Quiet dread</option>
+                  <option value="fast unsettling mystery">Fast mystery</option>
+                  <option value="melancholic ghost story">Melancholic ghost story</option>
+                </select>
+              </label>
+              <label>
+                Pacing
+                <select id="story-pacing">
+                  <option value="measured">Measured</option>
+                  <option value="slow burn">Slow burn</option>
+                  <option value="tight and punchy">Tight</option>
+                </select>
+              </label>
+              <label>
+                Visual Style
+                <select id="story-visual-style">
+                  <option value="dark cinematic realism">Dark cinematic realism</option>
+                  <option value="rainy analog horror">Rainy analog horror</option>
+                  <option value="minimal shadowy title cards">Minimal title cards</option>
+                  <option value="folklore documentary b-roll">Folklore documentary</option>
+                </select>
+              </label>
+            </div>
+          </article>
+
+          <aside class="director-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">02 Direction</p>
+                <h3>Draft Settings</h3>
+              </div>
+            </div>
+            <label class="switch-row">
+              <input id="image-enabled" type="checkbox" checked />
+              <span>
+                <strong>Generate AI photos during draft</strong>
+                <small>Uses OpenAI images and places visuals automatically per beat.</small>
+              </span>
+            </label>
+            <div class="compact-controls">
+              <label>
+                Image mode
+                <select id="image-mode">
+                  <option value="missing">Only missing photos</option>
+                  <option value="all">Regenerate every photo</option>
+                </select>
+              </label>
+              <label>
+                Photo budget
+                <select id="image-budget">
+                  <option value="4">4 generated, reuse across beats</option>
+                  <option value="8">8 generated, reuse across beats</option>
+                  <option value="999">Generate every beat, slow</option>
+                </select>
+              </label>
+              <label>
+                Image quality
+                <select id="image-quality">
+                  <option value="low">Draft</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </label>
+            </div>
+            <div id="story-feedback" class="run-status"></div>
+          </aside>
+        </section>
+
+        <section class="preview-grid">
+          <article class="output-card">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">03 Output</p>
+                <h3>Rendered Draft</h3>
+              </div>
+            </div>
+            <div id="render-output"></div>
+          </article>
+
+          <article class="media-card-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">04 Refine</p>
+                <h3>Photos & Prompt Fixes</h3>
+              </div>
+            </div>
+            <div id="media-preview"></div>
+          </article>
+        </section>
+
+        <details class="advanced-panel">
+          <summary>Advanced controls and logs</summary>
+          <div class="advanced-actions">
+            <button id="ai-plan-btn" disabled>Generate Plan Only</button>
+            <button id="convert-story-btn" disabled>Convert Structured Script</button>
+            <button id="save-plan-btn" disabled>Save Plan</button>
+            <button id="generate-images-btn" disabled>Generate Images Only</button>
+            <button id="prepare-draft-btn" disabled>Prepare Audio Only</button>
+          </div>
+          <div class="debug-grid">
+            <article class="panel panel-wide">
+              <h3>Video Plan</h3>
+              <textarea id="plan-editor" spellcheck="false"></textarea>
+            </article>
+            <article class="panel panel-wide">
+              <h3>Quality Report</h3>
+              <pre id="quality-output"></pre>
+            </article>
+            <article class="panel">
+              <h3>Timeline</h3>
+              <pre id="timeline-output"></pre>
+            </article>
+            <article class="panel">
+              <h3>Captions</h3>
+              <pre id="captions-output"></pre>
+            </article>
+            <article class="panel panel-wide">
+              <h3>Quality History</h3>
+              <pre id="quality-history-output"></pre>
+            </article>
+          </div>
+        </details>
       </section>
     </main>
     <script type="module" src="/app.js"></script>
