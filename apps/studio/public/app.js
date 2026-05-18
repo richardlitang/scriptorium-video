@@ -577,6 +577,30 @@ function stopProgressPolling() {
   progressPollTimer = null;
 }
 
+function visualAssetForBeat(assets, beatId) {
+  return assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beatId);
+}
+
+async function currentVisualCoverage(projectId, coverage) {
+  const [details, assetsResult] = await Promise.all([
+    fetchJson(`/api/projects/${projectId}`),
+    fetchJson(`/api/projects/${projectId}/assets`)
+  ]);
+  const assets = assetsResult.data.assets ?? [];
+  const plan = details.data.plan;
+  if (coverage === "beat") {
+    const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
+    const missing = beats.filter((beat) => !visualAssetForBeat(assets, beat.id));
+    return { missing: missing.length, total: beats.length };
+  }
+
+  const sections = plan.sections ?? [];
+  const missing = sections.filter((section) =>
+    !(section.beats ?? []).some((beat) => visualAssetForBeat(assets, beat.id))
+  );
+  return { missing: missing.length, total: sections.length };
+}
+
 function runSignal() {
   return activeRunController ? { signal: activeRunController.signal } : {};
 }
@@ -753,14 +777,20 @@ renderBtn.onclick = async () => {
     }
 
     if (imageEnabled.checked) {
-      const coverageLabel = normalizeImageCoverage(imageBudget.value) === "beat"
+      const imageCoverage = normalizeImageCoverage(imageBudget.value);
+      const coverage = await currentVisualCoverage(selectedProjectId, imageCoverage);
+      const coverageLabel = imageCoverage === "beat"
         ? "one accurate photo per beat"
         : "one photo per section, reused only inside that section";
-      steps.push(`Generating ${coverageLabel}. This can take 15-30 seconds per generated photo.`);
-      setRunStatus(steps);
-      const imageResult = await generateImagesForCurrentPlan(steps);
-      const imageCoverageLabel = imageResult.data.coverage === "beat" ? "per beat" : "per section";
-      steps[steps.length - 1] = `Generated ${imageResult.data.generated.length} new photo(s), coverage ${imageCoverageLabel}. Failed ${imageResult.data.failed?.length ?? 0}.`;
+      if (coverage.missing === 0) {
+        steps.push(`Image coverage already complete (${coverage.total}/${coverage.total}); continuing from existing photos.`);
+      } else {
+        steps.push(`Generating ${coverageLabel}. Missing ${coverage.missing}/${coverage.total}. This can take 15-30 seconds per generated photo.`);
+        setRunStatus(steps);
+        const imageResult = await generateImagesForCurrentPlan(steps);
+        const imageCoverageLabel = imageResult.data.coverage === "beat" ? "per beat" : "per section";
+        steps[steps.length - 1] = `Generated ${imageResult.data.generated.length} new photo(s), coverage ${imageCoverageLabel}. Failed ${imageResult.data.failed?.length ?? 0}.`;
+      }
     } else {
       steps.push("Skipping AI photos by request.");
     }
