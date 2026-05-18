@@ -1,18 +1,18 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-18T13:28:16.002Z",
+  "generatedAt": "2026-05-18T13:46:45.569Z",
   "sourcePlanHash": "62d5caeb3b07a28960b9ba5d0d5dab2c7411ad82e9e5ee02e29e52f4c34d14cc",
   "fps": 30,
   "width": 1080,
   "height": 1920,
-  "durationSeconds": 52.712,
+  "durationSeconds": 32.96000000000001,
   "segments": [
     {
       "sectionId": "the-discovery",
       "beatId": "the-discovery-001",
       "startSeconds": 0,
-      "endSeconds": 2.36,
-      "durationSeconds": 2.36,
+      "endSeconds": 2.64,
+      "durationSeconds": 2.64,
       "voiceAssetId": "voice-the-discovery-001",
       "mediaAssetIds": [
         "image-the-discovery-001"
@@ -25,9 +25,9 @@
     {
       "sectionId": "the-discovery",
       "beatId": "the-discovery-002",
-      "startSeconds": 2.36,
-      "endSeconds": 8.72,
-      "durationSeconds": 6.36,
+      "startSeconds": 2.64,
+      "endSeconds": 6.84,
+      "durationSeconds": 4.2,
       "voiceAssetId": "voice-the-discovery-002",
       "mediaAssetIds": [
         "image-the-discovery-002"
@@ -40,9 +40,9 @@
     {
       "sectionId": "the-discovery",
       "beatId": "the-discovery-003",
-      "startSeconds": 8.72,
-      "endSeconds": 10.520000000000001,
-      "durationSeconds": 1.8,
+      "startSeconds": 6.84,
+      "endSeconds": 7.68,
+      "durationSeconds": 0.84,
       "voiceAssetId": "voice-the-discovery-003",
       "mediaAssetIds": [
         "image-the-discovery-003"
@@ -55,9 +55,9 @@
     {
       "sectionId": "the-call",
       "beatId": "the-call-001",
-      "startSeconds": 10.520000000000001,
-      "endSeconds": 13.376000000000001,
-      "durationSeconds": 2.856,
+      "startSeconds": 7.68,
+      "endSeconds": 9.4,
+      "durationSeconds": 1.72,
       "voiceAssetId": "voice-the-call-001",
       "mediaAssetIds": [
         "image-the-call-001"
@@ -70,11 +70,13 @@
     {
       "sectionId": "the-call",
       "beatId": "the-call-002",
-      "startSeconds": 13.376000000000001,
-      "endSeconds": 18.632,
-      "durationSeconds": 5.256,
+      "startSeconds": 9.4,
+      "endSeconds": 11.92,
+      "durationSeconds": 2.52,
       "voiceAssetId": "voice-the-call-002",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-call-002"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -83,11 +85,13 @@
     {
       "sectionId": "the-call",
       "beatId": "the-call-003",
-      "startSeconds": 18.632,
-      "endSeconds": 20.6,
-      "durationSeconds": 1.968,
+      "startSeconds": 11.92,
+      "endSeconds": 12.879999999999999,
+      "durationSeconds": 0.96,
       "voiceAssetId": "voice-the-call-003",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-call-003"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -96,11 +100,13 @@
     {
       "sectionId": "the-warning",
       "beatId": "the-warning-001",
-      "startSeconds": 20.6,
-      "endSeconds": 25.16,
-      "durationSeconds": 4.56,
+      "startSeconds": 12.879999999999999,
+      "endSeconds": 15.959999999999999,
+      "durationSeconds": 3.08,
       "voiceAssetId": "voice-the-warning-001",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-warning-001"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -109,11 +115,13 @@
     {
       "sectionId": "the-warning",
       "beatId": "the-warning-002",
-      "startSeconds": 25.16,
-      "endSeconds": 28.472,
-      "durationSeconds": 3.312,
+      "startSeconds": 15.959999999999999,
+      "endSeconds": 17.96,
+      "durationSeconds": 2,
       "voiceAssetId": "voice-the-warning-002",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-warning-002"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -122,11 +130,13 @@
     {
       "sectionId": "the-warning",
       "beatId": "the-warning-003",
-      "startSeconds": 28.472,
-      "endSeconds": 34.328,
-      "durationSeconds": 5.856,
+      "startSeconds": 17.96,
+      "endSeconds": 21.400000000000002,
+      "durationSeconds": 3.44,
       "voiceAssetId": "voice-the-warning-003",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-warning-003"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -135,11 +145,13 @@
     {
       "sectionId": "the-plea",
       "beatId": "the-plea-001",
-      "startSeconds": 34.328,
-      "endSeconds": 41.432,
-      "durationSeconds": 7.104,
+      "startSeconds": 21.400000000000002,
+      "endSeconds": 26.040000000000003,
+      "durationSeconds": 4.64,
       "voiceAssetId": "voice-the-plea-001",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-plea-001"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -148,11 +160,13 @@
     {
       "sectionId": "the-plea",
       "beatId": "the-plea-002",
-      "startSeconds": 41.432,
-      "endSeconds": 43.88,
-      "durationSeconds": 2.448,
+      "startSeconds": 26.040000000000003,
+      "endSeconds": 27.320000000000004,
+      "durationSeconds": 1.28,
       "voiceAssetId": "voice-the-plea-002",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-plea-002"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -161,11 +175,13 @@
     {
       "sectionId": "the-reveal",
       "beatId": "the-reveal-001",
-      "startSeconds": 43.88,
-      "endSeconds": 50.792,
-      "durationSeconds": 6.912,
+      "startSeconds": 27.320000000000004,
+      "endSeconds": 31.760000000000005,
+      "durationSeconds": 4.44,
       "voiceAssetId": "voice-the-reveal-001",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-reveal-001"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"
@@ -174,11 +190,13 @@
     {
       "sectionId": "the-reveal",
       "beatId": "the-reveal-002",
-      "startSeconds": 50.792,
-      "endSeconds": 52.712,
-      "durationSeconds": 1.92,
+      "startSeconds": 31.760000000000005,
+      "endSeconds": 32.96000000000001,
+      "durationSeconds": 1.2,
       "voiceAssetId": "voice-the-reveal-002",
-      "mediaAssetIds": [],
+      "mediaAssetIds": [
+        "image-the-reveal-002"
+      ],
       "renderPolicy": {
         "mediaPolicy": "loop_or_freeze",
         "scaleMode": "cover"

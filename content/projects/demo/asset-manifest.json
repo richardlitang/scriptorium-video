@@ -16,7 +16,7 @@
       "durationSeconds": 6.15,
       "status": "locked_by_user",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-18T13:28:15.975Z"
+      "updatedAt": "2026-05-18T13:46:45.534Z"
     },
     {
       "id": "image-intro-001",
@@ -33,7 +33,7 @@
       "height": 1920,
       "status": "locked_by_user",
       "createdAt": "2026-05-17T19:00:00.000Z",
-      "updatedAt": "2026-05-18T13:28:15.967Z"
+      "updatedAt": "2026-05-18T13:46:45.500Z"
     },
     {
       "id": "image-the-discovery-001",
@@ -52,7 +52,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:03:36.301Z",
-      "updatedAt": "2026-05-18T13:28:15.997Z"
+      "updatedAt": "2026-05-18T13:46:45.546Z"
     },
     {
       "id": "image-the-discovery-002",
@@ -71,7 +71,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:03:54.216Z",
-      "updatedAt": "2026-05-18T13:28:16.000Z"
+      "updatedAt": "2026-05-18T13:46:45.558Z"
     },
     {
       "id": "image-the-discovery-003",
@@ -90,7 +90,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:11.499Z",
-      "updatedAt": "2026-05-18T13:28:16.001Z"
+      "updatedAt": "2026-05-18T13:46:45.532Z"
     },
     {
       "id": "image-the-call-001",
@@ -109,7 +109,7 @@
       "height": 1536,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:34.202Z",
-      "updatedAt": "2026-05-18T13:28:16.000Z"
+      "updatedAt": "2026-05-18T13:46:45.532Z"
     },
     {
       "id": "voice-the-discovery-001",
@@ -117,16 +117,16 @@
       "role": "voiceover",
       "sectionId": "the-discovery",
       "beatId": "the-discovery-001",
-      "path": "assets/audio/voice/the-discovery-001.55f7da51c9.1779110795803.mp3",
+      "path": "assets/audio/voice/the-discovery-001.55f7da51c9.1779111186300.mp3",
       "source": {
         "kind": "generated",
         "provider": "chatterbox",
         "inputHash": "55f7da51c9"
       },
-      "durationSeconds": 2.36,
+      "durationSeconds": 2.64,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.489Z"
     },
     {
       "id": "voice-the-discovery-002",
@@ -134,16 +134,16 @@
       "role": "voiceover",
       "sectionId": "the-discovery",
       "beatId": "the-discovery-002",
-      "path": "assets/audio/voice/the-discovery-002.0ef125ead3.mp3",
+      "path": "assets/audio/voice/the-discovery-002.17b55950d0.1779111205019.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "0ef125ead3"
+        "provider": "chatterbox",
+        "inputHash": "17b55950d0"
       },
-      "durationSeconds": 6.36,
+      "durationSeconds": 4.2,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.516Z"
     },
     {
       "id": "voice-the-discovery-003",
@@ -151,16 +151,16 @@
       "role": "voiceover",
       "sectionId": "the-discovery",
       "beatId": "the-discovery-003",
-      "path": "assets/audio/voice/the-discovery-003.7c5c3c30b6.mp3",
+      "path": "assets/audio/voice/the-discovery-003.06965b388e.1779111281535.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "7c5c3c30b6"
+        "provider": "chatterbox",
+        "inputHash": "06965b388e"
       },
-      "durationSeconds": 1.8,
+      "durationSeconds": 0.84,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.971Z"
+      "updatedAt": "2026-05-18T13:46:45.480Z"
     },
     {
       "id": "voice-the-call-001",
@@ -168,16 +168,16 @@
       "role": "voiceover",
       "sectionId": "the-call",
       "beatId": "the-call-001",
-      "path": "assets/audio/voice/the-call-001.99f730c35f.mp3",
+      "path": "assets/audio/voice/the-call-001.0e8dd7d212.1779111302274.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "99f730c35f"
+        "provider": "chatterbox",
+        "inputHash": "0e8dd7d212"
       },
-      "durationSeconds": 2.856,
+      "durationSeconds": 1.72,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.499Z"
     },
     {
       "id": "voice-the-call-002",
@@ -185,16 +185,16 @@
       "role": "voiceover",
       "sectionId": "the-call",
       "beatId": "the-call-002",
-      "path": "assets/audio/voice/the-call-002.a3fc2ef9f3.mp3",
+      "path": "assets/audio/voice/the-call-002.f5ca714d61.1779111322762.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "a3fc2ef9f3"
+        "provider": "chatterbox",
+        "inputHash": "f5ca714d61"
       },
-      "durationSeconds": 5.256,
+      "durationSeconds": 2.52,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.971Z"
+      "updatedAt": "2026-05-18T13:46:45.499Z"
     },
     {
       "id": "voice-the-call-003",
@@ -202,16 +202,16 @@
       "role": "voiceover",
       "sectionId": "the-call",
       "beatId": "the-call-003",
-      "path": "assets/audio/voice/the-call-003.da596c4b51.mp3",
+      "path": "assets/audio/voice/the-call-003.f943ba439d.1779111349952.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "da596c4b51"
+        "provider": "chatterbox",
+        "inputHash": "f943ba439d"
       },
-      "durationSeconds": 1.968,
+      "durationSeconds": 0.96,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.516Z"
     },
     {
       "id": "voice-the-warning-001",
@@ -219,16 +219,16 @@
       "role": "voiceover",
       "sectionId": "the-warning",
       "beatId": "the-warning-001",
-      "path": "assets/audio/voice/the-warning-001.98cdf639d2.mp3",
+      "path": "assets/audio/voice/the-warning-001.93a72b025f.1779111361038.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "98cdf639d2"
+        "provider": "chatterbox",
+        "inputHash": "93a72b025f"
       },
-      "durationSeconds": 4.56,
+      "durationSeconds": 3.08,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.971Z"
+      "updatedAt": "2026-05-18T13:46:45.500Z"
     },
     {
       "id": "voice-the-warning-002",
@@ -236,16 +236,16 @@
       "role": "voiceover",
       "sectionId": "the-warning",
       "beatId": "the-warning-002",
-      "path": "assets/audio/voice/the-warning-002.ea959fc0f8.mp3",
+      "path": "assets/audio/voice/the-warning-002.56509af805.1779111421977.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "ea959fc0f8"
+        "provider": "chatterbox",
+        "inputHash": "56509af805"
       },
-      "durationSeconds": 3.312,
+      "durationSeconds": 2,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.514Z"
     },
     {
       "id": "voice-the-warning-003",
@@ -253,16 +253,16 @@
       "role": "voiceover",
       "sectionId": "the-warning",
       "beatId": "the-warning-003",
-      "path": "assets/audio/voice/the-warning-003.aa61cecd94.mp3",
+      "path": "assets/audio/voice/the-warning-003.5903a59b09.1779111443009.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "aa61cecd94"
+        "provider": "chatterbox",
+        "inputHash": "5903a59b09"
       },
-      "durationSeconds": 5.856,
+      "durationSeconds": 3.44,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.500Z"
     },
     {
       "id": "voice-the-plea-001",
@@ -270,16 +270,16 @@
       "role": "voiceover",
       "sectionId": "the-plea",
       "beatId": "the-plea-001",
-      "path": "assets/audio/voice/the-plea-001.389646d9cd.mp3",
+      "path": "assets/audio/voice/the-plea-001.232735b048.1779111494784.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "389646d9cd"
+        "provider": "chatterbox",
+        "inputHash": "232735b048"
       },
-      "durationSeconds": 7.104,
+      "durationSeconds": 4.64,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.971Z"
+      "updatedAt": "2026-05-18T13:46:45.521Z"
     },
     {
       "id": "voice-the-plea-002",
@@ -287,16 +287,16 @@
       "role": "voiceover",
       "sectionId": "the-plea",
       "beatId": "the-plea-002",
-      "path": "assets/audio/voice/the-plea-002.655b8a0d9c.mp3",
+      "path": "assets/audio/voice/the-plea-002.1167ca2971.1779111577397.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "655b8a0d9c"
+        "provider": "chatterbox",
+        "inputHash": "1167ca2971"
       },
-      "durationSeconds": 2.448,
+      "durationSeconds": 1.28,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.489Z"
     },
     {
       "id": "voice-the-reveal-001",
@@ -304,16 +304,16 @@
       "role": "voiceover",
       "sectionId": "the-reveal",
       "beatId": "the-reveal-001",
-      "path": "assets/audio/voice/the-reveal-001.c7583a8b12.mp3",
+      "path": "assets/audio/voice/the-reveal-001.5686c8d876.1779111595104.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "c7583a8b12"
+        "provider": "chatterbox",
+        "inputHash": "5686c8d876"
       },
-      "durationSeconds": 6.912,
+      "durationSeconds": 4.44,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.489Z"
     },
     {
       "id": "voice-the-reveal-002",
@@ -321,16 +321,178 @@
       "role": "voiceover",
       "sectionId": "the-reveal",
       "beatId": "the-reveal-002",
-      "path": "assets/audio/voice/the-reveal-002.c37748802b.mp3",
+      "path": "assets/audio/voice/the-reveal-002.806d1da398.1779111683318.mp3",
       "source": {
         "kind": "generated",
-        "provider": "openai",
-        "inputHash": "c37748802b"
+        "provider": "chatterbox",
+        "inputHash": "806d1da398"
       },
-      "durationSeconds": 1.92,
+      "durationSeconds": 1.2,
       "status": "generated",
       "createdAt": "2026-05-18T12:04:37.327Z",
-      "updatedAt": "2026-05-18T13:28:15.970Z"
+      "updatedAt": "2026-05-18T13:46:45.500Z"
+    },
+    {
+      "id": "image-the-call-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-call",
+      "beatId": "the-call-002",
+      "path": "assets/images/generated/the-call-from-mom-002.v1.6688ee091f.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "Shot of the protagonist hesitating with the phone in hand."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.556Z"
+    },
+    {
+      "id": "image-the-call-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-call",
+      "beatId": "the-call-003",
+      "path": "assets/images/generated/the-call-from-mom-003.v1.c192b743d3.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "Tight shot of the protagonist answering the call, face tense."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.532Z"
+    },
+    {
+      "id": "image-the-warning-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-001",
+      "path": "assets/images/generated/a-haunting-whisper-001.v1.361800d222.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "Dark parking lot with a shadowy figure near the edge of frame."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.565Z"
+    },
+    {
+      "id": "image-the-warning-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-002",
+      "path": "assets/images/generated/a-haunting-whisper-002.v1.d527971110.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "A phone held close with fear rising in the background."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.532Z"
+    },
+    {
+      "id": "image-the-warning-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-warning",
+      "beatId": "the-warning-003",
+      "path": "assets/images/generated/a-haunting-whisper-003.v1.0a34b24697.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "A tense empty lot with unseen danger implied by long shadows."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.548Z"
+    },
+    {
+      "id": "image-the-plea-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-plea",
+      "beatId": "the-plea-001",
+      "path": "assets/images/generated/the-cry-for-help-001.v1.7a06dd50e2.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "A frightened person listening to a desperate call for help."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.567Z"
+    },
+    {
+      "id": "image-the-plea-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-plea",
+      "beatId": "the-plea-002",
+      "path": "assets/images/generated/the-footsteps-001.v1.54b513ff54.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "Footsteps approaching through an empty parking lot."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.564Z"
+    },
+    {
+      "id": "image-the-reveal-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-reveal",
+      "beatId": "the-reveal-001",
+      "path": "assets/images/generated/the-footsteps-002.v1.78552d1839.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "A slow reveal of someone standing in the shadows behind the protagonist."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.560Z"
+    },
+    {
+      "id": "image-the-reveal-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-reveal",
+      "beatId": "the-reveal-002",
+      "path": "assets/images/generated/the-footsteps-003.v1.61693c0370.png",
+      "source": {
+        "kind": "generated",
+        "provider": "demo-existing-image",
+        "prompt": "The final ominous reveal in a dark parking lot."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T13:45:46.095Z",
+      "updatedAt": "2026-05-18T13:46:45.539Z"
     }
   ]
 }

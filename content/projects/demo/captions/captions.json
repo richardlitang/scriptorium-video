@@ -19,56 +19,63 @@
       "voice-the-reveal-001",
       "voice-the-reveal-002"
     ],
-    "sourceHash": "5d0a692787b3dd72536d3099add2eef54c792cbaf45a003095c2ff32b4eb6164"
+    "sourceHash": "bcc8c9744cdfc75d5b5847c1214c144236d55df8187dce57196fb2d34c3cfc1b"
   },
   "captions": [
     {
       "id": "caption-001",
       "beatId": "the-discovery-001",
       "startSeconds": 0,
-      "endSeconds": 2.016,
-      "text": "I found a phone ringing in",
+      "endSeconds": 1.422,
+      "text": "I found a phone ringing in the",
       "style": "default",
       "words": [
         {
           "word": "I",
           "startSeconds": 0,
-          "endSeconds": 0.336,
+          "endSeconds": 0.203,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "found",
-          "startSeconds": 0.336,
-          "endSeconds": 0.672,
+          "startSeconds": 0.203,
+          "endSeconds": 0.406,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "a",
-          "startSeconds": 0.672,
-          "endSeconds": 1.008,
+          "startSeconds": 0.406,
+          "endSeconds": 0.609,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "phone",
-          "startSeconds": 1.008,
-          "endSeconds": 1.344,
+          "startSeconds": 0.609,
+          "endSeconds": 0.812,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "ringing",
-          "startSeconds": 1.344,
-          "endSeconds": 1.68,
+          "startSeconds": 0.812,
+          "endSeconds": 1.015,
           "emphasis": true,
           "confidence": 1
         },
         {
           "word": "in",
-          "startSeconds": 1.68,
-          "endSeconds": 2.016,
+          "startSeconds": 1.015,
+          "endSeconds": 1.218,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 1.218,
+          "endSeconds": 1.422,
           "emphasis": false,
           "confidence": 1
         }
@@ -77,50 +84,50 @@
     {
       "id": "caption-002",
       "beatId": "the-discovery-001",
-      "startSeconds": 2.016,
-      "endSeconds": 4.032,
-      "text": "the middle of an empty parking",
+      "startSeconds": 1.422,
+      "endSeconds": 2.64,
+      "text": "middle of an empty parking lot.",
       "style": "default",
       "words": [
         {
-          "word": "the",
-          "startSeconds": 2.016,
-          "endSeconds": 2.352,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
           "word": "middle",
-          "startSeconds": 2.352,
-          "endSeconds": 2.688,
+          "startSeconds": 1.422,
+          "endSeconds": 1.625,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "of",
-          "startSeconds": 2.688,
-          "endSeconds": 3.024,
+          "startSeconds": 1.625,
+          "endSeconds": 1.828,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "an",
-          "startSeconds": 3.024,
-          "endSeconds": 3.36,
+          "startSeconds": 1.828,
+          "endSeconds": 2.031,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "empty",
-          "startSeconds": 3.36,
-          "endSeconds": 3.696,
+          "startSeconds": 2.031,
+          "endSeconds": 2.234,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "parking",
-          "startSeconds": 3.696,
-          "endSeconds": 4.032,
+          "startSeconds": 2.234,
+          "endSeconds": 2.437,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "lot.",
+          "startSeconds": 2.437,
+          "endSeconds": 2.64,
           "emphasis": false,
           "confidence": 1
         }
@@ -128,16 +135,23 @@
     },
     {
       "id": "caption-003",
-      "beatId": "the-discovery-001",
-      "startSeconds": 4.032,
-      "endSeconds": 4.368,
-      "text": "lot.",
+      "beatId": "the-discovery-002",
+      "startSeconds": 2.64,
+      "endSeconds": 3.286,
+      "text": "No cars.",
       "style": "default",
       "words": [
         {
-          "word": "lot.",
-          "startSeconds": 4.032,
-          "endSeconds": 4.368,
+          "word": "No",
+          "startSeconds": 2.64,
+          "endSeconds": 2.963,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "cars.",
+          "startSeconds": 2.963,
+          "endSeconds": 3.286,
           "emphasis": false,
           "confidence": 1
         }
@@ -146,22 +160,22 @@
     {
       "id": "caption-004",
       "beatId": "the-discovery-002",
-      "startSeconds": 4.368,
-      "endSeconds": 5.346,
-      "text": "No cars.",
+      "startSeconds": 3.286,
+      "endSeconds": 3.932,
+      "text": "No people.",
       "style": "default",
       "words": [
         {
           "word": "No",
-          "startSeconds": 4.368,
-          "endSeconds": 4.857,
+          "startSeconds": 3.286,
+          "endSeconds": 3.609,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "cars.",
-          "startSeconds": 4.857,
-          "endSeconds": 5.346,
+          "word": "people.",
+          "startSeconds": 3.609,
+          "endSeconds": 3.932,
           "emphasis": false,
           "confidence": 1
         }
@@ -170,22 +184,57 @@
     {
       "id": "caption-005",
       "beatId": "the-discovery-002",
-      "startSeconds": 5.346,
-      "endSeconds": 6.325,
-      "text": "No people.",
+      "startSeconds": 3.932,
+      "endSeconds": 6.194,
+      "text": "Just the phone, face down, buzzing against",
       "style": "default",
       "words": [
         {
-          "word": "No",
-          "startSeconds": 5.346,
-          "endSeconds": 5.836,
+          "word": "Just",
+          "startSeconds": 3.932,
+          "endSeconds": 4.255,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "people.",
-          "startSeconds": 5.836,
-          "endSeconds": 6.325,
+          "word": "the",
+          "startSeconds": 4.255,
+          "endSeconds": 4.578,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "phone,",
+          "startSeconds": 4.578,
+          "endSeconds": 4.902,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "face",
+          "startSeconds": 4.902,
+          "endSeconds": 5.225,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "down,",
+          "startSeconds": 5.225,
+          "endSeconds": 5.548,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "buzzing",
+          "startSeconds": 5.548,
+          "endSeconds": 5.871,
+          "emphasis": true,
+          "confidence": 1
+        },
+        {
+          "word": "against",
+          "startSeconds": 5.871,
+          "endSeconds": 6.194,
           "emphasis": false,
           "confidence": 1
         }
@@ -194,43 +243,22 @@
     {
       "id": "caption-006",
       "beatId": "the-discovery-002",
-      "startSeconds": 6.325,
-      "endSeconds": 8.771,
-      "text": "Just the phone, face down,",
+      "startSeconds": 6.194,
+      "endSeconds": 6.84,
+      "text": "the concrete.",
       "style": "default",
       "words": [
         {
-          "word": "Just",
-          "startSeconds": 6.325,
-          "endSeconds": 6.814,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
           "word": "the",
-          "startSeconds": 6.814,
-          "endSeconds": 7.303,
+          "startSeconds": 6.194,
+          "endSeconds": 6.517,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "phone,",
-          "startSeconds": 7.303,
-          "endSeconds": 7.793,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "face",
-          "startSeconds": 7.793,
-          "endSeconds": 8.282,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "down,",
-          "startSeconds": 8.282,
-          "endSeconds": 8.771,
+          "word": "concrete.",
+          "startSeconds": 6.517,
+          "endSeconds": 6.84,
           "emphasis": false,
           "confidence": 1
         }
@@ -238,37 +266,37 @@
     },
     {
       "id": "caption-007",
-      "beatId": "the-discovery-002",
-      "startSeconds": 8.771,
-      "endSeconds": 10.728,
-      "text": "buzzing against the concrete.",
+      "beatId": "the-discovery-003",
+      "startSeconds": 6.84,
+      "endSeconds": 7.68,
+      "text": "I picked it up.",
       "style": "default",
       "words": [
         {
-          "word": "buzzing",
-          "startSeconds": 8.771,
-          "endSeconds": 9.26,
-          "emphasis": true,
-          "confidence": 1
-        },
-        {
-          "word": "against",
-          "startSeconds": 9.26,
-          "endSeconds": 9.75,
+          "word": "I",
+          "startSeconds": 6.84,
+          "endSeconds": 7.05,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "the",
-          "startSeconds": 9.75,
-          "endSeconds": 10.239,
+          "word": "picked",
+          "startSeconds": 7.05,
+          "endSeconds": 7.26,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "concrete.",
-          "startSeconds": 10.239,
-          "endSeconds": 10.728,
+          "word": "it",
+          "startSeconds": 7.26,
+          "endSeconds": 7.47,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "up.",
+          "startSeconds": 7.47,
+          "endSeconds": 7.68,
           "emphasis": false,
           "confidence": 1
         }
@@ -276,37 +304,37 @@
     },
     {
       "id": "caption-008",
-      "beatId": "the-discovery-002",
-      "startSeconds": 10.728,
-      "endSeconds": 12.528,
-      "text": "I picked it up.",
+      "beatId": "the-call-001",
+      "startSeconds": 7.68,
+      "endSeconds": 9.4,
+      "text": "The screen said: **Mom**.",
       "style": "default",
       "words": [
         {
-          "word": "I",
-          "startSeconds": 10.728,
-          "endSeconds": 11.178,
+          "word": "The",
+          "startSeconds": 7.68,
+          "endSeconds": 8.11,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "picked",
-          "startSeconds": 11.178,
-          "endSeconds": 11.628,
+          "word": "screen",
+          "startSeconds": 8.11,
+          "endSeconds": 8.54,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "it",
-          "startSeconds": 11.628,
-          "endSeconds": 12.078,
+          "word": "said:",
+          "startSeconds": 8.54,
+          "endSeconds": 8.97,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "up.",
-          "startSeconds": 12.078,
-          "endSeconds": 12.528,
+          "word": "**Mom**.",
+          "startSeconds": 8.97,
+          "endSeconds": 9.4,
           "emphasis": false,
           "confidence": 1
         }
@@ -314,30 +342,37 @@
     },
     {
       "id": "caption-009",
-      "beatId": "the-discovery-003",
-      "startSeconds": 12.528,
-      "endSeconds": 14.67,
-      "text": "The screen said:",
+      "beatId": "the-call-002",
+      "startSeconds": 9.4,
+      "endSeconds": 10.66,
+      "text": "I almost didn’t answer.",
       "style": "default",
       "words": [
         {
-          "word": "The",
-          "startSeconds": 12.528,
-          "endSeconds": 13.242,
+          "word": "I",
+          "startSeconds": 9.4,
+          "endSeconds": 9.715,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "screen",
-          "startSeconds": 13.242,
-          "endSeconds": 13.956,
+          "word": "almost",
+          "startSeconds": 9.715,
+          "endSeconds": 10.03,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "said:",
-          "startSeconds": 13.956,
-          "endSeconds": 14.67,
+          "word": "didn’t",
+          "startSeconds": 10.03,
+          "endSeconds": 10.345,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "answer.",
+          "startSeconds": 10.345,
+          "endSeconds": 10.66,
           "emphasis": false,
           "confidence": 1
         }
@@ -345,16 +380,37 @@
     },
     {
       "id": "caption-010",
-      "beatId": "the-call-001",
-      "startSeconds": 14.67,
-      "endSeconds": 15.384,
-      "text": "**Mom**.",
+      "beatId": "the-call-002",
+      "startSeconds": 10.66,
+      "endSeconds": 11.92,
+      "text": "But something felt wrong.",
       "style": "default",
       "words": [
         {
-          "word": "**Mom**.",
-          "startSeconds": 14.67,
-          "endSeconds": 15.384,
+          "word": "But",
+          "startSeconds": 10.66,
+          "endSeconds": 10.975,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "something",
+          "startSeconds": 10.975,
+          "endSeconds": 11.29,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "felt",
+          "startSeconds": 11.29,
+          "endSeconds": 11.605,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "wrong.",
+          "startSeconds": 11.605,
+          "endSeconds": 11.92,
           "emphasis": false,
           "confidence": 1
         }
@@ -362,37 +418,30 @@
     },
     {
       "id": "caption-011",
-      "beatId": "the-call-001",
-      "startSeconds": 15.384,
-      "endSeconds": 18.012,
-      "text": "I almost didn’t answer.",
+      "beatId": "the-call-003",
+      "startSeconds": 11.92,
+      "endSeconds": 12.88,
+      "text": "So I swiped.",
       "style": "default",
       "words": [
         {
+          "word": "So",
+          "startSeconds": 11.92,
+          "endSeconds": 12.24,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
           "word": "I",
-          "startSeconds": 15.384,
-          "endSeconds": 16.041,
+          "startSeconds": 12.24,
+          "endSeconds": 12.56,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "almost",
-          "startSeconds": 16.041,
-          "endSeconds": 16.698,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "didn’t",
-          "startSeconds": 16.698,
-          "endSeconds": 17.355,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "answer.",
-          "startSeconds": 17.355,
-          "endSeconds": 18.012,
+          "word": "swiped.",
+          "startSeconds": 12.56,
+          "endSeconds": 12.88,
           "emphasis": false,
           "confidence": 1
         }
@@ -400,37 +449,58 @@
     },
     {
       "id": "caption-012",
-      "beatId": "the-call-002",
-      "startSeconds": 18.012,
-      "endSeconds": 20.64,
-      "text": "But something felt wrong.",
+      "beatId": "the-warning-001",
+      "startSeconds": 12.88,
+      "endSeconds": 15.036,
+      "text": "Before I could speak, a woman whispered,",
       "style": "default",
       "words": [
         {
-          "word": "But",
-          "startSeconds": 18.012,
-          "endSeconds": 18.669,
+          "word": "Before",
+          "startSeconds": 12.88,
+          "endSeconds": 13.188,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "something",
-          "startSeconds": 18.669,
-          "endSeconds": 19.326,
+          "word": "I",
+          "startSeconds": 13.188,
+          "endSeconds": 13.496,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "felt",
-          "startSeconds": 19.326,
-          "endSeconds": 19.983,
+          "word": "could",
+          "startSeconds": 13.496,
+          "endSeconds": 13.804,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "wrong.",
-          "startSeconds": 19.983,
-          "endSeconds": 20.64,
+          "word": "speak,",
+          "startSeconds": 13.804,
+          "endSeconds": 14.112,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 14.112,
+          "endSeconds": 14.42,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "woman",
+          "startSeconds": 14.42,
+          "endSeconds": 14.728,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "whispered,",
+          "startSeconds": 14.728,
+          "endSeconds": 15.036,
           "emphasis": false,
           "confidence": 1
         }
@@ -438,30 +508,51 @@
     },
     {
       "id": "caption-013",
-      "beatId": "the-call-003",
-      "startSeconds": 20.64,
-      "endSeconds": 22.608,
-      "text": "So I swiped.",
+      "beatId": "the-warning-001",
+      "startSeconds": 15.036,
+      "endSeconds": 17.16,
+      "text": "“Don’t turn around.” My stomach dropped.",
       "style": "default",
       "words": [
         {
-          "word": "So",
-          "startSeconds": 20.64,
-          "endSeconds": 21.296,
+          "word": "“Don’t",
+          "startSeconds": 15.036,
+          "endSeconds": 15.344,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "I",
-          "startSeconds": 21.296,
-          "endSeconds": 21.952,
+          "word": "turn",
+          "startSeconds": 15.344,
+          "endSeconds": 15.652,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "swiped.",
-          "startSeconds": 21.952,
-          "endSeconds": 22.608,
+          "word": "around.”",
+          "startSeconds": 15.652,
+          "endSeconds": 15.96,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "My",
+          "startSeconds": 15.96,
+          "endSeconds": 16.36,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "stomach",
+          "startSeconds": 16.36,
+          "endSeconds": 16.76,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "dropped.",
+          "startSeconds": 16.76,
+          "endSeconds": 17.16,
           "emphasis": false,
           "confidence": 1
         }
@@ -469,44 +560,23 @@
     },
     {
       "id": "caption-014",
-      "beatId": "the-warning-001",
-      "startSeconds": 22.608,
-      "endSeconds": 24.888,
-      "text": "Before I could speak, a",
+      "beatId": "the-warning-002",
+      "startSeconds": 17.16,
+      "endSeconds": 17.96,
+      "text": "I froze.",
       "style": "default",
       "words": [
         {
-          "word": "Before",
-          "startSeconds": 22.608,
-          "endSeconds": 23.064,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
           "word": "I",
-          "startSeconds": 23.064,
-          "endSeconds": 23.52,
+          "startSeconds": 17.16,
+          "endSeconds": 17.56,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "could",
-          "startSeconds": 23.52,
-          "endSeconds": 23.976,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "speak,",
-          "startSeconds": 23.976,
-          "endSeconds": 24.432,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "a",
-          "startSeconds": 24.432,
-          "endSeconds": 24.888,
+          "word": "froze.",
+          "startSeconds": 17.56,
+          "endSeconds": 17.96,
           "emphasis": false,
           "confidence": 1
         }
@@ -514,44 +584,37 @@
     },
     {
       "id": "caption-015",
-      "beatId": "the-warning-001",
-      "startSeconds": 24.888,
-      "endSeconds": 27.168,
-      "text": "woman whispered, “Don’t turn around.”",
+      "beatId": "the-warning-003",
+      "startSeconds": 17.96,
+      "endSeconds": 19.107,
+      "text": "Then I heard it.",
       "style": "default",
       "words": [
         {
-          "word": "woman",
-          "startSeconds": 24.888,
-          "endSeconds": 25.344,
+          "word": "Then",
+          "startSeconds": 17.96,
+          "endSeconds": 18.247,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "whispered,",
-          "startSeconds": 25.344,
-          "endSeconds": 25.8,
+          "word": "I",
+          "startSeconds": 18.247,
+          "endSeconds": 18.533,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "“Don’t",
-          "startSeconds": 25.8,
-          "endSeconds": 26.256,
+          "word": "heard",
+          "startSeconds": 18.533,
+          "endSeconds": 18.82,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "turn",
-          "startSeconds": 26.256,
-          "endSeconds": 26.712,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "around.”",
-          "startSeconds": 26.712,
-          "endSeconds": 27.168,
+          "word": "it.",
+          "startSeconds": 18.82,
+          "endSeconds": 19.107,
           "emphasis": false,
           "confidence": 1
         }
@@ -559,30 +622,30 @@
     },
     {
       "id": "caption-016",
-      "beatId": "the-warning-002",
-      "startSeconds": 27.168,
-      "endSeconds": 29.155,
-      "text": "My stomach dropped.",
+      "beatId": "the-warning-003",
+      "startSeconds": 19.107,
+      "endSeconds": 19.967,
+      "text": "Footsteps behind me.",
       "style": "default",
       "words": [
         {
-          "word": "My",
-          "startSeconds": 27.168,
-          "endSeconds": 27.83,
+          "word": "Footsteps",
+          "startSeconds": 19.107,
+          "endSeconds": 19.393,
+          "emphasis": true,
+          "confidence": 1
+        },
+        {
+          "word": "behind",
+          "startSeconds": 19.393,
+          "endSeconds": 19.68,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "stomach",
-          "startSeconds": 27.83,
-          "endSeconds": 28.493,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "dropped.",
-          "startSeconds": 28.493,
-          "endSeconds": 29.155,
+          "word": "me.",
+          "startSeconds": 19.68,
+          "endSeconds": 19.967,
           "emphasis": false,
           "confidence": 1
         }
@@ -590,23 +653,16 @@
     },
     {
       "id": "caption-017",
-      "beatId": "the-warning-002",
-      "startSeconds": 29.155,
-      "endSeconds": 30.48,
-      "text": "I froze.",
+      "beatId": "the-warning-003",
+      "startSeconds": 19.967,
+      "endSeconds": 20.253,
+      "text": "Slow.",
       "style": "default",
       "words": [
         {
-          "word": "I",
-          "startSeconds": 29.155,
-          "endSeconds": 29.818,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "froze.",
-          "startSeconds": 29.818,
-          "endSeconds": 30.48,
+          "word": "Slow.",
+          "startSeconds": 19.967,
+          "endSeconds": 20.253,
           "emphasis": false,
           "confidence": 1
         }
@@ -615,36 +671,22 @@
     {
       "id": "caption-018",
       "beatId": "the-warning-003",
-      "startSeconds": 30.48,
-      "endSeconds": 32.432,
-      "text": "Then I heard it.",
+      "startSeconds": 20.253,
+      "endSeconds": 20.827,
+      "text": "One step.",
       "style": "default",
       "words": [
         {
-          "word": "Then",
-          "startSeconds": 30.48,
-          "endSeconds": 30.968,
+          "word": "One",
+          "startSeconds": 20.253,
+          "endSeconds": 20.54,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "I",
-          "startSeconds": 30.968,
-          "endSeconds": 31.456,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "heard",
-          "startSeconds": 31.456,
-          "endSeconds": 31.944,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "it.",
-          "startSeconds": 31.944,
-          "endSeconds": 32.432,
+          "word": "step.",
+          "startSeconds": 20.54,
+          "endSeconds": 20.827,
           "emphasis": false,
           "confidence": 1
         }
@@ -653,29 +695,22 @@
     {
       "id": "caption-019",
       "beatId": "the-warning-003",
-      "startSeconds": 32.432,
-      "endSeconds": 33.896,
-      "text": "Footsteps behind me.",
+      "startSeconds": 20.827,
+      "endSeconds": 21.4,
+      "text": "Then another.",
       "style": "default",
       "words": [
         {
-          "word": "Footsteps",
-          "startSeconds": 32.432,
-          "endSeconds": 32.92,
-          "emphasis": true,
-          "confidence": 1
-        },
-        {
-          "word": "behind",
-          "startSeconds": 32.92,
-          "endSeconds": 33.408,
+          "word": "Then",
+          "startSeconds": 20.827,
+          "endSeconds": 21.113,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "me.",
-          "startSeconds": 33.408,
-          "endSeconds": 33.896,
+          "word": "another.",
+          "startSeconds": 21.113,
+          "endSeconds": 21.4,
           "emphasis": false,
           "confidence": 1
         }
@@ -684,15 +719,57 @@
     {
       "id": "caption-020",
       "beatId": "the-warning-003",
-      "startSeconds": 33.896,
-      "endSeconds": 34.384,
-      "text": "Slow.",
+      "startSeconds": 21.4,
+      "endSeconds": 23.565,
+      "text": "The woman on the phone started crying.",
       "style": "default",
       "words": [
         {
-          "word": "Slow.",
-          "startSeconds": 33.896,
-          "endSeconds": 34.384,
+          "word": "The",
+          "startSeconds": 21.4,
+          "endSeconds": 21.709,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "woman",
+          "startSeconds": 21.709,
+          "endSeconds": 22.019,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "on",
+          "startSeconds": 22.019,
+          "endSeconds": 22.328,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 22.328,
+          "endSeconds": 22.637,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "phone",
+          "startSeconds": 22.637,
+          "endSeconds": 22.947,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "started",
+          "startSeconds": 22.947,
+          "endSeconds": 23.256,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "crying.",
+          "startSeconds": 23.256,
+          "endSeconds": 23.565,
           "emphasis": false,
           "confidence": 1
         }
@@ -700,23 +777,30 @@
     },
     {
       "id": "caption-021",
-      "beatId": "the-warning-003",
-      "startSeconds": 34.384,
-      "endSeconds": 35.36,
-      "text": "One step.",
+      "beatId": "the-plea-001",
+      "startSeconds": 23.565,
+      "endSeconds": 24.493,
+      "text": "'Please,' she said.",
       "style": "default",
       "words": [
         {
-          "word": "One",
-          "startSeconds": 34.384,
-          "endSeconds": 34.872,
+          "word": "'Please,'",
+          "startSeconds": 23.565,
+          "endSeconds": 23.875,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "step.",
-          "startSeconds": 34.872,
-          "endSeconds": 35.36,
+          "word": "she",
+          "startSeconds": 23.875,
+          "endSeconds": 24.184,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said.",
+          "startSeconds": 24.184,
+          "endSeconds": 24.493,
           "emphasis": false,
           "confidence": 1
         }
@@ -724,23 +808,58 @@
     },
     {
       "id": "caption-022",
-      "beatId": "the-warning-003",
-      "startSeconds": 35.36,
-      "endSeconds": 36.336,
-      "text": "Then another.",
+      "beatId": "the-plea-001",
+      "startSeconds": 24.493,
+      "endSeconds": 26.893,
+      "text": "'He already has my son.' I turned",
       "style": "default",
       "words": [
         {
-          "word": "Then",
-          "startSeconds": 35.36,
-          "endSeconds": 35.848,
+          "word": "'He",
+          "startSeconds": 24.493,
+          "endSeconds": 24.803,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "another.",
-          "startSeconds": 35.848,
-          "endSeconds": 36.336,
+          "word": "already",
+          "startSeconds": 24.803,
+          "endSeconds": 25.112,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "has",
+          "startSeconds": 25.112,
+          "endSeconds": 25.421,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "my",
+          "startSeconds": 25.421,
+          "endSeconds": 25.731,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "son.'",
+          "startSeconds": 25.731,
+          "endSeconds": 26.04,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "I",
+          "startSeconds": 26.04,
+          "endSeconds": 26.467,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "turned",
+          "startSeconds": 26.467,
+          "endSeconds": 26.893,
           "emphasis": false,
           "confidence": 1
         }
@@ -748,44 +867,16 @@
     },
     {
       "id": "caption-023",
-      "beatId": "the-plea-001",
-      "startSeconds": 36.336,
-      "endSeconds": 38.704,
-      "text": "The woman on the phone",
+      "beatId": "the-plea-002",
+      "startSeconds": 26.893,
+      "endSeconds": 27.32,
+      "text": "anyway.",
       "style": "default",
       "words": [
         {
-          "word": "The",
-          "startSeconds": 36.336,
-          "endSeconds": 36.81,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "woman",
-          "startSeconds": 36.81,
-          "endSeconds": 37.283,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "on",
-          "startSeconds": 37.283,
-          "endSeconds": 37.757,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "the",
-          "startSeconds": 37.757,
-          "endSeconds": 38.23,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "phone",
-          "startSeconds": 38.23,
-          "endSeconds": 38.704,
+          "word": "anyway.",
+          "startSeconds": 26.893,
+          "endSeconds": 27.32,
           "emphasis": false,
           "confidence": 1
         }
@@ -793,23 +884,58 @@
     },
     {
       "id": "caption-024",
-      "beatId": "the-plea-001",
-      "startSeconds": 38.704,
-      "endSeconds": 39.651,
-      "text": "started crying.",
+      "beatId": "the-plea-002",
+      "startSeconds": 27.32,
+      "endSeconds": 29.263,
+      "text": "And standing under the only broken streetlight…",
       "style": "default",
       "words": [
         {
-          "word": "started",
-          "startSeconds": 38.704,
-          "endSeconds": 39.178,
+          "word": "And",
+          "startSeconds": 27.32,
+          "endSeconds": 27.598,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "crying.",
-          "startSeconds": 39.178,
-          "endSeconds": 39.651,
+          "word": "standing",
+          "startSeconds": 27.598,
+          "endSeconds": 27.875,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "under",
+          "startSeconds": 27.875,
+          "endSeconds": 28.153,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 28.153,
+          "endSeconds": 28.43,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "only",
+          "startSeconds": 28.43,
+          "endSeconds": 28.708,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "broken",
+          "startSeconds": 28.708,
+          "endSeconds": 28.985,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "streetlight…",
+          "startSeconds": 28.985,
+          "endSeconds": 29.263,
           "emphasis": false,
           "confidence": 1
         }
@@ -817,30 +943,37 @@
     },
     {
       "id": "caption-025",
-      "beatId": "the-plea-001",
-      "startSeconds": 39.651,
-      "endSeconds": 41.072,
-      "text": "'Please,' she said.",
+      "beatId": "the-reveal-001",
+      "startSeconds": 29.263,
+      "endSeconds": 30.373,
+      "text": "was a little boy.",
       "style": "default",
       "words": [
         {
-          "word": "'Please,'",
-          "startSeconds": 39.651,
-          "endSeconds": 40.125,
+          "word": "was",
+          "startSeconds": 29.263,
+          "endSeconds": 29.54,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "she",
-          "startSeconds": 40.125,
-          "endSeconds": 40.598,
+          "word": "a",
+          "startSeconds": 29.54,
+          "endSeconds": 29.818,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "said.",
-          "startSeconds": 40.598,
-          "endSeconds": 41.072,
+          "word": "little",
+          "startSeconds": 29.818,
+          "endSeconds": 30.095,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "boy.",
+          "startSeconds": 30.095,
+          "endSeconds": 30.373,
           "emphasis": false,
           "confidence": 1
         }
@@ -848,44 +981,44 @@
     },
     {
       "id": "caption-026",
-      "beatId": "the-plea-001",
-      "startSeconds": 41.072,
-      "endSeconds": 43.44,
-      "text": "'He already has my son.'",
+      "beatId": "the-reveal-001",
+      "startSeconds": 30.373,
+      "endSeconds": 31.76,
+      "text": "Holding my exact same phone.",
       "style": "default",
       "words": [
         {
-          "word": "'He",
-          "startSeconds": 41.072,
-          "endSeconds": 41.546,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "already",
-          "startSeconds": 41.546,
-          "endSeconds": 42.019,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "has",
-          "startSeconds": 42.019,
-          "endSeconds": 42.493,
+          "word": "Holding",
+          "startSeconds": 30.373,
+          "endSeconds": 30.65,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "my",
-          "startSeconds": 42.493,
-          "endSeconds": 42.966,
+          "startSeconds": 30.65,
+          "endSeconds": 30.928,
           "emphasis": false,
           "confidence": 1
         },
         {
-          "word": "son.'",
-          "startSeconds": 42.966,
-          "endSeconds": 43.44,
+          "word": "exact",
+          "startSeconds": 30.928,
+          "endSeconds": 31.205,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "same",
+          "startSeconds": 31.205,
+          "endSeconds": 31.483,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "phone.",
+          "startSeconds": 31.483,
+          "endSeconds": 31.76,
           "emphasis": false,
           "confidence": 1
         }
@@ -893,227 +1026,44 @@
     },
     {
       "id": "caption-027",
-      "beatId": "the-plea-002",
-      "startSeconds": 43.44,
-      "endSeconds": 45.888,
-      "text": "I turned anyway.",
-      "style": "default",
-      "words": [
-        {
-          "word": "I",
-          "startSeconds": 43.44,
-          "endSeconds": 44.256,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "turned",
-          "startSeconds": 44.256,
-          "endSeconds": 45.072,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "anyway.",
-          "startSeconds": 45.072,
-          "endSeconds": 45.888,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-028",
       "beatId": "the-reveal-001",
-      "startSeconds": 45.888,
-      "endSeconds": 48.048,
-      "text": "And standing under the only",
-      "style": "default",
-      "words": [
-        {
-          "word": "And",
-          "startSeconds": 45.888,
-          "endSeconds": 46.32,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "standing",
-          "startSeconds": 46.32,
-          "endSeconds": 46.752,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "under",
-          "startSeconds": 46.752,
-          "endSeconds": 47.184,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "the",
-          "startSeconds": 47.184,
-          "endSeconds": 47.616,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "only",
-          "startSeconds": 47.616,
-          "endSeconds": 48.048,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-029",
-      "beatId": "the-reveal-001",
-      "startSeconds": 48.048,
-      "endSeconds": 50.208,
-      "text": "broken streetlight… was a little",
-      "style": "default",
-      "words": [
-        {
-          "word": "broken",
-          "startSeconds": 48.048,
-          "endSeconds": 48.48,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "streetlight…",
-          "startSeconds": 48.48,
-          "endSeconds": 48.912,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "was",
-          "startSeconds": 48.912,
-          "endSeconds": 49.344,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "a",
-          "startSeconds": 49.344,
-          "endSeconds": 49.776,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "little",
-          "startSeconds": 49.776,
-          "endSeconds": 50.208,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-030",
-      "beatId": "the-reveal-001",
-      "startSeconds": 50.208,
-      "endSeconds": 50.64,
-      "text": "boy.",
-      "style": "default",
-      "words": [
-        {
-          "word": "boy.",
-          "startSeconds": 50.208,
-          "endSeconds": 50.64,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-031",
-      "beatId": "the-reveal-001",
-      "startSeconds": 50.64,
-      "endSeconds": 52.8,
-      "text": "Holding my exact same phone.",
-      "style": "default",
-      "words": [
-        {
-          "word": "Holding",
-          "startSeconds": 50.64,
-          "endSeconds": 51.072,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "my",
-          "startSeconds": 51.072,
-          "endSeconds": 51.504,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "exact",
-          "startSeconds": 51.504,
-          "endSeconds": 51.936,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "same",
-          "startSeconds": 51.936,
-          "endSeconds": 52.368,
-          "emphasis": false,
-          "confidence": 1
-        },
-        {
-          "word": "phone.",
-          "startSeconds": 52.368,
-          "endSeconds": 52.8,
-          "emphasis": false,
-          "confidence": 1
-        }
-      ]
-    },
-    {
-      "id": "caption-032",
-      "beatId": "the-reveal-002",
-      "startSeconds": 52.8,
-      "endSeconds": 54.72,
+      "startSeconds": 31.76,
+      "endSeconds": 32.96,
       "text": "And it was ringing too.",
       "style": "default",
       "words": [
         {
           "word": "And",
-          "startSeconds": 52.8,
-          "endSeconds": 53.184,
+          "startSeconds": 31.76,
+          "endSeconds": 32,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "it",
-          "startSeconds": 53.184,
-          "endSeconds": 53.568,
+          "startSeconds": 32,
+          "endSeconds": 32.24,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "was",
-          "startSeconds": 53.568,
-          "endSeconds": 53.952,
+          "startSeconds": 32.24,
+          "endSeconds": 32.48,
           "emphasis": false,
           "confidence": 1
         },
         {
           "word": "ringing",
-          "startSeconds": 53.952,
-          "endSeconds": 54.336,
+          "startSeconds": 32.48,
+          "endSeconds": 32.72,
           "emphasis": true,
           "confidence": 1
         },
         {
           "word": "too.",
-          "startSeconds": 54.336,
-          "endSeconds": 54.72,
+          "startSeconds": 32.72,
+          "endSeconds": 32.96,
           "emphasis": false,
           "confidence": 1
         }
