@@ -93,6 +93,7 @@ program
   .option("--no-cache", "disable hash cache reuse")
   .option("--only-section <section-id>", "generate for one section")
   .option("--only-beat <beat-id>", "generate for one beat")
+  .option("--concurrency <count>", "number of TTS jobs to run at once")
   .action(async (projectId, options) => {
     await validateProject(projectId);
     await generateTTS(projectId, {

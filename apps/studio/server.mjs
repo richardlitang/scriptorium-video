@@ -15,6 +15,7 @@ const publicDir = path.join(__dirname, "public");
 const projectsDir = path.join(rootDir, "content", "projects");
 const qualityHistoryDir = path.join(rootDir, ".studio-data", "quality-history");
 const imageHistoryDir = path.join(rootDir, ".studio-data", "image-history");
+const projectMutationQueues = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
@@ -123,6 +124,43 @@ function dimensionsFromSize(size) {
   const match = /^(\d+)x(\d+)$/.exec(size);
   if (!match) return {};
   return { width: Number(match[1]), height: Number(match[2]) };
+}
+
+function envConcurrency(name, fallback) {
+  const raw = process.env[name];
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`Invalid ${name}: ${raw}`);
+  }
+  return value;
+}
+
+async function mapWithConcurrency(items, concurrency, worker) {
+  const results = new Array(items.length);
+  let nextIndex = 0;
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (nextIndex < items.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      results[index] = await worker(items[index], index);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+async function runProjectMutation(projectId, operation) {
+  const previous = projectMutationQueues.get(projectId) ?? Promise.resolve();
+  const current = previous.catch(() => {}).then(operation);
+  projectMutationQueues.set(projectId, current);
+  try {
+    return await current;
+  } finally {
+    if (projectMutationQueues.get(projectId) === current) {
+      projectMutationQueues.delete(projectId);
+    }
+  }
 }
 
 function narrationSummary(text) {
@@ -509,6 +547,8 @@ async function generateProjectImages(projectId, options = {}) {
   const generated = [];
   const failed = [];
   let nextAssets = [...(manifest.assets ?? [])];
+  let completed = 0;
+  const imageConcurrency = envConcurrency("LVSTUDIO_IMAGE_CONCURRENCY", 2);
   await updateRunProgress(projectId, {
     status: "generating_images",
     progress: {
@@ -522,15 +562,15 @@ async function generateProjectImages(projectId, options = {}) {
     }
   });
 
-  for (const [index, target] of limitedTargets.entries()) {
+  const imageResults = await mapWithConcurrency(limitedTargets, imageConcurrency, async (target) => {
     const prompt = String(promptOverrides[target.assetId] || options.prompt || target.defaultPrompt).trim();
-    if (!prompt) continue;
+    if (!prompt) return { target, skipped: true };
     await updateRunProgress(projectId, {
       status: "generating_images",
       progress: {
         kind: "image_generation",
         phase: "generating",
-        completed: index,
+        completed,
         total: limitedTargets.length,
         generated: generated.length,
         failed: failed.length,
@@ -541,25 +581,27 @@ async function generateProjectImages(projectId, options = {}) {
         currentSectionTitle: target.section.title
       }
     });
-    const version = nextImageVersion([...history, ...generated], target.assetId);
+    const version = nextImageVersion(history, target.assetId);
     const inputHash = sha256(JSON.stringify({ prompt, size, quality, model: process.env.OPENAI_IMAGE_MODEL ?? "gpt-image-2" }));
     let result;
     try {
       result = await generateImageWithOpenAi({ prompt, size, quality });
     } catch (error) {
-      failed.push({
+      completed += 1;
+      const failure = {
         assetId: target.assetId,
         sectionId: target.section.id,
         beatId: target.beat.id,
         prompt,
         error: error instanceof Error ? error.message : String(error)
-      });
+      };
+      failed.push(failure);
       await updateRunProgress(projectId, {
         status: "generating_images",
         progress: {
           kind: "image_generation",
           phase: "failed",
-          completed: index + 1,
+          completed,
           total: limitedTargets.length,
           generated: generated.length,
           failed: failed.length,
@@ -570,7 +612,7 @@ async function generateProjectImages(projectId, options = {}) {
           currentSectionTitle: target.section.title
         }
       });
-      continue;
+      return { target, failure };
     }
     const fileName = `${target.beat.id}.v${version}.${inputHash.slice(0, 10)}.png`;
     const absolutePath = path.join(generatedDir, fileName);
@@ -593,19 +635,9 @@ async function generateProjectImages(projectId, options = {}) {
       },
       ...dimensions,
       status: "generated",
-      createdAt: nextAssets.find((item) => item.id === target.assetId)?.createdAt ?? now,
+      createdAt: (manifest.assets ?? []).find((item) => item.id === target.assetId)?.createdAt ?? now,
       updatedAt: now
     };
-
-    nextAssets = nextAssets.filter(
-      (item) =>
-        item.id !== target.assetId &&
-        !(item.beatId === target.beat.id && item.role === "primary_visual" && item.source?.provider === "openai-image")
-    );
-    const firstBeatMediaIndex = nextAssets.findIndex((item) => item.beatId === target.beat.id && item.role !== "voiceover");
-    if (firstBeatMediaIndex === -1) nextAssets.push(asset);
-    else nextAssets.splice(firstBeatMediaIndex, 0, asset);
-
     const historyEntry = {
       assetId: target.assetId,
       sectionId: target.section.id,
@@ -619,14 +651,14 @@ async function generateProjectImages(projectId, options = {}) {
       inputHash,
       generatedAt: now
     };
+    completed += 1;
     generated.push(historyEntry);
-    await appendImageHistory(projectId, historyEntry);
     await updateRunProgress(projectId, {
       status: "generating_images",
       progress: {
         kind: "image_generation",
         phase: "generated",
-        completed: index + 1,
+        completed,
         total: limitedTargets.length,
         generated: generated.length,
         failed: failed.length,
@@ -637,6 +669,20 @@ async function generateProjectImages(projectId, options = {}) {
         currentSectionTitle: target.section.title
       }
     });
+    return { target, asset, historyEntry };
+  });
+
+  for (const item of imageResults) {
+    if (!item?.asset) continue;
+    nextAssets = nextAssets.filter(
+      (asset) =>
+        asset.id !== item.asset.id &&
+        !(asset.beatId === item.target.beat.id && asset.role === "primary_visual" && asset.source?.provider === "openai-image")
+    );
+    const firstBeatMediaIndex = nextAssets.findIndex((asset) => asset.beatId === item.target.beat.id && asset.role !== "voiceover");
+    if (firstBeatMediaIndex === -1) nextAssets.push(item.asset);
+    else nextAssets.splice(firstBeatMediaIndex, 0, item.asset);
+    await appendImageHistory(projectId, item.historyEntry);
   }
 
   if (mode !== "selected" && coverage === "section") {
@@ -1060,7 +1106,7 @@ const server = createServer(async (req, res) => {
       return sendJson(res, 200, {
         ok: true,
         message: "Asset deleted.",
-        data: await deleteProjectAsset(projectId, assetId)
+        data: await runProjectMutation(projectId, () => deleteProjectAsset(projectId, assetId))
       });
     }
 
@@ -1073,7 +1119,7 @@ const server = createServer(async (req, res) => {
       const projectId = pathname.split("/")[3];
       if (!projectId) return sendJson(res, 400, { ok: false, message: "Missing project id." });
       const body = await parseJsonBody(req);
-      const result = await generateProjectImages(projectId, body);
+      const result = await runProjectMutation(projectId, () => generateProjectImages(projectId, body));
       return sendJson(res, 200, {
         ok: true,
         message: `Generated ${result.generated.length} image asset(s).`,
@@ -1145,37 +1191,40 @@ const server = createServer(async (req, res) => {
       const project = await getProjectDetails(projectId);
       const ttsProvider = project.plan.providers.tts;
       const transcriptionProvider = project.plan.providers.transcription;
-      await writeRunState(projectId, {
-        ...project.runState,
-        status: "preparing",
-        updatedAt: new Date().toISOString()
+      const result = await runProjectMutation(projectId, async () => {
+        await writeRunState(projectId, {
+          ...project.runState,
+          status: "preparing",
+          updatedAt: new Date().toISOString()
+        });
+        const steps = [
+          await runLvstudio(["generate:tts", projectId, "--provider", ttsProvider, "--force"]),
+          await runLvstudio(["sync", projectId]),
+          await runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider]),
+          await runLvstudio(["captions", projectId])
+        ];
+        const checkResult = await runLvstudioReport(["check", projectId]);
+        const checkLabel = checkResult.ok ? "Quality check:" : "Quality check warnings/errors:";
+        const output = [
+          ...steps.map((step) => step.stdout.trim()).filter(Boolean),
+          `${checkLabel}\n${checkResult.stdout.trim()}`
+        ].join("\n\n");
+        await appendQualityHistory(projectId, {
+          timestamp: new Date().toISOString(),
+          kind: "prepare_draft",
+          summary: checkResult.ok
+            ? "Draft audio, captions, sync, and quality checks completed."
+            : "Draft audio, captions, and sync completed with quality check warnings/errors.",
+          output
+        });
+        await writeRunState(projectId, {
+          ...project.runState,
+          status: "prepared",
+          updatedAt: new Date().toISOString()
+        });
+        return { output, qualityOk: checkResult.ok };
       });
-      const steps = [
-        await runLvstudio(["generate:tts", projectId, "--provider", ttsProvider, "--force"]),
-        await runLvstudio(["sync", projectId]),
-        await runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider]),
-        await runLvstudio(["captions", projectId])
-      ];
-      const checkResult = await runLvstudioReport(["check", projectId]);
-      const checkLabel = checkResult.ok ? "Quality check:" : "Quality check warnings/errors:";
-      const output = [
-        ...steps.map((step) => step.stdout.trim()).filter(Boolean),
-        `${checkLabel}\n${checkResult.stdout.trim()}`
-      ].join("\n\n");
-      await appendQualityHistory(projectId, {
-        timestamp: new Date().toISOString(),
-        kind: "prepare_draft",
-        summary: checkResult.ok
-          ? "Draft audio, captions, sync, and quality checks completed."
-          : "Draft audio, captions, and sync completed with quality check warnings/errors.",
-        output
-      });
-      await writeRunState(projectId, {
-        ...project.runState,
-        status: "prepared",
-        updatedAt: new Date().toISOString()
-      });
-      return sendJson(res, 200, { ok: true, output, qualityOk: checkResult.ok });
+      return sendJson(res, 200, { ok: true, ...result });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/render") && req.method === "POST") {
@@ -1183,29 +1232,32 @@ const server = createServer(async (req, res) => {
       const quality = requestUrl.searchParams.get("quality") === "final" ? "final" : "draft";
       const force = requestUrl.searchParams.get("force") === "true";
       const projectDir = path.join(projectsDir, projectId);
-      await writeRunState(projectId, {
-        ...(await readRunState(projectId)),
-        status: "rendering",
-        updatedAt: new Date().toISOString()
+      const output = await runProjectMutation(projectId, async () => {
+        await writeRunState(projectId, {
+          ...(await readRunState(projectId)),
+          status: "rendering",
+          updatedAt: new Date().toISOString()
+        });
+        const result = await runLvstudio(["render", projectId, "--quality", quality, ...(force ? ["--force"] : [])]);
+        const planHash = sha256(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
+        const timelineHash = sha256(await readFile(path.join(projectDir, "timeline.json"), "utf8").catch(() => ""));
+        await appendQualityHistory(projectId, {
+          timestamp: new Date().toISOString(),
+          kind: "render",
+          summary: `Render ${quality} completed.`,
+          output: result.stdout.trim()
+        });
+        await writeRunState(projectId, {
+          status: "idle",
+          lastRenderPlanHash: planHash,
+          lastRenderTimelineHash: timelineHash,
+          lastRenderQuality: quality,
+          lastRenderCompletedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        });
+        return result.stdout.trim();
       });
-      const result = await runLvstudio(["render", projectId, "--quality", quality, ...(force ? ["--force"] : [])]);
-      const planHash = sha256(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
-      const timelineHash = sha256(await readFile(path.join(projectDir, "timeline.json"), "utf8").catch(() => ""));
-      await appendQualityHistory(projectId, {
-        timestamp: new Date().toISOString(),
-        kind: "render",
-        summary: `Render ${quality} completed.`,
-        output: result.stdout.trim()
-      });
-      await writeRunState(projectId, {
-        status: "idle",
-        lastRenderPlanHash: planHash,
-        lastRenderTimelineHash: timelineHash,
-        lastRenderQuality: quality,
-        lastRenderCompletedAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-      return sendJson(res, 200, { ok: true, output: result.stdout.trim() });
+      return sendJson(res, 200, { ok: true, output });
     }
 
     if (pathname === "/" || pathname === "/index.html") {

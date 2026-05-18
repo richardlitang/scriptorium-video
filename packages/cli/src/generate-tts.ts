@@ -11,6 +11,7 @@ type CliGenerateTTSOptions = {
   noCache?: boolean;
   onlySection?: string;
   onlyBeat?: string;
+  concurrency?: string;
 };
 
 export async function generateTTS(projectId: string, options: CliGenerateTTSOptions): Promise<void> {
@@ -19,7 +20,14 @@ export async function generateTTS(projectId: string, options: CliGenerateTTSOpti
   const providerId = options.provider ?? plan.providers.tts;
   const provider = ttsProviders[providerId];
   if (!provider) throw new Error(`Unknown TTS provider: ${providerId}`);
-  const result = await generateTTSForProject(projectId, provider, options as GenerateTTSOptions);
+  const concurrency = options.concurrency === undefined ? undefined : Number(options.concurrency);
+  if (concurrency !== undefined && (!Number.isInteger(concurrency) || concurrency < 1)) {
+    throw new Error(`Invalid --concurrency value: ${options.concurrency}`);
+  }
+  const result = await generateTTSForProject(projectId, provider, {
+    ...(options as GenerateTTSOptions),
+    concurrency
+  });
   for (const beatId of result.generated) {
     console.log(`Generated ${beatId}`);
   }

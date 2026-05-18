@@ -11,8 +11,11 @@ type RemotionInputProps = {
   assetUrls: Record<string, string>;
 };
 
-function remotionPort(): number {
-  const port = Number(process.env.LVSTUDIO_REMOTION_PORT ?? "3101");
+function remotionPort(): number | null {
+  if (!process.env.LVSTUDIO_REMOTION_PORT) {
+    return null;
+  }
+  const port = Number(process.env.LVSTUDIO_REMOTION_PORT);
   if (!Number.isInteger(port) || port < 1024 || port > 65535) {
     throw new Error(`Invalid LVSTUDIO_REMOTION_PORT: ${process.env.LVSTUDIO_REMOTION_PORT}`);
   }

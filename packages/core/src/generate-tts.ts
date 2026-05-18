@@ -13,6 +13,7 @@ export type GenerateTTSOptions = {
   noCache?: boolean;
   onlySection?: string;
   onlyBeat?: string;
+  concurrency?: number;
 };
 
 type BeatRef = {
@@ -39,12 +40,6 @@ function findVoiceAsset(manifest: AssetManifest, beatId: string): Asset | undefi
   return manifest.assets.find((asset) => asset.role === "voiceover" && asset.beatId === beatId);
 }
 
-function upsertAsset(manifest: AssetManifest, asset: Asset): void {
-  const index = manifest.assets.findIndex((candidate) => candidate.id === asset.id);
-  if (index >= 0) manifest.assets[index] = asset;
-  else manifest.assets.push(asset);
-}
-
 function cacheKey(plan: VideoPlan, providerId: string, beatId: string, narration: string): string {
   return hashString(
     JSON.stringify({
@@ -67,6 +62,28 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
+function ttsConcurrency(providerId: string, requested?: number): number {
+  const raw = requested ?? Number(process.env.LVSTUDIO_TTS_CONCURRENCY ?? "");
+  if (Number.isFinite(raw) && raw > 0) return Math.max(1, Math.floor(raw));
+  return providerId === "chatterbox" ? 1 : 3;
+}
+
+async function runWithConcurrency<T>(
+  items: T[],
+  concurrency: number,
+  worker: (item: T) => Promise<void>
+): Promise<void> {
+  let nextIndex = 0;
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (nextIndex < items.length) {
+      const item = items[nextIndex];
+      nextIndex += 1;
+      await worker(item);
+    }
+  });
+  await Promise.all(workers);
+}
+
 export async function generateTTSForProject(
   projectId: string,
   provider: TTSProvider,
@@ -81,16 +98,18 @@ export async function generateTTSForProject(
   const now = new Date().toISOString();
   const generated: string[] = [];
   const skipped: string[] = [];
+  const nextAssetsById = new Map(manifest.assets.map((asset) => [asset.id, asset]));
+  const concurrency = ttsConcurrency(providerId, options.concurrency);
 
-  for (const beat of beats) {
+  await runWithConcurrency(beats, concurrency, async (beat) => {
     const existing = findVoiceAsset(manifest, beat.beatId);
     if (existing?.status === "locked_by_user" && !options.force) {
       skipped.push(`${beat.beatId}: locked_by_user`);
-      continue;
+      return;
     }
     if (existing?.status === "edited" && !options.force) {
       skipped.push(`${beat.beatId}: edited`);
-      continue;
+      return;
     }
 
     const inputHash = cacheKey(plan, providerId, beat.beatId, beat.narration);
@@ -105,7 +124,7 @@ export async function generateTTSForProject(
     if (!options.noCache && providerId !== "manual" && existing?.source.inputHash === inputHash) {
       if (await fileExists(cachedPath)) {
         skipped.push(`${beat.beatId}: cache_hit`);
-        continue;
+        return;
       }
     }
 
@@ -128,10 +147,9 @@ export async function generateTTSForProject(
         createdAt: now,
         updatedAt: now
       };
-      upsertAsset(manifest, recoveredAsset);
-      await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
+      nextAssetsById.set(recoveredAsset.id, recoveredAsset);
       skipped.push(`${beat.beatId}: recovered_cache_hit`);
-      continue;
+      return;
     }
 
     const result = await provider.synthesize({
@@ -160,11 +178,13 @@ export async function generateTTSForProject(
       updatedAt: now
     };
 
-    upsertAsset(manifest, nextAsset);
-    await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
+    nextAssetsById.set(nextAsset.id, nextAsset);
     generated.push(beat.beatId);
-  }
+  });
 
+  manifest.assets = manifest.assets
+    .filter((asset) => !nextAssetsById.has(asset.id))
+    .concat([...nextAssetsById.values()]);
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
   return { generated, skipped };
 }
