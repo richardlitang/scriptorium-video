@@ -5,6 +5,7 @@ import { VideoPlanSchema, type VideoPlan } from "./schemas/video-plan.schema.js"
 import { getProjectPaths } from "./paths.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
 import { hashString } from "./hash.js";
+import { probeMedia } from "./media-probe.js";
 import type { TTSProvider } from "./tts-provider.js";
 
 export type GenerateTTSOptions = {
@@ -36,6 +37,12 @@ function pickBeats(plan: VideoPlan, onlySection?: string, onlyBeat?: string): Be
 
 function findVoiceAsset(manifest: AssetManifest, beatId: string): Asset | undefined {
   return manifest.assets.find((asset) => asset.role === "voiceover" && asset.beatId === beatId);
+}
+
+function upsertAsset(manifest: AssetManifest, asset: Asset): void {
+  const index = manifest.assets.findIndex((candidate) => candidate.id === asset.id);
+  if (index >= 0) manifest.assets[index] = asset;
+  else manifest.assets.push(asset);
 }
 
 function cacheKey(plan: VideoPlan, providerId: string, beatId: string, narration: string): string {
@@ -93,12 +100,38 @@ export async function generateTTSForProject(
     const relativePath =
       providerId === "manual" && existing ? existing.path : path.join("assets", "audio", "voice", fileName);
     const absolutePath = path.resolve(paths.projectDir, relativePath);
+    const cachedPath = existing ? path.resolve(paths.projectDir, existing.path) : absolutePath;
 
     if (!options.noCache && providerId !== "manual" && existing?.source.inputHash === inputHash) {
-      if (await fileExists(path.resolve(paths.projectDir, existing.path))) {
+      if (await fileExists(cachedPath)) {
         skipped.push(`${beat.beatId}: cache_hit`);
         continue;
       }
+    }
+
+    if (!options.noCache && providerId !== "manual" && !existing && (await fileExists(absolutePath))) {
+      const probed = await probeMedia(absolutePath);
+      const recoveredAsset: Asset = {
+        id: `voice-${beat.beatId}`,
+        type: "audio",
+        role: "voiceover",
+        sectionId: beat.sectionId,
+        beatId: beat.beatId,
+        path: relativePath,
+        source: {
+          kind: "generated",
+          provider: providerId,
+          inputHash
+        },
+        durationSeconds: probed.durationSeconds ?? 0,
+        status: "generated",
+        createdAt: now,
+        updatedAt: now
+      };
+      upsertAsset(manifest, recoveredAsset);
+      await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
+      skipped.push(`${beat.beatId}: recovered_cache_hit`);
+      continue;
     }
 
     const result = await provider.synthesize({
@@ -127,9 +160,8 @@ export async function generateTTSForProject(
       updatedAt: now
     };
 
-    const index = manifest.assets.findIndex((asset) => asset.id === nextAsset.id);
-    if (index >= 0) manifest.assets[index] = nextAsset;
-    else manifest.assets.push(nextAsset);
+    upsertAsset(manifest, nextAsset);
+    await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
     generated.push(beat.beatId);
   }
 
