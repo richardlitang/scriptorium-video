@@ -22,6 +22,7 @@ const voiceSettingsPath = path.join(rootDir, ".studio-data", "voice-settings.jso
 const voiceReferencesDir = path.join(rootDir, ".studio-data", "voice-references");
 const projectMutationQueues = new Map();
 const activeDraftJobs = new Map();
+const activeBeatJobs = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
@@ -297,6 +298,25 @@ function jobProgress(job, patch = {}) {
     finishedAt: job.finishedAt,
     currentSectionId: job.currentSectionId,
     currentSectionTitle: job.currentSectionTitle,
+    error: job.error,
+    output: job.output.join("\n\n").trim(),
+    ...patch
+  };
+}
+
+function beatJobProgress(job, patch = {}) {
+  return {
+    kind: "beat_regenerate_job",
+    jobId: job.id,
+    status: job.status,
+    phase: job.phase,
+    label: job.label,
+    beatId: job.beatId,
+    sectionId: job.sectionId,
+    completed: job.completed,
+    total: job.total,
+    startedAt: job.startedAt,
+    finishedAt: job.finishedAt,
     error: job.error,
     output: job.output.join("\n\n").trim(),
     ...patch
@@ -1237,51 +1257,136 @@ async function updateProjectAssetStatus(projectId, assetId, nextStatus) {
   return { asset, syncOutput: syncResult.stdout.trim() };
 }
 
-async function regenerateBeatAssets(projectId, beatId, options = {}) {
+async function runBeatRegenerateJob(projectId, beatId, options = {}) {
   const details = await getProjectDetails(projectId);
   const plan = details.plan;
   const section = (plan.sections ?? []).find((entry) => (entry.beats ?? []).some((beat) => beat.id === beatId));
   if (!section) throw new Error(`Beat not found: ${beatId}`);
   const force = options.force === true;
-  const steps = [];
-  if (options.audio !== false) {
-    steps.push(await runLvstudio([
-      "generate:tts",
-      projectId,
-      "--provider",
-      plan.providers.tts,
-      "--only-beat",
-      beatId,
-      ...(force ? ["--force"] : [])
-    ]));
-    steps.push(await runLvstudio(["sync", projectId]));
-  }
-  if (options.image !== false) {
-    const imageResult = await generateProjectImages(projectId, {
-      mode: "selected",
-      assetId: `image-${beatId}`,
-      prompt: options.prompt,
-      quality: options.quality ?? "low",
-      size: "1024x1536",
-      force
-    });
-    steps.push({ stdout: `Image regenerate: generated ${imageResult.generated.length}, failed ${imageResult.failed.length}.` });
-  }
-  if (options.captions !== false && options.audio !== false) {
-    steps.push(await runLvstudio(["transcribe", projectId, "--provider", plan.providers.transcription]));
-    steps.push(await runLvstudio(["captions", projectId]));
-  }
-  if (options.render === true) {
-    steps.push(await runLvstudio(["render", projectId, "--quality", "draft", "--force"]));
-  }
-  const output = steps.map((step) => step.stdout?.trim()).filter(Boolean).join("\n\n");
-  await appendQualityHistory(projectId, {
-    timestamp: new Date().toISOString(),
-    kind: "beat_regenerate",
-    summary: `Regenerated beat ${beatId}.`,
-    output
+  const job = {
+    id: `beat-${Date.now().toString(36)}`,
+    beatId,
+    sectionId: section.id,
+    status: "queued",
+    phase: "queued",
+    label: "Queued beat regeneration",
+    completed: 0,
+    total: (options.audio !== false ? 1 : 0) + (options.image !== false ? 1 : 0) + (options.captions !== false && options.audio !== false ? 2 : 0) + (options.render === true ? 1 : 0),
+    startedAt: new Date().toISOString(),
+    finishedAt: undefined,
+    error: undefined,
+    output: []
+  };
+  if (job.total === 0) job.total = 1;
+
+  activeBeatJobs.set(projectId, job);
+  await writeRunState(projectId, {
+    ...(await readRunState(projectId)),
+    status: "queued",
+    progress: beatJobProgress(job),
+    updatedAt: new Date().toISOString()
   });
-  return { beatId, sectionId: section.id, output };
+
+  runProjectMutation(projectId, async () => {
+    try {
+      const runStep = async (phase, label, operation) => {
+        job.status = "running";
+        job.phase = phase;
+        job.label = label;
+        await writeRunState(projectId, {
+          ...(await readRunState(projectId)),
+          status: "queued",
+          progress: beatJobProgress(job),
+          updatedAt: new Date().toISOString()
+        });
+        const result = await operation();
+        if (result?.stdout?.trim()) job.output.push(`${label}:\n${result.stdout.trim()}`);
+        job.completed += 1;
+        await writeRunState(projectId, {
+          ...(await readRunState(projectId)),
+          status: "queued",
+          progress: beatJobProgress(job),
+          updatedAt: new Date().toISOString()
+        });
+      };
+
+      if (options.audio !== false) {
+        await runStep("audio", "Regenerate beat narration", () => runLvstudio([
+          "generate:tts",
+          projectId,
+          "--provider",
+          plan.providers.tts,
+          "--only-beat",
+          beatId,
+          ...(force ? ["--force"] : [])
+        ]));
+      }
+      if (options.audio !== false) {
+        await runStep("sync", "Sync timeline", () => runLvstudio(["sync", projectId]));
+      }
+      if (options.image !== false) {
+        await runStep("images", "Regenerate beat image", async () => {
+          const result = await generateProjectImages(projectId, {
+            mode: "selected",
+            assetId: `image-${beatId}`,
+            prompt: options.prompt,
+            quality: options.quality ?? "low",
+            size: "1024x1536",
+            force
+          });
+          return { stdout: `Image regenerate: generated ${result.generated.length}, failed ${result.failed.length}.` };
+        });
+      }
+      if (options.captions !== false && options.audio !== false) {
+        await runStep("transcribe", "Transcribe narration", () => runLvstudio(["transcribe", projectId, "--provider", plan.providers.transcription]));
+        await runStep("captions", "Generate captions", () => runLvstudio(["captions", projectId]));
+      }
+      if (options.render === true) {
+        await runStep("render", "Render draft", () => runLvstudio(["render", projectId, "--quality", "draft", "--force"]));
+      }
+
+      job.status = "completed";
+      job.phase = "done";
+      job.label = "Beat regeneration complete";
+      job.finishedAt = new Date().toISOString();
+      const output = job.output.join("\n\n").trim();
+      await appendQualityHistory(projectId, {
+        timestamp: job.finishedAt,
+        kind: "beat_regenerate",
+        summary: `Regenerated beat ${beatId}.`,
+        output
+      });
+      await writeRunState(projectId, {
+        ...(await readRunState(projectId)),
+        status: "idle",
+        progress: beatJobProgress(job),
+        updatedAt: new Date().toISOString()
+      });
+      activeBeatJobs.delete(projectId);
+    } catch (error) {
+      job.status = "failed";
+      job.phase = "failed";
+      job.label = "Beat regeneration failed";
+      job.error = error instanceof Error ? error.message : String(error);
+      job.finishedAt = new Date().toISOString();
+      job.output.push(`Beat regeneration failed:\n${job.error}`);
+      await appendQualityHistory(projectId, {
+        timestamp: job.finishedAt,
+        kind: "beat_regenerate_failed",
+        summary: `Beat regeneration failed for ${beatId}.`,
+        output: job.output.join("\n\n").trim()
+      }).catch(() => {});
+      await writeRunState(projectId, {
+        ...(await readRunState(projectId)),
+        status: "failed",
+        progress: beatJobProgress(job),
+        updatedAt: new Date().toISOString()
+      });
+      activeBeatJobs.delete(projectId);
+    }
+  }).catch(() => {});
+
+  return beatJobProgress(job);
 }
 
 async function readQualityHistory(projectId) {
@@ -1297,18 +1402,19 @@ async function readQualityHistory(projectId) {
 }
 
 function isDraftJobHistory(entry) {
-  return entry?.kind === "draft_job" || entry?.kind === "draft_job_failed";
+  return entry?.kind === "draft_job" || entry?.kind === "draft_job_failed" || entry?.kind === "beat_regenerate" || entry?.kind === "beat_regenerate_failed";
 }
 
 async function listDraftJobs(projectId) {
   const runState = await readRunState(projectId);
   const active = activeDraftJobs.get(projectId);
+  const activeBeat = activeBeatJobs.get(projectId);
   const history = (await readQualityHistory(projectId))
     .filter(isDraftJobHistory)
     .slice(0, 12)
     .map((entry) => ({
       id: `${entry.kind}-${sha256(`${entry.timestamp}-${entry.summary}`).slice(0, 8)}`,
-      status: entry.kind === "draft_job_failed" ? "failed" : "completed",
+      status: entry.kind.endsWith("_failed") ? "failed" : "completed",
       startedAt: entry.timestamp,
       finishedAt: entry.timestamp,
       label: entry.summary,
@@ -1316,26 +1422,56 @@ async function listDraftJobs(projectId) {
       kind: entry.kind
     }));
 
-  const runStateJob = runState.progress?.kind === "draft_job" ? runState.progress : null;
-  const current = active ? jobProgress(active) : runStateJob;
-  const jobs = current
-    ? [
-        {
-          id: current.jobId,
-          status: current.status,
-          startedAt: current.startedAt,
-          finishedAt: current.finishedAt,
-          label: current.label,
-          output: current.output ?? "",
-          kind: "draft_job_live",
-          error: current.error,
-          completed: current.completed,
-          total: current.total,
-          currentSectionTitle: current.currentSectionTitle
-        },
-        ...history.filter((item) => item.id !== current.jobId)
-      ]
-    : history;
+  const runStateJob = ["draft_job", "beat_regenerate_job"].includes(runState.progress?.kind) ? runState.progress : null;
+  const liveJobs = [];
+  if (active) {
+    const current = jobProgress(active);
+    liveJobs.push({
+      id: current.jobId,
+      status: current.status,
+      startedAt: current.startedAt,
+      finishedAt: current.finishedAt,
+      label: current.label,
+      output: current.output ?? "",
+      kind: "draft_job_live",
+      error: current.error,
+      completed: current.completed,
+      total: current.total,
+      currentSectionTitle: current.currentSectionTitle
+    });
+  }
+  if (activeBeat) {
+    const current = beatJobProgress(activeBeat);
+    liveJobs.push({
+      id: current.jobId,
+      status: current.status,
+      startedAt: current.startedAt,
+      finishedAt: current.finishedAt,
+      label: current.label,
+      output: current.output ?? "",
+      kind: "beat_regenerate_job_live",
+      error: current.error,
+      completed: current.completed,
+      total: current.total,
+      currentSectionTitle: current.beatId
+    });
+  }
+  if (liveJobs.length === 0 && runStateJob) {
+    liveJobs.push({
+      id: runStateJob.jobId,
+      status: runStateJob.status,
+      startedAt: runStateJob.startedAt,
+      finishedAt: runStateJob.finishedAt,
+      label: runStateJob.label,
+      output: runStateJob.output ?? "",
+      kind: `${runStateJob.kind}_runstate`,
+      error: runStateJob.error,
+      completed: runStateJob.completed,
+      total: runStateJob.total,
+      currentSectionTitle: runStateJob.currentSectionTitle ?? runStateJob.beatId
+    });
+  }
+  const jobs = [...liveJobs, ...history.filter((item) => !liveJobs.some((live) => live.id === item.id))];
   return { jobs };
 }
 
@@ -1726,8 +1862,12 @@ const server = createServer(async (req, res) => {
       const beatId = decodeURIComponent(parts[5] ?? "");
       if (!projectId || !beatId) return sendJson(res, 400, { ok: false, message: "Missing project id or beat id." });
       const body = await parseJsonBody(req);
-      const result = await runProjectMutation(projectId, () => regenerateBeatAssets(projectId, beatId, body));
-      return sendJson(res, 200, { ok: true, message: `Regenerated beat ${beatId}.`, data: result });
+      const activeJob = activeBeatJobs.get(projectId);
+      if (activeJob && ["queued", "running"].includes(activeJob.status)) {
+        return sendJson(res, 202, { ok: true, message: "Beat regeneration already running.", data: beatJobProgress(activeJob) });
+      }
+      const result = await runBeatRegenerateJob(projectId, beatId, body);
+      return sendJson(res, 202, { ok: true, message: `Queued beat regeneration for ${beatId}.`, data: result });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/renders") && req.method === "GET") {

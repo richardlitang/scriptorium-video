@@ -79,6 +79,7 @@ let currentProjectDetails = null;
 let activeRunController = null;
 let progressPollTimer = null;
 let draftJobPollTimer = null;
+let jobCenterPollTimer = null;
 let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let expandedJobIds = new Set();
@@ -931,7 +932,9 @@ function renderBeatInspector(projectId, plan, assets, timeline) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ audio: true, image: true, captions: true, render: false, force: false, quality: imageQuality.value })
       });
-      await selectProject(projectId, selectedProjectElement);
+      await refreshJobCenter(projectId);
+      startJobCenterPolling(projectId);
+      qualityOutput.textContent = `${qualityOutput.textContent}\n\nQueued beat regeneration for ${beat.id}.`;
     } finally {
       regenerateBtn.disabled = false;
       regenerateBtn.textContent = "Regenerate Beat";
@@ -948,7 +951,9 @@ function renderBeatInspector(projectId, plan, assets, timeline) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ audio: true, image: true, captions: true, render: true, force: false, quality: imageQuality.value })
       });
-      await selectProject(projectId, selectedProjectElement);
+      await refreshJobCenter(projectId);
+      startJobCenterPolling(projectId);
+      qualityOutput.textContent = `${qualityOutput.textContent}\n\nQueued beat regeneration + render for ${beat.id}.`;
     } finally {
       renderNowBtn.disabled = false;
     }
@@ -1178,10 +1183,32 @@ async function refreshJobCenter(projectId) {
   if (!projectId) return;
   try {
     const result = await fetchJson(`/api/projects/${projectId}/jobs`);
-    renderJobCenter(result.data.jobs || []);
+    const jobs = result.data.jobs || [];
+    renderJobCenter(jobs);
+    return jobs;
   } catch {
     renderJobCenter([]);
+    return [];
   }
+}
+
+async function pollJobCenter(projectId) {
+  const jobs = await refreshJobCenter(projectId);
+  if (!jobs.some((job) => ["queued", "running"].includes(job.status))) stopJobCenterPolling();
+}
+
+function startJobCenterPolling(projectId) {
+  stopJobCenterPolling();
+  pollJobCenter(projectId).catch(() => {});
+  jobCenterPollTimer = setInterval(() => {
+    pollJobCenter(projectId).catch(() => {});
+  }, 2500);
+}
+
+function stopJobCenterPolling() {
+  if (!jobCenterPollTimer) return;
+  clearInterval(jobCenterPollTimer);
+  jobCenterPollTimer = null;
 }
 
 function notifyDraftJobFinished(job) {
@@ -1450,8 +1477,10 @@ async function selectProject(projectId, element) {
   qualityOutput.textContent = "Quality checks run during Make Draft or from Advanced controls.";
   await refreshRenderOutput(projectId);
   await refreshQualityHistory(projectId);
-  await refreshJobCenter(projectId);
+  const jobs = await refreshJobCenter(projectId);
   await refreshReview(projectId).catch(() => {});
+  if ((jobs || []).some((job) => ["queued", "running"].includes(job.status))) startJobCenterPolling(projectId);
+  else stopJobCenterPolling();
   if (details.data.runState?.progress?.kind === "draft_job" && ["queued", "running"].includes(details.data.runState.progress.status)) {
     startDraftJobPolling(projectId);
   } else {
