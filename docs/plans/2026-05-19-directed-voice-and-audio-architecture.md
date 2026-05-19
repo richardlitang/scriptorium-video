@@ -80,6 +80,8 @@ The system is already chopped at the right level for narration: one audio file p
 
 The main missing layer is a durable "voice direction" artifact inside the plan.
 
+The advice is appropriate for this project with one important constraint: the LLM should author direction, not execution parameters. The plan should store stable creative intent such as profile, emphasis, pauses, and cue intents. Deterministic code should translate that intent into provider-specific TTS settings, audio processing, and render timing.
+
 ## Proposed Architecture
 
 ### 1. Add Voice Direction To Beats
@@ -201,6 +203,35 @@ For Chatterbox, profile mapping could start as:
 
 `generate-tts.ts` should pass resolved beat-level options to the provider. The cache key must include the resolved profile settings, pauses, and delivery text so regenerating audio is deterministic.
 
+This requires a small provider contract change. `TTSRequest.options` currently carries generic fields such as `speed`, `pitch`, `emotion`, `language`, and `ssml`; Chatterbox-specific values are read from environment variables. Add a provider-neutral `delivery` object or an explicit `providerOptions` map so `generate-tts.ts` can pass resolved beat-level controls without leaking Chatterbox concepts into every provider.
+
+Recommended shape:
+
+```ts
+type TTSRequest = {
+  text: string;
+  voiceId: string;
+  outputPath: string;
+  format: "mp3" | "wav" | "m4a";
+  options?: {
+    speed?: number;
+    pitch?: number;
+    emotion?: string;
+    language?: string;
+    ssml?: string;
+  };
+  delivery?: {
+    profile?: string;
+    intensity?: number;
+    deliveryNote?: string;
+    emphasis?: string[];
+  };
+  providerOptions?: Record<string, unknown>;
+};
+```
+
+Core should resolve `voiceDirection` into both `delivery` and provider-specific `providerOptions`. Chatterbox can then receive `exaggeration`, `cfg_weight`, `temperature`, `seed`, and `audio_prompt_path` from the request rather than only from process env.
+
 ### 4. Make Pauses Explicit
 
 Pauses should be represented in timing, not hidden in punctuation alone.
@@ -240,6 +271,8 @@ Start simple: process in place and re-probe duration. Store metadata in `asset.s
 }
 ```
 
+`AssetSourceSchema` is currently strict and does not allow `audioProcessing`, so this requires a schema change before metadata can be stored there. Either add a typed optional `audioProcessing` field to `AssetSourceSchema`, or add a top-level `processing` object to `AssetSchema`. Prefer a typed field over loose metadata so quality checks can inspect it later.
+
 This should be the first implementation slice because it directly fixes quiet output.
 
 ### 6. Add Sound Cue Intents
@@ -271,9 +304,27 @@ Initial cue library can be local/manual. Later it can generate or import assets.
 
 Renderer work:
 
-- Include `sfx` and `music` assets in `timeline.segments`.
+- Add timed cue references to `timeline.segments`; today segments only have `voiceAssetId` and `mediaAssetIds`.
 - Schedule them in Remotion with `<Audio volume={...}>`.
 - Keep low atmosphere/hum separate from voiceover so it can be mixed quietly under narration.
+
+Recommended timeline extension:
+
+```json
+{
+  "audioCues": [
+    {
+      "assetId": "sfx-key-point-hit",
+      "role": "sfx",
+      "startSeconds": 12.4,
+      "durationSeconds": 0.6,
+      "levelDb": -16
+    }
+  ]
+}
+```
+
+This should be timeline data, not only render-time logic, because captions, quality checks, exports, and alternate renderers need the same cue schedule.
 
 ### 7. Studio UX
 
@@ -300,6 +351,7 @@ Recommended user flow:
 Files:
 
 - `packages/core/src/generate-tts.ts`
+- `packages/core/src/schemas/asset-manifest.schema.ts`
 - `packages/core/src/media-probe.ts` if needed
 - tests around command construction or generated metadata
 
@@ -316,10 +368,11 @@ Verification:
 Files:
 
 - `packages/core/src/schemas/video-plan.schema.ts`
+- `packages/core/src/tts-provider.ts`
 - `packages/core/src/generate-tts.ts`
 - tests for cache key changes and defaults
 
-Add `voiceDirection` to beats. Add resolver from profile to provider-level options. Keep fallback behavior identical when `voiceDirection` is absent.
+Add `voiceDirection` to beats. Add resolver from profile to provider-level options. Extend `TTSRequest` so beat-level delivery options can reach providers. Keep fallback behavior identical when `voiceDirection` is absent.
 
 ### Slice 3: LLM Voice Director
 
@@ -345,11 +398,12 @@ Pad generated voice assets with beat-level pause-before and pause-after silence.
 Files:
 
 - `packages/core/src/schemas/video-plan.schema.ts`
+- `packages/core/src/schemas/timeline.schema.ts`
 - `packages/core/src/sync-project.ts`
 - `apps/renderer/src/templates/VerticalStoryTemplate.tsx`
 - `apps/renderer/src/templates/DocumentaryLongformTemplate.tsx`
 
-Add cue metadata, map cues to assets, and schedule `sfx`/`music` playback in Remotion.
+Add cue metadata, map cues to assets, write cue timing into `timeline.json`, and schedule `sfx`/`music` playback in Remotion.
 
 ## Risks And Tradeoffs
 
@@ -358,6 +412,8 @@ Add cue metadata, map cues to assets, and schedule `sfx`/`music` playback in Rem
 - LLM-generated pauses can become distracting. Clamp pause ranges by profile and project mode, for example `0-1.2s`.
 - Loudness normalization can reveal noise or artifacts in bad voice samples. Keep light compression and expose a bypass later if needed.
 - Sound cues can quickly feel cheap or off-brand. Start with a tiny curated cue set and conservative levels.
+- Provider-specific settings can leak into core if the resolver is not designed carefully. Keep plan intent provider-neutral, and isolate Chatterbox mappings behind a resolver/provider boundary.
+- Re-running `Direct Voice` must not casually overwrite user overrides. Mark generated direction with source metadata or preserve user-edited `voiceDirection` fields unless forced.
 
 ## Recommendation
 
