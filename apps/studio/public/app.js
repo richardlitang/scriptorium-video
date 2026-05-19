@@ -207,6 +207,17 @@ function extractStoryTitle(rawScript, fallbackTitle) {
   return rawScript.match(/^\s*TITLE:\s*(.+)$/im)?.[1].trim() || fallbackTitle;
 }
 
+function projectTitleFromStory(rawStory) {
+  const explicitTitle = rawStory.match(/^\s*TITLE:\s*(.+)$/im)?.[1].trim();
+  if (explicitTitle) return explicitTitle;
+  const firstLine = rawStory
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .find(Boolean);
+  if (!firstLine) return "Untitled Story";
+  return firstLine.replace(/^["'“”]+|["'“”]+$/g, "").slice(0, 80) || "Untitled Story";
+}
+
 function extractThumbnailConcept(rawScript) {
   const match = rawScript.match(/^THUMBNAIL CONCEPT:\s*([\s\S]*?)(?=\n\s*\[\d+:\d+\]|\n\s*$)/im);
   return match?.[1].replace(/\s+/g, " ").trim();
@@ -972,7 +983,17 @@ async function refreshMediaPreview(projectId) {
 }
 
 newProjectBtn.onclick = async () => {
-  const title = prompt("Project title?");
+  const pendingStory = storyInput.value;
+  const pendingUiState = {
+    feel: storyFeel.value,
+    pacing: storyPacing.value,
+    visualStyle: storyVisualStyle.value,
+    imageEnabled: imageEnabled.checked ? "true" : "false",
+    imageMode: imageMode.value,
+    imageBudget: normalizeImageCoverage(imageBudget.value),
+    imageQuality: imageQuality.value
+  };
+  const title = prompt("Project title?", projectTitleFromStory(pendingStory));
   if (!title?.trim()) return;
   newProjectBtn.disabled = true;
   newProjectBtn.textContent = "Creating...";
@@ -985,6 +1006,20 @@ newProjectBtn.onclick = async () => {
     selectedProjectId = null;
     localStorage.setItem("lvstudio:selectedProjectId", result.data.projectId);
     await loadProjects();
+    if (pendingStory.trim() && selectedProjectId === result.data.projectId) {
+      storyInput.value = pendingStory;
+      storyFeel.value = pendingUiState.feel;
+      storyPacing.value = pendingUiState.pacing;
+      storyVisualStyle.value = pendingUiState.visualStyle;
+      imageEnabled.checked = pendingUiState.imageEnabled === "true";
+      imageMode.value = pendingUiState.imageMode;
+      imageBudget.value = pendingUiState.imageBudget;
+      imageQuality.value = pendingUiState.imageQuality;
+      saveUiState();
+      needsRender = true;
+      renderWorkflowState();
+      updateStoryButtons();
+    }
   } catch (error) {
     projectMeta.textContent = String(error);
   } finally {
