@@ -54,6 +54,7 @@ const imageMode = document.getElementById("image-mode");
 const imageBudget = document.getElementById("image-budget");
 const imageQuality = document.getElementById("image-quality");
 const imageEnabled = document.getElementById("image-enabled");
+const beatTimeline = document.getElementById("beat-timeline");
 
 let selectedProjectId = null;
 let selectedProjectElement = null;
@@ -68,6 +69,7 @@ let draftJobPollTimer = null;
 let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let expandedJobIds = new Set();
+let selectedBeatId = null;
 let voicePreviewController = null;
 const voicePreviewCache = new Map();
 
@@ -102,6 +104,7 @@ function restoreUiState(projectId) {
   imageMode.value = readStored(projectId, "imageMode", imageMode.value);
   imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", imageBudget.value));
   imageQuality.value = readStored(projectId, "imageQuality", imageQuality.value);
+  selectedBeatId = readStored(projectId, "selectedBeatId", "");
 }
 
 function normalizeImageCoverage(value) {
@@ -662,6 +665,93 @@ function renderMediaPreview(projectId, plan, assets) {
   }
 }
 
+function pickSelectedBeat(plan) {
+  const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
+  if (selectedBeatId && beats.some((beat) => beat.id === selectedBeatId)) return selectedBeatId;
+  return beats[0]?.id ?? "";
+}
+
+function beatDurationSeconds(beatId, timeline) {
+  const segment = timeline?.segments?.find((entry) => entry.beatId === beatId);
+  return Number(segment?.durationSeconds || 0);
+}
+
+function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
+  beatTimeline.innerHTML = "";
+  const hasStaleRender = Boolean(
+    runState?.lastRenderPlanHash &&
+    (
+      runState?.lastRenderPlanHash !== runState?.currentPlanHash ||
+      runState?.lastRenderTimelineHash !== runState?.currentTimelineHash
+    )
+  );
+
+  selectedBeatId = pickSelectedBeat(plan);
+  if (selectedBeatId) writeStored(projectId, "selectedBeatId", selectedBeatId);
+
+  for (const section of plan.sections ?? []) {
+    const lane = document.createElement("article");
+    lane.className = "section-lane";
+    const heading = document.createElement("h4");
+    heading.textContent = section.title;
+    lane.appendChild(heading);
+
+    const row = document.createElement("div");
+    row.className = "beat-row";
+    for (const beat of section.beats ?? []) {
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = `beat-card ${beat.id === selectedBeatId ? "selected" : ""}`;
+      card.onclick = () => {
+        selectedBeatId = beat.id;
+        writeStored(projectId, "selectedBeatId", selectedBeatId);
+        renderBeatTimeline(projectId, plan, timeline, assets, runState);
+      };
+
+      const top = document.createElement("div");
+      top.className = "beat-card-top";
+      const beatId = document.createElement("span");
+      beatId.className = "beat-id";
+      beatId.textContent = beat.id;
+      const duration = document.createElement("span");
+      duration.className = "beat-duration";
+      const seconds = beatDurationSeconds(beat.id, timeline);
+      duration.textContent = seconds > 0 ? `${seconds.toFixed(1)}s` : "n/a";
+      top.append(beatId, duration);
+      card.appendChild(top);
+
+      const copy = document.createElement("div");
+      copy.className = "beat-copy";
+      copy.textContent = beat.narration.slice(0, 110);
+      card.appendChild(copy);
+
+      const imageAsset = assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beat.id);
+      const voiceAsset = assets.find((asset) => asset.role === "voiceover" && asset.beatId === beat.id);
+      const imageLocked = imageAsset?.status === "locked_by_user";
+      const voiceLocked = voiceAsset?.status === "locked_by_user";
+      const statusRow = document.createElement("div");
+      statusRow.className = "beat-status-row";
+      const chips = [
+        { text: imageAsset ? "image" : "no image", className: imageAsset ? "ok" : "warn" },
+        { text: voiceAsset ? "audio" : "no audio", className: voiceAsset ? "ok" : "warn" },
+        { text: imageLocked || voiceLocked ? "locked" : "open", className: imageLocked || voiceLocked ? "ok" : "warn" },
+        { text: hasStaleRender ? "render stale" : "render current", className: hasStaleRender ? "bad" : "ok" }
+      ];
+      for (const chip of chips) {
+        const span = document.createElement("span");
+        span.className = `status-pill ${chip.className}`;
+        span.textContent = chip.text;
+        statusRow.appendChild(span);
+      }
+      card.appendChild(statusRow);
+      row.appendChild(card);
+    }
+
+    lane.appendChild(row);
+    beatTimeline.appendChild(lane);
+  }
+}
+
 async function refreshQualityHistory(projectId) {
   const result = await fetchJson(`/api/projects/${projectId}/quality-history`);
   const lines = result.data.entries.map((entry) => {
@@ -1030,6 +1120,7 @@ async function refreshMediaPreview(projectId) {
   });
   timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
   renderMediaPreview(projectId, details.data.plan, assets.data.assets);
+  renderBeatTimeline(projectId, details.data.plan, details.data.timeline, assets.data.assets, details.data.runState);
 }
 
 newProjectBtn.onclick = async () => {
