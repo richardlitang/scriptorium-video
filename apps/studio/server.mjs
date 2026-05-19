@@ -21,6 +21,7 @@ const imageCachePath = path.join(rootDir, ".studio-data", "image-cache.ndjson");
 const voiceSettingsPath = path.join(rootDir, ".studio-data", "voice-settings.json");
 const voiceReferencesDir = path.join(rootDir, ".studio-data", "voice-references");
 const projectMutationQueues = new Map();
+const activeDraftJobs = new Map();
 const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
@@ -240,6 +241,257 @@ async function runProjectMutation(projectId, operation) {
       projectMutationQueues.delete(projectId);
     }
   }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function parsePlanFromStoryInput(rawInput) {
+  try {
+    const parsed = JSON.parse(rawInput);
+    if (parsed?.schemaVersion === 1 && Array.isArray(parsed.sections)) return parsed;
+  } catch {
+    // Plain story prose is the common path.
+  }
+  return undefined;
+}
+
+function applyDraftDefaults(plan) {
+  return {
+    ...plan,
+    providers: {
+      ...plan.providers,
+      tts: "chatterbox",
+      transcription: "mock"
+    },
+    voice: {
+      ...plan.voice,
+      provider: "chatterbox",
+      voiceId: ["onyx", "manual-voice", "verse", "marin"].includes(plan.voice?.voiceId)
+        ? "clone"
+        : (plan.voice?.voiceId || "clone"),
+      format: "wav",
+      options: {
+        ...plan.voice?.options,
+        speed: 0.92,
+        emotion:
+          "Narrate as an engaged video storyteller: intimate, alert, and controlled. Match the genre and beat direction, slow slightly on important turns, and avoid sounding flat or theatrical."
+      }
+    }
+  };
+}
+
+function jobProgress(job, patch = {}) {
+  return {
+    kind: "draft_job",
+    jobId: job.id,
+    status: job.status,
+    phase: job.phase,
+    label: job.label,
+    completed: job.completed,
+    total: job.total,
+    attempt: job.attempt,
+    maxAttempts: job.maxAttempts,
+    startedAt: job.startedAt,
+    finishedAt: job.finishedAt,
+    currentSectionId: job.currentSectionId,
+    currentSectionTitle: job.currentSectionTitle,
+    error: job.error,
+    output: job.output.join("\n\n").trim(),
+    ...patch
+  };
+}
+
+async function writeDraftJobState(projectId, job, patch = {}) {
+  Object.assign(job, patch);
+  await writeRunState(projectId, {
+    ...(await readRunState(projectId)),
+    status: job.status === "failed" ? "failed" : job.status === "completed" ? "idle" : "queued",
+    progress: jobProgress(job),
+    updatedAt: new Date().toISOString()
+  });
+}
+
+async function runRetriedDraftStep(projectId, job, label, operation) {
+  let lastError;
+  for (let attempt = 1; attempt <= job.maxAttempts; attempt += 1) {
+    await writeDraftJobState(projectId, job, {
+      status: "running",
+      label,
+      attempt
+    });
+    try {
+      const result = await operation();
+      if (result?.stdout?.trim()) job.output.push(`${label}:\n${result.stdout.trim()}`);
+      job.completed += 1;
+      await writeDraftJobState(projectId, job);
+      return result;
+    } catch (error) {
+      lastError = error;
+      job.output.push(`${label} attempt ${attempt} failed:\n${error instanceof Error ? error.message : String(error)}`);
+      await writeDraftJobState(projectId, job, {
+        error: error instanceof Error ? error.message : String(error)
+      });
+      if (attempt < job.maxAttempts) await sleep(1000 * attempt);
+    }
+  }
+  throw lastError;
+}
+
+async function generateDraftAudioBySection(projectId, job, plan, transcriptionProvider) {
+  const sections = plan.sections ?? [];
+  for (const section of sections) {
+    await writeDraftJobState(projectId, job, {
+      phase: "audio",
+      currentSectionId: section.id,
+      currentSectionTitle: section.title
+    });
+    await runRetriedDraftStep(projectId, job, `Narration: ${section.title}`, () =>
+      runLvstudio(["generate:tts", projectId, "--provider", plan.providers.tts, "--force", "--only-section", section.id])
+    );
+  }
+
+  await writeDraftJobState(projectId, job, { phase: "sync" });
+  await runRetriedDraftStep(projectId, job, "Sync timeline", () => runLvstudio(["sync", projectId]));
+  await writeDraftJobState(projectId, job, { phase: "transcribe" });
+  await runRetriedDraftStep(projectId, job, "Transcribe narration", () =>
+    runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider])
+  );
+  await writeDraftJobState(projectId, job, { phase: "captions" });
+  await runRetriedDraftStep(projectId, job, "Generate captions", () => runLvstudio(["captions", projectId]));
+}
+
+async function runDraftJob(projectId, body) {
+  const job = {
+    id: `draft-${Date.now().toString(36)}`,
+    status: "queued",
+    phase: "queued",
+    label: "Waiting for project queue",
+    completed: 0,
+    total: 1,
+    attempt: 0,
+    maxAttempts: 2,
+    startedAt: new Date().toISOString(),
+    finishedAt: undefined,
+    error: undefined,
+    output: []
+  };
+
+  activeDraftJobs.set(projectId, job);
+  await writeDraftJobState(projectId, job);
+
+  runProjectMutation(projectId, async () => {
+    try {
+      const projectDir = path.join(projectsDir, projectId);
+      const planPath = path.join(projectDir, "video-plan.json");
+      let details = await getProjectDetails(projectId);
+      let plan = details.plan;
+      const story = String(body.story || "").trim();
+      const imageEnabledForJob = body.imageEnabled !== false;
+      const imageSteps = imageEnabledForJob ? 1 : 0;
+
+      if (story) {
+        await writeDraftJobState(projectId, job, {
+          phase: "planning",
+          label: "Creating video plan from story"
+        });
+        const pastedPlan = parsePlanFromStoryInput(story);
+        if (pastedPlan) {
+          plan = applyDraftDefaults(pastedPlan);
+        } else {
+          const draft = await generatePlanDraftWithOpenAi({
+            story,
+            currentPlan: plan,
+            feel: body.feel ?? "cinematic supernatural suspense",
+            pacing: body.pacing ?? "measured",
+            visualStyle: body.visualStyle ?? "dark cinematic realism",
+            format: body.format ?? "short_story"
+          });
+          plan = draft.plan;
+          job.output.push(`AI plan:\nGenerated ${plan.sections.length} section(s) using ${draft.model}.`);
+        }
+        await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+      } else if (body.plan && typeof body.plan === "object") {
+        plan = body.plan;
+        await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+      }
+
+      details = await getProjectDetails(projectId);
+      plan = details.plan;
+      job.total = 1 + imageSteps + (plan.sections?.length ?? 0) + 5;
+
+      await writeDraftJobState(projectId, job, { phase: "save", label: "Saving plan and syncing timeline" });
+      await runRetriedDraftStep(projectId, job, "Initial sync", () => runLvstudio(["sync", projectId]));
+
+      if (imageEnabledForJob) {
+        await writeDraftJobState(projectId, job, { phase: "images", label: "Generating images" });
+        const imageResult = await generateProjectImages(projectId, {
+          mode: body.imageMode ?? "missing",
+          coverage: body.imageCoverage === "beat" ? "beat" : "section",
+          quality: body.imageQuality ?? "low",
+          size: "1024x1536"
+        });
+        job.completed += 1;
+        job.output.push(`Images:\nGenerated ${imageResult.generated.length}; failed ${imageResult.failed?.length ?? 0}.`);
+        await writeDraftJobState(projectId, job);
+      }
+
+      await generateDraftAudioBySection(projectId, job, plan, plan.providers.transcription);
+
+      await writeDraftJobState(projectId, job, { phase: "check", label: "Running quality check" });
+      const checkResult = await runLvstudioReport(["check", projectId]);
+      job.completed += 1;
+      job.output.push(`${checkResult.ok ? "Quality check" : "Quality check warnings/errors"}:\n${checkResult.stdout.trim()}`);
+
+      await writeDraftJobState(projectId, job, { phase: "render", label: "Rendering draft video" });
+      await runRetriedDraftStep(projectId, job, "Render draft", () =>
+        runLvstudio(["render", projectId, "--quality", "draft", "--force"])
+      );
+
+      const planHash = sha256(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
+      const timelineHash = sha256(await readFile(path.join(projectDir, "timeline.json"), "utf8").catch(() => ""));
+      const output = job.output.join("\n\n").trim();
+      await appendQualityHistory(projectId, {
+        timestamp: new Date().toISOString(),
+        kind: "draft_job",
+        summary: "Background draft job completed.",
+        output
+      });
+      await writeRunState(projectId, {
+        status: "idle",
+        progress: jobProgress(job, {
+          status: "completed",
+          phase: "done",
+          label: "Draft video is ready",
+          completed: job.total,
+          finishedAt: new Date().toISOString()
+        }),
+        lastRenderPlanHash: planHash,
+        lastRenderTimelineHash: timelineHash,
+        lastRenderQuality: "draft",
+        lastRenderCompletedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      });
+      activeDraftJobs.delete(projectId);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      job.status = "failed";
+      job.error = message;
+      job.finishedAt = new Date().toISOString();
+      job.output.push(`Draft job failed:\n${message}`);
+      await appendQualityHistory(projectId, {
+        timestamp: new Date().toISOString(),
+        kind: "draft_job_failed",
+        summary: "Background draft job failed.",
+        output: job.output.join("\n\n").trim()
+      }).catch(() => {});
+      await writeDraftJobState(projectId, job);
+      activeDraftJobs.delete(projectId);
+    }
+  }).catch(() => {});
+
+  return jobProgress(job);
 }
 
 function narrationSummary(text) {
@@ -1387,6 +1639,42 @@ const server = createServer(async (req, res) => {
       const projectId = pathname.split("/")[3];
       const entries = await readQualityHistory(projectId);
       return sendJson(res, 200, { ok: true, data: { entries } });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.endsWith("/draft-job") && req.method === "GET") {
+      const projectId = pathname.split("/")[3];
+      const activeJob = activeDraftJobs.get(projectId);
+      if (activeJob) return sendJson(res, 200, { ok: true, data: jobProgress(activeJob) });
+      const runState = await readRunState(projectId);
+      if (runState.progress?.kind !== "draft_job") {
+        return sendJson(res, 200, { ok: true, data: null });
+      }
+      const staleRunning = ["queued", "running"].includes(runState.progress.status);
+      return sendJson(res, 200, {
+        ok: true,
+        data: staleRunning
+          ? {
+              ...runState.progress,
+              status: "failed",
+              phase: "stopped",
+              label: "Draft job stopped",
+              error: "Studio restarted before this background job finished. Start Make Draft again to resume from generated assets."
+            }
+          : runState.progress
+      });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.endsWith("/draft-job") && req.method === "POST") {
+      const projectId = pathname.split("/")[3];
+      if (!projectId) return sendJson(res, 400, { ok: false, message: "Missing project id." });
+      const activeJob = activeDraftJobs.get(projectId);
+      if (activeJob) return sendJson(res, 202, { ok: true, data: jobProgress(activeJob) });
+      const body = await parseJsonBody(req);
+      return sendJson(res, 202, {
+        ok: true,
+        message: "Draft job queued.",
+        data: await runDraftJob(projectId, body)
+      });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/prepare-draft") && req.method === "POST") {

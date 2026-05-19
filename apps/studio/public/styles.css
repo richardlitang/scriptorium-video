@@ -232,6 +232,49 @@ h3 {
   z-index: 1;
 }
 
+.job-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(105, 216, 255, 0.38);
+  border-radius: 16px;
+  padding: 12px 14px;
+  background: rgba(6, 18, 22, 0.82);
+  box-shadow: 0 14px 42px rgba(0, 0, 0, 0.32);
+}
+
+.job-banner[hidden] {
+  display: none;
+}
+
+.job-banner strong,
+.job-banner span {
+  display: block;
+}
+
+.job-banner strong {
+  color: var(--blue-flame);
+  font-size: 13px;
+}
+
+.job-banner span {
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.job-banner-complete {
+  border-color: rgba(240, 184, 90, 0.58);
+  background: rgba(35, 24, 8, 0.86);
+}
+
+.job-banner-failed {
+  border-color: rgba(213, 95, 63, 0.72);
+  background: rgba(39, 9, 6, 0.86);
+}
+
 .project-meta {
   margin: 14px 0 0;
   color: var(--muted);

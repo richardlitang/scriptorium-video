@@ -9,6 +9,10 @@ const qualityOutput = document.getElementById("quality-output");
 const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
+const jobBanner = document.getElementById("job-banner");
+const jobBannerTitle = document.getElementById("job-banner-title");
+const jobBannerDetail = document.getElementById("job-banner-detail");
+const jobBannerDismiss = document.getElementById("job-banner-dismiss");
 const voiceSettingsBtn = document.getElementById("voice-settings-btn");
 const directVoiceBtn = document.getElementById("direct-voice-btn");
 const regenerateAudioBtn = document.getElementById("regenerate-audio-btn");
@@ -59,6 +63,9 @@ let imageHistory = [];
 let currentProjectDetails = null;
 let activeRunController = null;
 let progressPollTimer = null;
+let draftJobPollTimer = null;
+let lastSeenDraftJobId = null;
+let currentDraftJob = null;
 let voicePreviewController = null;
 const voicePreviewCache = new Map();
 
@@ -354,10 +361,11 @@ function splitStorySections(rawScript) {
 function updateStoryButtons() {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = storyInput.value.trim().length > 0;
+  const draftJobRunning = currentDraftJob && ["queued", "running"].includes(currentDraftJob.status);
   convertStoryBtn.disabled = !hasSelectedProject || !hasStory;
   aiPlanBtn.disabled = !hasSelectedProject || !hasStory;
   clearStoryBtn.disabled = !hasStory;
-  renderBtn.disabled = !hasSelectedProject;
+  renderBtn.disabled = !hasSelectedProject || draftJobRunning;
   voiceSettingsBtn.disabled = false;
   directVoiceBtn.disabled = !hasSelectedProject;
   regenerateAudioBtn.disabled = !hasSelectedProject;
@@ -710,6 +718,102 @@ function imageProgressLine(progress) {
   return `Images ${completed}/${total} (${coverage}) · generated ${generated}, failed ${failed}${current}`;
 }
 
+function draftJobProgressLine(job) {
+  if (!job || job.kind !== "draft_job") return undefined;
+  const total = Number(job.total) || 1;
+  const completed = Math.min(total, Number(job.completed) || 0);
+  const retry = job.attempt > 1 ? ` · retry ${job.attempt}/${job.maxAttempts}` : "";
+  const section = job.currentSectionTitle ? ` · ${job.currentSectionTitle}` : "";
+  return `${job.label || job.phase || "Working"} · ${completed}/${total}${retry}${section}`;
+}
+
+function showJobBanner(title, detail, status = "running") {
+  jobBanner.hidden = false;
+  jobBanner.classList.toggle("job-banner-complete", status === "completed");
+  jobBanner.classList.toggle("job-banner-failed", status === "failed");
+  jobBannerTitle.textContent = title;
+  jobBannerDetail.textContent = detail;
+}
+
+function hideJobBanner() {
+  jobBanner.hidden = true;
+  jobBanner.classList.remove("job-banner-complete", "job-banner-failed");
+}
+
+function notifyDraftJobFinished(job) {
+  const title = job.status === "failed" ? "Draft failed" : "Draft ready";
+  const body = job.status === "failed"
+    ? (job.error || "The background draft job failed.")
+    : "Your draft video finished rendering.";
+  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
+    new Notification(title, { body });
+  }
+  document.title = `${title} - Local Video Studio`;
+}
+
+function renderDraftJobState(job) {
+  currentDraftJob = job || null;
+  if (!job || job.kind !== "draft_job") {
+    renderBtn.disabled = !selectedProjectId;
+    renderBtn.textContent = "Make Draft";
+    updateStoryButtons();
+    return;
+  }
+
+  const line = draftJobProgressLine(job);
+  if (job.status === "running" || job.status === "queued") {
+    renderBtn.disabled = true;
+    renderBtn.textContent = "Draft Running...";
+    stopRunBtn.disabled = true;
+    showJobBanner("Draft running", line || "Queued on this machine.");
+    setRunStatus([line || "Draft job is running in the background."]);
+    updateStoryButtons();
+    return;
+  }
+
+  renderBtn.disabled = !selectedProjectId;
+  renderBtn.textContent = "Make Draft";
+  stopRunBtn.disabled = true;
+  if (job.status === "completed") {
+    showJobBanner("Draft ready", "The background render finished. The preview below has been refreshed.", "completed");
+    if (lastSeenDraftJobId !== job.jobId) notifyDraftJobFinished(job);
+    lastSeenDraftJobId = job.jobId;
+  } else if (job.status === "failed") {
+    showJobBanner("Draft failed", job.error || "The background draft job failed.", "failed");
+    if (lastSeenDraftJobId !== job.jobId) notifyDraftJobFinished(job);
+    lastSeenDraftJobId = job.jobId;
+  }
+  updateStoryButtons();
+}
+
+async function pollDraftJob(projectId) {
+  if (!projectId) return;
+  try {
+    const result = await fetchJson(`/api/projects/${projectId}/draft-job`);
+    const job = result.data;
+    renderDraftJobState(job);
+    if (job?.status === "completed" || job?.status === "failed") {
+      await selectProject(projectId, selectedProjectElement);
+      renderDraftJobState(job);
+      stopDraftJobPolling();
+    }
+  } catch {
+    // Polling should not hide the main workflow controls.
+  }
+}
+
+function startDraftJobPolling(projectId) {
+  stopDraftJobPolling();
+  pollDraftJob(projectId);
+  draftJobPollTimer = setInterval(() => pollDraftJob(projectId), 2500);
+}
+
+function stopDraftJobPolling() {
+  if (!draftJobPollTimer) return;
+  clearInterval(draftJobPollTimer);
+  draftJobPollTimer = null;
+}
+
 function startProgressPolling(projectId, baseSteps) {
   stopProgressPolling();
   progressPollTimer = setInterval(async () => {
@@ -895,95 +999,62 @@ async function selectProject(projectId, element) {
   qualityOutput.textContent = "Quality checks run during Make Draft or from Advanced controls.";
   await refreshRenderOutput(projectId);
   await refreshQualityHistory(projectId);
+  if (details.data.runState?.progress?.kind === "draft_job" && ["queued", "running"].includes(details.data.runState.progress.status)) {
+    startDraftJobPolling(projectId);
+  } else {
+    renderDraftJobState(details.data.runState?.progress);
+  }
   updateStoryButtons();
 }
 
 renderBtn.onclick = async () => {
   if (!selectedProjectId) return;
-  activeRunController = new AbortController();
   renderBtn.disabled = true;
-  stopRunBtn.disabled = false;
-  renderBtn.textContent = "Making Draft...";
-  const steps = [];
+  renderBtn.textContent = "Queueing...";
   try {
-    if (storyInput.value.trim()) {
-      const pastedPlan = parseStoryInputAsPlan();
-      if (pastedPlan) {
-        const normalizedPlan = applyDraftDefaults(pastedPlan);
-        planEditor.value = fmt(normalizedPlan);
-        projectTitle.textContent = `${normalizedPlan.title} (${selectedProjectId})`;
-        steps.push(`Using pasted video plan with ${normalizedPlan.sections.length} section(s).`);
-      } else {
-        steps.push("Reading story and creating a video plan...");
-        setRunStatus(steps);
-        const planResult = await requestAiPlanFromStory();
-        steps[steps.length - 1] = `Created ${planResult.plan.sections.length} section plan.`;
-      }
-      steps.push("Saving plan and syncing timeline...");
-      setRunStatus(steps);
-      await saveCurrentPlan({ check: false });
-      hasUnsavedPlan = false;
-    } else if (hasUnsavedPlan) {
-      steps.push("Saving edited plan...");
-      setRunStatus(steps);
-      await saveCurrentPlan({ check: false });
-      hasUnsavedPlan = false;
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission().catch(() => {});
     }
-
-    if (imageEnabled.checked) {
-      const imageCoverage = normalizeImageCoverage(imageBudget.value);
-      const coverage = await currentVisualCoverage(selectedProjectId, imageCoverage);
-      const coverageLabel = imageCoverage === "beat"
-        ? "one accurate photo per beat"
-        : "one photo per section, reused only inside that section";
-      if (coverage.missing === 0) {
-        steps.push(`Image coverage already complete (${coverage.total}/${coverage.total}); continuing from existing photos.`);
-      } else {
-        steps.push(`Generating ${coverageLabel}. Missing ${coverage.missing}/${coverage.total}. This can take 15-30 seconds per generated photo.`);
-        setRunStatus(steps);
-        const imageResult = await generateImagesForCurrentPlan(steps);
-        const imageCoverageLabel = imageResult.data.coverage === "beat" ? "per beat" : "per section";
-        steps[steps.length - 1] = `Generated ${imageResult.data.generated.length} new photo(s), coverage ${imageCoverageLabel}. Failed ${imageResult.data.failed?.length ?? 0}.`;
-      }
-    } else {
-      steps.push("Skipping AI photos by request.");
-    }
-
-    steps.push("Generating narration, transcript, captions, and timeline...");
-    setRunStatus(steps);
-    const prepareResult = await fetchJson(`/api/projects/${selectedProjectId}/prepare-draft`, { method: "POST", ...runSignal() });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Audio:\n${prepareResult.output}`;
-
-    steps[steps.length - 1] = "Narration, captions, and timeline are ready.";
-    steps.push("Rendering draft video...");
-    setRunStatus(steps);
-    const result = await fetchJson(`/api/projects/${selectedProjectId}/render?quality=draft&force=true`, { method: "POST", ...runSignal() });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRender:\n${result.output}`;
+    const plan = JSON.parse(planEditor.value);
+    const result = await fetchJson(`/api/projects/${selectedProjectId}/draft-job`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        story: storyInput.value,
+        plan,
+        feel: storyFeel.value,
+        pacing: storyPacing.value,
+        visualStyle: storyVisualStyle.value,
+        imageEnabled: imageEnabled.checked,
+        imageMode: imageMode.value,
+        imageCoverage: normalizeImageCoverage(imageBudget.value),
+        imageQuality: imageQuality.value
+      })
+    });
     hasUnsavedPlan = false;
     needsPrepareDraft = false;
-    needsRender = false;
+    needsRender = true;
     writeStored(selectedProjectId, "lastDraftStory", storyInput.value);
-    steps[steps.length - 1] = "Draft video rendered.";
-    setRunStatus(steps);
-    await selectProject(selectedProjectId, selectedProjectElement);
-    setRunStatus(["Draft video rendered. Use the player below, or edit a photo prompt and regenerate that photo."]);
+    renderDraftJobState(result.data);
+    startDraftJobPolling(selectedProjectId);
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDraft job queued. You can leave this tab; Studio will keep processing while the server is running.`;
   } catch (error) {
-    const stopped = error?.name === "AbortError";
-    stopProgressPolling();
-    const message = stopped ? "Make Draft stopped by user. Already-created files may remain in the project." : `Make Draft failed: ${String(error)}`;
+    const message = `Make Draft failed to queue: ${String(error)}`;
     qualityOutput.textContent = `${qualityOutput.textContent}\n\n${message}`;
-    renderStoryFeedback([{ level: stopped ? "step" : "warning", text: message }]);
-  } finally {
-    activeRunController = null;
-    stopRunBtn.disabled = true;
+    renderStoryFeedback([{ level: "warning", text: message }]);
     renderBtn.disabled = false;
     renderBtn.textContent = "Make Draft";
+  } finally {
+    activeRunController = null;
     updateStoryButtons();
   }
 };
 
 stopRunBtn.onclick = () => {
-  if (!activeRunController) return;
+  if (!activeRunController) {
+    renderStoryFeedback([{ level: "step", text: "Background draft jobs keep running on the server. Close the tab if you do not want to watch progress." }]);
+    return;
+  }
   activeRunController.abort();
   stopRunBtn.disabled = true;
   renderStoryFeedback([{ level: "step", text: "Stopping current operation. The server may finish the current provider call before it fully settles." }]);
@@ -1183,6 +1254,10 @@ fieldHelpButtons.forEach((button) => {
 document.addEventListener("click", () => {
   fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
 });
+jobBannerDismiss.onclick = () => {
+  hideJobBanner();
+  document.title = "Local Video Studio";
+};
 voiceSettingsDialog.addEventListener("close", () => {
   fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
 });
