@@ -1,8 +1,8 @@
 import { createJobCenterController } from "./modules/job-center.js";
 import { createBeatWorkspaceController } from "./modules/beat-workspace.js";
+import { createVoiceSettingsController } from "./modules/voice-settings-ui.js";
 import {
-  createReviewController,
-  beatDurationSeconds
+  createReviewController
 } from "./modules/workspace.js";
 
 const projectList = document.getElementById("project-list");
@@ -92,10 +92,6 @@ let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let selectedBeatId = null;
 let selectedInspectorTab = "script";
-let voicePreviewController = null;
-const voicePreviewCache = new Map();
-const defaultVoicePreviewLineA = "I should have turned back when the hallway lights began to flicker, but I kept walking.";
-const defaultVoicePreviewLineB = "By the time the last train arrived, everyone on the platform had vanished except me.";
 
 const storageKey = (projectId, key) => `lvstudio:${projectId}:${key}`;
 
@@ -129,8 +125,7 @@ function restoreUiState(projectId) {
   imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", imageBudget.value));
   imageQuality.value = readStored(projectId, "imageQuality", imageQuality.value);
   selectedBeatId = readStored(projectId, "selectedBeatId", "");
-  voicePreviewLineAInput.value = readStored(projectId, "voicePreviewLineA", defaultVoicePreviewLineA);
-  voicePreviewLineBInput.value = readStored(projectId, "voicePreviewLineB", defaultVoicePreviewLineB);
+  voiceSettingsController.restorePreviewLines(projectId);
 }
 
 function normalizeImageCoverage(value) {
@@ -139,155 +134,6 @@ function normalizeImageCoverage(value) {
 
 function fmt(value) {
   return JSON.stringify(value, null, 2);
-}
-
-function updateVoiceOutputs() {
-  voiceIntensityValue.value = Number(voiceIntensity.value || 0).toFixed(2);
-  voiceStabilityValue.value = Number(voiceStability.value || 0).toFixed(2);
-  voiceVariationValue.value = Number(voiceVariation.value || 0).toFixed(2);
-  voicePacingValue.value = Number(voicePacing.value || 0).toFixed(2);
-  voiceExaggerationValue.value = Number(voiceExaggeration.value || 0).toFixed(2);
-  voiceCfgWeightValue.value = Number(voiceCfgWeight.value || 0).toFixed(2);
-  voiceTemperatureValue.value = Number(voiceTemperature.value || 0).toFixed(2);
-}
-
-function applyVoiceSettings(settings) {
-  voiceTtsModel.value = settings.ttsModel ?? "chatterbox";
-  voiceAudioPromptPath.value = settings.audioPromptPath ?? "";
-  voiceDeliveryProfile.value = settings.deliveryProfile ?? "suspense";
-  voiceIntensity.value = settings.intensity ?? 0.55;
-  voiceStability.value = settings.stability ?? 0.65;
-  voicePacing.value = settings.pacing ?? 0.5;
-  voiceVariation.value = settings.variation ?? 0.5;
-  voiceExaggeration.value = settings.exaggeration ?? 0.55;
-  voiceCfgWeight.value = settings.cfgWeight ?? 0.35;
-  voiceTemperature.value = settings.temperature ?? 0.75;
-  voiceSeed.value = settings.seed ?? "";
-  updateVoiceOutputs();
-}
-
-function previewLineA() {
-  const value = voicePreviewLineAInput.value.trim();
-  return value || defaultVoicePreviewLineA;
-}
-
-function previewLineB() {
-  const value = voicePreviewLineBInput.value.trim();
-  return value || defaultVoicePreviewLineB;
-}
-
-function readVoiceSettingsForm() {
-  return {
-    ttsModel: voiceTtsModel.value,
-    audioPromptPath: voiceAudioPromptPath.value,
-    deliveryProfile: voiceDeliveryProfile.value,
-    intensity: Number(voiceIntensity.value),
-    stability: Number(voiceStability.value),
-    pacing: Number(voicePacing.value),
-    variation: Number(voiceVariation.value),
-    exaggeration: Number(voiceExaggeration.value),
-    cfgWeight: Number(voiceCfgWeight.value),
-    temperature: Number(voiceTemperature.value),
-    seed: voiceSeed.value
-  };
-}
-
-async function loadVoiceSettings() {
-  const result = await fetchJson("/api/settings/voice");
-  applyVoiceSettings(result.data);
-}
-
-async function saveVoiceSettings(statusText = "Saved. Regenerate narration to hear these settings.") {
-  const result = await fetchJson("/api/settings/voice", {
-    method: "PUT",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(readVoiceSettingsForm())
-  });
-  applyVoiceSettings(result.data);
-  voiceSettingsStatus.textContent = statusText;
-  return result.data;
-}
-
-async function runVoicePreview(sentence) {
-  const key = JSON.stringify({ settings: readVoiceSettingsForm(), sentence });
-  const cachedUrl = voicePreviewCache.get(key);
-  if (cachedUrl) {
-    voicePreviewAudio.src = cachedUrl;
-    await voicePreviewAudio.play().catch(() => {});
-    voiceSettingsStatus.textContent = "Preview ready (cached).";
-    return;
-  }
-
-  if (voicePreviewController) voicePreviewController.abort();
-  voicePreviewController = new AbortController();
-  voiceSettingsStatus.textContent = "Generating preview (first run can take longer)...";
-  voicePreviewABtn.disabled = true;
-  voicePreviewBBtn.disabled = true;
-  try {
-    const response = await fetch("/api/settings/voice/preview", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      signal: voicePreviewController.signal,
-      body: JSON.stringify({
-        settings: readVoiceSettingsForm(),
-        text: sentence
-      })
-    });
-    if (!response.ok) {
-      const message = await response.text();
-      throw new Error(message || "Preview failed.");
-    }
-    const blob = await response.blob();
-    const audioUrl = URL.createObjectURL(blob);
-    voicePreviewCache.set(key, audioUrl);
-    if (voicePreviewCache.size > 10) {
-      const first = voicePreviewCache.keys().next().value;
-      const firstUrl = voicePreviewCache.get(first);
-      if (firstUrl) URL.revokeObjectURL(firstUrl);
-      voicePreviewCache.delete(first);
-    }
-    voicePreviewAudio.src = audioUrl;
-    await voicePreviewAudio.play().catch(() => {});
-    voiceSettingsStatus.textContent = "Preview ready.";
-  } catch (error) {
-    if (error?.name === "AbortError") {
-      voiceSettingsStatus.textContent = "Previous preview canceled.";
-    } else {
-      voiceSettingsStatus.textContent = String(error);
-    }
-  } finally {
-    voicePreviewABtn.disabled = false;
-    voicePreviewBBtn.disabled = false;
-    voicePreviewController = null;
-  }
-}
-
-async function uploadVoiceReference(file) {
-  if (!file) return;
-  voiceSettingsStatus.textContent = `Uploading ${file.name}...`;
-  const response = await fetch(`/api/settings/voice/reference?filename=${encodeURIComponent(file.name)}`, {
-    method: "PUT",
-    headers: { "content-type": file.type || "application/octet-stream" },
-    body: await file.arrayBuffer()
-  });
-  const payload = await response.json().catch(() => ({}));
-  if (!response.ok || !payload.ok) throw new Error(payload.message || "Failed to upload voice reference.");
-  voiceAudioPromptPath.value = payload.data.path;
-  await saveVoiceSettings(`Reference saved: ${payload.data.path}`);
-}
-
-function applyVoicePreset(preset) {
-  const presets = {
-    controlled: { exaggeration: 0.45, cfgWeight: 0.45, temperature: 0.6 },
-    suspense: { exaggeration: 0.55, cfgWeight: 0.35, temperature: 0.75 },
-    dramatic: { exaggeration: 0.7, cfgWeight: 0.3, temperature: 0.85 }
-  };
-  const values = presets[preset];
-  if (!values) return;
-  voiceExaggeration.value = values.exaggeration;
-  voiceCfgWeight.value = values.cfgWeight;
-  voiceTemperature.value = values.temperature;
-  updateVoiceOutputs();
 }
 
 async function fetchJson(url, options) {
@@ -784,6 +630,44 @@ const reviewController = createReviewController({
       });
     }
   }
+});
+
+const voiceSettingsController = createVoiceSettingsController({
+  elements: {
+    dialog: voiceSettingsDialog,
+    form: voiceSettingsForm,
+    status: voiceSettingsStatus,
+    ttsModel: voiceTtsModel,
+    audioPromptPath: voiceAudioPromptPath,
+    deliveryProfile: voiceDeliveryProfile,
+    intensity: voiceIntensity,
+    stability: voiceStability,
+    pacing: voicePacing,
+    variation: voiceVariation,
+    exaggeration: voiceExaggeration,
+    cfgWeight: voiceCfgWeight,
+    temperature: voiceTemperature,
+    seed: voiceSeed,
+    intensityValue: voiceIntensityValue,
+    stabilityValue: voiceStabilityValue,
+    pacingValue: voicePacingValue,
+    variationValue: voiceVariationValue,
+    exaggerationValue: voiceExaggerationValue,
+    cfgWeightValue: voiceCfgWeightValue,
+    temperatureValue: voiceTemperatureValue,
+    pickReferenceBtn: voicePickReferenceBtn,
+    clearReferenceBtn: voiceClearReferenceBtn,
+    referenceFile: voiceReferenceFile,
+    previewABtn: voicePreviewABtn,
+    previewBBtn: voicePreviewBBtn,
+    previewLineAInput: voicePreviewLineAInput,
+    previewLineBInput: voicePreviewLineBInput,
+    previewAudio: voicePreviewAudio
+  },
+  fetchJson,
+  readStored,
+  writeStored,
+  getSelectedProjectId: () => selectedProjectId
 });
 
 async function refreshQualityHistory(projectId) {
@@ -1409,12 +1293,10 @@ storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
   control.addEventListener("change", saveUiState);
 });
-[voiceIntensity, voiceStability, voicePacing, voiceVariation, voiceExaggeration, voiceCfgWeight, voiceTemperature].forEach((control) => {
-  control.addEventListener("input", updateVoiceOutputs);
-});
+voiceSettingsController.setupEvents();
 document.querySelectorAll("[data-voice-preset]").forEach((button) => {
   button.addEventListener("click", () => {
-    applyVoicePreset(button.dataset.voicePreset);
+    voiceSettingsController.applyPreset(button.dataset.voicePreset);
     voiceSettingsStatus.textContent = "";
   });
 });
@@ -1438,65 +1320,17 @@ voiceSettingsDialog.addEventListener("close", () => {
   fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
 });
 voiceSettingsBtn.onclick = async () => {
-  voiceSettingsStatus.textContent = "Loading settings...";
-  try {
-    await loadVoiceSettings();
-    voiceSettingsStatus.textContent = "";
-    voiceSettingsDialog.showModal();
-  } catch (error) {
-    voiceSettingsStatus.textContent = String(error);
-    voiceSettingsDialog.showModal();
-  }
+  await voiceSettingsController.openDialog();
 };
 voiceSettingsClose.onclick = () => {
-  voiceSettingsDialog.close();
+  voiceSettingsController.closeDialog();
 };
-voicePickReferenceBtn.onclick = () => {
-  voiceReferenceFile.click();
-};
-voiceClearReferenceBtn.onclick = async () => {
-  voiceAudioPromptPath.value = "";
-  try {
-    await saveVoiceSettings("Reference reset to default voice.");
-  } catch (error) {
-    voiceSettingsStatus.textContent = String(error);
-  }
-};
-voiceReferenceFile.addEventListener("change", async () => {
-  const [file] = voiceReferenceFile.files ?? [];
-  try {
-    await uploadVoiceReference(file);
-  } catch (error) {
-    voiceSettingsStatus.textContent = String(error);
-  } finally {
-    voiceReferenceFile.value = "";
-  }
-});
-voicePreviewABtn.onclick = () => runVoicePreview(previewLineA());
-voicePreviewBBtn.onclick = () => runVoicePreview(previewLineB());
-voicePreviewLineAInput.addEventListener("input", () => {
-  if (!selectedProjectId) return;
-  writeStored(selectedProjectId, "voicePreviewLineA", voicePreviewLineAInput.value);
-});
-voicePreviewLineBInput.addEventListener("input", () => {
-  if (!selectedProjectId) return;
-  writeStored(selectedProjectId, "voicePreviewLineB", voicePreviewLineBInput.value);
-});
 reviewRefreshBtn.onclick = () => {
   reviewController.refresh(selectedProjectId).catch((error) => {
     reviewList.textContent = String(error);
   });
 };
 reviewFilter.addEventListener("change", () => reviewController.render());
-voiceSettingsForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  voiceSettingsStatus.textContent = "Saving...";
-  try {
-    await saveVoiceSettings();
-  } catch (error) {
-    voiceSettingsStatus.textContent = String(error);
-  }
-});
 planEditor.addEventListener("input", () => {
   hasUnsavedPlan = true;
   needsPrepareDraft = true;
@@ -1536,7 +1370,7 @@ savePlanBtn.onclick = async () => {
   }
 };
 
-loadVoiceSettings().catch((error) => {
+voiceSettingsController.loadSettings().catch((error) => {
   voiceSettingsStatus.textContent = String(error);
 });
 
