@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { createHash } from "node:crypto";
 import { imageReuseKey, narrationFromImagePrompt, selectCachedImage } from "./image-cache.mjs";
 import { defaultVoiceSettings, normalizeVoiceSettings, voiceSettingsEnv } from "./voice-settings.mjs";
+import { publicAssetForPath } from "./static-assets.mjs";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -2097,24 +2098,12 @@ const server = createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, output });
     }
 
-    if (pathname === "/" || pathname === "/index.html") {
-      const html = await readFile(path.join(publicDir, "index.html"), "utf8");
-      res.writeHead(200, { "content-type": "text/html; charset=utf-8" });
-      res.end(html);
-      return;
-    }
-
-    if (pathname === "/app.js") {
-      const js = await readFile(path.join(publicDir, "app.js"), "utf8");
-      res.writeHead(200, { "content-type": "text/javascript; charset=utf-8" });
-      res.end(js);
-      return;
-    }
-
-    if (pathname === "/styles.css") {
-      const css = await readFile(path.join(publicDir, "styles.css"), "utf8");
-      res.writeHead(200, { "content-type": "text/css; charset=utf-8" });
-      res.end(css);
+    const staticAsset = publicAssetForPath(publicDir, pathname);
+    if (staticAsset) {
+      const content = await readFile(staticAsset.filePath).catch(() => null);
+      if (!content) return sendJson(res, 404, { ok: false, message: "Not found." });
+      res.writeHead(200, { "content-type": staticAsset.contentType });
+      res.end(content);
       return;
     }
 
