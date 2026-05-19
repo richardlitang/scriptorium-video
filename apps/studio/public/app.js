@@ -1296,19 +1296,23 @@ async function regenerateAudioForCurrentProject(triggerBtn) {
   if (!selectedProjectId) return;
   triggerBtn.disabled = true;
   const originalLabel = triggerBtn.textContent;
-  triggerBtn.textContent = "Regenerating...";
+  triggerBtn.textContent = "Queueing...";
   try {
-    const result = await fetchJson(`/api/projects/${selectedProjectId}/prepare-draft`, { method: "POST" });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Audio:\n${result.output}`;
-    await selectProject(selectedProjectId, selectedProjectElement);
+    const result = await fetchJson(`/api/projects/${selectedProjectId}/draft-job`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ imageEnabled: false })
+    });
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Narration queued:\n${result.output}`;
+    currentDraftJob = result.data.job;
+    pollDraftJob(selectedProjectId).catch(() => {});
+    await refreshJobCenter(selectedProjectId);
     hasUnsavedPlan = false;
     needsPrepareDraft = false;
     needsRender = true;
-    await refreshRenderOutput(selectedProjectId);
-    await refreshQualityHistory(selectedProjectId);
     renderWorkflowState();
   } catch (error) {
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Audio failed:\n${String(error)}`;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Narration failed:\n${String(error)}`;
   } finally {
     triggerBtn.disabled = false;
     triggerBtn.textContent = originalLabel;
