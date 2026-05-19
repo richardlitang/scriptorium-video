@@ -620,6 +620,19 @@ function selectImageTargets(plan, manifest, mode, coverage, options) {
 }
 
 function buildPlanFromAiDraft(currentPlan, draft) {
+  const visualBible = draft.visualBible || {};
+  const visualBibleSuffix = [
+    visualBible.stylePreset ? `Style preset: ${visualBible.stylePreset}` : "",
+    visualBible.lookAndFeel ? `Look and feel: ${visualBible.lookAndFeel}` : "",
+    Array.isArray(visualBible.characterAnchors) && visualBible.characterAnchors.length > 0
+      ? `Character anchors: ${visualBible.characterAnchors.join("; ")}`
+      : "",
+    Array.isArray(visualBible.continuityRules) && visualBible.continuityRules.length > 0
+      ? `Continuity rules: ${visualBible.continuityRules.join("; ")}`
+      : "",
+    visualBible.negativePrompt ? `Avoid: ${visualBible.negativePrompt}` : ""
+  ].filter(Boolean).join("\n");
+
   return {
     ...currentPlan,
     title: draft.title,
@@ -636,8 +649,13 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       options: {
         ...currentPlan.voice.options,
         speed: draft.voice?.speed ?? 0.92,
+        language: draft.voice?.language || currentPlan.voice?.options?.language,
         emotion: draft.voice?.direction || "Narrate as an engaged suspense storyteller: intimate, alert, and controlled, with rising tension, crisp pacing, and quiet dread. Do not sound bored or flat."
       }
+    },
+    visualBible: {
+      ...(currentPlan.visualBible || {}),
+      ...(draft.visualBible || {})
     },
     sections: draft.sections.map((section, sectionIndex) => {
       const sectionId = slugify(section.title, `section-${sectionIndex + 1}`);
@@ -667,14 +685,14 @@ function buildPlanFromAiDraft(currentPlan, draft) {
                 id: `${beatId}-visual`,
                 type: "title_card",
                 role: "primary_visual",
-                prompt: beat.visualPrompt || beat.narration,
+                prompt: [beat.visualPrompt || beat.narration, visualBibleSuffix].filter(Boolean).join("\n\n"),
                 scaleMode: "cover",
                 placement: "background"
               }
             ],
             motion: { type: beat.motion || "slow_zoom_in", intensity: 0.08 },
             caption: { emphasis: beat.emphasis || [], style: "default" },
-            notes: beat.notes || beat.visualPrompt || ""
+            notes: [beat.notes || beat.visualPrompt || "", visualBibleSuffix].filter(Boolean).join("\n\n")
           };
         })
       };
@@ -707,7 +725,7 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
         {
           role: "system",
           content:
-            "You convert raw story prose into a local video production plan. Preserve the story wording unless light segmentation is needed. Create visually specific, photorealistic cinematic prompts grounded in the exact story action and setting. Avoid generic abstractions, soundwave graphics, split screens, fake text, and AI-looking fantasy imagery. Voice direction should be engaged, suspenseful, and intimate, not flat. Return JSON only."
+            "You convert raw story prose into a local video production plan. Preserve story wording unless light segmentation is needed. Build a reusable visual bible that keeps character age/look, setting, and style consistent across every beat. Use cinematic prompts grounded in concrete action, setting, era, and culture. Avoid generic abstractions, fake text, and continuity drift. Voice direction should be engaged and clear, and language should match the story language or code-switching needs. Return JSON only."
         },
         {
           role: "user",
@@ -730,17 +748,32 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
           schema: {
             type: "object",
             additionalProperties: false,
-            required: ["title", "voice", "sections", "warnings"],
+            required: ["title", "voice", "visualBible", "sections", "warnings"],
             properties: {
               title: { type: "string" },
               voice: {
                 type: "object",
                 additionalProperties: false,
-                required: ["voiceId", "speed", "direction"],
+                required: ["voiceId", "speed", "direction", "language"],
                 properties: {
                   voiceId: { type: "string", enum: ["alloy", "ash", "ballad", "cedar", "coral", "echo", "fable", "marin", "nova", "onyx", "sage", "shimmer", "verse"] },
                   speed: { type: "number" },
-                  direction: { type: "string" }
+                  direction: { type: "string" },
+                  language: { type: "string" }
+                }
+              },
+              visualBible: {
+                type: "object",
+                additionalProperties: false,
+                required: ["stylePreset", "lookAndFeel", "palette", "eraAndLocation", "characterAnchors", "continuityRules", "negativePrompt"],
+                properties: {
+                  stylePreset: { type: "string" },
+                  lookAndFeel: { type: "string" },
+                  palette: { type: "array", items: { type: "string" } },
+                  eraAndLocation: { type: "string" },
+                  characterAnchors: { type: "array", items: { type: "string" } },
+                  continuityRules: { type: "array", items: { type: "string" } },
+                  negativePrompt: { type: "string" }
                 }
               },
               sections: {

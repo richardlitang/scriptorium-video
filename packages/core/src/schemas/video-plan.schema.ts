@@ -152,6 +152,16 @@ export const VoiceSchema = z.object({
   }).strict().default({})
 }).strict();
 
+export const VisualBibleSchema = z.object({
+  stylePreset: z.string().default("cinematic_illustration"),
+  lookAndFeel: z.string().optional(),
+  palette: z.array(z.string()).default([]),
+  eraAndLocation: z.string().optional(),
+  characterAnchors: z.array(z.string()).default([]),
+  continuityRules: z.array(z.string()).default([]),
+  negativePrompt: z.string().optional()
+}).strict();
+
 export const VideoPlanSchema = z.object({
   schemaVersion: z.literal(1),
   title: z.string().min(1),
@@ -177,6 +187,7 @@ export const VideoPlanSchema = z.object({
     renderer: z.string().default("remotion")
   }).strict(),
   voice: VoiceSchema,
+  visualBible: VisualBibleSchema.optional(),
   sections: z.array(SectionSchema).min(1)
 }).strict();
 
