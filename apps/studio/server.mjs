@@ -1213,6 +1213,49 @@ async function readQualityHistory(projectId) {
     .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
 }
 
+function isDraftJobHistory(entry) {
+  return entry?.kind === "draft_job" || entry?.kind === "draft_job_failed";
+}
+
+async function listDraftJobs(projectId) {
+  const runState = await readRunState(projectId);
+  const active = activeDraftJobs.get(projectId);
+  const history = (await readQualityHistory(projectId))
+    .filter(isDraftJobHistory)
+    .slice(0, 12)
+    .map((entry) => ({
+      id: `${entry.kind}-${sha256(`${entry.timestamp}-${entry.summary}`).slice(0, 8)}`,
+      status: entry.kind === "draft_job_failed" ? "failed" : "completed",
+      startedAt: entry.timestamp,
+      finishedAt: entry.timestamp,
+      label: entry.summary,
+      output: entry.output ?? "",
+      kind: entry.kind
+    }));
+
+  const runStateJob = runState.progress?.kind === "draft_job" ? runState.progress : null;
+  const current = active ? jobProgress(active) : runStateJob;
+  const jobs = current
+    ? [
+        {
+          id: current.jobId,
+          status: current.status,
+          startedAt: current.startedAt,
+          finishedAt: current.finishedAt,
+          label: current.label,
+          output: current.output ?? "",
+          kind: "draft_job_live",
+          error: current.error,
+          completed: current.completed,
+          total: current.total,
+          currentSectionTitle: current.currentSectionTitle
+        },
+        ...history.filter((item) => item.id !== current.jobId)
+      ]
+    : history;
+  return { jobs };
+}
+
 async function appendQualityHistory(projectId, entry) {
   await mkdir(qualityHistoryDir, { recursive: true });
   const logPath = path.join(qualityHistoryDir, `${projectId}.ndjson`);
@@ -1639,6 +1682,11 @@ const server = createServer(async (req, res) => {
       const projectId = pathname.split("/")[3];
       const entries = await readQualityHistory(projectId);
       return sendJson(res, 200, { ok: true, data: { entries } });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.endsWith("/jobs") && req.method === "GET") {
+      const projectId = pathname.split("/")[3];
+      return sendJson(res, 200, { ok: true, data: await listDraftJobs(projectId) });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/draft-job") && req.method === "GET") {
