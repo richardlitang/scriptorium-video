@@ -1123,6 +1123,21 @@ document.querySelectorAll("[data-voice-preset]").forEach((button) => {
     voiceSettingsStatus.textContent = "";
   });
 });
+const fieldHelpButtons = [...document.querySelectorAll(".field-help")];
+fieldHelpButtons.forEach((button) => {
+  button.addEventListener("click", (event) => {
+    event.stopPropagation();
+    const shouldOpen = !button.classList.contains("is-open");
+    fieldHelpButtons.forEach((node) => node.classList.remove("is-open"));
+    if (shouldOpen) button.classList.add("is-open");
+  });
+});
+document.addEventListener("click", () => {
+  fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
+});
+voiceSettingsDialog.addEventListener("close", () => {
+  fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
+});
 voiceSettingsBtn.onclick = async () => {
   voiceSettingsStatus.textContent = "Loading settings...";
   try {

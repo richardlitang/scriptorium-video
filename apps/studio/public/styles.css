@@ -577,16 +577,47 @@ input[type="range"] {
 }
 
 .field-help {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 16px;
   height: 16px;
+  padding: 0;
   border-radius: 999px;
   border: 1px solid rgba(245, 207, 142, 0.35);
+  background: rgba(245, 239, 225, 0.04);
   color: var(--amber);
   font-size: 11px;
   cursor: help;
+}
+
+.field-help::after {
+  content: attr(data-tip);
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  transform: translateX(-50%);
+  width: min(260px, 70vw);
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(245, 207, 142, 0.35);
+  background: rgba(12, 11, 9, 0.98);
+  color: #f2dfc4;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  z-index: 20;
+}
+
+.field-help:hover::after,
+.field-help:focus-visible::after,
+.field-help.is-open::after {
+  opacity: 1;
 }
 
 .inline-actions {
@@ -604,20 +635,6 @@ input[type="range"] {
   font-family: var(--mono);
   letter-spacing: 0;
   text-transform: none;
-}
-
-.field-copy {
-  margin: 0;
-  color: #c9b495;
-  font-size: 12px;
-  line-height: 1.35;
-  letter-spacing: 0;
-  text-transform: none;
-}
-
-.field-copy strong {
-  color: var(--ink);
-  font-weight: 700;
 }
 
 .preset-row {

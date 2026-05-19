@@ -183,59 +183,53 @@
           <label class="settings-field settings-field-wide">
             <span class="field-header">
               Voice reference path
-              <span class="field-help" title="Reference WAV/MP3 used for voice cloning. This is the strongest voice-identity control.">?</span>
+              <button type="button" class="field-help" data-tip="Use a clean 5-20s voice sample. This mostly determines voice identity.">?</button>
             </span>
             <div class="inline-actions">
               <input id="voice-audio-prompt-path" type="text" placeholder="/absolute/path/to/reference.wav" />
               <button id="voice-pick-reference" type="button">Pick File</button>
             </div>
             <input id="voice-reference-file" type="file" accept=".wav,.mp3,.m4a,audio/wav,audio/mpeg,audio/mp4" hidden />
-            <small class="field-copy">Use a clean 5-20s voice sample. This mostly determines the voice identity.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
               Model
-              <span class="field-help" title="TTS model id sent to Chatterbox API. Keep chatterbox unless your server supports alternatives.">?</span>
+              <button type="button" class="field-help" data-tip="Usually keep this on chatterbox unless your server supports alternatives.">?</button>
             </span>
             <select id="voice-tts-model">
               <option value="chatterbox">chatterbox</option>
             </select>
-            <small class="field-copy">Usually keep this on <strong>chatterbox</strong> unless your server exposes another model.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
               Seed
-              <span class="field-help" title="Locks randomness for repeatable output. Empty uses non-deterministic sampling.">?</span>
+              <button type="button" class="field-help" data-tip="Set a number for repeatable takes. Leave blank for more variation.">?</button>
             </span>
             <input id="voice-seed" type="number" step="1" placeholder="random" />
-            <small class="field-copy">Set a number for repeatable takes. Leave blank for more variation between runs.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
               Exaggeration
-              <span class="field-help" title="Emotion intensity. Higher is more expressive but can become theatrical or unstable.">?</span>
+              <button type="button" class="field-help" data-tip="Emotion intensity. Start around 0.55 for suspense. Higher can become theatrical.">?</button>
             </span>
             <input id="voice-exaggeration" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-exaggeration-value"></output>
-            <small class="field-copy">Controls emotional intensity. Start around <strong>0.55</strong> for suspense narration.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
               CFG weight
-              <span class="field-help" title="Guidance strength. Lower can feel looser/slower; higher can sound tighter and less natural.">?</span>
+              <button type="button" class="field-help" data-tip="Guidance strength. Lower feels looser; higher sounds tighter but less natural.">?</button>
             </span>
             <input id="voice-cfg-weight" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-cfg-weight-value"></output>
-            <small class="field-copy">Guidance strength: lower feels looser, higher sounds tighter but can become less natural.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
               Temperature
-              <span class="field-help" title="Variation/randomness. Lower is steadier; higher increases variation and risk of inconsistency.">?</span>
+              <button type="button" class="field-help" data-tip="Variation. Lower is steadier; higher gives more range with more inconsistency risk.">?</button>
             </span>
             <input id="voice-temperature" type="range" min="0" max="2" step="0.05" />
             <output id="voice-temperature-value"></output>
-            <small class="field-copy">Variation level. Lower is steadier; higher gives more range with higher inconsistency risk.</small>
           </label>
         </div>
         <div class="preset-row">
