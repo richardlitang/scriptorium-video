@@ -31,3 +31,12 @@ Use MCP tools first for operational workflows.
 
 - If a render fails, inspect structured MCP result payloads first.
 - Avoid bypassing validation/sync/check flow unless explicitly requested.
+
+## Execution Defaults
+
+- On every run, surface important realizations as they emerge:
+  - architecture constraints
+  - pattern drift
+  - risky coupling
+  - behavior that may regress later
+- If unsure, do not generate new assets/artifacts/jobs speculatively. Pause generation and clarify first.

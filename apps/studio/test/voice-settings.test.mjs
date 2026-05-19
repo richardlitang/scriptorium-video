@@ -47,3 +47,17 @@ test("voice settings produce the environment used by CLI TTS jobs", () => {
     }
   );
 });
+
+test("voice settings derive advanced controls from semantic controls when advanced values are omitted", () => {
+  const settings = normalizeVoiceSettings({
+    deliveryProfile: "dramatic",
+    intensity: 0.9,
+    stability: 0.7,
+    pacing: 0.2,
+    variation: 0.8
+  });
+
+  assert.equal(settings.exaggeration, 1.06);
+  assert.equal(settings.cfgWeight, 0.46);
+  assert.equal(settings.temperature, 1.23);
+});

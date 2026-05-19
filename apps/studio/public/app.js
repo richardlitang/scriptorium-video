@@ -28,9 +28,11 @@ const voiceDeliveryProfile = document.getElementById("voice-delivery-profile");
 const voiceIntensity = document.getElementById("voice-intensity");
 const voiceStability = document.getElementById("voice-stability");
 const voiceVariation = document.getElementById("voice-variation");
+const voicePacing = document.getElementById("voice-pacing");
 const voiceIntensityValue = document.getElementById("voice-intensity-value");
 const voiceStabilityValue = document.getElementById("voice-stability-value");
 const voiceVariationValue = document.getElementById("voice-variation-value");
+const voicePacingValue = document.getElementById("voice-pacing-value");
 const voicePickReferenceBtn = document.getElementById("voice-pick-reference");
 const voiceClearReferenceBtn = document.getElementById("voice-clear-reference");
 const voiceReferenceFile = document.getElementById("voice-reference-file");
@@ -139,6 +141,7 @@ function updateVoiceOutputs() {
   voiceIntensityValue.value = Number(voiceIntensity.value || 0).toFixed(2);
   voiceStabilityValue.value = Number(voiceStability.value || 0).toFixed(2);
   voiceVariationValue.value = Number(voiceVariation.value || 0).toFixed(2);
+  voicePacingValue.value = Number(voicePacing.value || 0).toFixed(2);
   voiceExaggerationValue.value = Number(voiceExaggeration.value || 0).toFixed(2);
   voiceCfgWeightValue.value = Number(voiceCfgWeight.value || 0).toFixed(2);
   voiceTemperatureValue.value = Number(voiceTemperature.value || 0).toFixed(2);
@@ -150,6 +153,7 @@ function applyVoiceSettings(settings) {
   voiceDeliveryProfile.value = settings.deliveryProfile ?? "suspense";
   voiceIntensity.value = settings.intensity ?? 0.55;
   voiceStability.value = settings.stability ?? 0.65;
+  voicePacing.value = settings.pacing ?? 0.5;
   voiceVariation.value = settings.variation ?? 0.5;
   voiceExaggeration.value = settings.exaggeration ?? 0.55;
   voiceCfgWeight.value = settings.cfgWeight ?? 0.35;
@@ -175,6 +179,7 @@ function readVoiceSettingsForm() {
     deliveryProfile: voiceDeliveryProfile.value,
     intensity: Number(voiceIntensity.value),
     stability: Number(voiceStability.value),
+    pacing: Number(voicePacing.value),
     variation: Number(voiceVariation.value),
     exaggeration: Number(voiceExaggeration.value),
     cfgWeight: Number(voiceCfgWeight.value),
@@ -1615,7 +1620,7 @@ storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
   control.addEventListener("change", saveUiState);
 });
-[voiceIntensity, voiceStability, voiceVariation, voiceExaggeration, voiceCfgWeight, voiceTemperature].forEach((control) => {
+[voiceIntensity, voiceStability, voicePacing, voiceVariation, voiceExaggeration, voiceCfgWeight, voiceTemperature].forEach((control) => {
   control.addEventListener("input", updateVoiceOutputs);
 });
 document.querySelectorAll("[data-voice-preset]").forEach((button) => {
