@@ -22,6 +22,13 @@ const voiceSettingsForm = document.getElementById("voice-settings-form");
 const voiceSettingsClose = document.getElementById("voice-settings-close");
 const voiceTtsModel = document.getElementById("voice-tts-model");
 const voiceAudioPromptPath = document.getElementById("voice-audio-prompt-path");
+const voiceDeliveryProfile = document.getElementById("voice-delivery-profile");
+const voiceIntensity = document.getElementById("voice-intensity");
+const voiceStability = document.getElementById("voice-stability");
+const voiceVariation = document.getElementById("voice-variation");
+const voiceIntensityValue = document.getElementById("voice-intensity-value");
+const voiceStabilityValue = document.getElementById("voice-stability-value");
+const voiceVariationValue = document.getElementById("voice-variation-value");
 const voicePickReferenceBtn = document.getElementById("voice-pick-reference");
 const voiceClearReferenceBtn = document.getElementById("voice-clear-reference");
 const voiceReferenceFile = document.getElementById("voice-reference-file");
@@ -57,6 +64,10 @@ const imageBudget = document.getElementById("image-budget");
 const imageQuality = document.getElementById("image-quality");
 const imageEnabled = document.getElementById("image-enabled");
 const beatTimeline = document.getElementById("beat-timeline");
+const beatInspector = document.getElementById("beat-inspector");
+const reviewList = document.getElementById("review-list");
+const reviewFilter = document.getElementById("review-filter");
+const reviewRefreshBtn = document.getElementById("review-refresh-btn");
 
 let selectedProjectId = null;
 let selectedProjectElement = null;
@@ -72,6 +83,8 @@ let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let expandedJobIds = new Set();
 let selectedBeatId = null;
+let selectedInspectorTab = "script";
+let currentReview = [];
 let voicePreviewController = null;
 const voicePreviewCache = new Map();
 const defaultVoicePreviewLineA = "I should have turned back when the hallway lights began to flicker, but I kept walking.";
@@ -122,6 +135,9 @@ function fmt(value) {
 }
 
 function updateVoiceOutputs() {
+  voiceIntensityValue.value = Number(voiceIntensity.value || 0).toFixed(2);
+  voiceStabilityValue.value = Number(voiceStability.value || 0).toFixed(2);
+  voiceVariationValue.value = Number(voiceVariation.value || 0).toFixed(2);
   voiceExaggerationValue.value = Number(voiceExaggeration.value || 0).toFixed(2);
   voiceCfgWeightValue.value = Number(voiceCfgWeight.value || 0).toFixed(2);
   voiceTemperatureValue.value = Number(voiceTemperature.value || 0).toFixed(2);
@@ -130,6 +146,10 @@ function updateVoiceOutputs() {
 function applyVoiceSettings(settings) {
   voiceTtsModel.value = settings.ttsModel ?? "chatterbox";
   voiceAudioPromptPath.value = settings.audioPromptPath ?? "";
+  voiceDeliveryProfile.value = settings.deliveryProfile ?? "suspense";
+  voiceIntensity.value = settings.intensity ?? 0.55;
+  voiceStability.value = settings.stability ?? 0.65;
+  voiceVariation.value = settings.variation ?? 0.5;
   voiceExaggeration.value = settings.exaggeration ?? 0.55;
   voiceCfgWeight.value = settings.cfgWeight ?? 0.35;
   voiceTemperature.value = settings.temperature ?? 0.75;
@@ -151,6 +171,10 @@ function readVoiceSettingsForm() {
   return {
     ttsModel: voiceTtsModel.value,
     audioPromptPath: voiceAudioPromptPath.value,
+    deliveryProfile: voiceDeliveryProfile.value,
+    intensity: Number(voiceIntensity.value),
+    stability: Number(voiceStability.value),
+    variation: Number(voiceVariation.value),
     exaggeration: Number(voiceExaggeration.value),
     cfgWeight: Number(voiceCfgWeight.value),
     temperature: Number(voiceTemperature.value),
@@ -586,6 +610,19 @@ function renderAssetCard(projectId, asset) {
   }
 
   card.appendChild(label);
+  const lockBtn = document.createElement("button");
+  lockBtn.type = "button";
+  lockBtn.textContent = asset.status === "locked_by_user" ? "Unlock Asset" : "Lock Asset";
+  lockBtn.onclick = async () => {
+    lockBtn.disabled = true;
+    try {
+      await patchAssetStatus(projectId, asset.id, asset.status === "locked_by_user" ? "generated" : "locked_by_user");
+      await selectProject(projectId, selectedProjectElement);
+    } finally {
+      lockBtn.disabled = false;
+    }
+  };
+  card.appendChild(lockBtn);
   if (asset.type === "image" && asset.role === "primary_visual") {
     const promptLabel = document.createElement("label");
     promptLabel.className = "image-prompt-label";
@@ -692,8 +729,33 @@ function beatDurationSeconds(beatId, timeline) {
   return Number(segment?.durationSeconds || 0);
 }
 
+function findBeat(plan, beatId) {
+  for (const section of plan.sections ?? []) {
+    const beat = (section.beats ?? []).find((entry) => entry.id === beatId);
+    if (beat) return { section, beat };
+  }
+  return null;
+}
+
+function voiceAssetForBeat(assets, beatId) {
+  return assets.find((asset) => asset.role === "voiceover" && asset.beatId === beatId);
+}
+
+async function patchAssetStatus(projectId, assetId, status) {
+  return fetchJson(`/api/projects/${projectId}/assets/${encodeURIComponent(assetId)}`, {
+    method: "PATCH",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ status })
+  });
+}
+
 function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
   beatTimeline.innerHTML = "";
+  const reviewCountsByBeat = currentReview.reduce((acc, issue) => {
+    if (!issue.beatId) return acc;
+    acc.set(issue.beatId, (acc.get(issue.beatId) || 0) + 1);
+    return acc;
+  }, new Map());
   const hasStaleRender = Boolean(
     runState?.lastRenderPlanHash &&
     (
@@ -720,8 +782,10 @@ function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
       card.className = `beat-card ${beat.id === selectedBeatId ? "selected" : ""}`;
       card.onclick = () => {
         selectedBeatId = beat.id;
+        selectedInspectorTab = "script";
         writeStored(projectId, "selectedBeatId", selectedBeatId);
         renderBeatTimeline(projectId, plan, timeline, assets, runState);
+        renderBeatInspector(projectId, plan, assets, timeline);
       };
 
       const top = document.createElement("div");
@@ -740,6 +804,13 @@ function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
       copy.className = "beat-copy";
       copy.textContent = beat.narration.slice(0, 110);
       card.appendChild(copy);
+      const issueCount = reviewCountsByBeat.get(beat.id) || 0;
+      if (issueCount > 0) {
+        const issues = document.createElement("div");
+        issues.className = "status-pill warn";
+        issues.textContent = `${issueCount} issue${issueCount === 1 ? "" : "s"}`;
+        card.appendChild(issues);
+      }
 
       const imageAsset = assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beat.id);
       const voiceAsset = assets.find((asset) => asset.role === "voiceover" && asset.beatId === beat.id);
@@ -760,12 +831,182 @@ function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
         statusRow.appendChild(span);
       }
       card.appendChild(statusRow);
+
+      const actions = document.createElement("div");
+      actions.className = "beat-inspector-actions";
+      if (imageAsset) {
+        const lockImage = document.createElement("button");
+        lockImage.type = "button";
+        lockImage.textContent = imageAsset.status === "locked_by_user" ? "Unlock Image" : "Lock Image";
+        lockImage.onclick = async (event) => {
+          event.stopPropagation();
+          await patchAssetStatus(projectId, imageAsset.id, imageAsset.status === "locked_by_user" ? "generated" : "locked_by_user");
+          await selectProject(projectId, selectedProjectElement);
+        };
+        actions.appendChild(lockImage);
+      }
+      if (voiceAsset) {
+        const lockVoice = document.createElement("button");
+        lockVoice.type = "button";
+        lockVoice.textContent = voiceAsset.status === "locked_by_user" ? "Unlock Audio" : "Lock Audio";
+        lockVoice.onclick = async (event) => {
+          event.stopPropagation();
+          await patchAssetStatus(projectId, voiceAsset.id, voiceAsset.status === "locked_by_user" ? "generated" : "locked_by_user");
+          await selectProject(projectId, selectedProjectElement);
+        };
+        actions.appendChild(lockVoice);
+      }
+      card.appendChild(actions);
       row.appendChild(card);
     }
 
     lane.appendChild(row);
     beatTimeline.appendChild(lane);
   }
+}
+
+function renderBeatInspector(projectId, plan, assets, timeline) {
+  beatInspector.innerHTML = "";
+  const selected = findBeat(plan, selectedBeatId);
+  if (!selected) {
+    beatInspector.textContent = "Select a beat to inspect.";
+    return;
+  }
+  const { beat, section } = selected;
+  const voiceAsset = voiceAssetForBeat(assets, beat.id);
+  const imageAsset = visualAssetForBeat(assets, beat.id);
+
+  const sectionInfo = document.createElement("div");
+  sectionInfo.className = "feedback-row feedback-info";
+  sectionInfo.textContent = `${section.title} · ${beat.id} · ${beatDurationSeconds(beat.id, timeline).toFixed(1)}s`;
+  beatInspector.appendChild(sectionInfo);
+
+  const narrationField = document.createElement("label");
+  narrationField.className = "beat-inspector-field";
+  narrationField.textContent = "Script";
+  const narrationInput = document.createElement("textarea");
+  narrationInput.value = beat.narration || "";
+  narrationInput.rows = 4;
+  narrationInput.oninput = () => {
+    beat.narration = narrationInput.value;
+    planEditor.value = fmt(plan);
+    hasUnsavedPlan = true;
+    needsPrepareDraft = true;
+    needsRender = true;
+    renderWorkflowState();
+  };
+  narrationField.appendChild(narrationInput);
+
+  const voiceField = document.createElement("label");
+  voiceField.className = "beat-inspector-field";
+  voiceField.textContent = "Voice profile";
+  const voiceSelect = document.createElement("select");
+  const profiles = ["neutral", "warm_open", "clear_explainer", "authoritative", "energetic", "key_point", "reflective", "tense", "reveal", "urgent", "soft_close"];
+  const currentProfile = beat.voiceDirection?.profile || "neutral";
+  for (const profile of profiles) {
+    const option = document.createElement("option");
+    option.value = profile;
+    option.textContent = profile;
+    if (profile === currentProfile) option.selected = true;
+    voiceSelect.appendChild(option);
+  }
+  voiceSelect.onchange = () => {
+    beat.voiceDirection = { ...(beat.voiceDirection || {}), profile: voiceSelect.value, source: "user" };
+    planEditor.value = fmt(plan);
+    hasUnsavedPlan = true;
+  };
+  voiceField.appendChild(voiceSelect);
+
+  const actions = document.createElement("div");
+  actions.className = "beat-inspector-actions";
+  const regenerateBtn = document.createElement("button");
+  regenerateBtn.type = "button";
+  regenerateBtn.textContent = "Regenerate Beat";
+  regenerateBtn.onclick = async () => {
+    regenerateBtn.disabled = true;
+    regenerateBtn.textContent = "Running...";
+    try {
+      await fetchJson(`/api/projects/${projectId}/beats/${encodeURIComponent(beat.id)}/regenerate`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ audio: true, image: true, captions: true, render: false, force: false, quality: imageQuality.value })
+      });
+      await selectProject(projectId, selectedProjectElement);
+    } finally {
+      regenerateBtn.disabled = false;
+      regenerateBtn.textContent = "Regenerate Beat";
+    }
+  };
+  const renderNowBtn = document.createElement("button");
+  renderNowBtn.type = "button";
+  renderNowBtn.textContent = "Regenerate + Render";
+  renderNowBtn.onclick = async () => {
+    renderNowBtn.disabled = true;
+    try {
+      await fetchJson(`/api/projects/${projectId}/beats/${encodeURIComponent(beat.id)}/regenerate`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ audio: true, image: true, captions: true, render: true, force: false, quality: imageQuality.value })
+      });
+      await selectProject(projectId, selectedProjectElement);
+    } finally {
+      renderNowBtn.disabled = false;
+    }
+  };
+  actions.append(regenerateBtn, renderNowBtn);
+
+  const assetsInfo = document.createElement("div");
+  assetsInfo.className = "feedback-row";
+  assetsInfo.textContent = `Image: ${imageAsset ? imageAsset.status : "missing"} · Audio: ${voiceAsset ? voiceAsset.status : "missing"}`;
+
+  beatInspector.append(sectionInfo, narrationField, voiceField, assetsInfo, actions);
+}
+
+function renderReviewList() {
+  reviewList.innerHTML = "";
+  const filter = reviewFilter.value || "all";
+  const rows = currentReview.filter((issue) => filter === "all" || issue.severity === filter);
+  if (!rows.length) {
+    reviewList.textContent = "No issues for this filter.";
+    return;
+  }
+  for (const issue of rows) {
+    const row = document.createElement("article");
+    row.className = `review-item review-item-${issue.severity}`;
+    const title = document.createElement("strong");
+    title.textContent = `${issue.severity.toUpperCase()} · ${issue.code}`;
+    const body = document.createElement("div");
+    body.textContent = issue.message;
+    row.append(title, body);
+    const actions = document.createElement("div");
+    actions.className = "review-actions";
+    if (issue.beatId) {
+      const selectBeat = document.createElement("button");
+      selectBeat.type = "button";
+      selectBeat.textContent = "Select Beat";
+      selectBeat.onclick = () => {
+        selectedBeatId = issue.beatId;
+        writeStored(selectedProjectId, "selectedBeatId", selectedBeatId);
+        if (currentProjectDetails) {
+          const assets = [];
+          fetchJson(`/api/projects/${selectedProjectId}/assets`).then((result) => {
+            assets.push(...result.data.assets);
+            renderBeatInspector(selectedProjectId, currentProjectDetails.plan, assets, currentProjectDetails.timeline);
+          });
+        }
+      };
+      actions.appendChild(selectBeat);
+    }
+    row.appendChild(actions);
+    reviewList.appendChild(row);
+  }
+}
+
+async function refreshReview(projectId) {
+  if (!projectId) return;
+  const result = await fetchJson(`/api/projects/${projectId}/review`);
+  currentReview = result.data.issues || [];
+  renderReviewList();
 }
 
 async function refreshQualityHistory(projectId) {
@@ -1137,6 +1378,8 @@ async function refreshMediaPreview(projectId) {
   timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
   renderMediaPreview(projectId, details.data.plan, assets.data.assets);
   renderBeatTimeline(projectId, details.data.plan, details.data.timeline, assets.data.assets, details.data.runState);
+  renderBeatInspector(projectId, details.data.plan, assets.data.assets, details.data.timeline);
+  await refreshReview(projectId).catch(() => {});
 }
 
 newProjectBtn.onclick = async () => {
@@ -1201,11 +1444,14 @@ async function selectProject(projectId, element) {
   timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
   captionsOutput.textContent = fmt({ captionCount: details.data.captionCount });
   renderMediaPreview(projectId, details.data.plan, assets.data.assets);
+  renderBeatTimeline(projectId, details.data.plan, details.data.timeline, assets.data.assets, details.data.runState);
+  renderBeatInspector(projectId, details.data.plan, assets.data.assets, details.data.timeline);
 
   qualityOutput.textContent = "Quality checks run during Make Draft or from Advanced controls.";
   await refreshRenderOutput(projectId);
   await refreshQualityHistory(projectId);
   await refreshJobCenter(projectId);
+  await refreshReview(projectId).catch(() => {});
   if (details.data.runState?.progress?.kind === "draft_job" && ["queued", "running"].includes(details.data.runState.progress.status)) {
     startDraftJobPolling(projectId);
   } else {
@@ -1303,8 +1549,8 @@ async function regenerateAudioForCurrentProject(triggerBtn) {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ imageEnabled: false })
     });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Narration queued:\n${result.output}`;
-    currentDraftJob = result.data.job;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Narration queued.`;
+    currentDraftJob = result.data;
     pollDraftJob(selectedProjectId).catch(() => {});
     await refreshJobCenter(selectedProjectId);
     hasUnsavedPlan = false;
@@ -1445,7 +1691,7 @@ storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
   control.addEventListener("change", saveUiState);
 });
-[voiceExaggeration, voiceCfgWeight, voiceTemperature].forEach((control) => {
+[voiceIntensity, voiceStability, voiceVariation, voiceExaggeration, voiceCfgWeight, voiceTemperature].forEach((control) => {
   control.addEventListener("input", updateVoiceOutputs);
 });
 document.querySelectorAll("[data-voice-preset]").forEach((button) => {
@@ -1518,6 +1764,12 @@ voicePreviewLineBInput.addEventListener("input", () => {
   if (!selectedProjectId) return;
   writeStored(selectedProjectId, "voicePreviewLineB", voicePreviewLineBInput.value);
 });
+reviewRefreshBtn.onclick = () => {
+  refreshReview(selectedProjectId).catch((error) => {
+    reviewList.textContent = String(error);
+  });
+};
+reviewFilter.addEventListener("change", renderReviewList);
 voiceSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   voiceSettingsStatus.textContent = "Saving...";

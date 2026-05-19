@@ -7,7 +7,8 @@ import {
   getProjectPaths,
   resolveConfig,
   syncProject,
-  validateProject
+  validateProject,
+  reviewProject
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
@@ -203,6 +204,15 @@ program
     if (result.status === "fail") {
       process.exitCode = 1;
     }
+  });
+
+program
+  .command("review")
+  .argument("<project-id>")
+  .action(async (projectId) => {
+    await validateProject(projectId);
+    const result = await reviewProject(projectId);
+    console.log(JSON.stringify(result, null, 2));
   });
 
 program

@@ -161,6 +161,35 @@
           </div>
           <div id="beat-timeline" class="beat-timeline"></div>
         </section>
+        <section class="inspector-grid">
+          <article class="beat-inspector-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">06 Inspector</p>
+                <h3>Beat Inspector</h3>
+              </div>
+            </div>
+            <div id="beat-inspector" class="beat-inspector"></div>
+          </article>
+          <article class="review-panel">
+            <div class="section-heading">
+              <div>
+                <p class="eyebrow">07 Review</p>
+                <h3>Deterministic Review</h3>
+              </div>
+            </div>
+            <div class="review-toolbar">
+              <button id="review-refresh-btn" type="button">Refresh Review</button>
+              <select id="review-filter">
+                <option value="all">All</option>
+                <option value="critical">Critical</option>
+                <option value="warning">Warnings</option>
+                <option value="suggestion">Suggestions</option>
+              </select>
+            </div>
+            <div id="review-list" class="review-list"></div>
+          </article>
+        </section>
 
         <details class="advanced-panel">
           <summary>Advanced controls and logs</summary>
@@ -207,6 +236,29 @@
           <button id="voice-settings-close" type="button" class="ghost-btn">Close</button>
         </div>
         <div class="settings-grid">
+          <label class="settings-field">
+            <span>Narrator identity</span>
+            <select id="voice-delivery-profile">
+              <option value="suspense">Suspense</option>
+              <option value="controlled">Controlled</option>
+              <option value="dramatic">Dramatic</option>
+            </select>
+          </label>
+          <label class="settings-field">
+            <span>Intensity</span>
+            <input id="voice-intensity" type="range" min="0" max="1" step="0.05" />
+            <output id="voice-intensity-value"></output>
+          </label>
+          <label class="settings-field">
+            <span>Stability</span>
+            <input id="voice-stability" type="range" min="0" max="1" step="0.05" />
+            <output id="voice-stability-value"></output>
+          </label>
+          <label class="settings-field">
+            <span>Variation</span>
+            <input id="voice-variation" type="range" min="0" max="1" step="0.05" />
+            <output id="voice-variation-value"></output>
+          </label>
           <label class="settings-field settings-field-wide">
             <span class="field-header">
               Voice reference path

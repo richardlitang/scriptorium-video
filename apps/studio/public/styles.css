@@ -198,6 +198,8 @@ h3 {
 .media-card-panel,
 .job-center-panel,
 .beat-timeline-panel,
+.beat-inspector-panel,
+.review-panel,
 .advanced-panel {
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -297,6 +299,8 @@ h3 {
 .media-card-panel,
 .job-center-panel,
 .beat-timeline-panel,
+.beat-inspector-panel,
+.review-panel,
 .advanced-panel {
   padding: 18px;
 }
@@ -304,6 +308,56 @@ h3 {
 .beat-timeline {
   display: grid;
   gap: 12px;
+}
+
+.inspector-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
+  gap: 16px;
+}
+
+.beat-inspector,
+.review-list {
+  display: grid;
+  gap: 10px;
+}
+
+.beat-inspector-field {
+  display: grid;
+  gap: 6px;
+}
+
+.beat-inspector-field input,
+.beat-inspector-field textarea,
+.beat-inspector-field select {
+  border: 1px solid rgba(245, 207, 142, 0.16);
+  border-radius: 12px;
+  background: rgba(4, 4, 3, 0.68);
+  color: var(--ink);
+  padding: 9px 10px;
+}
+
+.beat-inspector-actions,
+.review-actions,
+.review-toolbar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.review-item {
+  border: 1px solid rgba(245, 207, 142, 0.18);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.review-item-critical {
+  border-color: rgba(213, 95, 63, 0.68);
+}
+
+.review-item-warning {
+  border-color: rgba(240, 184, 90, 0.5);
 }
 
 .section-lane {
@@ -906,6 +960,7 @@ pre,
   .studio-shell,
   .creation-grid,
   .preview-grid,
+  .inspector-grid,
   .debug-grid {
     grid-template-columns: 1fr;
   }

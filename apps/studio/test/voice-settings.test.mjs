@@ -15,6 +15,11 @@ test("voice settings normalize user input into bounded Chatterbox controls", () 
   assert.deepEqual(settings, {
     ttsModel: "chatterbox",
     audioPromptPath: "/tmp/reference.wav",
+    deliveryProfile: "suspense",
+    intensity: 0.55,
+    stability: 0.65,
+    pacing: 0.5,
+    variation: 0.5,
     exaggeration: 1.5,
     cfgWeight: 0,
     temperature: 0.62,

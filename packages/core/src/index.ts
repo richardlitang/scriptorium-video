@@ -10,6 +10,7 @@ export * from "./media-probe.js";
 export * from "./paths.js";
 export * from "./project-scaffold.js";
 export * from "./project-service.js";
+export * from "./review-project.js";
 export * from "./render/build-render-bundle.js";
 export * from "./renderer-provider.js";
 export * from "./schemas/asset-manifest.schema.js";

@@ -564,12 +564,23 @@ function beatHasVisualAsset(assets, assetId, beatId) {
 
 function selectImageTargets(plan, manifest, mode, coverage, options) {
   const allTargets = imageTargetsFromPlan(plan);
-  if (mode === "selected") return allTargets.filter((target) => target.assetId === options.assetId).slice(0, 1);
-
   const assets = manifest.assets ?? [];
+  const force = options.force === true;
+  if (mode === "selected") {
+    return allTargets.filter((target) => {
+      if (target.assetId !== options.assetId) return false;
+      const existing = assets.find((asset) => asset.id === target.assetId || (asset.beatId === target.beat.id && asset.role === "primary_visual"));
+      return force || existing?.status !== "locked_by_user";
+    }).slice(0, 1);
+  }
+
+  const unlockedTarget = (target) => {
+    const existing = assets.find((asset) => asset.id === target.assetId || (asset.beatId === target.beat.id && asset.role === "primary_visual"));
+    return force || existing?.status !== "locked_by_user";
+  };
   if (coverage === "beat") {
     return allTargets.filter((target) =>
-      mode === "all" ? true : !beatHasVisualAsset(assets, target.assetId, target.beat.id)
+      (mode === "all" ? true : !beatHasVisualAsset(assets, target.assetId, target.beat.id)) && unlockedTarget(target)
     );
   }
 
@@ -577,7 +588,8 @@ function selectImageTargets(plan, manifest, mode, coverage, options) {
   const selected = [];
   for (const [sectionId, sectionTargets] of bySection.entries()) {
     if (mode === "missing" && sectionHasVisualAsset(assets, sectionId)) continue;
-    selected.push(sectionTargets[0]);
+    const target = sectionTargets.find(unlockedTarget);
+    if (target) selected.push(target);
   }
   return selected;
 }
@@ -1201,6 +1213,77 @@ async function deleteProjectAsset(projectId, assetId) {
   return { assetId, syncOutput: syncResult.stdout.trim() };
 }
 
+const lockableTransitions = new Set([
+  "generated:locked_by_user",
+  "edited:locked_by_user",
+  "stale:locked_by_user",
+  "locked_by_user:generated"
+]);
+
+async function updateProjectAssetStatus(projectId, assetId, nextStatus) {
+  const projectDir = path.join(projectsDir, projectId);
+  const manifestPath = path.join(projectDir, "asset-manifest.json");
+  const manifest = await safeReadJson(manifestPath);
+  const asset = manifest.assets.find((entry) => entry.id === assetId);
+  if (!asset) throw new Error(`Asset not found: ${assetId}`);
+  const transition = `${asset.status}:${nextStatus}`;
+  if (!lockableTransitions.has(transition)) {
+    throw new Error(`Unsupported status transition ${transition}.`);
+  }
+  asset.status = nextStatus;
+  asset.updatedAt = new Date().toISOString();
+  await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+  const syncResult = await runLvstudio(["sync", projectId]);
+  return { asset, syncOutput: syncResult.stdout.trim() };
+}
+
+async function regenerateBeatAssets(projectId, beatId, options = {}) {
+  const details = await getProjectDetails(projectId);
+  const plan = details.plan;
+  const section = (plan.sections ?? []).find((entry) => (entry.beats ?? []).some((beat) => beat.id === beatId));
+  if (!section) throw new Error(`Beat not found: ${beatId}`);
+  const force = options.force === true;
+  const steps = [];
+  if (options.audio !== false) {
+    steps.push(await runLvstudio([
+      "generate:tts",
+      projectId,
+      "--provider",
+      plan.providers.tts,
+      "--only-beat",
+      beatId,
+      ...(force ? ["--force"] : [])
+    ]));
+    steps.push(await runLvstudio(["sync", projectId]));
+  }
+  if (options.image !== false) {
+    const imageResult = await generateProjectImages(projectId, {
+      mode: "selected",
+      assetId: `image-${beatId}`,
+      prompt: options.prompt,
+      quality: options.quality ?? "low",
+      size: "1024x1536",
+      force
+    });
+    steps.push({ stdout: `Image regenerate: generated ${imageResult.generated.length}, failed ${imageResult.failed.length}.` });
+  }
+  if (options.captions !== false && options.audio !== false) {
+    steps.push(await runLvstudio(["transcribe", projectId, "--provider", plan.providers.transcription]));
+    steps.push(await runLvstudio(["captions", projectId]));
+  }
+  if (options.render === true) {
+    steps.push(await runLvstudio(["render", projectId, "--quality", "draft", "--force"]));
+  }
+  const output = steps.map((step) => step.stdout?.trim()).filter(Boolean).join("\n\n");
+  await appendQualityHistory(projectId, {
+    timestamp: new Date().toISOString(),
+    kind: "beat_regenerate",
+    summary: `Regenerated beat ${beatId}.`,
+    output
+  });
+  return { beatId, sectionId: section.id, output };
+}
+
 async function readQualityHistory(projectId) {
   const logPath = path.join(qualityHistoryDir, `${projectId}.ndjson`);
   const raw = await readFile(logPath, "utf8").catch(() => "");
@@ -1608,6 +1691,18 @@ const server = createServer(async (req, res) => {
       });
     }
 
+    if (pathname.startsWith("/api/projects/") && pathname.includes("/assets/") && req.method === "PATCH") {
+      const projectId = pathname.split("/")[3];
+      const assetId = decodeURIComponent(pathname.split("/assets/")[1] ?? "");
+      const body = await parseJsonBody(req);
+      const nextStatus = String(body.status || "");
+      if (!projectId || !assetId || !nextStatus) {
+        return sendJson(res, 400, { ok: false, message: "Missing project id, asset id, or status." });
+      }
+      const data = await runProjectMutation(projectId, () => updateProjectAssetStatus(projectId, assetId, nextStatus));
+      return sendJson(res, 200, { ok: true, message: "Asset status updated.", data });
+    }
+
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/image-history") && req.method === "GET") {
       const projectId = pathname.split("/")[3];
       return sendJson(res, 200, { ok: true, data: { entries: await readImageHistory(projectId) } });
@@ -1623,6 +1718,16 @@ const server = createServer(async (req, res) => {
         message: `Generated ${result.generated.length} image asset(s).`,
         data: result
       });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.includes("/beats/") && pathname.endsWith("/regenerate") && req.method === "POST") {
+      const parts = pathname.split("/");
+      const projectId = parts[3];
+      const beatId = decodeURIComponent(parts[5] ?? "");
+      if (!projectId || !beatId) return sendJson(res, 400, { ok: false, message: "Missing project id or beat id." });
+      const body = await parseJsonBody(req);
+      const result = await runProjectMutation(projectId, () => regenerateBeatAssets(projectId, beatId, body));
+      return sendJson(res, 200, { ok: true, message: `Regenerated beat ${beatId}.`, data: result });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/renders") && req.method === "GET") {
@@ -1676,6 +1781,12 @@ const server = createServer(async (req, res) => {
         output: result.stdout.trim()
       });
       return sendJson(res, 200, { ok: true, output: result.stdout.trim() });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.endsWith("/review") && req.method === "GET") {
+      const projectId = pathname.split("/")[3];
+      const result = await runLvstudio(["review", projectId]);
+      return sendJson(res, 200, { ok: true, data: JSON.parse(result.stdout) });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/quality-history") && req.method === "GET") {
