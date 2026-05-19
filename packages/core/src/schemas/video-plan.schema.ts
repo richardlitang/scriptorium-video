@@ -38,6 +38,15 @@ export const MotionSchema = z.object({
   intensity: z.number().min(0).max(1).default(0.1)
 }).strict();
 
+export const SoundCueIntentSchema = z.object({
+  id: z.string(),
+  kind: z.string(),
+  placement: z.enum(["beat_start", "beat_end", "key_point", "manual"]).default("manual"),
+  offsetSeconds: z.number().min(-5).max(5).default(0),
+  levelDb: z.number().min(-48).max(12).default(-16),
+  assetId: z.string().optional()
+}).strict();
+
 export const MediaIntentSchema = z.object({
   id: z.string(),
   type: z.enum([
@@ -116,6 +125,7 @@ export const BeatSchema = z.object({
     style: z.string().default("default")
   }).strict().default({ emphasis: [], style: "default" }),
   voiceDirection: VoiceDirectionSchema.optional(),
+  sfxCues: z.array(SoundCueIntentSchema).default([]),
   emotion: z.string().optional(),
   notes: z.string().optional()
 }).strict();

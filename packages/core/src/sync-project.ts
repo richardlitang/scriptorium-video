@@ -31,6 +31,17 @@ function findMediaAssets(assets: Asset[], beatId: string): Asset[] {
   return assets.filter((asset) => asset.beatId === beatId && asset.role !== "voiceover");
 }
 
+function resolveCueAsset(assets: Asset[], beatId: string, cueId: string, assetId?: string): Asset | undefined {
+  if (assetId) {
+    return assets.find((asset) => asset.id === assetId && (asset.role === "sfx" || asset.role === "music"));
+  }
+  return assets.find(
+    (asset) =>
+      (asset.role === "sfx" || asset.role === "music") &&
+      (asset.id === cueId || asset.beatId === beatId)
+  );
+}
+
 function durationForBeat(beat: Beat, voiceAsset: Asset | undefined, mediaAssets: Asset[]): number {
   if (beat.timing.mediaPolicy === "fit_audio_to_media") {
     const mediaDuration = mediaAssets.find((asset) => asset.durationSeconds)?.durationSeconds;
@@ -112,20 +123,48 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
         const voiceAsset = findVoiceAsset(assets, beat.id);
         const mediaAssets = findMediaAssets(assets, beat.id);
         const durationSeconds = durationForBeat(beat, voiceAsset, mediaAssets);
+        const segmentStart = cursor;
+        const segmentEnd = cursor + durationSeconds;
+        const audioCues = (beat.sfxCues ?? []).flatMap((cue) => {
+          const cueAsset = resolveCueAsset(assets, beat.id, cue.id, cue.assetId);
+          if (!cueAsset) {
+            issues.push({
+              level: "warning",
+              beatId: beat.id,
+              message: `Cue asset not found for ${cue.id}.`
+            });
+            return [];
+          }
+          const rawStart =
+            cue.placement === "beat_end"
+              ? segmentEnd + cue.offsetSeconds
+              : segmentStart + cue.offsetSeconds;
+          const startSeconds = Math.max(0, rawStart);
+          return [
+            {
+              assetId: cueAsset.id,
+              role: cueAsset.role === "music" ? "music" : "sfx",
+              startSeconds,
+              durationSeconds: cueAsset.durationSeconds ?? 0,
+              levelDb: cue.levelDb
+            }
+          ];
+        });
         const segment = {
           sectionId: section.id,
           beatId: beat.id,
-          startSeconds: cursor,
-          endSeconds: cursor + durationSeconds,
+          startSeconds: segmentStart,
+          endSeconds: segmentEnd,
           durationSeconds,
           voiceAssetId: voiceAsset?.id,
           mediaAssetIds: mediaAssets.map((asset) => asset.id),
+          audioCues,
           renderPolicy: {
             mediaPolicy: beat.timing.mediaPolicy,
             scaleMode: beat.media[0]?.scaleMode ?? "cover"
           }
         };
-        cursor += durationSeconds;
+        cursor = segmentEnd;
         return segment;
       })
   );

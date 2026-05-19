@@ -8,6 +8,15 @@ export const TimelineSegmentSchema = z.object({
   durationSeconds: z.number().positive(),
   voiceAssetId: z.string().optional(),
   mediaAssetIds: z.array(z.string()).default([]),
+  audioCues: z.array(
+    z.object({
+      assetId: z.string(),
+      role: z.enum(["sfx", "music"]),
+      startSeconds: z.number().nonnegative(),
+      durationSeconds: z.number().nonnegative(),
+      levelDb: z.number()
+    }).strict()
+  ).default([]),
   renderPolicy: z.object({
     mediaPolicy: z.enum([
       "cut_to_audio",

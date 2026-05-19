@@ -52,7 +52,8 @@ const defaultProps: RemotionInputProps = {
             timing: { mediaPolicy: "loop_or_freeze", locked: false },
             media: [],
             motion: { type: "slow_zoom_in", intensity: 0.1 },
-            caption: { emphasis: [], style: "default" }
+            caption: { emphasis: [], style: "default" },
+            sfxCues: []
           }
         ]
       }
@@ -78,6 +79,7 @@ const defaultProps: RemotionInputProps = {
           endSeconds: 3,
           durationSeconds: 3,
           mediaAssetIds: [],
+          audioCues: [],
           renderPolicy: {
             mediaPolicy: "loop_or_freeze",
             scaleMode: "cover"

@@ -1430,6 +1430,21 @@ const server = createServer(async (req, res) => {
       return sendJson(res, 200, { ok: true, ...result });
     }
 
+    if (pathname.startsWith("/api/projects/") && pathname.endsWith("/direct-voice") && req.method === "POST") {
+      const projectId = pathname.split("/")[3];
+      const result = await runProjectMutation(projectId, async () => {
+        const step = await runLvstudio(["direct:voice", projectId]);
+        await appendQualityHistory(projectId, {
+          timestamp: new Date().toISOString(),
+          kind: "direct_voice",
+          summary: "Voice direction generated per beat.",
+          output: step.stdout.trim()
+        });
+        return { output: step.stdout.trim() };
+      });
+      return sendJson(res, 200, { ok: true, ...result });
+    }
+
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/render") && req.method === "POST") {
       const projectId = pathname.split("/")[3];
       const quality = requestUrl.searchParams.get("quality") === "final" ? "final" : "draft";

@@ -10,6 +10,11 @@ type RemotionInputProps = {
   assetUrls: Record<string, string>;
 };
 
+function dbToVolume(levelDb: number): number {
+  const linear = Math.pow(10, levelDb / 20);
+  return Math.max(0, Math.min(1, linear));
+}
+
 export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
   renderBundle,
   assetUrls
@@ -61,6 +66,21 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
           </Sequence>
         );
       })}
+      {timeline.segments.flatMap((segment) =>
+        (segment.audioCues ?? []).map((cue) => {
+          const src = assetUrls[cue.assetId];
+          if (!src) return null;
+          return (
+            <Sequence
+              key={`${segment.beatId}-${cue.assetId}-${cue.startSeconds}`}
+              from={Math.round(cue.startSeconds * fps)}
+              durationInFrames={Math.max(1, Math.ceil(cue.durationSeconds * fps))}
+            >
+              <Audio src={src} volume={dbToVolume(cue.levelDb)} />
+            </Sequence>
+          );
+        })
+      )}
 
       {sectionStarts.map((entry) => (
         <Sequence key={entry.sectionId} from={entry.from} durationInFrames={entry.durationInFrames}>

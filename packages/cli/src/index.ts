@@ -14,6 +14,7 @@ import { runQualityChecks } from "@lvstudio/quality";
 import { createProject } from "./create-project.js";
 import { exportProject } from "./export-project.js";
 import { generateCaptions } from "./captions.js";
+import { directVoice } from "./direct-voice.js";
 import { generateTTS } from "./generate-tts.js";
 import { importMedia } from "./import-media.js";
 import { projectStatus } from "./status.js";
@@ -83,6 +84,21 @@ program
         console.log(`Warning: ${warning.message}`);
       }
     }
+  });
+
+program
+  .command("direct:voice")
+  .argument("<project-id>")
+  .option("--provider <provider>", "voice direction provider", "openai")
+  .option("--from-file <path>", "load directed voice JSON from a local file")
+  .option("--force", "overwrite user-authored voiceDirection")
+  .action(async (projectId, options) => {
+    await validateProject(projectId);
+    await directVoice(projectId, {
+      provider: options.provider,
+      fromFile: options.fromFile,
+      force: options.force === true
+    });
   });
 
 program

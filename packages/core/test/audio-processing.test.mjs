@@ -3,7 +3,7 @@ import { access, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { normalizeVoiceover, tempAudioPath } from "../dist/audio-processing.js";
+import { normalizeVoiceover, padVoiceover, tempAudioPath } from "../dist/audio-processing.js";
 
 test("tempAudioPath appends normalized suffix using input extension", () => {
   const withExtension = tempAudioPath("/tmp/voice.wav");
@@ -25,4 +25,8 @@ test("normalizeVoiceover keeps original file and removes temp file on processing
   await assert.rejects(() => access(tempAudioPath(filePath)));
 
   await rm(workdir, { recursive: true, force: true });
+});
+
+test("padVoiceover is a no-op when both pause values are zero", async () => {
+  await padVoiceover("/tmp/non-existent-audio.wav", 0, 0);
 });

@@ -1,5 +1,6 @@
 export * from "./config-resolver.js";
 export * from "./audio-processing.js";
+export * from "./direct-voice.js";
 export * from "./generate-captions.js";
 export * from "./generate-tts.js";
 export * from "./hash.js";
@@ -16,6 +17,7 @@ export * from "./schemas/captions.schema.js";
 export * from "./schemas/project.schema.js";
 export * from "./schemas/timeline.schema.js";
 export * from "./schemas/transcript.schema.js";
+export * from "./schemas/voice-director.schema.js";
 export * from "./schemas/video-plan.schema.js";
 export * from "./sync-project.js";
 export * from "./transcribe-project.js";

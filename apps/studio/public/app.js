@@ -10,6 +10,7 @@ const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
 const voiceSettingsBtn = document.getElementById("voice-settings-btn");
+const directVoiceBtn = document.getElementById("direct-voice-btn");
 const regenerateAudioBtn = document.getElementById("regenerate-audio-btn");
 const voiceSettingsDialog = document.getElementById("voice-settings-dialog");
 const voiceSettingsForm = document.getElementById("voice-settings-form");
@@ -358,6 +359,7 @@ function updateStoryButtons() {
   clearStoryBtn.disabled = !hasStory;
   renderBtn.disabled = !hasSelectedProject;
   voiceSettingsBtn.disabled = false;
+  directVoiceBtn.disabled = !hasSelectedProject;
   regenerateAudioBtn.disabled = !hasSelectedProject;
 }
 
@@ -1040,6 +1042,29 @@ prepareDraftBtn.onclick = () => {
 
 regenerateAudioBtn.onclick = () => {
   regenerateAudioForCurrentProject(regenerateAudioBtn);
+};
+
+directVoiceBtn.onclick = async () => {
+  if (!selectedProjectId) return;
+  directVoiceBtn.disabled = true;
+  const label = directVoiceBtn.textContent;
+  directVoiceBtn.textContent = "Directing...";
+  try {
+    const result = await fetchJson(`/api/projects/${selectedProjectId}/direct-voice`, {
+      method: "POST"
+    });
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDirect Voice:\n${result.output}`;
+    await selectProject(selectedProjectId, selectedProjectElement);
+    hasUnsavedPlan = true;
+    needsPrepareDraft = true;
+    needsRender = true;
+    renderWorkflowState();
+  } catch (error) {
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDirect Voice failed:\n${String(error)}`;
+  } finally {
+    directVoiceBtn.disabled = false;
+    directVoiceBtn.textContent = label;
+  }
 };
 
 renderDraftBtn.onclick = async () => {

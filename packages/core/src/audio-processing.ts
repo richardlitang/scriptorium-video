@@ -56,3 +56,31 @@ export async function normalizeVoiceover(
     compression
   };
 }
+
+export async function padVoiceover(
+  audioPath: string,
+  beforeSeconds: number,
+  afterSeconds: number
+): Promise<void> {
+  const before = Math.max(0, beforeSeconds);
+  const after = Math.max(0, afterSeconds);
+  if (before <= 0 && after <= 0) return;
+
+  const tempPath = tempAudioPath(audioPath);
+  try {
+    await execFileAsync("ffmpeg", [
+      "-y",
+      "-v",
+      "error",
+      "-i",
+      audioPath,
+      "-af",
+      `adelay=${Math.round(before * 1000)}:all=1,apad=pad_dur=${after.toFixed(3)}`,
+      tempPath
+    ]);
+    await rename(tempPath, audioPath);
+  } catch (error) {
+    await rm(tempPath, { force: true }).catch(() => {});
+    throw error;
+  }
+}

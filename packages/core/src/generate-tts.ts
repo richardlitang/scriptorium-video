@@ -7,7 +7,7 @@ import { readJsonFile, writeJsonFile } from "./json.js";
 import { hashString } from "./hash.js";
 import { probeMedia } from "./media-probe.js";
 import type { TTSProvider } from "./tts-provider.js";
-import { normalizeVoiceover } from "./audio-processing.js";
+import { normalizeVoiceover, padVoiceover } from "./audio-processing.js";
 import { resolveVoiceDirection } from "./voice-direction.js";
 import type { Beat } from "./schemas/video-plan.schema.js";
 
@@ -196,6 +196,7 @@ export async function generateTTSForProject(
       | undefined;
 
     if (providerId !== "manual") {
+      await padVoiceover(absolutePath, resolved.pauses.beforeSeconds, resolved.pauses.afterSeconds);
       const processing = await normalizeVoiceover(absolutePath);
       const probed = await probeMedia(absolutePath);
       durationSeconds = probed.durationSeconds ?? result.durationSeconds;
