@@ -1,4 +1,11 @@
 import { createJobCenterController } from "./modules/job-center.js";
+import {
+  createReviewController,
+  pickSelectedBeat,
+  beatDurationSeconds,
+  findBeat,
+  voiceAssetForBeat
+} from "./modules/workspace.js";
 
 const projectList = document.getElementById("project-list");
 const newProjectBtn = document.getElementById("new-project-btn");
@@ -87,7 +94,6 @@ let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let selectedBeatId = null;
 let selectedInspectorTab = "script";
-let currentReview = [];
 let voicePreviewController = null;
 const voicePreviewCache = new Map();
 const defaultVoicePreviewLineA = "I should have turned back when the hallway lights began to flicker, but I kept walking.";
@@ -724,29 +730,6 @@ function renderMediaPreview(projectId, plan, assets) {
   }
 }
 
-function pickSelectedBeat(plan) {
-  const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
-  if (selectedBeatId && beats.some((beat) => beat.id === selectedBeatId)) return selectedBeatId;
-  return beats[0]?.id ?? "";
-}
-
-function beatDurationSeconds(beatId, timeline) {
-  const segment = timeline?.segments?.find((entry) => entry.beatId === beatId);
-  return Number(segment?.durationSeconds || 0);
-}
-
-function findBeat(plan, beatId) {
-  for (const section of plan.sections ?? []) {
-    const beat = (section.beats ?? []).find((entry) => entry.id === beatId);
-    if (beat) return { section, beat };
-  }
-  return null;
-}
-
-function voiceAssetForBeat(assets, beatId) {
-  return assets.find((asset) => asset.role === "voiceover" && asset.beatId === beatId);
-}
-
 async function patchAssetStatus(projectId, assetId, status) {
   return fetchJson(`/api/projects/${projectId}/assets/${encodeURIComponent(assetId)}`, {
     method: "PATCH",
@@ -757,7 +740,7 @@ async function patchAssetStatus(projectId, assetId, status) {
 
 function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
   beatTimeline.innerHTML = "";
-  const reviewCountsByBeat = currentReview.reduce((acc, issue) => {
+  const reviewCountsByBeat = reviewController.getIssues().reduce((acc, issue) => {
     if (!issue.beatId) return acc;
     acc.set(issue.beatId, (acc.get(issue.beatId) || 0) + 1);
     return acc;
@@ -770,7 +753,7 @@ function renderBeatTimeline(projectId, plan, timeline, assets, runState) {
     )
   );
 
-  selectedBeatId = pickSelectedBeat(plan);
+  selectedBeatId = pickSelectedBeat(plan, selectedBeatId);
   if (selectedBeatId) writeStored(projectId, "selectedBeatId", selectedBeatId);
 
   for (const section of plan.sections ?? []) {
@@ -972,52 +955,22 @@ function renderBeatInspector(projectId, plan, assets, timeline) {
   beatInspector.append(sectionInfo, narrationField, voiceField, assetsInfo, actions);
 }
 
-function renderReviewList() {
-  reviewList.innerHTML = "";
-  const filter = reviewFilter.value || "all";
-  const rows = currentReview.filter((issue) => filter === "all" || issue.severity === filter);
-  if (!rows.length) {
-    reviewList.textContent = "No issues for this filter.";
-    return;
-  }
-  for (const issue of rows) {
-    const row = document.createElement("article");
-    row.className = `review-item review-item-${issue.severity}`;
-    const title = document.createElement("strong");
-    title.textContent = `${issue.severity.toUpperCase()} · ${issue.code}`;
-    const body = document.createElement("div");
-    body.textContent = issue.message;
-    row.append(title, body);
-    const actions = document.createElement("div");
-    actions.className = "review-actions";
-    if (issue.beatId) {
-      const selectBeat = document.createElement("button");
-      selectBeat.type = "button";
-      selectBeat.textContent = "Select Beat";
-      selectBeat.onclick = () => {
-        selectedBeatId = issue.beatId;
-        writeStored(selectedProjectId, "selectedBeatId", selectedBeatId);
-        if (currentProjectDetails) {
-          const assets = [];
-          fetchJson(`/api/projects/${selectedProjectId}/assets`).then((result) => {
-            assets.push(...result.data.assets);
-            renderBeatInspector(selectedProjectId, currentProjectDetails.plan, assets, currentProjectDetails.timeline);
-          });
-        }
-      };
-      actions.appendChild(selectBeat);
+const reviewController = createReviewController({
+  reviewListEl: reviewList,
+  reviewFilterEl: reviewFilter,
+  fetchJson,
+  onSelectBeat: (beatId) => {
+    selectedBeatId = beatId;
+    writeStored(selectedProjectId, "selectedBeatId", selectedBeatId);
+    if (currentProjectDetails) {
+      const assets = [];
+      fetchJson(`/api/projects/${selectedProjectId}/assets`).then((result) => {
+        assets.push(...result.data.assets);
+        renderBeatInspector(selectedProjectId, currentProjectDetails.plan, assets, currentProjectDetails.timeline);
+      });
     }
-    row.appendChild(actions);
-    reviewList.appendChild(row);
   }
-}
-
-async function refreshReview(projectId) {
-  if (!projectId) return;
-  const result = await fetchJson(`/api/projects/${projectId}/review`);
-  currentReview = result.data.issues || [];
-  renderReviewList();
-}
+});
 
 async function refreshQualityHistory(projectId) {
   const result = await fetchJson(`/api/projects/${projectId}/quality-history`);
@@ -1306,7 +1259,7 @@ async function refreshMediaPreview(projectId) {
   renderMediaPreview(projectId, details.data.plan, assets.data.assets);
   renderBeatTimeline(projectId, details.data.plan, details.data.timeline, assets.data.assets, details.data.runState);
   renderBeatInspector(projectId, details.data.plan, assets.data.assets, details.data.timeline);
-  await refreshReview(projectId).catch(() => {});
+  await reviewController.refresh(projectId).catch(() => {});
 }
 
 newProjectBtn.onclick = async () => {
@@ -1378,7 +1331,7 @@ async function selectProject(projectId, element) {
   await refreshRenderOutput(projectId);
   await refreshQualityHistory(projectId);
   const jobs = await jobCenter.refresh(projectId);
-  await refreshReview(projectId).catch(() => {});
+  await reviewController.refresh(projectId).catch(() => {});
   if ((jobs || []).some((job) => ["queued", "running"].includes(job.status))) jobCenter.startPolling(projectId);
   else jobCenter.stopPolling();
   if (details.data.runState?.progress?.kind === "draft_job" && ["queued", "running"].includes(details.data.runState.progress.status)) {
@@ -1694,11 +1647,11 @@ voicePreviewLineBInput.addEventListener("input", () => {
   writeStored(selectedProjectId, "voicePreviewLineB", voicePreviewLineBInput.value);
 });
 reviewRefreshBtn.onclick = () => {
-  refreshReview(selectedProjectId).catch((error) => {
+  reviewController.refresh(selectedProjectId).catch((error) => {
     reviewList.textContent = String(error);
   });
 };
-reviewFilter.addEventListener("change", renderReviewList);
+reviewFilter.addEventListener("change", () => reviewController.render());
 voiceSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   voiceSettingsStatus.textContent = "Saving...";
