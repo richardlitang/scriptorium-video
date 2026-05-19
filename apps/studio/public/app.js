@@ -16,6 +16,7 @@ const voiceSettingsClose = document.getElementById("voice-settings-close");
 const voiceTtsModel = document.getElementById("voice-tts-model");
 const voiceAudioPromptPath = document.getElementById("voice-audio-prompt-path");
 const voicePickReferenceBtn = document.getElementById("voice-pick-reference");
+const voiceClearReferenceBtn = document.getElementById("voice-clear-reference");
 const voiceReferenceFile = document.getElementById("voice-reference-file");
 const voiceExaggeration = document.getElementById("voice-exaggeration");
 const voiceCfgWeight = document.getElementById("voice-cfg-weight");
@@ -132,6 +133,17 @@ async function loadVoiceSettings() {
   applyVoiceSettings(result.data);
 }
 
+async function saveVoiceSettings(statusText = "Saved. Regenerate narration to hear these settings.") {
+  const result = await fetchJson("/api/settings/voice", {
+    method: "PUT",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(readVoiceSettingsForm())
+  });
+  applyVoiceSettings(result.data);
+  voiceSettingsStatus.textContent = statusText;
+  return result.data;
+}
+
 async function runVoicePreview(sentence) {
   const key = JSON.stringify({ settings: readVoiceSettingsForm(), sentence });
   const cachedUrl = voicePreviewCache.get(key);
@@ -197,7 +209,7 @@ async function uploadVoiceReference(file) {
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload.ok) throw new Error(payload.message || "Failed to upload voice reference.");
   voiceAudioPromptPath.value = payload.data.path;
-  voiceSettingsStatus.textContent = `Reference set: ${payload.data.path}`;
+  await saveVoiceSettings(`Reference saved: ${payload.data.path}`);
 }
 
 function applyVoicePreset(preset) {
@@ -1155,6 +1167,14 @@ voiceSettingsClose.onclick = () => {
 voicePickReferenceBtn.onclick = () => {
   voiceReferenceFile.click();
 };
+voiceClearReferenceBtn.onclick = async () => {
+  voiceAudioPromptPath.value = "";
+  try {
+    await saveVoiceSettings("Reference reset to default voice.");
+  } catch (error) {
+    voiceSettingsStatus.textContent = String(error);
+  }
+};
 voiceReferenceFile.addEventListener("change", async () => {
   const [file] = voiceReferenceFile.files ?? [];
   try {
@@ -1171,13 +1191,7 @@ voiceSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   voiceSettingsStatus.textContent = "Saving...";
   try {
-    const result = await fetchJson("/api/settings/voice", {
-      method: "PUT",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(readVoiceSettingsForm())
-    });
-    applyVoiceSettings(result.data);
-    voiceSettingsStatus.textContent = "Saved. Regenerate narration to hear these settings.";
+    await saveVoiceSettings();
   } catch (error) {
     voiceSettingsStatus.textContent = String(error);
   }
