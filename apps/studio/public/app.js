@@ -1,3 +1,5 @@
+import { createJobCenterController } from "./modules/job-center.js";
+
 const projectList = document.getElementById("project-list");
 const newProjectBtn = document.getElementById("new-project-btn");
 const projectTitle = document.getElementById("project-title");
@@ -79,10 +81,8 @@ let currentProjectDetails = null;
 let activeRunController = null;
 let progressPollTimer = null;
 let draftJobPollTimer = null;
-let jobCenterPollTimer = null;
 let lastSeenDraftJobId = null;
 let currentDraftJob = null;
-let expandedJobIds = new Set();
 let selectedBeatId = null;
 let selectedInspectorTab = "script";
 let currentReview = [];
@@ -932,8 +932,8 @@ function renderBeatInspector(projectId, plan, assets, timeline) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ audio: true, image: true, captions: true, render: false, force: false, quality: imageQuality.value })
       });
-      await refreshJobCenter(projectId);
-      startJobCenterPolling(projectId);
+      await jobCenter.refresh(projectId);
+      jobCenter.startPolling(projectId);
       qualityOutput.textContent = `${qualityOutput.textContent}\n\nQueued beat regeneration for ${beat.id}.`;
     } finally {
       regenerateBtn.disabled = false;
@@ -951,8 +951,8 @@ function renderBeatInspector(projectId, plan, assets, timeline) {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ audio: true, image: true, captions: true, render: true, force: false, quality: imageQuality.value })
       });
-      await refreshJobCenter(projectId);
-      startJobCenterPolling(projectId);
+      await jobCenter.refresh(projectId);
+      jobCenter.startPolling(projectId);
       qualityOutput.textContent = `${qualityOutput.textContent}\n\nQueued beat regeneration + render for ${beat.id}.`;
     } finally {
       renderNowBtn.disabled = false;
@@ -1094,122 +1094,17 @@ function hideJobBanner() {
   jobBanner.classList.remove("job-banner-complete", "job-banner-failed");
 }
 
-function clearJobOutputView() {
-  expandedJobIds = new Set();
-}
-
-function formatJobTime(value) {
-  if (!value) return "n/a";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "n/a";
-  return date.toLocaleTimeString();
-}
-
-function renderJobCenter(jobs = []) {
-  jobCenterList.innerHTML = "";
-  if (!jobs.length) {
-    const empty = document.createElement("div");
-    empty.className = "feedback-row feedback-info";
-    empty.textContent = "No draft jobs yet.";
-    jobCenterList.appendChild(empty);
-    return;
-  }
-
-  for (const job of jobs) {
-    const card = document.createElement("article");
-    card.className = `job-card job-card-${job.status}`;
-    const top = document.createElement("div");
-    top.className = "job-card-top";
-    const title = document.createElement("div");
-    const strong = document.createElement("strong");
-    strong.textContent = job.label || "Draft job";
-    const small = document.createElement("small");
-    small.textContent = `${job.status} · ${formatJobTime(job.startedAt)}`;
-    title.append(strong, small);
-    top.appendChild(title);
-    card.appendChild(top);
-
-    const meta = document.createElement("div");
-    meta.className = "job-card-meta";
-    const progressText = typeof job.completed === "number" && typeof job.total === "number"
-      ? `Progress ${Math.min(job.total, job.completed)}/${job.total}`
-      : "Progress n/a";
-    const sectionText = job.currentSectionTitle ? ` · ${job.currentSectionTitle}` : "";
-    meta.textContent = `${progressText}${sectionText}`;
-    card.appendChild(meta);
-
-    const actions = document.createElement("div");
-    actions.className = "job-card-actions";
-    const viewOutput = document.createElement("button");
-    viewOutput.type = "button";
-    viewOutput.textContent = expandedJobIds.has(job.id) ? "Hide Output" : "View Output";
-    viewOutput.onclick = () => {
-      if (expandedJobIds.has(job.id)) expandedJobIds.delete(job.id);
-      else expandedJobIds.add(job.id);
-      renderJobCenter(jobs);
-    };
-    actions.appendChild(viewOutput);
-
-    if (job.status === "failed") {
-      const retry = document.createElement("button");
-      retry.type = "button";
-      retry.textContent = "Retry";
-      retry.onclick = async () => {
-        if (!selectedProjectId) return;
-        retry.disabled = true;
-        retry.textContent = "Queueing...";
-        try {
-          await renderBtn.onclick();
-        } finally {
-          retry.disabled = false;
-          retry.textContent = "Retry";
-        }
-      };
-      actions.appendChild(retry);
-    }
-    card.appendChild(actions);
-
-    if (expandedJobIds.has(job.id)) {
-      const output = document.createElement("pre");
-      output.className = "job-output";
-      output.textContent = job.output || job.error || "No output captured.";
-      card.appendChild(output);
-    }
-    jobCenterList.appendChild(card);
-  }
-}
-
-async function refreshJobCenter(projectId) {
-  if (!projectId) return;
-  try {
+const jobCenter = createJobCenterController({
+  listEl: jobCenterList,
+  fetchJobs: async (projectId) => {
     const result = await fetchJson(`/api/projects/${projectId}/jobs`);
-    const jobs = result.data.jobs || [];
-    renderJobCenter(jobs);
-    return jobs;
-  } catch {
-    renderJobCenter([]);
-    return [];
+    return result.data.jobs || [];
+  },
+  onRetry: async () => {
+    if (!selectedProjectId) return;
+    await renderBtn.onclick();
   }
-}
-
-async function pollJobCenter(projectId) {
-  const jobs = await refreshJobCenter(projectId);
-  if (!jobs.some((job) => ["queued", "running"].includes(job.status))) stopJobCenterPolling();
-}
-
-function startJobCenterPolling(projectId) {
-  stopJobCenterPolling();
-  pollJobCenter(projectId).catch(() => {});
-  jobCenterPollTimer = setInterval(() => {
-    pollJobCenter(projectId).catch(() => {});
-  }, 2500);
-}
-
-function stopJobCenterPolling() {
-  if (!jobCenterPollTimer) return;
-  clearInterval(jobCenterPollTimer);
-  jobCenterPollTimer = null;
-}
+});
 
 function notifyDraftJobFinished(job) {
   const title = job.status === "failed" ? "Draft failed" : "Draft ready";
@@ -1263,7 +1158,7 @@ async function pollDraftJob(projectId) {
     const result = await fetchJson(`/api/projects/${projectId}/draft-job`);
     const job = result.data;
     renderDraftJobState(job);
-    await refreshJobCenter(projectId);
+    await jobCenter.refresh(projectId);
     if (job?.status === "completed" || job?.status === "failed") {
       await selectProject(projectId, selectedProjectElement);
       renderDraftJobState(job);
@@ -1458,7 +1353,7 @@ async function selectProject(projectId, element) {
     needsRender = true;
   }
   renderWorkflowState();
-  clearJobOutputView();
+  jobCenter.clearExpanded();
   projectTitle.textContent = `${details.data.plan.title} (${projectId})`;
   projectMeta.textContent = fmt({
     status: details.data.project.status,
@@ -1477,10 +1372,10 @@ async function selectProject(projectId, element) {
   qualityOutput.textContent = "Quality checks run during Make Draft or from Advanced controls.";
   await refreshRenderOutput(projectId);
   await refreshQualityHistory(projectId);
-  const jobs = await refreshJobCenter(projectId);
+  const jobs = await jobCenter.refresh(projectId);
   await refreshReview(projectId).catch(() => {});
-  if ((jobs || []).some((job) => ["queued", "running"].includes(job.status))) startJobCenterPolling(projectId);
-  else stopJobCenterPolling();
+  if ((jobs || []).some((job) => ["queued", "running"].includes(job.status))) jobCenter.startPolling(projectId);
+  else jobCenter.stopPolling();
   if (details.data.runState?.progress?.kind === "draft_job" && ["queued", "running"].includes(details.data.runState.progress.status)) {
     startDraftJobPolling(projectId);
   } else {
@@ -1518,7 +1413,7 @@ renderBtn.onclick = async () => {
     needsRender = true;
     writeStored(selectedProjectId, "lastDraftStory", storyInput.value);
     renderDraftJobState(result.data);
-    await refreshJobCenter(selectedProjectId);
+    await jobCenter.refresh(selectedProjectId);
     startDraftJobPolling(selectedProjectId);
     qualityOutput.textContent = `${qualityOutput.textContent}\n\nDraft job queued. You can leave this tab; Studio will keep processing while the server is running.`;
   } catch (error) {
@@ -1581,7 +1476,7 @@ async function regenerateAudioForCurrentProject(triggerBtn) {
     qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Narration queued.`;
     currentDraftJob = result.data;
     pollDraftJob(selectedProjectId).catch(() => {});
-    await refreshJobCenter(selectedProjectId);
+    await jobCenter.refresh(selectedProjectId);
     hasUnsavedPlan = false;
     needsPrepareDraft = false;
     needsRender = true;
