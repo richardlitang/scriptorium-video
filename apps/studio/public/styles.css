@@ -606,6 +606,20 @@ input[type="range"] {
   text-transform: none;
 }
 
+.field-copy {
+  margin: 0;
+  color: #c9b495;
+  font-size: 12px;
+  line-height: 1.35;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.field-copy strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
 .preset-row {
   display: flex;
   flex-wrap: wrap;

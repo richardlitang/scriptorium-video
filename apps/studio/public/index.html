@@ -190,6 +190,7 @@
               <button id="voice-pick-reference" type="button">Pick File</button>
             </div>
             <input id="voice-reference-file" type="file" accept=".wav,.mp3,.m4a,audio/wav,audio/mpeg,audio/mp4" hidden />
+            <small class="field-copy">Use a clean 5-20s voice sample. This mostly determines the voice identity.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
@@ -199,6 +200,7 @@
             <select id="voice-tts-model">
               <option value="chatterbox">chatterbox</option>
             </select>
+            <small class="field-copy">Usually keep this on <strong>chatterbox</strong> unless your server exposes another model.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
@@ -206,6 +208,7 @@
               <span class="field-help" title="Locks randomness for repeatable output. Empty uses non-deterministic sampling.">?</span>
             </span>
             <input id="voice-seed" type="number" step="1" placeholder="random" />
+            <small class="field-copy">Set a number for repeatable takes. Leave blank for more variation between runs.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
@@ -214,6 +217,7 @@
             </span>
             <input id="voice-exaggeration" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-exaggeration-value"></output>
+            <small class="field-copy">Controls emotional intensity. Start around <strong>0.55</strong> for suspense narration.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
@@ -222,6 +226,7 @@
             </span>
             <input id="voice-cfg-weight" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-cfg-weight-value"></output>
+            <small class="field-copy">Guidance strength: lower feels looser, higher sounds tighter but can become less natural.</small>
           </label>
           <label class="settings-field">
             <span class="field-header">
@@ -230,6 +235,7 @@
             </span>
             <input id="voice-temperature" type="range" min="0" max="2" step="0.05" />
             <output id="voice-temperature-value"></output>
+            <small class="field-copy">Variation level. Lower is steadier; higher gives more range with higher inconsistency risk.</small>
           </label>
         </div>
         <div class="preset-row">
