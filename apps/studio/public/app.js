@@ -10,6 +10,7 @@ const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
 const voiceSettingsBtn = document.getElementById("voice-settings-btn");
+const regenerateAudioBtn = document.getElementById("regenerate-audio-btn");
 const voiceSettingsDialog = document.getElementById("voice-settings-dialog");
 const voiceSettingsForm = document.getElementById("voice-settings-form");
 const voiceSettingsClose = document.getElementById("voice-settings-close");
@@ -357,6 +358,7 @@ function updateStoryButtons() {
   clearStoryBtn.disabled = !hasStory;
   renderBtn.disabled = !hasSelectedProject;
   voiceSettingsBtn.disabled = false;
+  regenerateAudioBtn.disabled = !hasSelectedProject;
 }
 
 function syncStoryButtonsSoon() {
@@ -416,7 +418,7 @@ function buildStoryFeedback(rawScript, plan) {
   }
   const beatCount = plan.sections.reduce((total, section) => total + section.beats.length, 0);
   items.push({ level: "info", text: `Converted ${sections.length} section(s) into ${beatCount} beat(s).` });
-  items.push({ level: "step", text: "Next: Save Plan, optionally Generate Images, then Prepare Draft, then Render Draft. Until then, Rendered Output still shows the previous video." });
+  items.push({ level: "step", text: "Next: Save Plan, optionally Generate Images, then Regenerate Audio, then Render Draft. Until then, Rendered Output still shows the previous video." });
   return items;
 }
 
@@ -445,7 +447,7 @@ function renderAiPlanFeedback(result) {
   renderStoryFeedback([
     { level: "info", text: `AI generated ${sections} section(s) and ${beats} beat(s) using ${result.model}.` },
     ...result.warnings.map((text) => ({ level: "warning", text })),
-    { level: "step", text: "Next: Save Plan, optionally Generate Images, then Prepare Draft, then Render Draft. Until then, Rendered Output still shows the previous video." }
+    { level: "step", text: "Next: Save Plan, optionally Generate Images, then Regenerate Audio, then Render Draft. Until then, Rendered Output still shows the previous video." }
   ]);
 }
 
@@ -948,7 +950,7 @@ renderBtn.onclick = async () => {
     steps.push("Generating narration, transcript, captions, and timeline...");
     setRunStatus(steps);
     const prepareResult = await fetchJson(`/api/projects/${selectedProjectId}/prepare-draft`, { method: "POST", ...runSignal() });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nPrepare Draft:\n${prepareResult.output}`;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Audio:\n${prepareResult.output}`;
 
     steps[steps.length - 1] = "Narration, captions, and timeline are ready.";
     steps.push("Rendering draft video...");
@@ -1009,13 +1011,14 @@ generateImagesBtn.onclick = async () => {
   }
 };
 
-prepareDraftBtn.onclick = async () => {
+async function regenerateAudioForCurrentProject(triggerBtn) {
   if (!selectedProjectId) return;
-  prepareDraftBtn.disabled = true;
-  prepareDraftBtn.textContent = "Preparing...";
+  triggerBtn.disabled = true;
+  const originalLabel = triggerBtn.textContent;
+  triggerBtn.textContent = "Regenerating...";
   try {
     const result = await fetchJson(`/api/projects/${selectedProjectId}/prepare-draft`, { method: "POST" });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nPrepare Draft:\n${result.output}`;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Audio:\n${result.output}`;
     await selectProject(selectedProjectId, selectedProjectElement);
     hasUnsavedPlan = false;
     needsPrepareDraft = false;
@@ -1024,11 +1027,19 @@ prepareDraftBtn.onclick = async () => {
     await refreshQualityHistory(selectedProjectId);
     renderWorkflowState();
   } catch (error) {
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nPrepare Draft failed:\n${String(error)}`;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nRegenerate Audio failed:\n${String(error)}`;
   } finally {
-    prepareDraftBtn.disabled = false;
-    prepareDraftBtn.textContent = "Prepare Draft";
+    triggerBtn.disabled = false;
+    triggerBtn.textContent = originalLabel;
   }
+}
+
+prepareDraftBtn.onclick = () => {
+  regenerateAudioForCurrentProject(prepareDraftBtn);
+};
+
+regenerateAudioBtn.onclick = () => {
+  regenerateAudioForCurrentProject(regenerateAudioBtn);
 };
 
 renderDraftBtn.onclick = async () => {
@@ -1064,7 +1075,7 @@ convertStoryBtn.onclick = async () => {
     needsRender = true;
     renderStoryFeedback(buildStoryFeedback(storyInput.value, nextPlan));
     await refreshRenderOutput(selectedProjectId).catch(() => {});
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nStory script converted to video plan. Save Plan, Prepare Draft, then Render Draft before checking output.`;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nStory script converted to video plan. Save Plan, Regenerate Audio, then Render Draft before checking output.`;
   } catch (error) {
     qualityOutput.textContent = `${qualityOutput.textContent}\n\nStory conversion failed:\n${String(error)}`;
   }
@@ -1094,7 +1105,7 @@ aiPlanBtn.onclick = async () => {
     needsRender = true;
     renderAiPlanFeedback(result.data);
     await refreshRenderOutput(selectedProjectId).catch(() => {});
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nAI generated a video plan. Save Plan, Prepare Draft, then Render Draft before checking output.`;
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nAI generated a video plan. Save Plan, Regenerate Audio, then Render Draft before checking output.`;
   } catch (error) {
     qualityOutput.textContent = `${qualityOutput.textContent}\n\nAI plan generation failed:\n${String(error)}`;
   } finally {
