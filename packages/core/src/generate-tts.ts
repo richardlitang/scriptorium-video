@@ -7,6 +7,7 @@ import { readJsonFile, writeJsonFile } from "./json.js";
 import { hashString } from "./hash.js";
 import { probeMedia } from "./media-probe.js";
 import type { TTSProvider } from "./tts-provider.js";
+import { normalizeVoiceover } from "./audio-processing.js";
 
 export type GenerateTTSOptions = {
   force?: boolean;
@@ -160,6 +161,27 @@ export async function generateTTSForProject(
       options: plan.voice.options
     });
 
+    const processedAt = new Date().toISOString();
+    let durationSeconds = result.durationSeconds;
+    let audioProcessing:
+      | {
+          loudnessTargetLufs: number;
+          truePeakDb: number;
+          compression: string;
+          processedAt: string;
+        }
+      | undefined;
+
+    if (providerId !== "manual") {
+      const processing = await normalizeVoiceover(absolutePath);
+      const probed = await probeMedia(absolutePath);
+      durationSeconds = probed.durationSeconds ?? result.durationSeconds;
+      audioProcessing = {
+        ...processing,
+        processedAt
+      };
+    }
+
     const nextAsset: Asset = {
       id: existing?.id ?? `voice-${beat.beatId}`,
       type: "audio",
@@ -170,9 +192,10 @@ export async function generateTTSForProject(
       source: {
         kind: providerId === "manual" ? "manual" : "generated",
         provider: providerId,
-        inputHash
+        inputHash,
+        ...(audioProcessing ? { audioProcessing } : {})
       },
-      durationSeconds: result.durationSeconds,
+      durationSeconds,
       status: providerId === "manual" ? "locked_by_user" : "generated",
       createdAt: existing?.createdAt ?? now,
       updatedAt: now

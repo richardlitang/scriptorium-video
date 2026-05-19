@@ -1,4 +1,5 @@
 export * from "./config-resolver.js";
+export * from "./audio-processing.js";
 export * from "./generate-captions.js";
 export * from "./generate-tts.js";
 export * from "./hash.js";

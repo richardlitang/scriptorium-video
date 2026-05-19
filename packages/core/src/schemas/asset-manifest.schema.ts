@@ -6,7 +6,13 @@ export const AssetSourceSchema = z.object({
   provider: z.string().optional(),
   inputHash: z.string().optional(),
   originalPath: z.string().optional(),
-  prompt: z.string().optional()
+  prompt: z.string().optional(),
+  audioProcessing: z.object({
+    loudnessTargetLufs: z.number(),
+    truePeakDb: z.number(),
+    compression: z.string(),
+    processedAt: z.string().datetime()
+  }).optional()
 }).strict();
 
 export const AssetSchema = z.object({
