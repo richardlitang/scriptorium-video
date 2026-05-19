@@ -34,13 +34,70 @@ function chatterboxUrl(): string {
   return process.env.CHATTERBOX_TTS_URL ?? DEFAULT_CHATTERBOX_URL;
 }
 
+export type ChatterboxCapability = {
+  available: boolean;
+  status: "ready" | "loading" | "failed" | "unreachable";
+  speechUrl: string;
+  healthUrl: string;
+  message?: string;
+};
+
+function chatterboxHealthUrl(url: string): string {
+  const parsed = new URL(url);
+  parsed.pathname = "/health";
+  parsed.search = "";
+  parsed.hash = "";
+  return parsed.toString();
+}
+
 function chatterboxStartupHint(url: string): string {
   return [
     `Chatterbox TTS server is unreachable at ${url}.`,
     "Start it before making a draft:",
-    "HF_HOME=/private/tmp/lvstudio-hf /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/chatterbox_tts_server.py",
+    "CHATTERBOX_MODEL_CACHE=/private/tmp/lvstudio-hf /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/chatterbox_tts_server.py",
     "Or set CHATTERBOX_TTS_URL to a reachable Chatterbox-compatible speech endpoint."
   ].join(" ");
+}
+
+export async function checkChatterboxCapability(fetchImpl: typeof fetch = fetch): Promise<ChatterboxCapability> {
+  const speechUrl = chatterboxUrl();
+  const healthUrl = chatterboxHealthUrl(speechUrl);
+  try {
+    const response = await fetchImpl(healthUrl);
+    if (!response.ok) {
+      return {
+        available: false,
+        status: "failed",
+        speechUrl,
+        healthUrl,
+        message: `Chatterbox health check failed: ${response.status}`
+      };
+    }
+    const body = (await response.json().catch(() => ({}))) as {
+      ok?: boolean;
+      status?: string;
+      error?: string;
+    };
+    if (body.ok) {
+      return { available: true, status: "ready", speechUrl, healthUrl };
+    }
+    const status = body.status === "loading" ? "loading" : "failed";
+    return {
+      available: false,
+      status,
+      speechUrl,
+      healthUrl,
+      message: body.error || `Chatterbox is ${status}.`
+    };
+  } catch (error) {
+    return {
+      available: false,
+      status: "unreachable",
+      speechUrl,
+      healthUrl,
+      message: error instanceof Error ? error.message : String(error)
+    };
+  }
 }
 
 function providerNumber(request: TTSRequest, key: string): number | undefined {

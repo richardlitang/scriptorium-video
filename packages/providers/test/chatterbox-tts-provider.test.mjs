@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildPayload, ChatterboxTTSProvider } from "../dist/tts/chatterbox-tts-provider.js";
+import { buildPayload, checkChatterboxCapability, ChatterboxTTSProvider } from "../dist/tts/chatterbox-tts-provider.js";
 
 test("Chatterbox TTS reports an actionable setup error when the server is unreachable", async () => {
   const originalUrl = process.env.CHATTERBOX_TTS_URL;
@@ -23,6 +23,43 @@ test("Chatterbox TTS reports an actionable setup error when the server is unreac
         return true;
       }
     );
+  } finally {
+    if (originalUrl === undefined) delete process.env.CHATTERBOX_TTS_URL;
+    else process.env.CHATTERBOX_TTS_URL = originalUrl;
+  }
+});
+
+test("checkChatterboxCapability reports ready health", async () => {
+  const originalUrl = process.env.CHATTERBOX_TTS_URL;
+  process.env.CHATTERBOX_TTS_URL = "http://127.0.0.1:8000/v1/audio/speech";
+
+  try {
+    const capability = await checkChatterboxCapability(async (url) => {
+      assert.equal(String(url), "http://127.0.0.1:8000/health");
+      return new Response(JSON.stringify({ ok: true, status: "ready" }), { status: 200 });
+    });
+
+    assert.equal(capability.available, true);
+    assert.equal(capability.status, "ready");
+    assert.equal(capability.healthUrl, "http://127.0.0.1:8000/health");
+  } finally {
+    if (originalUrl === undefined) delete process.env.CHATTERBOX_TTS_URL;
+    else process.env.CHATTERBOX_TTS_URL = originalUrl;
+  }
+});
+
+test("checkChatterboxCapability reports failed model health", async () => {
+  const originalUrl = process.env.CHATTERBOX_TTS_URL;
+  process.env.CHATTERBOX_TTS_URL = "http://127.0.0.1:8000/v1/audio/speech";
+
+  try {
+    const capability = await checkChatterboxCapability(async () => {
+      return new Response(JSON.stringify({ ok: false, status: "failed", error: "model missing" }), { status: 200 });
+    });
+
+    assert.equal(capability.available, false);
+    assert.equal(capability.status, "failed");
+    assert.equal(capability.message, "model missing");
   } finally {
     if (originalUrl === undefined) delete process.env.CHATTERBOX_TTS_URL;
     else process.env.CHATTERBOX_TTS_URL = originalUrl;

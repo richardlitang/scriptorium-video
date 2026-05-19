@@ -42,6 +42,8 @@ class SpeechRequest(BaseModel):
 app = FastAPI(title="Local Video Studio Chatterbox TTS")
 model: Any | None = None
 sample_rate = 24000
+model_status = "loading"
+model_error: str | None = None
 
 
 def pick_device() -> str:
@@ -54,27 +56,46 @@ def pick_device() -> str:
 
 @app.on_event("startup")
 def load_model() -> None:
-    global model, sample_rate
+    global model, sample_rate, model_status, model_error
     device = os.environ.get("CHATTERBOX_DEVICE", pick_device())
     model_name = os.environ.get("CHATTERBOX_SERVER_MODEL", "chatterbox")
+    model_cache = os.environ.get("CHATTERBOX_MODEL_CACHE")
+    if model_cache:
+        os.environ.setdefault("HF_HOME", model_cache)
+    if os.environ.get("CHATTERBOX_OFFLINE", "").lower() in {"1", "true", "yes"}:
+        os.environ.setdefault("HF_HUB_OFFLINE", "1")
+        os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
     patch_perth_if_needed()
 
-    if model_name == "turbo":
-        from chatterbox.tts_turbo import ChatterboxTurboTTS
+    try:
+        if model_name == "turbo":
+            from chatterbox.tts_turbo import ChatterboxTurboTTS
 
-        model = ChatterboxTurboTTS.from_pretrained(device=device)
-    else:
-        from chatterbox.tts import ChatterboxTTS
+            model = ChatterboxTurboTTS.from_pretrained(device=device)
+        else:
+            from chatterbox.tts import ChatterboxTTS
 
-        model = ChatterboxTTS.from_pretrained(device=device)
+            model = ChatterboxTTS.from_pretrained(device=device)
 
-    sample_rate = int(getattr(model, "sr", sample_rate))
-    print(f"Loaded {model_name} on {device} at {sample_rate}Hz", flush=True)
+        sample_rate = int(getattr(model, "sr", sample_rate))
+        model_status = "ready"
+        model_error = None
+        print(f"Loaded {model_name} on {device} at {sample_rate}Hz", flush=True)
+    except Exception as exc:
+        model = None
+        model_status = "failed"
+        model_error = str(exc)
+        print(f"Failed to load {model_name} on {device}: {model_error}", flush=True)
 
 
 @app.get("/health")
 def health() -> dict[str, Any]:
-    return {"ok": model is not None, "sampleRate": sample_rate}
+    return {
+        "ok": model is not None,
+        "status": model_status,
+        "sampleRate": sample_rate,
+        "error": model_error,
+    }
 
 
 @app.post("/v1/audio/speech")

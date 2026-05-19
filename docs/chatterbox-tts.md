@@ -7,7 +7,7 @@ Chatterbox should run outside Docker on Apple Silicon unless testing proves a co
 Run a Chatterbox-compatible server on the host and point Local Video Studio at it:
 
 ```bash
-HF_HOME=/private/tmp/lvstudio-hf \
+CHATTERBOX_MODEL_CACHE=/private/tmp/lvstudio-hf \
   /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/chatterbox_tts_server.py
 
 export CHATTERBOX_TTS_URL=http://127.0.0.1:8000/v1/audio/speech
@@ -15,6 +15,38 @@ export CHATTERBOX_TTS_MODEL=chatterbox
 export CHATTERBOX_AUDIO_PROMPT_PATH=/absolute/path/to/voice-reference.wav
 export CHATTERBOX_EXAGGERATION=0.7
 export CHATTERBOX_CFG_WEIGHT=0.3
+```
+
+For offline runs after the model is already cached:
+
+```bash
+CHATTERBOX_OFFLINE=1 \
+CHATTERBOX_MODEL_CACHE=/private/tmp/lvstudio-hf \
+  /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/chatterbox_tts_server.py
+```
+
+## Cost-Conscious Provider Routing
+
+For a single-user setup on a MacBook Air M4, prefer your laptop as the primary TTS machine. A normal VPS is useful for Studio orchestration, storage, and long-running Node/Remotion work, but it is usually not the best place to run Chatterbox unless it has a GPU or strong CPU allocation.
+
+Use local-first mode when you want zero per-generation TTS cost:
+
+```bash
+export LVSTUDIO_TTS_MODE=local
+```
+
+Use API-only mode when you want predictable availability and accept per-generation spend:
+
+```bash
+export LVSTUDIO_TTS_MODE=api
+export LVSTUDIO_TTS_FALLBACK_PROVIDER=openai
+```
+
+Use auto mode only when you explicitly allow fallback spend. It uses local Chatterbox when healthy, then falls back to the configured provider:
+
+```bash
+export LVSTUDIO_TTS_MODE=auto
+export LVSTUDIO_TTS_FALLBACK_PROVIDER=openai
 ```
 
 Then set the project plan to use Chatterbox:

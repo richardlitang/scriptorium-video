@@ -118,6 +118,10 @@ async function previewVoice(settings, text) {
     method: "POST",
     headers,
     body: JSON.stringify(payload)
+  }).catch((error) => {
+    throw new Error(
+      `Voice preview unavailable: Chatterbox is not reachable at ${CHATTERBOX_SPEECH_URL}. Start the local server or choose API fallback for generated narration. ${error.message}`
+    );
   });
   if (!response.ok) {
     const body = await response.text().catch(() => "");
