@@ -24,6 +24,13 @@ export type TTSRequest = {
     language?: string;
     ssml?: string;
   };
+  delivery?: {
+    profile?: string;
+    intensity?: number;
+    deliveryNote?: string;
+    emphasis?: string[];
+  };
+  providerOptions?: Record<string, unknown>;
 };
 
 export type TTSResult = {

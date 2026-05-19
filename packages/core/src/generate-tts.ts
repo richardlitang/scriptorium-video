@@ -8,6 +8,8 @@ import { hashString } from "./hash.js";
 import { probeMedia } from "./media-probe.js";
 import type { TTSProvider } from "./tts-provider.js";
 import { normalizeVoiceover } from "./audio-processing.js";
+import { resolveVoiceDirection } from "./voice-direction.js";
+import type { Beat } from "./schemas/video-plan.schema.js";
 
 export type GenerateTTSOptions = {
   force?: boolean;
@@ -21,6 +23,7 @@ type BeatRef = {
   sectionId: string;
   beatId: string;
   narration: string;
+  beat: Beat;
 };
 
 function pickBeats(plan: VideoPlan, onlySection?: string, onlyBeat?: string): BeatRef[] {
@@ -32,7 +35,8 @@ function pickBeats(plan: VideoPlan, onlySection?: string, onlyBeat?: string): Be
         .map((beat) => ({
           sectionId: section.id,
           beatId: beat.id,
-          narration: beat.narration
+          narration: beat.narration,
+          beat
         }))
     );
 }
@@ -41,7 +45,14 @@ function findVoiceAsset(manifest: AssetManifest, beatId: string): Asset | undefi
   return manifest.assets.find((asset) => asset.role === "voiceover" && asset.beatId === beatId);
 }
 
-function cacheKey(plan: VideoPlan, providerId: string, beatId: string, narration: string): string {
+function cacheKey(
+  plan: VideoPlan,
+  providerId: string,
+  beatId: string,
+  narration: string,
+  delivery: Record<string, unknown>,
+  providerOptions: Record<string, unknown>
+): string {
   return hashString(
     JSON.stringify({
       providerId,
@@ -49,7 +60,9 @@ function cacheKey(plan: VideoPlan, providerId: string, beatId: string, narration
       text: narration,
       voiceId: plan.voice.voiceId,
       format: plan.voice.format,
-      options: plan.voice.options
+      options: plan.voice.options,
+      delivery,
+      providerOptions
     })
   ).slice(0, 10);
 }
@@ -113,7 +126,15 @@ export async function generateTTSForProject(
       return;
     }
 
-    const inputHash = cacheKey(plan, providerId, beat.beatId, beat.narration);
+    const resolved = resolveVoiceDirection(beat.beat, plan);
+    const inputHash = cacheKey(
+      plan,
+      providerId,
+      beat.beatId,
+      beat.narration,
+      resolved.delivery,
+      resolved.providerOptions
+    );
     const ext = plan.voice.format;
     const fileBase = `${beat.beatId}.${inputHash}`;
     const fileName = options.noCache ? `${fileBase}.${Date.now()}.${ext}` : `${fileBase}.${ext}`;
@@ -158,7 +179,9 @@ export async function generateTTSForProject(
       voiceId: plan.voice.voiceId,
       outputPath: absolutePath,
       format: plan.voice.format,
-      options: plan.voice.options
+      options: plan.voice.options,
+      delivery: resolved.delivery,
+      providerOptions: resolved.providerOptions
     });
 
     const processedAt = new Date().toISOString();

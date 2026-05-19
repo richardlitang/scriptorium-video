@@ -77,6 +77,30 @@ export const BeatTimingIntentSchema = z.object({
   ]).default("loop_or_freeze")
 }).strict();
 
+export const VoiceProfileSchema = z.enum([
+  "neutral",
+  "warm_open",
+  "clear_explainer",
+  "authoritative",
+  "energetic",
+  "key_point",
+  "reflective",
+  "tense",
+  "reveal",
+  "urgent",
+  "soft_close"
+]);
+
+export const VoiceDirectionSchema = z.object({
+  profile: VoiceProfileSchema.default("neutral"),
+  deliveryNote: z.string().optional(),
+  emphasis: z.array(z.string()).default([]),
+  pauseBeforeSeconds: z.number().min(0).max(1.2).default(0),
+  pauseAfterSeconds: z.number().min(0).max(1.2).default(0),
+  intensity: z.number().min(0).max(1).default(0.5),
+  source: z.enum(["user", "llm", "default"]).default("default")
+}).strict();
+
 export const BeatSchema = z.object({
   id: z.string(),
   order: z.number().int().positive(),
@@ -91,6 +115,7 @@ export const BeatSchema = z.object({
     emphasis: z.array(z.string()).default([]),
     style: z.string().default("default")
   }).strict().default({ emphasis: [], style: "default" }),
+  voiceDirection: VoiceDirectionSchema.optional(),
   emotion: z.string().optional(),
   notes: z.string().optional()
 }).strict();

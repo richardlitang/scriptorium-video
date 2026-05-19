@@ -21,3 +21,4 @@ export * from "./sync-project.js";
 export * from "./transcribe-project.js";
 export * from "./transcription-provider.js";
 export * from "./tts-provider.js";
+export * from "./voice-direction.js";

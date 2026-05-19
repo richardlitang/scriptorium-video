@@ -43,7 +43,24 @@ function chatterboxStartupHint(url: string): string {
   ].join(" ");
 }
 
-function buildPayload(request: TTSRequest): Record<string, unknown> {
+function providerNumber(request: TTSRequest, key: string): number | undefined {
+  const value = request.providerOptions?.[key];
+  if (value === undefined || value === null) return undefined;
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    throw new Error(`Invalid provider option ${key}: ${String(value)}`);
+  }
+  return numeric;
+}
+
+function providerString(request: TTSRequest, key: string): string | undefined {
+  const value = request.providerOptions?.[key];
+  if (value === undefined || value === null) return undefined;
+  const text = String(value).trim();
+  return text || undefined;
+}
+
+export function buildPayload(request: TTSRequest): Record<string, unknown> {
   const payload: Record<string, unknown> = {
     model: process.env.CHATTERBOX_TTS_MODEL ?? "chatterbox",
     voice: request.voiceId || process.env.CHATTERBOX_TTS_VOICE_ID || "default",
@@ -54,19 +71,19 @@ function buildPayload(request: TTSRequest): Record<string, unknown> {
   if (request.options?.speed !== undefined) payload.speed = request.options.speed;
   if (request.options?.language) payload.language = request.options.language;
 
-  const audioPromptPath = process.env.CHATTERBOX_AUDIO_PROMPT_PATH;
+  const audioPromptPath = providerString(request, "audio_prompt_path") ?? process.env.CHATTERBOX_AUDIO_PROMPT_PATH;
   if (audioPromptPath) payload.audio_prompt_path = audioPromptPath;
 
-  const exaggeration = envNumber("CHATTERBOX_EXAGGERATION");
+  const exaggeration = providerNumber(request, "exaggeration") ?? envNumber("CHATTERBOX_EXAGGERATION");
   if (exaggeration !== undefined) payload.exaggeration = exaggeration;
 
-  const cfgWeight = envNumber("CHATTERBOX_CFG_WEIGHT");
+  const cfgWeight = providerNumber(request, "cfg_weight") ?? envNumber("CHATTERBOX_CFG_WEIGHT");
   if (cfgWeight !== undefined) payload.cfg_weight = cfgWeight;
 
-  const temperature = envNumber("CHATTERBOX_TEMPERATURE");
+  const temperature = providerNumber(request, "temperature") ?? envNumber("CHATTERBOX_TEMPERATURE");
   if (temperature !== undefined) payload.temperature = temperature;
 
-  const seed = envNumber("CHATTERBOX_SEED");
+  const seed = providerNumber(request, "seed") ?? envNumber("CHATTERBOX_SEED");
   if (seed !== undefined) payload.seed = seed;
 
   return payload;
@@ -142,7 +159,7 @@ export class ChatterboxTTSProvider implements TTSProvider {
         url,
         model: payload.model,
         requestedVoiceId: request.voiceId,
-        audioPromptPath: process.env.CHATTERBOX_AUDIO_PROMPT_PATH,
+        audioPromptPath: payload.audio_prompt_path,
         exaggeration: payload.exaggeration,
         cfgWeight: payload.cfg_weight,
         temperature: payload.temperature,
