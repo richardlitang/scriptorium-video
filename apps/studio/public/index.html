@@ -27,7 +27,7 @@
           <div class="hero-actions">
             <button id="voice-settings-btn" class="ghost-btn" disabled>Voice Settings</button>
             <button id="direct-voice-btn" class="ghost-btn" disabled>Direct Voice</button>
-            <button id="regenerate-audio-btn" class="ghost-btn" disabled>Regenerate Audio</button>
+            <button id="regenerate-audio-btn" class="ghost-btn" disabled>Regenerate Narration</button>
             <button id="clear-story-btn" class="ghost-btn" disabled>Clear Words</button>
             <button id="stop-run-btn" class="danger-btn" disabled>Stop</button>
             <button id="render-btn" class="primary-btn" disabled>Make Draft</button>
@@ -210,7 +210,7 @@
           <label class="settings-field settings-field-wide">
             <span class="field-header">
               Voice reference path
-              <button type="button" class="field-help" data-tip="Use a clean 5-20s voice sample. This mostly determines voice identity.">?</button>
+              <button type="button" class="field-help" data-tip="Main voice identity source. Pick a clean, dry recording of one speaker (5–20s). This path stays saved until you change or reset it.">?</button>
             </span>
             <div class="inline-actions">
               <input id="voice-audio-prompt-path" type="text" placeholder="/absolute/path/to/reference.wav" />
@@ -222,7 +222,7 @@
           <label class="settings-field">
             <span class="field-header">
               Model
-              <button type="button" class="field-help" data-tip="Usually keep this on chatterbox unless your server supports alternatives.">?</button>
+              <button type="button" class="field-help" data-tip="TTS engine variant. Keep `chatterbox` unless your server exposes another model.">?</button>
             </span>
             <select id="voice-tts-model">
               <option value="chatterbox">chatterbox</option>
@@ -231,14 +231,14 @@
           <label class="settings-field">
             <span class="field-header">
               Seed
-              <button type="button" class="field-help" data-tip="Set a number for repeatable takes. Leave blank for more variation.">?</button>
+              <button type="button" class="field-help" data-tip="Determinism control. Same seed + same settings tends to produce similar takes. Leave blank for fresh variation.">?</button>
             </span>
             <input id="voice-seed" type="number" step="1" placeholder="random" />
           </label>
           <label class="settings-field">
             <span class="field-header">
               Exaggeration
-              <button type="button" class="field-help" data-tip="Emotion intensity. Start around 0.55 for suspense. Higher can become theatrical.">?</button>
+              <button type="button" class="field-help" data-tip="Emotional intensity. Lower is calmer; higher is more expressive. Start around 0.45–0.65 for most genres.">?</button>
             </span>
             <input id="voice-exaggeration" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-exaggeration-value"></output>
@@ -246,7 +246,7 @@
           <label class="settings-field">
             <span class="field-header">
               CFG weight
-              <button type="button" class="field-help" data-tip="Guidance strength. Lower feels looser; higher sounds tighter but less natural.">?</button>
+              <button type="button" class="field-help" data-tip="Prompt adherence. Lower allows freer delivery; higher follows direction more tightly but can sound rigid.">?</button>
             </span>
             <input id="voice-cfg-weight" type="range" min="0" max="1.5" step="0.05" />
             <output id="voice-cfg-weight-value"></output>
@@ -254,10 +254,24 @@
           <label class="settings-field">
             <span class="field-header">
               Temperature
-              <button type="button" class="field-help" data-tip="Variation. Lower is steadier; higher gives more range with more inconsistency risk.">?</button>
+              <button type="button" class="field-help" data-tip="Performance variation. Lower is stable/repeatable; higher explores more phrasing and tone with more risk of inconsistency.">?</button>
             </span>
             <input id="voice-temperature" type="range" min="0" max="2" step="0.05" />
             <output id="voice-temperature-value"></output>
+          </label>
+          <label class="settings-field settings-field-wide">
+            <span class="field-header">
+              Preview line A
+              <button type="button" class="field-help" data-tip="Custom sentence for fast A/B testing of your current voice settings.">?</button>
+            </span>
+            <input id="voice-preview-line-a" type="text" />
+          </label>
+          <label class="settings-field settings-field-wide">
+            <span class="field-header">
+              Preview line B
+              <button type="button" class="field-help" data-tip="Second comparison sentence. Use a different mood to check range and consistency.">?</button>
+            </span>
+            <input id="voice-preview-line-b" type="text" />
           </label>
         </div>
         <div class="preset-row">
@@ -266,8 +280,8 @@
           <button type="button" data-voice-preset="dramatic">Dramatic</button>
         </div>
         <div class="preview-row">
-          <button id="voice-preview-a" type="button">Preview Line A</button>
-          <button id="voice-preview-b" type="button">Preview Line B</button>
+          <button id="voice-preview-a" type="button">Play Line A</button>
+          <button id="voice-preview-b" type="button">Play Line B</button>
         </div>
         <audio id="voice-preview-audio" controls preload="none"></audio>
         <p id="voice-settings-status" class="settings-status"></p>

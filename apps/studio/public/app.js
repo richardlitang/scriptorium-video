@@ -35,6 +35,8 @@ const voiceTemperatureValue = document.getElementById("voice-temperature-value")
 const voiceSettingsStatus = document.getElementById("voice-settings-status");
 const voicePreviewABtn = document.getElementById("voice-preview-a");
 const voicePreviewBBtn = document.getElementById("voice-preview-b");
+const voicePreviewLineAInput = document.getElementById("voice-preview-line-a");
+const voicePreviewLineBInput = document.getElementById("voice-preview-line-b");
 const voicePreviewAudio = document.getElementById("voice-preview-audio");
 const savePlanBtn = document.getElementById("save-plan-btn");
 const prepareDraftBtn = document.getElementById("prepare-draft-btn");
@@ -72,6 +74,8 @@ let expandedJobIds = new Set();
 let selectedBeatId = null;
 let voicePreviewController = null;
 const voicePreviewCache = new Map();
+const defaultVoicePreviewLineA = "I should have turned back when the hallway lights began to flicker, but I kept walking.";
+const defaultVoicePreviewLineB = "By the time the last train arrived, everyone on the platform had vanished except me.";
 
 const storageKey = (projectId, key) => `lvstudio:${projectId}:${key}`;
 
@@ -105,6 +109,8 @@ function restoreUiState(projectId) {
   imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", imageBudget.value));
   imageQuality.value = readStored(projectId, "imageQuality", imageQuality.value);
   selectedBeatId = readStored(projectId, "selectedBeatId", "");
+  voicePreviewLineAInput.value = readStored(projectId, "voicePreviewLineA", defaultVoicePreviewLineA);
+  voicePreviewLineBInput.value = readStored(projectId, "voicePreviewLineB", defaultVoicePreviewLineB);
 }
 
 function normalizeImageCoverage(value) {
@@ -129,6 +135,16 @@ function applyVoiceSettings(settings) {
   voiceTemperature.value = settings.temperature ?? 0.75;
   voiceSeed.value = settings.seed ?? "";
   updateVoiceOutputs();
+}
+
+function previewLineA() {
+  const value = voicePreviewLineAInput.value.trim();
+  return value || defaultVoicePreviewLineA;
+}
+
+function previewLineB() {
+  const value = voicePreviewLineBInput.value.trim();
+  return value || defaultVoicePreviewLineB;
 }
 
 function readVoiceSettingsForm() {
@@ -1488,8 +1504,16 @@ voiceReferenceFile.addEventListener("change", async () => {
     voiceReferenceFile.value = "";
   }
 });
-voicePreviewABtn.onclick = () => runVoicePreview("I should have turned back when the hallway lights began to flicker, but I kept walking.");
-voicePreviewBBtn.onclick = () => runVoicePreview("By the time the last train arrived, everyone on the platform had vanished except me.");
+voicePreviewABtn.onclick = () => runVoicePreview(previewLineA());
+voicePreviewBBtn.onclick = () => runVoicePreview(previewLineB());
+voicePreviewLineAInput.addEventListener("input", () => {
+  if (!selectedProjectId) return;
+  writeStored(selectedProjectId, "voicePreviewLineA", voicePreviewLineAInput.value);
+});
+voicePreviewLineBInput.addEventListener("input", () => {
+  if (!selectedProjectId) return;
+  writeStored(selectedProjectId, "voicePreviewLineB", voicePreviewLineBInput.value);
+});
 voiceSettingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   voiceSettingsStatus.textContent = "Saving...";
