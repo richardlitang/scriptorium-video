@@ -325,10 +325,8 @@ function beatJobProgress(job, patch = {}) {
 
 async function writeDraftJobState(projectId, job, patch = {}) {
   Object.assign(job, patch);
-  await writeRunState(projectId, {
-    ...(await readRunState(projectId)),
-    status: job.status === "failed" ? "failed" : job.status === "completed" ? "idle" : "queued",
-    progress: jobProgress(job),
+  await upsertRunJob(projectId, {
+    ...jobProgress(job),
     updatedAt: new Date().toISOString()
   });
 }
@@ -478,15 +476,17 @@ async function runDraftJob(projectId, body) {
         summary: "Background draft job completed.",
         output
       });
+      job.status = "completed";
+      job.phase = "done";
+      job.label = "Draft video is ready";
+      job.completed = job.total;
+      job.finishedAt = new Date().toISOString();
+      await upsertRunJob(projectId, {
+        ...jobProgress(job),
+        updatedAt: new Date().toISOString()
+      });
       await writeRunState(projectId, {
-        status: "idle",
-        progress: jobProgress(job, {
-          status: "completed",
-          phase: "done",
-          label: "Draft video is ready",
-          completed: job.total,
-          finishedAt: new Date().toISOString()
-        }),
+        ...(await readRunState(projectId)),
         lastRenderPlanHash: planHash,
         lastRenderTimelineHash: timelineHash,
         lastRenderQuality: "draft",
@@ -865,27 +865,79 @@ function runStatePath(projectId) {
   return path.join(rootDir, ".studio-data", "run-state", `${projectId}.json`);
 }
 
+function parseRunTime(value) {
+  const time = Date.parse(String(value || ""));
+  return Number.isFinite(time) ? time : 0;
+}
+
+function normalizeRunState(raw = {}) {
+  const jobs = Array.isArray(raw.jobs) ? raw.jobs.filter((job) => job && typeof job === "object" && job.jobId) : [];
+  if (raw.progress?.jobId && !jobs.some((job) => job.jobId === raw.progress.jobId)) jobs.push(raw.progress);
+  jobs.sort((a, b) => parseRunTime(b.startedAt || b.updatedAt || b.finishedAt) - parseRunTime(a.startedAt || a.updatedAt || a.finishedAt));
+  const trimmed = jobs.slice(0, 30);
+  const active = trimmed.find((job) => ["queued", "running"].includes(job.status)) ?? trimmed[0] ?? null;
+  const status = active && ["queued", "running"].includes(active.status)
+    ? "queued"
+    : active?.status === "failed"
+      ? "failed"
+      : "idle";
+  return {
+    status,
+    lastRenderPlanHash: raw.lastRenderPlanHash,
+    lastRenderTimelineHash: raw.lastRenderTimelineHash,
+    lastRenderQuality: raw.lastRenderQuality,
+    lastRenderCompletedAt: raw.lastRenderCompletedAt,
+    currentPlanHash: raw.currentPlanHash,
+    currentTimelineHash: raw.currentTimelineHash,
+    updatedAt: raw.updatedAt,
+    jobs: trimmed,
+    activeJobId: active?.jobId,
+    progress: active
+  };
+}
+
 async function readRunState(projectId) {
-  return safeReadJson(runStatePath(projectId)).catch(() => ({
-    status: "idle",
-    lastRenderPlanHash: undefined,
-    lastRenderQuality: undefined,
-    lastRenderCompletedAt: undefined
-  }));
+  return normalizeRunState(await safeReadJson(runStatePath(projectId)).catch(() => ({})));
 }
 
 async function writeRunState(projectId, state) {
   const filePath = runStatePath(projectId);
   await mkdir(path.dirname(filePath), { recursive: true });
-  await writeFile(filePath, `${JSON.stringify(state, null, 2)}\n`, "utf8");
+  await writeFile(filePath, `${JSON.stringify(normalizeRunState(state), null, 2)}\n`, "utf8");
+}
+
+async function upsertRunJob(projectId, job) {
+  const state = await readRunState(projectId);
+  const jobs = [...(state.jobs ?? []).filter((entry) => entry.jobId !== job.jobId), job];
+  await writeRunState(projectId, {
+    ...state,
+    jobs,
+    updatedAt: new Date().toISOString()
+  });
 }
 
 async function updateRunProgress(projectId, patch) {
-  await writeRunState(projectId, {
-    ...(await readRunState(projectId)),
-    ...patch,
-    updatedAt: new Date().toISOString()
-  });
+  const state = await readRunState(projectId);
+  if (patch?.progress?.kind) {
+    const current = state.jobs?.find((job) => job.jobId === patch.progress.jobId || job.kind === patch.progress.kind);
+    const startedAt = current?.startedAt || new Date().toISOString();
+    const phase = patch.progress.phase || "running";
+    const terminal = ["complete", "completed", "failed", "stopped"].includes(phase);
+    const job = {
+      ...current,
+      ...patch.progress,
+      jobId: patch.progress.jobId || current?.jobId || `run-${patch.progress.kind}`,
+      status: terminal
+        ? (phase === "failed" ? "failed" : "completed")
+        : "running",
+      startedAt,
+      finishedAt: terminal ? new Date().toISOString() : undefined,
+      updatedAt: new Date().toISOString()
+    };
+    await upsertRunJob(projectId, job);
+    return;
+  }
+  await writeRunState(projectId, { ...state, ...patch, updatedAt: new Date().toISOString() });
 }
 
 function nextImageVersion(history, assetId) {
@@ -1280,12 +1332,7 @@ async function runBeatRegenerateJob(projectId, beatId, options = {}) {
   if (job.total === 0) job.total = 1;
 
   activeBeatJobs.set(projectId, job);
-  await writeRunState(projectId, {
-    ...(await readRunState(projectId)),
-    status: "queued",
-    progress: beatJobProgress(job),
-    updatedAt: new Date().toISOString()
-  });
+  await upsertRunJob(projectId, { ...beatJobProgress(job), updatedAt: new Date().toISOString() });
 
   runProjectMutation(projectId, async () => {
     try {
@@ -1293,21 +1340,11 @@ async function runBeatRegenerateJob(projectId, beatId, options = {}) {
         job.status = "running";
         job.phase = phase;
         job.label = label;
-        await writeRunState(projectId, {
-          ...(await readRunState(projectId)),
-          status: "queued",
-          progress: beatJobProgress(job),
-          updatedAt: new Date().toISOString()
-        });
+        await upsertRunJob(projectId, { ...beatJobProgress(job), updatedAt: new Date().toISOString() });
         const result = await operation();
         if (result?.stdout?.trim()) job.output.push(`${label}:\n${result.stdout.trim()}`);
         job.completed += 1;
-        await writeRunState(projectId, {
-          ...(await readRunState(projectId)),
-          status: "queued",
-          progress: beatJobProgress(job),
-          updatedAt: new Date().toISOString()
-        });
+        await upsertRunJob(projectId, { ...beatJobProgress(job), updatedAt: new Date().toISOString() });
       };
 
       if (options.audio !== false) {
@@ -1356,12 +1393,7 @@ async function runBeatRegenerateJob(projectId, beatId, options = {}) {
         summary: `Regenerated beat ${beatId}.`,
         output
       });
-      await writeRunState(projectId, {
-        ...(await readRunState(projectId)),
-        status: "idle",
-        progress: beatJobProgress(job),
-        updatedAt: new Date().toISOString()
-      });
+      await upsertRunJob(projectId, { ...beatJobProgress(job), updatedAt: new Date().toISOString() });
       activeBeatJobs.delete(projectId);
     } catch (error) {
       job.status = "failed";
@@ -1376,12 +1408,7 @@ async function runBeatRegenerateJob(projectId, beatId, options = {}) {
         summary: `Beat regeneration failed for ${beatId}.`,
         output: job.output.join("\n\n").trim()
       }).catch(() => {});
-      await writeRunState(projectId, {
-        ...(await readRunState(projectId)),
-        status: "failed",
-        progress: beatJobProgress(job),
-        updatedAt: new Date().toISOString()
-      });
+      await upsertRunJob(projectId, { ...beatJobProgress(job), updatedAt: new Date().toISOString() });
       activeBeatJobs.delete(projectId);
     }
   }).catch(() => {});
@@ -1422,7 +1449,7 @@ async function listDraftJobs(projectId) {
       kind: entry.kind
     }));
 
-  const runStateJob = ["draft_job", "beat_regenerate_job"].includes(runState.progress?.kind) ? runState.progress : null;
+  const runStateJob = (runState.jobs ?? []).find((job) => ["draft_job", "beat_regenerate_job"].includes(job.kind));
   const liveJobs = [];
   if (active) {
     const current = jobProgress(active);
@@ -1945,21 +1972,22 @@ const server = createServer(async (req, res) => {
       const activeJob = activeDraftJobs.get(projectId);
       if (activeJob) return sendJson(res, 200, { ok: true, data: jobProgress(activeJob) });
       const runState = await readRunState(projectId);
-      if (runState.progress?.kind !== "draft_job") {
+      const draftRunStateJob = (runState.jobs ?? []).find((job) => job.kind === "draft_job");
+      if (!draftRunStateJob) {
         return sendJson(res, 200, { ok: true, data: null });
       }
-      const staleRunning = ["queued", "running"].includes(runState.progress.status);
+      const staleRunning = ["queued", "running"].includes(draftRunStateJob.status);
       return sendJson(res, 200, {
         ok: true,
         data: staleRunning
           ? {
-              ...runState.progress,
+              ...draftRunStateJob,
               status: "failed",
               phase: "stopped",
               label: "Draft job stopped",
               error: "Studio restarted before this background job finished. Start Make Draft again to resume from generated assets."
             }
-          : runState.progress
+          : draftRunStateJob
       });
     }
 
