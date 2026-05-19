@@ -1957,8 +1957,23 @@ const server = createServer(async (req, res) => {
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/review") && req.method === "GET") {
       const projectId = pathname.split("/")[3];
-      const result = await runLvstudio(["review", projectId]);
-      return sendJson(res, 200, { ok: true, data: JSON.parse(result.stdout) });
+      const result = await runLvstudioReport(["review", projectId]);
+      if (!result.ok) {
+        return sendJson(res, 200, {
+          ok: true,
+          data: { issues: [] },
+          warning: "Review command failed. Showing empty review list."
+        });
+      }
+      try {
+        return sendJson(res, 200, { ok: true, data: JSON.parse(result.stdout) });
+      } catch {
+        return sendJson(res, 200, {
+          ok: true,
+          data: { issues: [] },
+          warning: "Review output was not valid JSON. Showing empty review list."
+        });
+      }
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/quality-history") && req.method === "GET") {

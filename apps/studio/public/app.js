@@ -270,6 +270,10 @@ function splitStorySections(rawScript) {
   });
 }
 
+function defaultDraftButtonLabel() {
+  return selectedProjectId ? "Make Draft" : "Create Draft";
+}
+
 function updateStoryButtons() {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = storyInput.value.trim().length > 0;
@@ -277,7 +281,8 @@ function updateStoryButtons() {
   convertStoryBtn.disabled = !hasSelectedProject || !hasStory;
   aiPlanBtn.disabled = !hasSelectedProject || !hasStory;
   clearStoryBtn.disabled = !hasStory;
-  renderBtn.disabled = !hasSelectedProject || draftJobRunning;
+  renderBtn.disabled = !hasStory || draftJobRunning;
+  if (!draftJobRunning) renderBtn.textContent = hasStory ? defaultDraftButtonLabel() : "Paste Story First";
   voiceSettingsBtn.disabled = false;
   directVoiceBtn.disabled = !hasSelectedProject;
   regenerateAudioBtn.disabled = !hasSelectedProject;
@@ -787,8 +792,7 @@ function notifyDraftJobFinished(job) {
 function renderDraftJobState(job) {
   currentDraftJob = job || null;
   if (!job || job.kind !== "draft_job") {
-    renderBtn.disabled = !selectedProjectId;
-    renderBtn.textContent = "Make Draft";
+    renderBtn.textContent = defaultDraftButtonLabel();
     updateStoryButtons();
     return;
   }
@@ -804,8 +808,7 @@ function renderDraftJobState(job) {
     return;
   }
 
-  renderBtn.disabled = !selectedProjectId;
-  renderBtn.textContent = "Make Draft";
+  renderBtn.textContent = defaultDraftButtonLabel();
   stopRunBtn.disabled = true;
   if (job.status === "completed") {
     showJobBanner("Draft ready", "The background render finished. The preview below has been refreshed.", "completed");
@@ -982,6 +985,34 @@ async function refreshMediaPreview(projectId) {
   await reviewController.refresh(projectId).catch(() => {});
 }
 
+async function createProjectFromTitle(title) {
+  const result = await fetchJson("/api/projects", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ title: title.trim(), mode: "short_story", platform: "local_only" })
+  });
+  selectedProjectId = null;
+  localStorage.setItem("lvstudio:selectedProjectId", result.data.projectId);
+  await loadProjects();
+  return result.data.projectId;
+}
+
+function applyPendingStoryState(pendingStory, pendingUiState, projectId) {
+  if (!pendingStory.trim() || !projectId || selectedProjectId !== projectId) return;
+  storyInput.value = pendingStory;
+  storyFeel.value = pendingUiState.feel;
+  storyPacing.value = pendingUiState.pacing;
+  storyVisualStyle.value = pendingUiState.visualStyle;
+  imageEnabled.checked = pendingUiState.imageEnabled === "true";
+  imageMode.value = pendingUiState.imageMode;
+  imageBudget.value = pendingUiState.imageBudget;
+  imageQuality.value = pendingUiState.imageQuality;
+  saveUiState();
+  needsRender = true;
+  renderWorkflowState();
+  updateStoryButtons();
+}
+
 newProjectBtn.onclick = async () => {
   const pendingStory = storyInput.value;
   const pendingUiState = {
@@ -998,28 +1029,8 @@ newProjectBtn.onclick = async () => {
   newProjectBtn.disabled = true;
   newProjectBtn.textContent = "Creating...";
   try {
-    const result = await fetchJson("/api/projects", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ title: title.trim(), mode: "short_story", platform: "local_only" })
-    });
-    selectedProjectId = null;
-    localStorage.setItem("lvstudio:selectedProjectId", result.data.projectId);
-    await loadProjects();
-    if (pendingStory.trim() && selectedProjectId === result.data.projectId) {
-      storyInput.value = pendingStory;
-      storyFeel.value = pendingUiState.feel;
-      storyPacing.value = pendingUiState.pacing;
-      storyVisualStyle.value = pendingUiState.visualStyle;
-      imageEnabled.checked = pendingUiState.imageEnabled === "true";
-      imageMode.value = pendingUiState.imageMode;
-      imageBudget.value = pendingUiState.imageBudget;
-      imageQuality.value = pendingUiState.imageQuality;
-      saveUiState();
-      needsRender = true;
-      renderWorkflowState();
-      updateStoryButtons();
-    }
+    const projectId = await createProjectFromTitle(title);
+    applyPendingStoryState(pendingStory, pendingUiState, projectId);
   } catch (error) {
     projectMeta.textContent = String(error);
   } finally {
@@ -1098,13 +1109,28 @@ async function selectProject(projectId, element) {
 }
 
 renderBtn.onclick = async () => {
-  if (!selectedProjectId) return;
+  const hasStory = storyInput.value.trim().length > 0;
+  if (!hasStory) return;
+  const pendingUiState = {
+    feel: storyFeel.value,
+    pacing: storyPacing.value,
+    visualStyle: storyVisualStyle.value,
+    imageEnabled: imageEnabled.checked ? "true" : "false",
+    imageMode: imageMode.value,
+    imageBudget: normalizeImageCoverage(imageBudget.value),
+    imageQuality: imageQuality.value
+  };
   renderBtn.disabled = true;
   renderBtn.textContent = "Queueing...";
   try {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
     }
+    if (!selectedProjectId) {
+      const projectId = await createProjectFromTitle(projectTitleFromStory(storyInput.value));
+      applyPendingStoryState(storyInput.value, pendingUiState, projectId);
+    }
+    if (!selectedProjectId) throw new Error("Project was not selected after creation.");
     const plan = JSON.parse(planEditor.value);
     const result = await fetchJson(`/api/projects/${selectedProjectId}/draft-job`, {
       method: "POST",
