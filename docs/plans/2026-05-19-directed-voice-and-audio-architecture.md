@@ -2,7 +2,7 @@
 
 ## Problem
 
-Short suspense videos need the audio track to perform the story, not just read it. Current output is understandable but too even: the narrator stays close to one delivery style, reveal beats do not get enough pause or emphasis, and generated voice files can be too quiet for phone playback. The result is that scary moments feel explained rather than staged.
+Generated videos need the audio track to match the intent of each moment, not just read text at one global delivery style. A suspense story needs controlled tension and reveal pauses; a tutorial needs clarity and steady pacing; a product demo needs confidence and forward motion; a documentary needs authority and room for key facts. Current output is understandable but too even: the narrator stays close to one delivery style, important beats do not get enough timing or emphasis, and generated voice files can be too quiet for phone playback.
 
 The goal is to add controlled voice direction, timing, loudness, and sound cues without rebuilding the whole render pipeline.
 
@@ -72,7 +72,7 @@ This is the correct place to regenerate narration after voice settings change.
 
 ### Captions
 
-`packages/core/src/generate-captions.ts` generates captions from transcript words and timeline segments. It now groups short suspense sentences more naturally, but caption emphasis is still visual metadata only. It does not change TTS emphasis.
+`packages/core/src/generate-captions.ts` generates captions from transcript words and timeline segments. It now groups short adjacent sentences more naturally, but caption emphasis is still visual metadata only. It does not change TTS emphasis.
 
 ## What This Means
 
@@ -89,28 +89,33 @@ Extend `BeatSchema` with a structured `voiceDirection` object:
 ```json
 {
   "voiceDirection": {
-    "profile": "reveal",
-    "deliveryNote": "Lower, slower, controlled dread. Do not overact.",
-    "emphasis": ["inside her locked closet"],
-    "pauseBeforeSeconds": 0.35,
-    "pauseAfterSeconds": 0.8,
-    "intensity": 0.75
+    "profile": "key_point",
+    "deliveryNote": "Slow slightly and make the claim feel important without overacting.",
+    "emphasis": ["saved three hours"],
+    "pauseBeforeSeconds": 0.15,
+    "pauseAfterSeconds": 0.35,
+    "intensity": 0.65
   }
 }
 ```
 
 Initial profile set:
 
-- `calm_open`
-- `uneasy`
-- `suspense`
+- `neutral`
+- `warm_open`
+- `clear_explainer`
+- `authoritative`
+- `energetic`
+- `key_point`
+- `reflective`
 - `tense`
 - `reveal`
-- `cold_final`
-- `whisper`
 - `urgent`
+- `soft_close`
 
 Do not let arbitrary raw model settings spread through the plan. Profiles should map to known-good provider settings in code.
+
+Genre-specific aliases can map onto the same profile system. For example, suspense may use `tense` and `reveal`, product demos may use `energetic` and `key_point`, tutorials may use `clear_explainer`, and documentaries may use `authoritative` or `reflective`.
 
 ### 2. Add A Voice Director Step
 
@@ -125,32 +130,48 @@ Responsibilities:
 - Read the current `video-plan.json`.
 - Ask the LLM to assign `voiceDirection` per beat.
 - Fill `caption.emphasis` with money phrases.
-- Suggest sound cue intents for key beats.
+- Suggest sound cue intents for key beats when the video type benefits from them.
 - Preserve user edits and existing locked fields.
 
 The LLM should choose profiles, pauses, emphasis, and delivery notes. It should not choose raw `temperature`, `cfgWeight`, or `exaggeration` values directly.
 
-Example LLM output for a reveal beat:
+Example LLM output for a product/demo key point:
 
 ```json
 {
-  "beatId": "closet-phone-003",
+  "beatId": "workflow-save-time-002",
   "voiceDirection": {
-    "profile": "reveal",
-    "deliveryNote": "Drop quieter and slower. Let the location land.",
-    "emphasis": ["inside her locked closet"],
-    "pauseBeforeSeconds": 0.25,
-    "pauseAfterSeconds": 0.8,
-    "intensity": 0.85
+    "profile": "key_point",
+    "deliveryNote": "Confident and concise. Give the result a little weight.",
+    "emphasis": ["three hours every week"],
+    "pauseBeforeSeconds": 0.1,
+    "pauseAfterSeconds": 0.35,
+    "intensity": 0.7
   },
   "sfxCues": [
     {
-      "id": "closet-phone-ring",
-      "type": "phone_ring",
-      "start": "after_line",
-      "levelDb": -12
+      "id": "success-confirmation",
+      "type": "soft_success",
+      "start": "beat_end",
+      "levelDb": -18
     }
   ]
+}
+```
+
+Example LLM output for a narrative or documentary turn:
+
+```json
+{
+  "beatId": "turning-point-003",
+  "voiceDirection": {
+    "profile": "reveal",
+    "deliveryNote": "Slow down and let the new information land.",
+    "emphasis": ["the result changed everything"],
+    "pauseBeforeSeconds": 0.25,
+    "pauseAfterSeconds": 0.8,
+    "intensity": 0.85
+  }
 }
 ```
 
@@ -166,14 +187,17 @@ For Chatterbox, profile mapping could start as:
 
 | Profile | Exaggeration | CFG Weight | Temperature | Intent |
 | --- | ---: | ---: | ---: | --- |
-| `calm_open` | 0.45 | 0.45 | 0.60 | controlled, plainspoken |
-| `uneasy` | 0.52 | 0.38 | 0.70 | slight tension |
-| `suspense` | 0.58 | 0.35 | 0.75 | intimate dread |
+| `neutral` | 0.45 | 0.45 | 0.60 | default narration |
+| `warm_open` | 0.48 | 0.42 | 0.65 | approachable introduction |
+| `clear_explainer` | 0.42 | 0.48 | 0.58 | steady instructional clarity |
+| `authoritative` | 0.50 | 0.44 | 0.62 | grounded documentary or analysis |
+| `energetic` | 0.68 | 0.38 | 0.78 | upbeat social/product pacing |
+| `key_point` | 0.56 | 0.40 | 0.68 | emphasize a claim, result, or turn |
+| `reflective` | 0.46 | 0.36 | 0.64 | slower, thoughtful delivery |
 | `tense` | 0.65 | 0.32 | 0.78 | tighter, more urgent |
 | `reveal` | 0.62 | 0.30 | 0.72 | slower, heavier reveal |
-| `cold_final` | 0.50 | 0.34 | 0.65 | restrained and unsettling |
-| `whisper` | 0.42 | 0.30 | 0.62 | quiet, close, controlled |
-| `urgent` | 0.72 | 0.36 | 0.82 | higher energy |
+| `urgent` | 0.72 | 0.36 | 0.82 | high energy or time pressure |
+| `soft_close` | 0.44 | 0.40 | 0.60 | calm ending or call to action |
 
 `generate-tts.ts` should pass resolved beat-level options to the provider. The cache key must include the resolved profile settings, pauses, and delivery text so regenerating audio is deterministic.
 
@@ -226,18 +250,18 @@ Extend beat metadata with `sfxCues`:
 {
   "sfxCues": [
     {
-      "id": "delivery-ping",
-      "kind": "notification_ping",
+      "id": "section-transition",
+      "kind": "soft_transition",
       "placement": "beat_start",
-      "offsetSeconds": 0.15,
-      "levelDb": -13
+      "offsetSeconds": 0,
+      "levelDb": -20
     },
     {
-      "id": "door-knock",
-      "kind": "knock",
-      "placement": "before_reveal",
+      "id": "key-point-hit",
+      "kind": "soft_impact",
+      "placement": "key_point",
       "offsetSeconds": 0,
-      "levelDb": -9
+      "levelDb": -16
     }
   ]
 }
@@ -259,6 +283,7 @@ Near-term UI should stay simple:
 - Show selected profile per beat in the media/beat refinement panel.
 - Let user override a beat profile from a dropdown.
 - Keep global Voice Settings as the fallback/default.
+- Optionally show a project-level "voice mode" derived from `mode`, such as story, explainer, documentary, product demo, or podcast clip.
 
 Recommended user flow:
 
@@ -330,9 +355,9 @@ Add cue metadata, map cues to assets, and schedule `sfx`/`music` playback in Rem
 
 - Chatterbox may not reliably obey textual delivery notes. Profile settings and pauses are more dependable than prompt prose.
 - Too many profiles will make tuning impossible. Start with a small fixed set.
-- LLM-generated pauses can become melodramatic. Clamp pause ranges by profile, for example `0-1.2s`.
+- LLM-generated pauses can become distracting. Clamp pause ranges by profile and project mode, for example `0-1.2s`.
 - Loudness normalization can reveal noise or artifacts in bad voice samples. Keep light compression and expose a bypass later if needed.
-- Sound cues can quickly feel cheap. Start with a tiny curated cue set and conservative levels.
+- Sound cues can quickly feel cheap or off-brand. Start with a tiny curated cue set and conservative levels.
 
 ## Recommendation
 
@@ -346,4 +371,4 @@ Priority order:
 4. Add pause padding to generated voice assets.
 5. Add SFX/music cue scheduling.
 
-This gives us controlled fear, better pacing, louder phone-ready audio, and stronger reveal beats without replacing the project model or renderer.
+This gives us delivery that fits the video type, better pacing, louder phone-ready audio, and stronger key moments without replacing the project model or renderer.
