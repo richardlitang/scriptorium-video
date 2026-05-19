@@ -1,4 +1,5 @@
 import path from "node:path";
+import type { z } from "zod";
 import { CaptionsFileSchema } from "./schemas/captions.schema.js";
 import { TimelineSchema } from "./schemas/timeline.schema.js";
 import { TranscriptFileSchema } from "./schemas/transcript.schema.js";
@@ -8,15 +9,93 @@ import { hashFile } from "./hash.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
 
 type CaptionRules = {
-  maxWords: number;
-  maxDurationSeconds: number;
+  targetMaxWords: number;
+  hardMaxWords: number;
+  targetMaxDurationSeconds: number;
+  hardMaxDurationSeconds: number;
+  minWordsBeforeSentenceBreak: number;
 };
 
 function rulesForMode(mode: string): CaptionRules {
   if (mode === "long_documentary") {
-    return { maxWords: 12, maxDurationSeconds: 4 };
+    return {
+      targetMaxWords: 18,
+      hardMaxWords: 26,
+      targetMaxDurationSeconds: 6,
+      hardMaxDurationSeconds: 8,
+      minWordsBeforeSentenceBreak: 12
+    };
   }
-  return { maxWords: 7, maxDurationSeconds: 2 };
+  return {
+    targetMaxWords: 16,
+    hardMaxWords: 22,
+    targetMaxDurationSeconds: 5.5,
+    hardMaxDurationSeconds: 7,
+    minWordsBeforeSentenceBreak: 10
+  };
+}
+
+type TranscriptWord = {
+  word: string;
+  startSeconds: number;
+  endSeconds: number;
+  confidence?: number;
+};
+
+type Timeline = z.infer<typeof TimelineSchema>;
+
+function endsSentence(word: string): boolean {
+  return /[.!?]["')\]]?$/.test(word);
+}
+
+function endsClause(word: string): boolean {
+  return /[,;:]["')\]]?$/.test(word);
+}
+
+function wordBeatId(word: TranscriptWord, timeline: Timeline): string | undefined {
+  return timeline.segments.find(
+    (entry) => word.startSeconds >= entry.startSeconds && word.startSeconds < entry.endSeconds
+  )?.beatId;
+}
+
+export function groupCaptionWords(
+  words: TranscriptWord[],
+  timeline: Timeline,
+  rules: CaptionRules
+): TranscriptWord[][] {
+  const groups: TranscriptWord[][] = [];
+  let current: TranscriptWord[] = [];
+
+  const flush = () => {
+    if (current.length === 0) return;
+    groups.push(current);
+    current = [];
+  };
+
+  for (let index = 0; index < words.length; index += 1) {
+    const word = words[index];
+    const next = words[index + 1];
+    current.push(word);
+
+    const duration = current[current.length - 1].endSeconds - current[0].startSeconds;
+    const nextChangesBeat = next ? wordBeatId(next, timeline) !== wordBeatId(word, timeline) : true;
+    const sentenceEnd = endsSentence(word.word);
+    const clauseEnd = endsClause(word.word);
+    const shouldBreak =
+      nextChangesBeat ||
+      current.length >= rules.hardMaxWords ||
+      duration >= rules.hardMaxDurationSeconds ||
+      (sentenceEnd &&
+        (current.length >= rules.minWordsBeforeSentenceBreak ||
+          duration >= rules.targetMaxDurationSeconds ||
+          (next && endsSentence(next.word)))) ||
+      ((sentenceEnd || clauseEnd) &&
+        (current.length >= rules.targetMaxWords || duration >= rules.targetMaxDurationSeconds));
+
+    if (shouldBreak) flush();
+  }
+  flush();
+  return groups;
 }
 
 export async function generateCaptionsForProject(
@@ -50,9 +129,7 @@ export async function generateCaptionsForProject(
     }>;
   }> = [];
 
-  let current: typeof transcript.words = [];
-  const flush = () => {
-    if (current.length === 0) return;
+  const flush = (current: typeof transcript.words) => {
     const start = current[0].startSeconds;
     const end = current[current.length - 1].endSeconds;
     const segment = timeline.segments.find((entry) => start >= entry.startSeconds && start < entry.endSeconds);
@@ -69,19 +146,11 @@ export async function generateCaptionsForProject(
         emphasis: emphasisWords.has(word.word.toLowerCase())
       }))
     });
-    current = [];
   };
 
-  for (const word of transcript.words) {
-    current.push(word);
-    const duration = current[current.length - 1].endSeconds - current[0].startSeconds;
-    const breakNow =
-      current.length >= rules.maxWords ||
-      /[.!?]$/.test(word.word) ||
-      duration >= rules.maxDurationSeconds;
-    if (breakNow) flush();
+  for (const group of groupCaptionWords(transcript.words, timeline, rules)) {
+    flush(group);
   }
-  flush();
 
   await writeJsonFile(
     paths.captions,
