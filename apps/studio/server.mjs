@@ -2164,9 +2164,26 @@ const server = createServer(async (req, res) => {
     if (pathname.startsWith("/api/projects/") && req.method === "DELETE" && pathname.split("/").filter(Boolean).length === 3) {
       const projectId = pathname.split("/")[3];
       if (!projectId) return sendJson(res, 400, { ok: false, message: "Missing project id." });
+      const activeDraft = activeDraftJobs.get(projectId);
+      if (activeDraft && ["queued", "running"].includes(activeDraft.status)) {
+        return sendJson(res, 409, {
+          ok: false,
+          message: "Cannot delete project while a draft job is queued or running. Stop the job first."
+        });
+      }
+      const activeBeat = activeBeatJobs.get(projectId);
+      if (activeBeat && ["queued", "running"].includes(activeBeat.status)) {
+        return sendJson(res, 409, {
+          ok: false,
+          message: "Cannot delete project while a beat regeneration job is queued or running. Stop the job first."
+        });
+      }
       const projectDir = path.join(projectsDir, projectId);
       if (!projectDir.startsWith(projectsDir + path.sep)) return sendJson(res, 400, { ok: false, message: "Invalid project id." });
       await rm(projectDir, { recursive: true, force: true });
+      activeDraftJobs.delete(projectId);
+      activeBeatJobs.delete(projectId);
+      projectMutationQueues.delete(projectId);
       await rm(runStatePath(projectId), { force: true }).catch(() => {});
       await rm(path.join(qualityHistoryDir, `${projectId}.ndjson`), { force: true }).catch(() => {});
       await rm(path.join(imageHistoryDir, `${projectId}.ndjson`), { force: true }).catch(() => {});
