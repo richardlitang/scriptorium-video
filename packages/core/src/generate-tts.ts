@@ -26,6 +26,14 @@ type BeatRef = {
   beat: Beat;
 };
 
+export function normalizeNarrationForTTS(text: string): string {
+  const source = String(text ?? "");
+  return source.replace(
+    /\b([01]?\d|2[0-3]):([0-5]\d)\s*([AaPp])\.?[Mm]\.?\b/g,
+    (_, hour, minute, meridiem) => `${hour} ${minute} ${String(meridiem).toUpperCase()}M`
+  );
+}
+
 function pickBeats(plan: VideoPlan, onlySection?: string, onlyBeat?: string): BeatRef[] {
   return plan.sections
     .filter((section) => (onlySection ? section.id === onlySection : true))
@@ -126,12 +134,13 @@ export async function generateTTSForProject(
       return;
     }
 
+    const narrationForTTS = normalizeNarrationForTTS(beat.narration);
     const resolved = resolveVoiceDirection(beat.beat, plan, providerId);
     const inputHash = cacheKey(
       plan,
       providerId,
       beat.beatId,
-      beat.narration,
+      narrationForTTS,
       resolved.delivery,
       resolved.providerOptions
     );
@@ -175,7 +184,7 @@ export async function generateTTSForProject(
     }
 
     const result = await provider.synthesize({
-      text: beat.narration,
+      text: narrationForTTS,
       voiceId: plan.voice.voiceId,
       outputPath: absolutePath,
       format: plan.voice.format,

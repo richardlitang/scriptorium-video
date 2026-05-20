@@ -1,0 +1,1046 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-20T20:01:10.067Z",
+  "sourcePlanHash": "8c8efd38ae2b9099eb053c6f91775c958f27fc4aca8b5b562b0d4b11a94baa6b",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "durationSeconds": 154.34000000000006,
+  "segments": [
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-001",
+      "startSeconds": 0,
+      "endSeconds": 8.04,
+      "durationSeconds": 8.04,
+      "voiceAssetId": "voice-the-late-night-incident-001",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-002",
+      "startSeconds": 8.04,
+      "endSeconds": 10.739999999999998,
+      "durationSeconds": 2.7,
+      "voiceAssetId": "voice-the-late-night-incident-002",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-003",
+      "startSeconds": 10.739999999999998,
+      "endSeconds": 13.339999999999998,
+      "durationSeconds": 2.6,
+      "voiceAssetId": "voice-the-late-night-incident-003",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-004",
+      "startSeconds": 13.339999999999998,
+      "endSeconds": 16.9,
+      "durationSeconds": 3.56,
+      "voiceAssetId": "voice-the-late-night-incident-004",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-005",
+      "startSeconds": 16.9,
+      "endSeconds": 19.419999999999998,
+      "durationSeconds": 2.52,
+      "voiceAssetId": "voice-the-late-night-incident-005",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-006",
+      "startSeconds": 19.419999999999998,
+      "endSeconds": 26.619999999999997,
+      "durationSeconds": 7.2,
+      "voiceAssetId": "voice-the-late-night-incident-006",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-007",
+      "startSeconds": 26.619999999999997,
+      "endSeconds": 30.979999999999997,
+      "durationSeconds": 4.36,
+      "voiceAssetId": "voice-the-late-night-incident-007",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-008",
+      "startSeconds": 30.979999999999997,
+      "endSeconds": 38.22,
+      "durationSeconds": 7.24,
+      "voiceAssetId": "voice-the-late-night-incident-008",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-late-night-incident",
+      "beatId": "the-late-night-incident-009",
+      "startSeconds": 38.22,
+      "endSeconds": 40.66,
+      "durationSeconds": 2.44,
+      "voiceAssetId": "voice-the-late-night-incident-009",
+      "mediaAssetIds": [
+        "image-the-late-night-incident-009"
+      ],
+      "audioCues": [],
+      "visualEditCues": [
+        {
+          "id": "smash_cut",
+          "type": "smash_cut",
+          "startSeconds": 40.66,
+          "durationSeconds": 0.5,
+          "target": "black",
+          "intensity": 0.9
+        }
+      ],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": true,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-001",
+      "startSeconds": 40.66,
+      "endSeconds": 45.54,
+      "durationSeconds": 4.88,
+      "voiceAssetId": "voice-carlo-s-afternoon-001",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-002",
+      "startSeconds": 45.54,
+      "endSeconds": 48.14,
+      "durationSeconds": 2.6,
+      "voiceAssetId": "voice-carlo-s-afternoon-002",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-003",
+      "startSeconds": 48.14,
+      "endSeconds": 54.56,
+      "durationSeconds": 6.42,
+      "voiceAssetId": "voice-carlo-s-afternoon-003",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-004",
+      "startSeconds": 54.56,
+      "endSeconds": 57.88,
+      "durationSeconds": 3.32,
+      "voiceAssetId": "voice-carlo-s-afternoon-004",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-005",
+      "startSeconds": 57.88,
+      "endSeconds": 59.56,
+      "durationSeconds": 1.68,
+      "voiceAssetId": "voice-carlo-s-afternoon-005",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-006",
+      "startSeconds": 59.56,
+      "endSeconds": 61.480000000000004,
+      "durationSeconds": 1.92,
+      "voiceAssetId": "voice-carlo-s-afternoon-006",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-007",
+      "startSeconds": 61.480000000000004,
+      "endSeconds": 63.28,
+      "durationSeconds": 1.8,
+      "voiceAssetId": "voice-carlo-s-afternoon-007",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-008",
+      "startSeconds": 63.28,
+      "endSeconds": 65.72,
+      "durationSeconds": 2.44,
+      "voiceAssetId": "voice-carlo-s-afternoon-008",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-009",
+      "startSeconds": 65.72,
+      "endSeconds": 68.56,
+      "durationSeconds": 2.84,
+      "voiceAssetId": "voice-carlo-s-afternoon-009",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-010",
+      "startSeconds": 68.56,
+      "endSeconds": 71.7,
+      "durationSeconds": 3.14,
+      "voiceAssetId": "voice-carlo-s-afternoon-010",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-011",
+      "startSeconds": 71.7,
+      "endSeconds": 73.9,
+      "durationSeconds": 2.2,
+      "voiceAssetId": "voice-carlo-s-afternoon-011",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-013"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-012",
+      "startSeconds": 73.9,
+      "endSeconds": 79.06,
+      "durationSeconds": 5.16,
+      "voiceAssetId": "voice-carlo-s-afternoon-012",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-013"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "carlo-s-afternoon",
+      "beatId": "carlo-s-afternoon-013",
+      "startSeconds": 79.06,
+      "endSeconds": 83.18,
+      "durationSeconds": 4.12,
+      "voiceAssetId": "voice-carlo-s-afternoon-013",
+      "mediaAssetIds": [
+        "image-carlo-s-afternoon-013"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-001",
+      "startSeconds": 83.18,
+      "endSeconds": 87.38000000000001,
+      "durationSeconds": 4.2,
+      "voiceAssetId": "voice-the-night-of-the-fever-001",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-002",
+      "startSeconds": 87.38000000000001,
+      "endSeconds": 90.18,
+      "durationSeconds": 2.8,
+      "voiceAssetId": "voice-the-night-of-the-fever-002",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-003",
+      "startSeconds": 90.18,
+      "endSeconds": 93.66000000000001,
+      "durationSeconds": 3.48,
+      "voiceAssetId": "voice-the-night-of-the-fever-003",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-004",
+      "startSeconds": 93.66000000000001,
+      "endSeconds": 99.08000000000001,
+      "durationSeconds": 5.42,
+      "voiceAssetId": "voice-the-night-of-the-fever-004",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-005",
+      "startSeconds": 99.08000000000001,
+      "endSeconds": 102.68,
+      "durationSeconds": 3.6,
+      "voiceAssetId": "voice-the-night-of-the-fever-005",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-006",
+      "startSeconds": 102.68,
+      "endSeconds": 105.36000000000001,
+      "durationSeconds": 2.68,
+      "voiceAssetId": "voice-the-night-of-the-fever-006",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-007",
+      "startSeconds": 105.36000000000001,
+      "endSeconds": 110.04000000000002,
+      "durationSeconds": 4.68,
+      "voiceAssetId": "voice-the-night-of-the-fever-007",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-008",
+      "startSeconds": 110.04000000000002,
+      "endSeconds": 113.04000000000002,
+      "durationSeconds": 3,
+      "voiceAssetId": "voice-the-night-of-the-fever-008",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-009",
+      "startSeconds": 113.04000000000002,
+      "endSeconds": 115.28000000000002,
+      "durationSeconds": 2.24,
+      "voiceAssetId": "voice-the-night-of-the-fever-009",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-010",
+      "startSeconds": 115.28000000000002,
+      "endSeconds": 119.68000000000002,
+      "durationSeconds": 4.4,
+      "voiceAssetId": "voice-the-night-of-the-fever-010",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-011",
+      "startSeconds": 119.68000000000002,
+      "endSeconds": 121.72000000000003,
+      "durationSeconds": 2.04,
+      "voiceAssetId": "voice-the-night-of-the-fever-011",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-012",
+      "startSeconds": 121.72000000000003,
+      "endSeconds": 126.20000000000003,
+      "durationSeconds": 4.48,
+      "voiceAssetId": "voice-the-night-of-the-fever-012",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-013",
+      "startSeconds": 126.20000000000003,
+      "endSeconds": 128.56000000000003,
+      "durationSeconds": 2.36,
+      "voiceAssetId": "voice-the-night-of-the-fever-013",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-007"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-014",
+      "startSeconds": 128.56000000000003,
+      "endSeconds": 131.24000000000004,
+      "durationSeconds": 2.68,
+      "voiceAssetId": "voice-the-night-of-the-fever-014",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-015",
+      "startSeconds": 131.24000000000004,
+      "endSeconds": 136.68000000000004,
+      "durationSeconds": 5.44,
+      "voiceAssetId": "voice-the-night-of-the-fever-015",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-016",
+      "startSeconds": 136.68000000000004,
+      "endSeconds": 140.20000000000005,
+      "durationSeconds": 3.52,
+      "voiceAssetId": "voice-the-night-of-the-fever-016",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-017",
+      "startSeconds": 140.20000000000005,
+      "endSeconds": 142.86000000000004,
+      "durationSeconds": 2.66,
+      "voiceAssetId": "voice-the-night-of-the-fever-017",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-018",
+      "startSeconds": 142.86000000000004,
+      "endSeconds": 146.94000000000005,
+      "durationSeconds": 4.08,
+      "voiceAssetId": "voice-the-night-of-the-fever-018",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-019",
+      "startSeconds": 146.94000000000005,
+      "endSeconds": 150.30000000000007,
+      "durationSeconds": 3.36,
+      "voiceAssetId": "voice-the-night-of-the-fever-019",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [
+        {
+          "id": "smash_cut",
+          "type": "smash_cut",
+          "startSeconds": 150.30000000000007,
+          "durationSeconds": 0.5,
+          "target": "black",
+          "intensity": 0.9
+        }
+      ],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": true,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-night-of-the-fever",
+      "beatId": "the-night-of-the-fever-020",
+      "startSeconds": 150.30000000000007,
+      "endSeconds": 154.34000000000006,
+      "durationSeconds": 4.04,
+      "voiceAssetId": "voice-the-night-of-the-fever-020",
+      "mediaAssetIds": [
+        "image-the-night-of-the-fever-020"
+      ],
+      "audioCues": [],
+      "visualEditCues": [
+        {
+          "id": "smash_cut",
+          "type": "smash_cut",
+          "startSeconds": 154.34000000000006,
+          "durationSeconds": 0.5,
+          "target": "black",
+          "intensity": 0.9
+        }
+      ],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": true,
+        "holdSeconds": 0,
+        "audioPolicy": "fade_out",
+        "avoidOutro": true
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    }
+  ]
+}

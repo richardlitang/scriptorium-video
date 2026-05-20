@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "image-strange-events-at-lola-s-house-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-001",
+      "path": "assets/images/generated/strange-events-at-lola-s-house-001.v1.de78017c87.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "de78017c8715b52996046be8709840dee618420f91ecedb033d8da50af5105d3",
+        "prompt": "Project title: Nuno.\nStory mode: short_story; target platform: local_only.\nSection 1 of 1: Strange Events at Lola's House.\nSection purpose: Set the eerie mood and introduce Carlo's unsettling experience..\nBeat 1 of 8 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: At 11:46 PM, during a brownout in my Lola’s house, my cousin Carlo sat straight up in bed and whispered:\nNext beat narration: 'Ma… may tao sa ilalim.' Mom… there’s someone underneath.\n\nVisual target:\nDark bedroom, silhouette of a boy sitting up in bed, faint candlelight revealing shadows.\n\nShot type: medium shot\nCamera distance: medium\nLighting: candlelight glow\nLens: normal\nComposition: subject centered\nSubject continuity: consistent\n\nStyle preset: animatic\nLook and feel: mysterious and dark\nCharacter anchors: Carlo: young boy, 10-12 years old, wearing casual sleep wear; Lola: elderly woman, traditional attire; Mother: mid-30s, modern clothing; Cousins: children, varying ages\nContinuity rules: Carlo remains the same age and appearance throughout; All characters maintain consistency in clothing style\n\nVisual direction:\nProject feel: eerie animated suspense with emotional intensity\nProject pacing: measured slow-burn with sharp turns\nProject visual style: stylized animated cinematic frames, explicitly non-photorealistic and non-ghibli style but still soft and fantastical\nSection feel: eerie, suspenseful\nSection pacing: steady build-up\nSection visual style: dark, atmospheric\nStyle preset: animatic\nLook and feel: mysterious and dark\nPalette: #0A0A0A; #3C3C3C; #545454; #A3A3A3; #1C1C1C\nEra and location: modern-day rural setting\nCharacter anchors: Carlo: young boy, 10-12 years old, wearing casual sleep wear; Lola: elderly woman, traditional attire; Mother: mid-30s, modern clothing; Cousins: children, varying ages\nContinuity rules: Carlo remains the same age and appearance throughout; All characters maintain consistency in clothing style\n\nCreate a vertical 9:16 image for the current beat.\nFollow the visual direction exactly; do not add a visual medium, rendering style, camera format, or realism level that conflicts with it.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nKeep anatomy, geometry, lighting, and composition coherent for a vertical frame.\nAvoid fake text, UI, subtitles, watermarks, logos, split screens, soundwave graphics, continuity errors, distorted hands or faces, and unintended extra objects or characters."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-20T19:25:40.981Z",
+      "updatedAt": "2026-05-20T19:26:05.403Z"
+    },
+    {
+      "id": "image-strange-events-at-lola-s-house-006",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-006",
+      "path": "assets/images/generated/strange-events-at-lola-s-house-006.v1.5d53dafb7a.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "5d53dafb7a57f09b395d9b7edc9f6c9708c21ed7f8a7da3272848cbf998693d5",
+        "prompt": "Project title: Nuno.\nStory mode: short_story; target platform: local_only.\nSection 1 of 1: Strange Events at Lola's House.\nSection purpose: Set the eerie mood and introduce Carlo's unsettling experience..\nBeat 6 of 8 in this section.\nPrevious beat narration: There was nothing there. Just dust. One missing slipper. And a trail of wet soil leading from Carlo’s bed… to the wall.\nCurrent beat narration: The strange part was, nobody had gone outside.\nNext beat narration: But at the bottom of the wall, right beside Carlo's bed, someone had written three tiny words in mud: 'Hindi siya nagpaalam.' He didn’t ask permission.\n\nVisual target:\nVisual of the locked windows and doors, heavy rain outside.\n\nShot type: medium shot\nCamera distance: close\nLighting: rainy atmosphere\nLens: normal\nComposition: subject focused\nSubject continuity: consistent\n\nStyle preset: animatic\nLook and feel: mysterious and dark\nCharacter anchors: Carlo: young boy, 10-12 years old, wearing casual sleep wear; Lola: elderly woman, traditional attire; Mother: mid-30s, modern clothing; Cousins: children, varying ages\nContinuity rules: Carlo remains the same age and appearance throughout; All characters maintain consistency in clothing style\n\nVisual direction:\nProject feel: eerie animated suspense with emotional intensity\nProject pacing: measured slow-burn with sharp turns\nProject visual style: stylized animated cinematic frames, explicitly non-photorealistic and non-ghibli style but still soft and fantastical\nSection feel: eerie, suspenseful\nSection pacing: steady build-up\nSection visual style: dark, atmospheric\nStyle preset: animatic\nLook and feel: mysterious and dark\nPalette: #0A0A0A; #3C3C3C; #545454; #A3A3A3; #1C1C1C\nEra and location: modern-day rural setting\nCharacter anchors: Carlo: young boy, 10-12 years old, wearing casual sleep wear; Lola: elderly woman, traditional attire; Mother: mid-30s, modern clothing; Cousins: children, varying ages\nContinuity rules: Carlo remains the same age and appearance throughout; All characters maintain consistency in clothing style\n\nCreate a vertical 9:16 image for the current beat.\nFollow the visual direction exactly; do not add a visual medium, rendering style, camera format, or realism level that conflicts with it.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nKeep anatomy, geometry, lighting, and composition coherent for a vertical frame.\nAvoid fake text, UI, subtitles, watermarks, logos, split screens, soundwave graphics, continuity errors, distorted hands or faces, and unintended extra objects or characters."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-20T19:25:38.468Z",
+      "updatedAt": "2026-05-20T19:26:05.404Z"
+    },
+    {
+      "id": "image-strange-events-at-lola-s-house-008",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-008",
+      "path": "assets/images/generated/strange-events-at-lola-s-house-008.v1.8c78f526cb.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "8c78f526cb2f08d2e0ab15d64f290b9e3f6f722133cc4df7ca4168ac1ad8c094",
+        "prompt": "Project title: Nuno.\nStory mode: short_story; target platform: local_only.\nSection 1 of 1: Strange Events at Lola's House.\nSection purpose: Set the eerie mood and introduce Carlo's unsettling experience..\nBeat 8 of 8 in this section.\nPrevious beat narration: But at the bottom of the wall, right beside Carlo's bed, someone had written three tiny words in mud: 'Hindi siya nagpaalam.' He didn’t ask permission.\nCurrent beat narration: That afternoon, Carlo had been playing behind the house with the other kids.\nNext beat narration: none; this closes the section.\n\nVisual target:\nVisual of children playing outside under a santol tree.\n\nShot type: wide shot\nCamera distance: medium\nLighting: daylight\nLens: normal\nComposition: activity-centric\nSubject continuity: consistent\n\nStyle preset: animatic\nLook and feel: mysterious and dark\nCharacter anchors: Carlo: young boy, 10-12 years old, wearing casual sleep wear; Lola: elderly woman, traditional attire; Mother: mid-30s, modern clothing; Cousins: children, varying ages\nContinuity rules: Carlo remains the same age and appearance throughout; All characters maintain consistency in clothing style\n\nVisual direction:\nProject feel: eerie animated suspense with emotional intensity\nProject pacing: measured slow-burn with sharp turns\nProject visual style: stylized animated cinematic frames, explicitly non-photorealistic and non-ghibli style but still soft and fantastical\nSection feel: eerie, suspenseful\nSection pacing: steady build-up\nSection visual style: dark, atmospheric\nStyle preset: animatic\nLook and feel: mysterious and dark\nPalette: #0A0A0A; #3C3C3C; #545454; #A3A3A3; #1C1C1C\nEra and location: modern-day rural setting\nCharacter anchors: Carlo: young boy, 10-12 years old, wearing casual sleep wear; Lola: elderly woman, traditional attire; Mother: mid-30s, modern clothing; Cousins: children, varying ages\nContinuity rules: Carlo remains the same age and appearance throughout; All characters maintain consistency in clothing style\n\nCreate a vertical 9:16 image for the current beat.\nFollow the visual direction exactly; do not add a visual medium, rendering style, camera format, or realism level that conflicts with it.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nKeep anatomy, geometry, lighting, and composition coherent for a vertical frame.\nAvoid fake text, UI, subtitles, watermarks, logos, split screens, soundwave graphics, continuity errors, distorted hands or faces, and unintended extra objects or characters."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-20T19:26:03.680Z",
+      "updatedAt": "2026-05-20T19:26:05.406Z"
+    },
+    {
+      "id": "voice-strange-events-at-lola-s-house-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-001",
+      "path": "assets/audio/voice/strange-events-at-lola-s-house-001.a2a0444109.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "a2a0444109",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-20T19:27:03.976Z"
+        }
+      },
+      "durationSeconds": 8,
+      "status": "generated",
+      "createdAt": "2026-05-20T19:26:06.927Z",
+      "updatedAt": "2026-05-20T19:26:06.927Z"
+    }
+  ]
+}

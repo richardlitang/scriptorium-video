@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-20T19:26:05.410Z",
+  "sourcePlanHash": "08cb10d24468795f16f7d2720238ccd7e5864bbccaa9b56cd499b11b3fedc92e",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "durationSeconds": 44,
+  "segments": [
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-001",
+      "startSeconds": 0,
+      "endSeconds": 6,
+      "durationSeconds": 6,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": true,
+        "holdSeconds": 0,
+        "audioPolicy": "hard_silence",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-002",
+      "startSeconds": 6,
+      "endSeconds": 10,
+      "durationSeconds": 4,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-003",
+      "startSeconds": 10,
+      "endSeconds": 15,
+      "durationSeconds": 5,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-001"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-004",
+      "startSeconds": 15,
+      "endSeconds": 20,
+      "durationSeconds": 5,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-006"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-005",
+      "startSeconds": 20,
+      "endSeconds": 28,
+      "durationSeconds": 8,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-006"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-006",
+      "startSeconds": 28,
+      "endSeconds": 33,
+      "durationSeconds": 5,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-006"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-007",
+      "startSeconds": 33,
+      "endSeconds": 39,
+      "durationSeconds": 6,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [
+        {
+          "id": "blackout",
+          "type": "cut_to_black",
+          "startSeconds": 39,
+          "durationSeconds": 0.5,
+          "target": "black",
+          "intensity": 0
+        }
+      ],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": true,
+        "holdSeconds": 0,
+        "audioPolicy": "hard_silence",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "strange-events-at-lola-s-house",
+      "beatId": "strange-events-at-lola-s-house-008",
+      "startSeconds": 39,
+      "endSeconds": 44,
+      "durationSeconds": 5,
+      "mediaAssetIds": [
+        "image-strange-events-at-lola-s-house-008"
+      ],
+      "audioCues": [],
+      "visualEditCues": [],
+      "silenceWindows": [],
+      "endingPolicy": {
+        "cutToBlack": false,
+        "holdSeconds": 0,
+        "audioPolicy": "none",
+        "avoidOutro": false
+      },
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    }
+  ]
+}

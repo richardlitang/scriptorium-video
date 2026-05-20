@@ -1,0 +1,3010 @@
+{
+  "schemaVersion": 1,
+  "status": "generated",
+  "source": {
+    "transcriptionProvider": "mock",
+    "audioAssetIds": [
+      "voice-the-late-night-incident-001",
+      "voice-the-late-night-incident-002",
+      "voice-the-late-night-incident-003",
+      "voice-the-late-night-incident-004",
+      "voice-the-late-night-incident-005",
+      "voice-the-late-night-incident-006",
+      "voice-the-late-night-incident-007",
+      "voice-the-late-night-incident-008",
+      "voice-the-late-night-incident-009",
+      "voice-carlo-s-afternoon-001",
+      "voice-carlo-s-afternoon-002",
+      "voice-carlo-s-afternoon-003",
+      "voice-carlo-s-afternoon-004",
+      "voice-carlo-s-afternoon-005",
+      "voice-carlo-s-afternoon-006",
+      "voice-carlo-s-afternoon-007",
+      "voice-carlo-s-afternoon-008",
+      "voice-carlo-s-afternoon-009",
+      "voice-carlo-s-afternoon-010",
+      "voice-carlo-s-afternoon-011",
+      "voice-carlo-s-afternoon-012",
+      "voice-carlo-s-afternoon-013",
+      "voice-the-night-of-the-fever-001",
+      "voice-the-night-of-the-fever-002",
+      "voice-the-night-of-the-fever-003",
+      "voice-the-night-of-the-fever-004",
+      "voice-the-night-of-the-fever-005",
+      "voice-the-night-of-the-fever-006",
+      "voice-the-night-of-the-fever-007",
+      "voice-the-night-of-the-fever-008",
+      "voice-the-night-of-the-fever-009",
+      "voice-the-night-of-the-fever-010",
+      "voice-the-night-of-the-fever-011",
+      "voice-the-night-of-the-fever-012",
+      "voice-the-night-of-the-fever-013",
+      "voice-the-night-of-the-fever-014",
+      "voice-the-night-of-the-fever-015",
+      "voice-the-night-of-the-fever-016",
+      "voice-the-night-of-the-fever-017",
+      "voice-the-night-of-the-fever-018",
+      "voice-the-night-of-the-fever-019",
+      "voice-the-night-of-the-fever-020"
+    ],
+    "sourceHash": "fcf39c626252da905225518401fb8d9c563666142f490e7758ddab0c8e528370"
+  },
+  "captions": [
+    {
+      "id": "caption-001",
+      "beatId": "the-late-night-incident-001",
+      "startSeconds": 0,
+      "endSeconds": 8.04,
+      "text": "At 11:46 PM, during a brownout in my grandmother’s house, my cousin Carlo sat straight up in bed and whispered:",
+      "style": "bold",
+      "words": [
+        {
+          "word": "At",
+          "startSeconds": 0,
+          "endSeconds": 0.402,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "11:46",
+          "startSeconds": 0.402,
+          "endSeconds": 0.804,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "PM,",
+          "startSeconds": 0.804,
+          "endSeconds": 1.206,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "during",
+          "startSeconds": 1.206,
+          "endSeconds": 1.608,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 1.608,
+          "endSeconds": 2.01,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "brownout",
+          "startSeconds": 2.01,
+          "endSeconds": 2.412,
+          "emphasis": true,
+          "confidence": 1
+        },
+        {
+          "word": "in",
+          "startSeconds": 2.412,
+          "endSeconds": 2.814,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "my",
+          "startSeconds": 2.814,
+          "endSeconds": 3.216,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "grandmother’s",
+          "startSeconds": 3.216,
+          "endSeconds": 3.618,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "house,",
+          "startSeconds": 3.618,
+          "endSeconds": 4.02,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "my",
+          "startSeconds": 4.02,
+          "endSeconds": 4.422,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "cousin",
+          "startSeconds": 4.422,
+          "endSeconds": 4.824,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo",
+          "startSeconds": 4.824,
+          "endSeconds": 5.226,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "sat",
+          "startSeconds": 5.226,
+          "endSeconds": 5.628,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "straight",
+          "startSeconds": 5.628,
+          "endSeconds": 6.03,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "up",
+          "startSeconds": 6.03,
+          "endSeconds": 6.432,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "in",
+          "startSeconds": 6.432,
+          "endSeconds": 6.834,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bed",
+          "startSeconds": 6.834,
+          "endSeconds": 7.236,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 7.236,
+          "endSeconds": 7.638,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "whispered:",
+          "startSeconds": 7.638,
+          "endSeconds": 8.04,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-002",
+      "beatId": "the-late-night-incident-002",
+      "startSeconds": 8.04,
+      "endSeconds": 10.74,
+      "text": "“Mom… there’s someone underneath.”",
+      "style": "bold",
+      "words": [
+        {
+          "word": "“Mom…",
+          "startSeconds": 8.04,
+          "endSeconds": 8.715,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "there’s",
+          "startSeconds": 8.715,
+          "endSeconds": 9.39,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "someone",
+          "startSeconds": 9.39,
+          "endSeconds": 10.065,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "underneath.”",
+          "startSeconds": 10.065,
+          "endSeconds": 10.74,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-003",
+      "beatId": "the-late-night-incident-003",
+      "startSeconds": 10.74,
+      "endSeconds": 13.34,
+      "text": "His mother thought he meant under the bed.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "His",
+          "startSeconds": 10.74,
+          "endSeconds": 11.065,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "mother",
+          "startSeconds": 11.065,
+          "endSeconds": 11.39,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "thought",
+          "startSeconds": 11.39,
+          "endSeconds": 11.715,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "he",
+          "startSeconds": 11.715,
+          "endSeconds": 12.04,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "meant",
+          "startSeconds": 12.04,
+          "endSeconds": 12.365,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "under",
+          "startSeconds": 12.365,
+          "endSeconds": 12.69,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 12.69,
+          "endSeconds": 13.015,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bed.",
+          "startSeconds": 13.015,
+          "endSeconds": 13.34,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-004",
+      "beatId": "the-late-night-incident-004",
+      "startSeconds": 13.34,
+      "endSeconds": 16.9,
+      "text": "So she got a candle, knelt down, and looked.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "So",
+          "startSeconds": 13.34,
+          "endSeconds": 13.736,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "she",
+          "startSeconds": 13.736,
+          "endSeconds": 14.131,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "got",
+          "startSeconds": 14.131,
+          "endSeconds": 14.527,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 14.527,
+          "endSeconds": 14.922,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "candle,",
+          "startSeconds": 14.922,
+          "endSeconds": 15.318,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "knelt",
+          "startSeconds": 15.318,
+          "endSeconds": 15.713,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "down,",
+          "startSeconds": 15.713,
+          "endSeconds": 16.109,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 16.109,
+          "endSeconds": 16.504,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "looked.",
+          "startSeconds": 16.504,
+          "endSeconds": 16.9,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-005",
+      "beatId": "the-late-night-incident-005",
+      "startSeconds": 16.9,
+      "endSeconds": 19.42,
+      "text": "There was nothing there.",
+      "style": "bold",
+      "words": [
+        {
+          "word": "There",
+          "startSeconds": 16.9,
+          "endSeconds": 17.53,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 17.53,
+          "endSeconds": 18.16,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "nothing",
+          "startSeconds": 18.16,
+          "endSeconds": 18.79,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "there.",
+          "startSeconds": 18.79,
+          "endSeconds": 19.42,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-006",
+      "beatId": "the-late-night-incident-006",
+      "startSeconds": 19.42,
+      "endSeconds": 21.42,
+      "text": "Just dust. One missing slipper.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Just",
+          "startSeconds": 19.42,
+          "endSeconds": 19.82,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "dust.",
+          "startSeconds": 19.82,
+          "endSeconds": 20.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "One",
+          "startSeconds": 20.22,
+          "endSeconds": 20.62,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "missing",
+          "startSeconds": 20.62,
+          "endSeconds": 21.02,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "slipper.",
+          "startSeconds": 21.02,
+          "endSeconds": 21.42,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-007",
+      "beatId": "the-late-night-incident-006",
+      "startSeconds": 21.42,
+      "endSeconds": 26.62,
+      "text": "And a trail of wet soil leading from Carlo’s bed to the wall.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "And",
+          "startSeconds": 21.42,
+          "endSeconds": 21.82,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 21.82,
+          "endSeconds": 22.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "trail",
+          "startSeconds": 22.22,
+          "endSeconds": 22.62,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "of",
+          "startSeconds": 22.62,
+          "endSeconds": 23.02,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "wet",
+          "startSeconds": 23.02,
+          "endSeconds": 23.42,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "soil",
+          "startSeconds": 23.42,
+          "endSeconds": 23.82,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "leading",
+          "startSeconds": 23.82,
+          "endSeconds": 24.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "from",
+          "startSeconds": 24.22,
+          "endSeconds": 24.62,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo’s",
+          "startSeconds": 24.62,
+          "endSeconds": 25.02,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bed",
+          "startSeconds": 25.02,
+          "endSeconds": 25.42,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "to",
+          "startSeconds": 25.42,
+          "endSeconds": 25.82,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 25.82,
+          "endSeconds": 26.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "wall.",
+          "startSeconds": 26.22,
+          "endSeconds": 26.62,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-008",
+      "beatId": "the-late-night-incident-007",
+      "startSeconds": 26.62,
+      "endSeconds": 30.98,
+      "text": "The strange part was, nobody had gone outside.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "The",
+          "startSeconds": 26.62,
+          "endSeconds": 27.165,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "strange",
+          "startSeconds": 27.165,
+          "endSeconds": 27.71,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "part",
+          "startSeconds": 27.71,
+          "endSeconds": 28.255,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was,",
+          "startSeconds": 28.255,
+          "endSeconds": 28.8,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "nobody",
+          "startSeconds": 28.8,
+          "endSeconds": 29.345,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "had",
+          "startSeconds": 29.345,
+          "endSeconds": 29.89,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "gone",
+          "startSeconds": 29.89,
+          "endSeconds": 30.435,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "outside.",
+          "startSeconds": 30.435,
+          "endSeconds": 30.98,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-009",
+      "beatId": "the-late-night-incident-008",
+      "startSeconds": 30.98,
+      "endSeconds": 38.22,
+      "text": "But at the bottom of the wall, right beside Carlo’s bed, someone had written three tiny words in mud:",
+      "style": "bold",
+      "words": [
+        {
+          "word": "But",
+          "startSeconds": 30.98,
+          "endSeconds": 31.361,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "at",
+          "startSeconds": 31.361,
+          "endSeconds": 31.742,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 31.742,
+          "endSeconds": 32.123,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bottom",
+          "startSeconds": 32.123,
+          "endSeconds": 32.504,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "of",
+          "startSeconds": 32.504,
+          "endSeconds": 32.885,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 32.885,
+          "endSeconds": 33.266,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "wall,",
+          "startSeconds": 33.266,
+          "endSeconds": 33.647,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "right",
+          "startSeconds": 33.647,
+          "endSeconds": 34.028,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "beside",
+          "startSeconds": 34.028,
+          "endSeconds": 34.409,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo’s",
+          "startSeconds": 34.409,
+          "endSeconds": 34.791,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bed,",
+          "startSeconds": 34.791,
+          "endSeconds": 35.172,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "someone",
+          "startSeconds": 35.172,
+          "endSeconds": 35.553,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "had",
+          "startSeconds": 35.553,
+          "endSeconds": 35.934,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "written",
+          "startSeconds": 35.934,
+          "endSeconds": 36.315,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "three",
+          "startSeconds": 36.315,
+          "endSeconds": 36.696,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "tiny",
+          "startSeconds": 36.696,
+          "endSeconds": 37.077,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "words",
+          "startSeconds": 37.077,
+          "endSeconds": 37.458,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "in",
+          "startSeconds": 37.458,
+          "endSeconds": 37.839,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "mud:",
+          "startSeconds": 37.839,
+          "endSeconds": 38.22,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-010",
+      "beatId": "the-late-night-incident-009",
+      "startSeconds": 38.22,
+      "endSeconds": 40.66,
+      "text": "“He didn’t ask.”",
+      "style": "bold",
+      "words": [
+        {
+          "word": "“He",
+          "startSeconds": 38.22,
+          "endSeconds": 39.033,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "didn’t",
+          "startSeconds": 39.033,
+          "endSeconds": 39.847,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ask.”",
+          "startSeconds": 39.847,
+          "endSeconds": 40.66,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-011",
+      "beatId": "carlo-s-afternoon-001",
+      "startSeconds": 40.66,
+      "endSeconds": 45.54,
+      "text": "That afternoon, Carlo had been playing behind the house with the other kids.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "That",
+          "startSeconds": 40.66,
+          "endSeconds": 41.035,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "afternoon,",
+          "startSeconds": 41.035,
+          "endSeconds": 41.411,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo",
+          "startSeconds": 41.411,
+          "endSeconds": 41.786,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "had",
+          "startSeconds": 41.786,
+          "endSeconds": 42.162,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "been",
+          "startSeconds": 42.162,
+          "endSeconds": 42.537,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "playing",
+          "startSeconds": 42.537,
+          "endSeconds": 42.912,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "behind",
+          "startSeconds": 42.912,
+          "endSeconds": 43.288,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 43.288,
+          "endSeconds": 43.663,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "house",
+          "startSeconds": 43.663,
+          "endSeconds": 44.038,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "with",
+          "startSeconds": 44.038,
+          "endSeconds": 44.414,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 44.414,
+          "endSeconds": 44.789,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "other",
+          "startSeconds": 44.789,
+          "endSeconds": 45.165,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "kids.",
+          "startSeconds": 45.165,
+          "endSeconds": 45.54,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-012",
+      "beatId": "carlo-s-afternoon-002",
+      "startSeconds": 45.54,
+      "endSeconds": 48.14,
+      "text": "There was an old santol tree there.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "There",
+          "startSeconds": 45.54,
+          "endSeconds": 45.911,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 45.911,
+          "endSeconds": 46.283,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "an",
+          "startSeconds": 46.283,
+          "endSeconds": 46.654,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "old",
+          "startSeconds": 46.654,
+          "endSeconds": 47.026,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "santol",
+          "startSeconds": 47.026,
+          "endSeconds": 47.397,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "tree",
+          "startSeconds": 47.397,
+          "endSeconds": 47.769,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "there.",
+          "startSeconds": 47.769,
+          "endSeconds": 48.14,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-013",
+      "beatId": "carlo-s-afternoon-003",
+      "startSeconds": 48.14,
+      "endSeconds": 54.56,
+      "text": "Under it was a small mound of dirt that everyone avoided, although no one ever explained why.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Under",
+          "startSeconds": 48.14,
+          "endSeconds": 48.518,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it",
+          "startSeconds": 48.518,
+          "endSeconds": 48.895,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 48.895,
+          "endSeconds": 49.273,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 49.273,
+          "endSeconds": 49.651,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "small",
+          "startSeconds": 49.651,
+          "endSeconds": 50.028,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "mound",
+          "startSeconds": 50.028,
+          "endSeconds": 50.406,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "of",
+          "startSeconds": 50.406,
+          "endSeconds": 50.784,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "dirt",
+          "startSeconds": 50.784,
+          "endSeconds": 51.161,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "that",
+          "startSeconds": 51.161,
+          "endSeconds": 51.539,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "everyone",
+          "startSeconds": 51.539,
+          "endSeconds": 51.916,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "avoided,",
+          "startSeconds": 51.916,
+          "endSeconds": 52.294,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "although",
+          "startSeconds": 52.294,
+          "endSeconds": 52.672,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "no",
+          "startSeconds": 52.672,
+          "endSeconds": 53.049,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "one",
+          "startSeconds": 53.049,
+          "endSeconds": 53.427,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ever",
+          "startSeconds": 53.427,
+          "endSeconds": 53.805,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "explained",
+          "startSeconds": 53.805,
+          "endSeconds": 54.182,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "why.",
+          "startSeconds": 54.182,
+          "endSeconds": 54.56,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-014",
+      "beatId": "carlo-s-afternoon-004",
+      "startSeconds": 54.56,
+      "endSeconds": 57.88,
+      "text": "When the ball rolled beside it, the younger kids froze.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "When",
+          "startSeconds": 54.56,
+          "endSeconds": 54.892,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 54.892,
+          "endSeconds": 55.224,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ball",
+          "startSeconds": 55.224,
+          "endSeconds": 55.556,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "rolled",
+          "startSeconds": 55.556,
+          "endSeconds": 55.888,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "beside",
+          "startSeconds": 55.888,
+          "endSeconds": 56.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it,",
+          "startSeconds": 56.22,
+          "endSeconds": 56.552,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 56.552,
+          "endSeconds": 56.884,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "younger",
+          "startSeconds": 56.884,
+          "endSeconds": 57.216,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "kids",
+          "startSeconds": 57.216,
+          "endSeconds": 57.548,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "froze.",
+          "startSeconds": 57.548,
+          "endSeconds": 57.88,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-015",
+      "beatId": "carlo-s-afternoon-005",
+      "startSeconds": 57.88,
+      "endSeconds": 59.56,
+      "text": "Carlo laughed.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Carlo",
+          "startSeconds": 57.88,
+          "endSeconds": 58.72,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "laughed.",
+          "startSeconds": 58.72,
+          "endSeconds": 59.56,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-016",
+      "beatId": "carlo-s-afternoon-006",
+      "startSeconds": 59.56,
+      "endSeconds": 61.48,
+      "text": "He said, 'It’s just dirt.'",
+      "style": "normal",
+      "words": [
+        {
+          "word": "He",
+          "startSeconds": 59.56,
+          "endSeconds": 59.944,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said,",
+          "startSeconds": 59.944,
+          "endSeconds": 60.328,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "'It’s",
+          "startSeconds": 60.328,
+          "endSeconds": 60.712,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "just",
+          "startSeconds": 60.712,
+          "endSeconds": 61.096,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "dirt.'",
+          "startSeconds": 61.096,
+          "endSeconds": 61.48,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-017",
+      "beatId": "carlo-s-afternoon-006",
+      "startSeconds": 61.48,
+      "endSeconds": 61.78,
+      "text": "Then",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Then",
+          "startSeconds": 61.48,
+          "endSeconds": 61.78,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-018",
+      "beatId": "carlo-s-afternoon-007",
+      "startSeconds": 61.78,
+      "endSeconds": 63.28,
+      "text": "he picked up the ball.",
+      "style": "bold",
+      "words": [
+        {
+          "word": "he",
+          "startSeconds": 61.78,
+          "endSeconds": 62.08,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "picked",
+          "startSeconds": 62.08,
+          "endSeconds": 62.38,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "up",
+          "startSeconds": 62.38,
+          "endSeconds": 62.68,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 62.68,
+          "endSeconds": 62.98,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ball.",
+          "startSeconds": 62.98,
+          "endSeconds": 63.28,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-019",
+      "beatId": "carlo-s-afternoon-008",
+      "startSeconds": 63.28,
+      "endSeconds": 65.72,
+      "text": "Nobody saw what happened next clearly.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Nobody",
+          "startSeconds": 63.28,
+          "endSeconds": 63.687,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "saw",
+          "startSeconds": 63.687,
+          "endSeconds": 64.093,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "what",
+          "startSeconds": 64.093,
+          "endSeconds": 64.5,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "happened",
+          "startSeconds": 64.5,
+          "endSeconds": 64.907,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "next",
+          "startSeconds": 64.907,
+          "endSeconds": 65.313,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "clearly.",
+          "startSeconds": 65.313,
+          "endSeconds": 65.72,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-020",
+      "beatId": "carlo-s-afternoon-009",
+      "startSeconds": 65.72,
+      "endSeconds": 68.56,
+      "text": "One cousin said Carlo stepped on the mound.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "One",
+          "startSeconds": 65.72,
+          "endSeconds": 66.075,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "cousin",
+          "startSeconds": 66.075,
+          "endSeconds": 66.43,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said",
+          "startSeconds": 66.43,
+          "endSeconds": 66.785,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo",
+          "startSeconds": 66.785,
+          "endSeconds": 67.14,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "stepped",
+          "startSeconds": 67.14,
+          "endSeconds": 67.495,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "on",
+          "startSeconds": 67.495,
+          "endSeconds": 67.85,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 67.85,
+          "endSeconds": 68.205,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "mound.",
+          "startSeconds": 68.205,
+          "endSeconds": 68.56,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-021",
+      "beatId": "carlo-s-afternoon-010",
+      "startSeconds": 68.56,
+      "endSeconds": 71.7,
+      "text": "Another said he kicked something.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Another",
+          "startSeconds": 68.56,
+          "endSeconds": 69.188,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said",
+          "startSeconds": 69.188,
+          "endSeconds": 69.816,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "he",
+          "startSeconds": 69.816,
+          "endSeconds": 70.444,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "kicked",
+          "startSeconds": 70.444,
+          "endSeconds": 71.072,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "something.",
+          "startSeconds": 71.072,
+          "endSeconds": 71.7,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-022",
+      "beatId": "carlo-s-afternoon-011",
+      "startSeconds": 71.7,
+      "endSeconds": 73.9,
+      "text": "But everyone agreed on one thing.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "But",
+          "startSeconds": 71.7,
+          "endSeconds": 72.067,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "everyone",
+          "startSeconds": 72.067,
+          "endSeconds": 72.433,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "agreed",
+          "startSeconds": 72.433,
+          "endSeconds": 72.8,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "on",
+          "startSeconds": 72.8,
+          "endSeconds": 73.167,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "one",
+          "startSeconds": 73.167,
+          "endSeconds": 73.533,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "thing.",
+          "startSeconds": 73.533,
+          "endSeconds": 73.9,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-023",
+      "beatId": "carlo-s-afternoon-012",
+      "startSeconds": 73.9,
+      "endSeconds": 79.06,
+      "text": "Right after Carlo touched it, the rain stopped for exactly ten seconds.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Right",
+          "startSeconds": 73.9,
+          "endSeconds": 74.33,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "after",
+          "startSeconds": 74.33,
+          "endSeconds": 74.76,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo",
+          "startSeconds": 74.76,
+          "endSeconds": 75.19,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "touched",
+          "startSeconds": 75.19,
+          "endSeconds": 75.62,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it,",
+          "startSeconds": 75.62,
+          "endSeconds": 76.05,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 76.05,
+          "endSeconds": 76.48,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "rain",
+          "startSeconds": 76.48,
+          "endSeconds": 76.91,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "stopped",
+          "startSeconds": 76.91,
+          "endSeconds": 77.34,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "for",
+          "startSeconds": 77.34,
+          "endSeconds": 77.77,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "exactly",
+          "startSeconds": 77.77,
+          "endSeconds": 78.2,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ten",
+          "startSeconds": 78.2,
+          "endSeconds": 78.63,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "seconds.",
+          "startSeconds": 78.63,
+          "endSeconds": 79.06,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-024",
+      "beatId": "carlo-s-afternoon-013",
+      "startSeconds": 79.06,
+      "endSeconds": 83.18,
+      "text": "And from under the santol tree, they heard an old man cough.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "And",
+          "startSeconds": 79.06,
+          "endSeconds": 79.403,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "from",
+          "startSeconds": 79.403,
+          "endSeconds": 79.747,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "under",
+          "startSeconds": 79.747,
+          "endSeconds": 80.09,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 80.09,
+          "endSeconds": 80.433,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "santol",
+          "startSeconds": 80.433,
+          "endSeconds": 80.777,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "tree,",
+          "startSeconds": 80.777,
+          "endSeconds": 81.12,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "they",
+          "startSeconds": 81.12,
+          "endSeconds": 81.463,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "heard",
+          "startSeconds": 81.463,
+          "endSeconds": 81.807,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "an",
+          "startSeconds": 81.807,
+          "endSeconds": 82.15,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "old",
+          "startSeconds": 82.15,
+          "endSeconds": 82.493,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "man",
+          "startSeconds": 82.493,
+          "endSeconds": 82.837,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "cough.",
+          "startSeconds": 82.837,
+          "endSeconds": 83.18,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-025",
+      "beatId": "the-night-of-the-fever-001",
+      "startSeconds": 83.18,
+      "endSeconds": 87.38,
+      "text": "That night, Carlo developed a fever.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "That",
+          "startSeconds": 83.18,
+          "endSeconds": 83.88,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "night,",
+          "startSeconds": 83.88,
+          "endSeconds": 84.58,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo",
+          "startSeconds": 84.58,
+          "endSeconds": 85.28,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "developed",
+          "startSeconds": 85.28,
+          "endSeconds": 85.98,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 85.98,
+          "endSeconds": 86.68,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "fever.",
+          "startSeconds": 86.68,
+          "endSeconds": 87.38,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-026",
+      "beatId": "the-night-of-the-fever-001",
+      "startSeconds": 87.38,
+      "endSeconds": 87.78,
+      "text": "His",
+      "style": "normal",
+      "words": [
+        {
+          "word": "His",
+          "startSeconds": 87.38,
+          "endSeconds": 87.78,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-027",
+      "beatId": "the-night-of-the-fever-002",
+      "startSeconds": 87.78,
+      "endSeconds": 90.18,
+      "text": "right foot turned red and swollen.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "right",
+          "startSeconds": 87.78,
+          "endSeconds": 88.18,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "foot",
+          "startSeconds": 88.18,
+          "endSeconds": 88.58,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "turned",
+          "startSeconds": 88.58,
+          "endSeconds": 88.98,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "red",
+          "startSeconds": 88.98,
+          "endSeconds": 89.38,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 89.38,
+          "endSeconds": 89.78,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "swollen.",
+          "startSeconds": 89.78,
+          "endSeconds": 90.18,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-028",
+      "beatId": "the-night-of-the-fever-003",
+      "startSeconds": 90.18,
+      "endSeconds": 93.66,
+      "text": "His grandmother didn’t ask what happened.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "His",
+          "startSeconds": 90.18,
+          "endSeconds": 90.76,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "grandmother",
+          "startSeconds": 90.76,
+          "endSeconds": 91.34,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "didn’t",
+          "startSeconds": 91.34,
+          "endSeconds": 91.92,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ask",
+          "startSeconds": 91.92,
+          "endSeconds": 92.5,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "what",
+          "startSeconds": 92.5,
+          "endSeconds": 93.08,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "happened.",
+          "startSeconds": 93.08,
+          "endSeconds": 93.66,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-029",
+      "beatId": "the-night-of-the-fever-003",
+      "startSeconds": 93.66,
+      "endSeconds": 93.999,
+      "text": "She",
+      "style": "normal",
+      "words": [
+        {
+          "word": "She",
+          "startSeconds": 93.66,
+          "endSeconds": 93.999,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-030",
+      "beatId": "the-night-of-the-fever-004",
+      "startSeconds": 93.999,
+      "endSeconds": 99.68,
+      "text": "just looked at his foot, then at the muddy writing on the wall, and said: “Why",
+      "style": "normal",
+      "words": [
+        {
+          "word": "just",
+          "startSeconds": 93.999,
+          "endSeconds": 94.338,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "looked",
+          "startSeconds": 94.338,
+          "endSeconds": 94.676,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "at",
+          "startSeconds": 94.676,
+          "endSeconds": 95.015,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "his",
+          "startSeconds": 95.015,
+          "endSeconds": 95.354,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "foot,",
+          "startSeconds": 95.354,
+          "endSeconds": 95.693,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "then",
+          "startSeconds": 95.693,
+          "endSeconds": 96.031,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "at",
+          "startSeconds": 96.031,
+          "endSeconds": 96.37,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 96.37,
+          "endSeconds": 96.709,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "muddy",
+          "startSeconds": 96.709,
+          "endSeconds": 97.048,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "writing",
+          "startSeconds": 97.048,
+          "endSeconds": 97.386,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "on",
+          "startSeconds": 97.386,
+          "endSeconds": 97.725,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 97.725,
+          "endSeconds": 98.064,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "wall,",
+          "startSeconds": 98.064,
+          "endSeconds": 98.403,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 98.403,
+          "endSeconds": 98.741,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said:",
+          "startSeconds": 98.741,
+          "endSeconds": 99.08,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "“Why",
+          "startSeconds": 99.08,
+          "endSeconds": 99.68,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-031",
+      "beatId": "the-night-of-the-fever-005",
+      "startSeconds": 99.68,
+      "endSeconds": 102.68,
+      "text": "did you bring him inside?”",
+      "style": "bold",
+      "words": [
+        {
+          "word": "did",
+          "startSeconds": 99.68,
+          "endSeconds": 100.28,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "you",
+          "startSeconds": 100.28,
+          "endSeconds": 100.88,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bring",
+          "startSeconds": 100.88,
+          "endSeconds": 101.48,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "him",
+          "startSeconds": 101.48,
+          "endSeconds": 102.08,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "inside?”",
+          "startSeconds": 102.08,
+          "endSeconds": 102.68,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-032",
+      "beatId": "the-night-of-the-fever-006",
+      "startSeconds": 102.68,
+      "endSeconds": 105.36,
+      "text": "No one slept after that.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "No",
+          "startSeconds": 102.68,
+          "endSeconds": 103.216,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "one",
+          "startSeconds": 103.216,
+          "endSeconds": 103.752,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "slept",
+          "startSeconds": 103.752,
+          "endSeconds": 104.288,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "after",
+          "startSeconds": 104.288,
+          "endSeconds": 104.824,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "that.",
+          "startSeconds": 104.824,
+          "endSeconds": 105.36,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-033",
+      "beatId": "the-night-of-the-fever-006",
+      "startSeconds": 105.36,
+      "endSeconds": 105.785,
+      "text": "Because",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Because",
+          "startSeconds": 105.36,
+          "endSeconds": 105.785,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-034",
+      "beatId": "the-night-of-the-fever-007",
+      "startSeconds": 105.785,
+      "endSeconds": 110.04,
+      "text": "every few minutes, something would tap from inside the wall.",
+      "style": "bold",
+      "words": [
+        {
+          "word": "every",
+          "startSeconds": 105.785,
+          "endSeconds": 106.211,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "few",
+          "startSeconds": 106.211,
+          "endSeconds": 106.636,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "minutes,",
+          "startSeconds": 106.636,
+          "endSeconds": 107.062,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "something",
+          "startSeconds": 107.062,
+          "endSeconds": 107.487,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "would",
+          "startSeconds": 107.487,
+          "endSeconds": 107.913,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "tap",
+          "startSeconds": 107.913,
+          "endSeconds": 108.338,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "from",
+          "startSeconds": 108.338,
+          "endSeconds": 108.764,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "inside",
+          "startSeconds": 108.764,
+          "endSeconds": 109.189,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 109.189,
+          "endSeconds": 109.615,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "wall.",
+          "startSeconds": 109.615,
+          "endSeconds": 110.04,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-035",
+      "beatId": "the-night-of-the-fever-007",
+      "startSeconds": 110.04,
+      "endSeconds": 111.04,
+      "text": "Three",
+      "style": "bold",
+      "words": [
+        {
+          "word": "Three",
+          "startSeconds": 110.04,
+          "endSeconds": 111.04,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-036",
+      "beatId": "the-night-of-the-fever-008",
+      "startSeconds": 111.04,
+      "endSeconds": 113.787,
+      "text": "soft taps. Then",
+      "style": "normal",
+      "words": [
+        {
+          "word": "soft",
+          "startSeconds": 111.04,
+          "endSeconds": 112.04,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "taps.",
+          "startSeconds": 112.04,
+          "endSeconds": 113.04,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Then",
+          "startSeconds": 113.04,
+          "endSeconds": 113.787,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-037",
+      "beatId": "the-night-of-the-fever-009",
+      "startSeconds": 113.787,
+      "endSeconds": 115.72,
+      "text": "a pause. Then",
+      "style": "normal",
+      "words": [
+        {
+          "word": "a",
+          "startSeconds": 113.787,
+          "endSeconds": 114.533,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "pause.",
+          "startSeconds": 114.533,
+          "endSeconds": 115.28,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Then",
+          "startSeconds": 115.28,
+          "endSeconds": 115.72,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-038",
+      "beatId": "the-night-of-the-fever-010",
+      "startSeconds": 115.72,
+      "endSeconds": 120.7,
+      "text": "Carlo’s voice would answer, even though Carlo was asleep: “I’m",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Carlo’s",
+          "startSeconds": 115.72,
+          "endSeconds": 116.16,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "voice",
+          "startSeconds": 116.16,
+          "endSeconds": 116.6,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "would",
+          "startSeconds": 116.6,
+          "endSeconds": 117.04,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "answer,",
+          "startSeconds": 117.04,
+          "endSeconds": 117.48,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "even",
+          "startSeconds": 117.48,
+          "endSeconds": 117.92,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "though",
+          "startSeconds": 117.92,
+          "endSeconds": 118.36,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo",
+          "startSeconds": 118.36,
+          "endSeconds": 118.8,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 118.8,
+          "endSeconds": 119.24,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "asleep:",
+          "startSeconds": 119.24,
+          "endSeconds": 119.68,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "“I’m",
+          "startSeconds": 119.68,
+          "endSeconds": 120.7,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-039",
+      "beatId": "the-night-of-the-fever-011",
+      "startSeconds": 120.7,
+      "endSeconds": 122.218,
+      "text": "here.” Near",
+      "style": "bold",
+      "words": [
+        {
+          "word": "here.”",
+          "startSeconds": 120.7,
+          "endSeconds": 121.72,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Near",
+          "startSeconds": 121.72,
+          "endSeconds": 122.218,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-040",
+      "beatId": "the-night-of-the-fever-012",
+      "startSeconds": 122.218,
+      "endSeconds": 126.2,
+      "text": "sunrise, his mother finally found the missing slipper.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "sunrise,",
+          "startSeconds": 122.218,
+          "endSeconds": 122.716,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "his",
+          "startSeconds": 122.716,
+          "endSeconds": 123.213,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "mother",
+          "startSeconds": 123.213,
+          "endSeconds": 123.711,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "finally",
+          "startSeconds": 123.711,
+          "endSeconds": 124.209,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "found",
+          "startSeconds": 124.209,
+          "endSeconds": 124.707,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 124.707,
+          "endSeconds": 125.204,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "missing",
+          "startSeconds": 125.204,
+          "endSeconds": 125.702,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "slipper.",
+          "startSeconds": 125.702,
+          "endSeconds": 126.2,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-041",
+      "beatId": "the-night-of-the-fever-012",
+      "startSeconds": 126.2,
+      "endSeconds": 126.672,
+      "text": "It",
+      "style": "normal",
+      "words": [
+        {
+          "word": "It",
+          "startSeconds": 126.2,
+          "endSeconds": 126.672,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-042",
+      "beatId": "the-night-of-the-fever-013",
+      "startSeconds": 126.672,
+      "endSeconds": 129.23,
+      "text": "was inside Carlo’s pillowcase. Filled",
+      "style": "normal",
+      "words": [
+        {
+          "word": "was",
+          "startSeconds": 126.672,
+          "endSeconds": 127.144,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "inside",
+          "startSeconds": 127.144,
+          "endSeconds": 127.616,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Carlo’s",
+          "startSeconds": 127.616,
+          "endSeconds": 128.088,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "pillowcase.",
+          "startSeconds": 128.088,
+          "endSeconds": 128.56,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Filled",
+          "startSeconds": 128.56,
+          "endSeconds": 129.23,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-043",
+      "beatId": "the-night-of-the-fever-014",
+      "startSeconds": 129.23,
+      "endSeconds": 131.658,
+      "text": "with black soil. And",
+      "style": "normal",
+      "words": [
+        {
+          "word": "with",
+          "startSeconds": 129.23,
+          "endSeconds": 129.9,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "black",
+          "startSeconds": 129.9,
+          "endSeconds": 130.57,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "soil.",
+          "startSeconds": 130.57,
+          "endSeconds": 131.24,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "And",
+          "startSeconds": 131.24,
+          "endSeconds": 131.658,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-044",
+      "beatId": "the-night-of-the-fever-015",
+      "startSeconds": 131.658,
+      "endSeconds": 136.68,
+      "text": "tucked inside it was a tiny piece of paper, folded three times.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "tucked",
+          "startSeconds": 131.658,
+          "endSeconds": 132.077,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "inside",
+          "startSeconds": 132.077,
+          "endSeconds": 132.495,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it",
+          "startSeconds": 132.495,
+          "endSeconds": 132.914,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 132.914,
+          "endSeconds": 133.332,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 133.332,
+          "endSeconds": 133.751,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "tiny",
+          "startSeconds": 133.751,
+          "endSeconds": 134.169,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "piece",
+          "startSeconds": 134.169,
+          "endSeconds": 134.588,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "of",
+          "startSeconds": 134.588,
+          "endSeconds": 135.006,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "paper,",
+          "startSeconds": 135.006,
+          "endSeconds": 135.425,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "folded",
+          "startSeconds": 135.425,
+          "endSeconds": 135.843,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "three",
+          "startSeconds": 135.843,
+          "endSeconds": 136.262,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "times.",
+          "startSeconds": 136.262,
+          "endSeconds": 136.68,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-045",
+      "beatId": "the-night-of-the-fever-015",
+      "startSeconds": 136.68,
+      "endSeconds": 137.032,
+      "text": "His",
+      "style": "normal",
+      "words": [
+        {
+          "word": "His",
+          "startSeconds": 136.68,
+          "endSeconds": 137.032,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-046",
+      "beatId": "the-night-of-the-fever-016",
+      "startSeconds": 137.032,
+      "endSeconds": 140.2,
+      "text": "grandmother opened it, read it once, and started crying.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "grandmother",
+          "startSeconds": 137.032,
+          "endSeconds": 137.384,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "opened",
+          "startSeconds": 137.384,
+          "endSeconds": 137.736,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it,",
+          "startSeconds": 137.736,
+          "endSeconds": 138.088,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "read",
+          "startSeconds": 138.088,
+          "endSeconds": 138.44,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it",
+          "startSeconds": 138.44,
+          "endSeconds": 138.792,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "once,",
+          "startSeconds": 138.792,
+          "endSeconds": 139.144,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 139.144,
+          "endSeconds": 139.496,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "started",
+          "startSeconds": 139.496,
+          "endSeconds": 139.848,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "crying.",
+          "startSeconds": 139.848,
+          "endSeconds": 140.2,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-047",
+      "beatId": "the-night-of-the-fever-016",
+      "startSeconds": 140.2,
+      "endSeconds": 140.643,
+      "text": "Carlo’s",
+      "style": "normal",
+      "words": [
+        {
+          "word": "Carlo’s",
+          "startSeconds": 140.2,
+          "endSeconds": 140.643,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-048",
+      "beatId": "the-night-of-the-fever-017",
+      "startSeconds": 140.643,
+      "endSeconds": 142.86,
+      "text": "mother asked what it said.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "mother",
+          "startSeconds": 140.643,
+          "endSeconds": 141.087,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "asked",
+          "startSeconds": 141.087,
+          "endSeconds": 141.53,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "what",
+          "startSeconds": 141.53,
+          "endSeconds": 141.973,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it",
+          "startSeconds": 141.973,
+          "endSeconds": 142.417,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said.",
+          "startSeconds": 142.417,
+          "endSeconds": 142.86,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-049",
+      "beatId": "the-night-of-the-fever-017",
+      "startSeconds": 142.86,
+      "endSeconds": 143.313,
+      "text": "But",
+      "style": "normal",
+      "words": [
+        {
+          "word": "But",
+          "startSeconds": 142.86,
+          "endSeconds": 143.313,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-050",
+      "beatId": "the-night-of-the-fever-018",
+      "startSeconds": 143.313,
+      "endSeconds": 147.42,
+      "text": "his grandmother only shook her head and whispered: “He",
+      "style": "normal",
+      "words": [
+        {
+          "word": "his",
+          "startSeconds": 143.313,
+          "endSeconds": 143.767,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "grandmother",
+          "startSeconds": 143.767,
+          "endSeconds": 144.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "only",
+          "startSeconds": 144.22,
+          "endSeconds": 144.673,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "shook",
+          "startSeconds": 144.673,
+          "endSeconds": 145.127,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "her",
+          "startSeconds": 145.127,
+          "endSeconds": 145.58,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "head",
+          "startSeconds": 145.58,
+          "endSeconds": 146.033,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "and",
+          "startSeconds": 146.033,
+          "endSeconds": 146.487,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "whispered:",
+          "startSeconds": 146.487,
+          "endSeconds": 146.94,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "“He",
+          "startSeconds": 146.94,
+          "endSeconds": 147.42,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-051",
+      "beatId": "the-night-of-the-fever-019",
+      "startSeconds": 147.42,
+      "endSeconds": 150.805,
+      "text": "isn’t the one they’re looking for.” That",
+      "style": "bold",
+      "words": [
+        {
+          "word": "isn’t",
+          "startSeconds": 147.42,
+          "endSeconds": 147.9,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 147.9,
+          "endSeconds": 148.38,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "one",
+          "startSeconds": 148.38,
+          "endSeconds": 148.86,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "they’re",
+          "startSeconds": 148.86,
+          "endSeconds": 149.34,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "looking",
+          "startSeconds": 149.34,
+          "endSeconds": 149.82,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "for.”",
+          "startSeconds": 149.82,
+          "endSeconds": 150.3,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "That",
+          "startSeconds": 150.3,
+          "endSeconds": 150.805,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-052",
+      "beatId": "the-night-of-the-fever-020",
+      "startSeconds": 150.805,
+      "endSeconds": 154.34,
+      "text": "was when the crib began to rock.",
+      "style": "normal",
+      "words": [
+        {
+          "word": "was",
+          "startSeconds": 150.805,
+          "endSeconds": 151.31,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "when",
+          "startSeconds": 151.31,
+          "endSeconds": 151.815,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 151.815,
+          "endSeconds": 152.32,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "crib",
+          "startSeconds": 152.32,
+          "endSeconds": 152.825,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "began",
+          "startSeconds": 152.825,
+          "endSeconds": 153.33,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "to",
+          "startSeconds": 153.33,
+          "endSeconds": 153.835,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "rock.",
+          "startSeconds": 153.835,
+          "endSeconds": 154.34,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    }
+  ]
+}
