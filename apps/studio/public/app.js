@@ -159,7 +159,7 @@ function openDeleteProjectDialog(project) {
 }
 
 const DEFAULT_PLANNER_SYSTEM_PROMPT =
-  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete visual descriptions, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. Do not introduce contradictory visual media, realism levels, or style directions. Keep voice direction engaged and language-appropriate. Return JSON only.";
+  "Convert story prose into a concise video production plan with deliberate section and beat segmentation. Preserve wording except light segmentation. Treat sections as narrative arcs, setting/time shifts, or major topic turns. Treat beats as edit units: one visual moment plus one spoken thought. Keep visual continuity (character age/look, setting, style) across beats. Use concrete visual descriptions, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. Do not introduce contradictory visual media, realism levels, or style directions. Keep voice direction engaged and language-appropriate. Return JSON only.";
 
 const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Story:",
@@ -173,6 +173,13 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Target: {{target}}",
   "",
   "Output requirements:",
+  "- Segment the story intentionally before writing beat details.",
+  "- A section is a coherent narrative arc, setting/time shift, or major topic turn with a clear purpose.",
+  "- A beat is an edit unit: one visual moment plus one spoken thought, not a mechanical line or sentence split.",
+  "- For short/story videos, prefer beats around 2-6 seconds and roughly 6-20 spoken words; allow longer only for unusually dense context.",
+  "- Split beats at hooks, reversals, quote turns, discoveries, punchlines, and reveals where the edit or delivery should breathe.",
+  "- If a pause is needed before a specific word or phrase inside a sentence, split into adjacent beats at that anchor and put pauseBeforeSeconds on the second beat.",
+  "- Do not create one-word beats unless that single word is intentionally the reveal or punchline.",
   "- Build a reusable visual bible for consistency.",
   "- Set section-level creative direction (feel, pacing, visual style) so sections can vary while staying coherent.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
@@ -978,6 +985,10 @@ const jobCenter = createJobCenterController({
   fetchJobs: async (projectId) => {
     const result = await fetchJson(`/api/projects/${projectId}/jobs`);
     return result.data.jobs || [];
+  },
+  fetchTrace: async (job) => {
+    const result = await fetchJson(`/api/projects/${selectedProjectId}/jobs/${encodeURIComponent(job.id)}/trace`);
+    return result.data;
   },
   onRetry: async () => {
     if (!selectedProjectId) return;

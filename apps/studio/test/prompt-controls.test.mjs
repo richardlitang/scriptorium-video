@@ -44,6 +44,21 @@ test("planner prompt tells the model creative controls govern every beat", async
   assert.match(draftOrchestrator, /target next_visual for early visual changes/);
 });
 
+test("planner prompt defines section and beat segmentation rules", async () => {
+  const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
+  const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
+
+  for (const source of [draftOrchestrator, appJs]) {
+    assert.match(source, /deliberate section and beat segmentation/);
+    assert.match(source, /A section is a coherent narrative arc, setting\/time shift, or major topic turn/);
+    assert.match(source, /A beat is an edit unit: one visual moment plus one spoken thought/);
+    assert.match(source, /prefer beats around 2-6 seconds and roughly 6-20 spoken words/);
+    assert.match(source, /pause is needed before a specific word or phrase inside a sentence/);
+    assert.match(source, /split into adjacent beats at that anchor and put pauseBeforeSeconds on the second beat/);
+    assert.match(source, /Do not create one-word beats unless that single word is intentionally the reveal or punchline/);
+  }
+});
+
 test("code-owned visual prompts stay style-neutral and defer to UI direction", async () => {
   const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
   const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
@@ -118,4 +133,21 @@ test("studio run state prefers latest draft progress over completed image progre
   const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
   assert.match(server, /function jobSortTime\(job\)/);
   assert.match(server, /trimmed\.find\(\(job\) => job\.kind === "draft_job"\)/);
+});
+
+test("studio draft jobs write structured operational traces", async () => {
+  const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  const jobCenter = await readFile(path.resolve("apps/studio/public/modules/job-center.js"), "utf8");
+  assert.match(server, /const runTracesDir = path\.join\(rootDir, "\.studio-data", "run-traces"\)/);
+  assert.match(server, /function summarizeStoryInput\(story\)/);
+  assert.match(server, /function directiveCandidateLines\(story\)/);
+  assert.match(server, /function summarizePlanForTrace\(plan, story = ""\)/);
+  assert.match(server, /function summarizeTimelineForTrace\(timeline, manifest\)/);
+  assert.match(server, /function summarizeVoiceSettingsForTrace\(settings\)/);
+  assert.match(server, /appendRunTrace\(projectId, job\.id, "images\.targets_selected"/);
+  assert.match(server, /appendRunTrace\(projectId, job\.id, "render\.start"/);
+  assert.match(server, /readRunTrace\(projectId, jobId\)/);
+  assert.match(server, /pathname\.includes\("\/jobs\/"\) && pathname\.endsWith\("\/trace"\)/);
+  assert.match(jobCenter, /View Trace/);
+  assert.match(jobCenter, /fetchTrace\(job\)/);
 });

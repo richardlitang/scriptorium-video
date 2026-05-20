@@ -22,6 +22,7 @@ const imageHistoryDir = path.join(rootDir, ".studio-data", "image-history");
 const imageCachePath = path.join(rootDir, ".studio-data", "image-cache.ndjson");
 const voiceSettingsPath = path.join(rootDir, ".studio-data", "voice-settings.json");
 const voiceReferencesDir = path.join(rootDir, ".studio-data", "voice-references");
+const runTracesDir = path.join(rootDir, ".studio-data", "run-traces");
 const projectMutationQueues = new Map();
 const activeDraftJobs = new Map();
 const activeBeatJobs = new Map();
@@ -279,6 +280,180 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
+function countWords(value) {
+  return String(value || "").split(/\s+/).filter(Boolean).length;
+}
+
+function redactPath(value) {
+  if (!value) return "";
+  return path.basename(String(value));
+}
+
+function runTracePath(projectId, jobId) {
+  return path.join(runTracesDir, projectId, `${jobId}.ndjson`);
+}
+
+function runTraceDisplayPath(projectId, jobId) {
+  return path.relative(rootDir, runTracePath(projectId, jobId));
+}
+
+async function appendRunTrace(projectId, jobId, event, data = {}) {
+  const filePath = runTracePath(projectId, jobId);
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await appendFile(filePath, `${JSON.stringify({ timestamp: new Date().toISOString(), event, ...data })}\n`, "utf8");
+}
+
+async function readRunTrace(projectId, jobId) {
+  const filePath = runTracePath(projectId, jobId);
+  const relative = path.relative(runTracesDir, filePath);
+  if (relative.startsWith("..") || path.isAbsolute(relative)) {
+    throw new Error("Invalid trace path.");
+  }
+  const raw = await readFile(filePath, "utf8");
+  const entries = raw
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+  return {
+    path: path.relative(rootDir, filePath),
+    entries,
+    raw
+  };
+}
+
+function directiveCandidateLines(story) {
+  return String(story || "")
+    .split(/\r?\n/)
+    .map((line, index) => ({ index: index + 1, text: line.trim() }))
+    .filter(({ text }) => {
+      if (!text) return false;
+      const bracketed = /^\[[^\]]+\]$/.test(text);
+      const stageCue = /\b(CUT|BLACK|FADE|THUD|WHOOSH|SFX|MUSIC|SILENCE|PAUSE|SMASH|DISSOLVE|TITLE CARD|B-ROLL|VISUAL)\b/i.test(text);
+      return bracketed && stageCue;
+    })
+    .slice(0, 40);
+}
+
+function summarizeStoryInput(story) {
+  const raw = String(story || "");
+  return {
+    hash: sha256(raw),
+    chars: raw.length,
+    words: countWords(raw),
+    lines: raw ? raw.split(/\r?\n/).length : 0,
+    directiveCandidateLines: directiveCandidateLines(raw)
+  };
+}
+
+function summarizePlanForTrace(plan, story = "") {
+  const beats = (plan.sections ?? []).flatMap((section) =>
+    (section.beats ?? []).map((beat) => ({
+      sectionId: section.id,
+      sectionTitle: section.title,
+      beatId: beat.id,
+      order: beat.order,
+      narrationChars: String(beat.narration || "").length,
+      narrationWords: countWords(beat.narration),
+      ttsProvider: beat.voiceDirection?.ttsProvider || beat.direction?.voice?.ttsProvider || plan.providers?.tts,
+      narrationLanguage: beat.voiceDirection?.language || beat.voiceDirection?.narrationLanguage || beat.narrationLanguage,
+      mediaCount: beat.media?.length ?? 0,
+      visualCueCount: beat.direction?.editorial?.visualEditCues?.length ?? beat.visualEditCues?.length ?? 0,
+      silenceWindowCount: beat.direction?.editorial?.silenceWindows?.length ?? beat.silenceWindows?.length ?? 0
+    }))
+  );
+  const narrationWords = beats.reduce((sum, beat) => sum + beat.narrationWords, 0);
+  const storyWords = countWords(story);
+  return {
+    title: plan.title,
+    sectionCount: plan.sections?.length ?? 0,
+    beatCount: beats.length,
+    narrationWords,
+    storyWords,
+    narrationToStoryWordRatio: storyWords > 0 ? Number((narrationWords / storyWords).toFixed(3)) : null,
+    sections: (plan.sections ?? []).map((section) => ({
+      id: section.id,
+      title: section.title,
+      beatCount: section.beats?.length ?? 0
+    })),
+    beats
+  };
+}
+
+function summarizeManifestForTrace(manifest) {
+  const assets = manifest?.assets ?? [];
+  return {
+    totalAssets: assets.length,
+    imageCount: assets.filter((asset) => asset.role === "primary_visual").length,
+    voiceCount: assets.filter((asset) => asset.role === "voiceover").length,
+    images: assets
+      .filter((asset) => asset.role === "primary_visual")
+      .map((asset) => ({
+        id: asset.id,
+        beatId: asset.beatId,
+        sectionId: asset.sectionId,
+        status: asset.status,
+        path: asset.path,
+        sourceKind: asset.source?.kind,
+        provider: asset.source?.provider
+      })),
+    voices: assets
+      .filter((asset) => asset.role === "voiceover")
+      .map((asset) => ({
+        id: asset.id,
+        beatId: asset.beatId,
+        status: asset.status,
+        provider: asset.source?.provider,
+        durationSeconds: asset.durationSeconds
+      }))
+  };
+}
+
+function summarizeTimelineForTrace(timeline, manifest) {
+  const assetsById = new Map((manifest?.assets ?? []).map((asset) => [asset.id, asset]));
+  return {
+    durationSeconds: timeline?.durationSeconds ?? 0,
+    segmentCount: timeline?.segments?.length ?? 0,
+    segments: (timeline?.segments ?? []).map((segment) => {
+      const visualAsset = assetsById.get(segment.mediaAssetIds?.[0]);
+      return {
+        beatId: segment.beatId,
+        startSeconds: segment.startSeconds,
+        endSeconds: segment.endSeconds,
+        durationSeconds: segment.durationSeconds,
+        voiceAssetId: segment.voiceAssetId,
+        mediaAssetIds: segment.mediaAssetIds,
+        visualSourceBeatId: visualAsset?.beatId,
+        visualEditCueCount: segment.visualEditCues?.length ?? 0,
+        silenceWindowCount: segment.silenceWindows?.length ?? 0
+      };
+    })
+  };
+}
+
+function summarizeVoiceSettingsForTrace(settings) {
+  return {
+    ttsModel: settings.ttsModel,
+    deliveryProfile: settings.deliveryProfile,
+    hasAudioPromptPath: Boolean(settings.audioPromptPath),
+    audioPromptFile: redactPath(settings.audioPromptPath),
+    envIncludesAudioPrompt: Boolean(voiceSettingsEnv(settings).CHATTERBOX_AUDIO_PROMPT_PATH)
+  };
+}
+
+async function readProjectTraceSnapshot(projectId) {
+  const projectDir = path.join(projectsDir, projectId);
+  const [plan, manifest, timeline] = await Promise.all([
+    safeReadJson(path.join(projectDir, "video-plan.json")).catch(() => undefined),
+    safeReadJson(path.join(projectDir, "asset-manifest.json")).catch(() => ({ assets: [] })),
+    safeReadJson(path.join(projectDir, "timeline.json")).catch(() => undefined)
+  ]);
+  return {
+    plan: plan ? summarizePlanForTrace(plan) : undefined,
+    manifest: summarizeManifestForTrace(manifest),
+    timeline: summarizeTimelineForTrace(timeline, manifest)
+  };
+}
+
 function dimensionsFromSize(size) {
   const match = /^(\d+)x(\d+)$/.exec(size);
   if (!match) return {};
@@ -380,6 +555,7 @@ function jobProgress(job, patch = {}) {
     currentSectionId: job.currentSectionId,
     currentSectionTitle: job.currentSectionTitle,
     error: job.error,
+    tracePath: job.tracePath,
     output: job.output.join("\n\n").trim(),
     ...patch
   };
@@ -399,6 +575,7 @@ function beatJobProgress(job, patch = {}) {
     startedAt: job.startedAt,
     finishedAt: job.finishedAt,
     error: job.error,
+    tracePath: job.tracePath,
     output: job.output.join("\n\n").trim(),
     ...patch
   };
@@ -470,14 +647,30 @@ async function runRetriedDraftStep(projectId, job, label, operation) {
       label,
       attempt
     });
+    await appendRunTrace(projectId, job.id, "step.start", {
+      label,
+      attempt,
+      maxAttempts: job.maxAttempts
+    }).catch(() => {});
     try {
       const result = await operation();
+      await appendRunTrace(projectId, job.id, "step.complete", {
+        label,
+        attempt,
+        stdoutChars: String(result?.stdout ?? "").length,
+        stderrChars: String(result?.stderr ?? "").length
+      }).catch(() => {});
       if (result?.stdout?.trim()) job.output.push(`${label}:\n${result.stdout.trim()}`);
       job.completed += 1;
       await writeDraftJobState(projectId, job);
       return result;
     } catch (error) {
       lastError = error;
+      await appendRunTrace(projectId, job.id, "step.failed", {
+        label,
+        attempt,
+        message: error instanceof Error ? error.message : String(error)
+      }).catch(() => {});
       job.output.push(`${label} attempt ${attempt} failed:\n${error instanceof Error ? error.message : String(error)}`);
       await writeDraftJobState(projectId, job, {
         error: error instanceof Error ? error.message : String(error)
@@ -498,11 +691,27 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
   const sections = plan.sections ?? [];
   const totalBeats = sections.reduce((sum, section) => sum + ((section.beats ?? []).length), 0);
   let beatCursor = 0;
+  const voiceSettings = await readVoiceSettings();
+  await appendRunTrace(projectId, job.id, "audio.start", {
+    transcriptionProvider,
+    voiceSettings: summarizeVoiceSettingsForTrace(voiceSettings),
+    totalBeats
+  }).catch(() => {});
   for (const section of sections) {
     const beats = [...(section.beats ?? [])].sort((a, b) => a.order - b.order);
     for (const beat of beats) {
       beatCursor += 1;
       const provider = ttsProviderForBeat(plan.providers.tts, beat);
+      await appendRunTrace(projectId, job.id, "audio.beat.start", {
+        beatId: beat.id,
+        sectionId: section.id,
+        sectionTitle: section.title,
+        provider,
+        narrationLanguage: beat.voiceDirection?.language || beat.voiceDirection?.narrationLanguage || beat.narrationLanguage,
+        narrationChars: String(beat.narration || "").length,
+        narrationWords: countWords(beat.narration),
+        voiceSettings: summarizeVoiceSettingsForTrace(voiceSettings)
+      }).catch(() => {});
       await writeDraftJobState(projectId, job, {
         phase: "audio",
         label: `Narration: ${section.title} · ${beat.order}/${beats.length} · ${beat.id}`,
@@ -515,17 +724,24 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
       await runRetriedDraftStep(projectId, job, `Narration: ${section.title} · ${beat.id} · ${provider}`, () =>
         runLvstudio(["generate:tts", projectId, "--provider", provider, "--force", "--only-beat", beat.id])
       );
+      await appendRunTrace(projectId, job.id, "audio.beat.complete", {
+        beatId: beat.id,
+        provider
+      }).catch(() => {});
     }
   }
 
   await writeDraftJobState(projectId, job, { phase: "sync" });
   await runRetriedDraftStep(projectId, job, "Sync timeline", () => runLvstudio(["sync", projectId]));
+  await appendRunTrace(projectId, job.id, "audio.sync.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
   await writeDraftJobState(projectId, job, { phase: "transcribe" });
   await runRetriedDraftStep(projectId, job, "Transcribe narration", () =>
     runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider])
   );
+  await appendRunTrace(projectId, job.id, "transcription.complete", { transcriptionProvider }).catch(() => {});
   await writeDraftJobState(projectId, job, { phase: "captions" });
   await runRetriedDraftStep(projectId, job, "Generate captions", () => runLvstudio(["captions", projectId]));
+  await appendRunTrace(projectId, job.id, "captions.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
 }
 
 async function runDraftJob(projectId, body) {
@@ -543,9 +759,25 @@ async function runDraftJob(projectId, body) {
     error: undefined,
     output: []
   };
+  job.tracePath = runTraceDisplayPath(projectId, job.id);
+  job.output.push(`Operational trace:\n${job.tracePath}`);
 
   activeDraftJobs.set(projectId, job);
   await writeDraftJobState(projectId, job);
+  await appendRunTrace(projectId, job.id, "draft_job.queued", {
+    request: {
+      hasStory: Boolean(String(body.story || "").trim()),
+      imageEnabled: body.imageEnabled !== false,
+      imageMode: body.imageMode ?? "missing",
+      imageCoverage: normalizeImageCoverage(body.imageCoverage),
+      imageQuality: body.imageQuality ?? "low",
+      hasPlanPayload: Boolean(body.plan && typeof body.plan === "object"),
+      feelChars: String(body.feel ?? "").length,
+      pacingChars: String(body.pacing ?? "").length,
+      visualStyleChars: String(body.visualStyle ?? "").length
+    },
+    voiceSettings: summarizeVoiceSettingsForTrace(await readVoiceSettings())
+  }).catch(() => {});
 
   runProjectMutation(projectId, async () => {
     try {
@@ -558,6 +790,11 @@ async function runDraftJob(projectId, body) {
       const imageSteps = imageEnabledForJob ? 1 : 0;
       let planningSteps = 0;
       let ttsRoutingSteps = 0;
+      await appendRunTrace(projectId, job.id, "draft_job.start", {
+        projectId,
+        story: summarizeStoryInput(story),
+        currentPlan: summarizePlanForTrace(plan, story)
+      }).catch(() => {});
 
       if (story) {
         await writeDraftJobState(projectId, job, {
@@ -567,6 +804,9 @@ async function runDraftJob(projectId, body) {
         const pastedPlan = parsePlanFromStoryInput(story);
         if (pastedPlan) {
           plan = applyDraftDefaults(pastedPlan);
+          await appendRunTrace(projectId, job.id, "planning.parsed_json_plan", {
+            plan: summarizePlanForTrace(plan, story)
+          }).catch(() => {});
         } else {
           planningSteps = 1;
           const draft = await generatePlanDraftWithOpenAi({
@@ -580,6 +820,11 @@ async function runDraftJob(projectId, body) {
             userPromptTemplate: body.userPromptTemplate
           });
           plan = draft.plan;
+          await appendRunTrace(projectId, job.id, "planning.llm_plan", {
+            model: draft.model,
+            warnings: draft.warnings ?? [],
+            plan: summarizePlanForTrace(plan, story)
+          }).catch(() => {});
           job.output.push(`AI plan:\nGenerated ${plan.sections.length} section(s) using ${draft.model}.`);
           job.completed += 1;
           await writeDraftJobState(projectId, job);
@@ -588,10 +833,16 @@ async function runDraftJob(projectId, body) {
       } else if (body.plan && typeof body.plan === "object") {
         plan = body.plan;
         await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+        await appendRunTrace(projectId, job.id, "planning.used_supplied_plan", {
+          plan: summarizePlanForTrace(plan)
+        }).catch(() => {});
       }
 
       details = await getProjectDetails(projectId);
       plan = details.plan;
+      await appendRunTrace(projectId, job.id, "plan.persisted", {
+        plan: summarizePlanForTrace(plan, story)
+      }).catch(() => {});
       const needsTtsRouting = planNeedsTtsRouting(plan);
       if (needsTtsRouting) {
         ttsRoutingSteps = 1;
@@ -602,6 +853,11 @@ async function runDraftJob(projectId, body) {
         const routed = await routePlanTtsWithOpenAi(plan);
         plan = routed.plan;
         await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+        await appendRunTrace(projectId, job.id, "tts_routing.llm_plan", {
+          model: routed.model,
+          warnings: routed.warnings ?? [],
+          plan: summarizePlanForTrace(plan, story)
+        }).catch(() => {});
         job.output.push(`TTS routing:\nMapped ${plan.sections.flatMap((section) => section.beats ?? []).length} beat(s) using ${routed.model}.`);
         if (routed.warnings?.length) job.output.push(`TTS routing warnings:\n${routed.warnings.join("\n")}`);
         job.completed += 1;
@@ -613,15 +869,49 @@ async function runDraftJob(projectId, body) {
 
       await writeDraftJobState(projectId, job, { phase: "save", label: "Saving plan and syncing timeline" });
       await runRetriedDraftStep(projectId, job, "Initial sync", () => runLvstudio(["sync", projectId]));
+      await appendRunTrace(projectId, job.id, "sync.initial.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
 
       if (imageEnabledForJob) {
         await writeDraftJobState(projectId, job, { phase: "images", label: "Generating images" });
-        const imageResult = await generateProjectImages(projectId, {
-          mode: body.imageMode ?? "missing",
-          coverage: normalizeImageCoverage(body.imageCoverage),
+        const preImageManifest = await safeReadJson(path.join(projectDir, "asset-manifest.json")).catch(() => ({ schemaVersion: 1, assets: [] }));
+        const imageCoverage = normalizeImageCoverage(body.imageCoverage);
+        const imageTargets = selectImageTargets(plan, preImageManifest, body.imageMode ?? "missing", imageCoverage, {
           quality: body.imageQuality ?? "low",
           size: "1024x1536"
         });
+        await appendRunTrace(projectId, job.id, "images.targets_selected", {
+          mode: body.imageMode ?? "missing",
+          coverage: imageCoverage,
+          targetCount: imageTargets.length,
+          targets: imageTargets.map((target) => ({
+            assetId: target.assetId,
+            beatId: target.beat.id,
+            sectionId: target.section.id,
+            beatOrder: target.beat.order
+          })),
+          manifestBefore: summarizeManifestForTrace(preImageManifest)
+        }).catch(() => {});
+        const imageResult = await generateProjectImages(projectId, {
+          mode: body.imageMode ?? "missing",
+          coverage: imageCoverage,
+          quality: body.imageQuality ?? "low",
+          size: "1024x1536"
+        });
+        await appendRunTrace(projectId, job.id, "images.complete", {
+          generatedCount: imageResult.generated.length,
+          failedCount: imageResult.failed?.length ?? 0,
+          skipped: imageResult.skipped,
+          generated: imageResult.generated.map((entry) => ({
+            assetId: entry.assetId,
+            beatId: entry.beatId,
+            sectionId: entry.sectionId,
+            path: entry.path,
+            version: entry.version,
+            reusedFrom: entry.reusedFrom
+          })),
+          failed: imageResult.failed ?? [],
+          snapshot: await readProjectTraceSnapshot(projectId)
+        }).catch(() => {});
         job.completed += 1;
         job.output.push(`Images:\nGenerated ${imageResult.generated.length}; failed ${imageResult.failed?.length ?? 0}.`);
         await writeDraftJobState(projectId, job);
@@ -631,17 +921,28 @@ async function runDraftJob(projectId, body) {
 
       await writeDraftJobState(projectId, job, { phase: "check", label: "Running quality check" });
       const checkResult = await runLvstudioReport(["check", projectId]);
+      await appendRunTrace(projectId, job.id, "quality_check.complete", {
+        ok: checkResult.ok,
+        stdout: checkResult.stdout.trim().slice(0, 12000)
+      }).catch(() => {});
       job.completed += 1;
       job.output.push(`${checkResult.ok ? "Quality check" : "Quality check warnings/errors"}:\n${checkResult.stdout.trim()}`);
 
       await writeDraftJobState(projectId, job, { phase: "render", label: "Rendering draft video" });
+      await appendRunTrace(projectId, job.id, "render.start", await readProjectTraceSnapshot(projectId)).catch(() => {});
       await runRetriedDraftStep(projectId, job, "Render draft", () =>
         runLvstudio(["render", projectId, "--quality", "draft", "--force"])
       );
+      await appendRunTrace(projectId, job.id, "render.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
 
       const planHash = sha256(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
       const timelineHash = sha256(await readFile(path.join(projectDir, "timeline.json"), "utf8").catch(() => ""));
       const output = job.output.join("\n\n").trim();
+      await appendRunTrace(projectId, job.id, "draft_job.complete", {
+        planHash,
+        timelineHash,
+        outputChars: output.length
+      }).catch(() => {});
       await appendQualityHistory(projectId, {
         timestamp: new Date().toISOString(),
         kind: "draft_job",
@@ -668,6 +969,10 @@ async function runDraftJob(projectId, body) {
       activeDraftJobs.delete(projectId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      await appendRunTrace(projectId, job.id, "draft_job.failed", {
+        message,
+        output: job.output.join("\n\n").slice(0, 12000)
+      }).catch(() => {});
       job.status = "failed";
       job.error = message;
       job.finishedAt = new Date().toISOString();
@@ -1858,7 +2163,8 @@ async function listDraftJobs(projectId) {
     error: job.error,
     completed: job.completed,
     total: job.total,
-    currentSectionTitle: job.currentSectionTitle ?? job.beatId
+    currentSectionTitle: job.currentSectionTitle ?? job.beatId,
+    tracePath: job.tracePath
   }));
   const liveJobs = [];
   if (active) {
@@ -1874,7 +2180,8 @@ async function listDraftJobs(projectId) {
       error: current.error,
       completed: current.completed,
       total: current.total,
-      currentSectionTitle: current.currentSectionTitle
+      currentSectionTitle: current.currentSectionTitle,
+      tracePath: current.tracePath
     });
   }
   if (activeBeat) {
@@ -1890,7 +2197,8 @@ async function listDraftJobs(projectId) {
       error: current.error,
       completed: current.completed,
       total: current.total,
-      currentSectionTitle: current.beatId
+      currentSectionTitle: current.beatId,
+      tracePath: current.tracePath
     });
   }
   const jobs = [
@@ -2549,6 +2857,13 @@ const server = createServer(async (req, res) => {
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/jobs") && req.method === "GET") {
       const projectId = pathname.split("/")[3];
       return sendJson(res, 200, { ok: true, data: await listDraftJobs(projectId) });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.includes("/jobs/") && pathname.endsWith("/trace") && req.method === "GET") {
+      const projectId = pathname.split("/")[3];
+      const jobId = decodeURIComponent(pathname.split("/jobs/")[1]?.replace(/\/trace$/, "") ?? "");
+      if (!projectId || !jobId) return sendJson(res, 400, { ok: false, message: "Missing project id or job id." });
+      return sendJson(res, 200, { ok: true, data: await readRunTrace(projectId, jobId) });
     }
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/draft-job") && req.method === "GET") {

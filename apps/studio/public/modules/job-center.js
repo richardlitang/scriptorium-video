@@ -5,10 +5,11 @@ function formatJobTime(value) {
   return date.toLocaleTimeString();
 }
 
-export function createJobCenterController({ listEl, fetchJobs, onRetry }) {
+export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRetry }) {
   let expandedJobIds = new Set();
   let pollTimer = null;
   let lastJobs = [];
+  const traceCache = new Map();
 
   function clearExpanded() {
     expandedJobIds = new Set();
@@ -60,6 +61,31 @@ export function createJobCenterController({ listEl, fetchJobs, onRetry }) {
       };
       actions.appendChild(viewOutput);
 
+      if (job.tracePath) {
+        const trace = document.createElement("button");
+        trace.type = "button";
+        trace.textContent = expandedJobIds.has(`${job.id}:trace`) ? "Hide Trace" : "View Trace";
+        trace.onclick = async () => {
+          const key = `${job.id}:trace`;
+          if (expandedJobIds.has(key)) {
+            expandedJobIds.delete(key);
+          } else {
+            expandedJobIds.add(key);
+            if (!traceCache.has(job.id) && fetchTrace) {
+              trace.disabled = true;
+              trace.textContent = "Loading trace...";
+              try {
+                traceCache.set(job.id, await fetchTrace(job));
+              } catch (error) {
+                traceCache.set(job.id, { raw: `Trace unavailable:\n${String(error)}`, path: job.tracePath });
+              }
+            }
+          }
+          render(lastJobs);
+        };
+        actions.appendChild(trace);
+      }
+
       if (job.status === "failed") {
         const retry = document.createElement("button");
         retry.type = "button";
@@ -83,6 +109,13 @@ export function createJobCenterController({ listEl, fetchJobs, onRetry }) {
         output.className = "job-output";
         output.textContent = job.output || job.error || "No output captured.";
         card.appendChild(output);
+      }
+      if (job.tracePath && expandedJobIds.has(`${job.id}:trace`)) {
+        const trace = document.createElement("pre");
+        trace.className = "job-output";
+        const data = traceCache.get(job.id);
+        trace.textContent = data?.raw || `Operational trace file:\n${job.tracePath}`;
+        card.appendChild(trace);
       }
       listEl.appendChild(card);
     }
