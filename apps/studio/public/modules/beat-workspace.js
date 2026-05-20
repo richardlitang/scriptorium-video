@@ -259,6 +259,48 @@ export function createBeatWorkspaceController({
     };
     deliveryNoteField.appendChild(deliveryNoteInput);
 
+    const speedField = document.createElement("label");
+    speedField.className = "beat-inspector-field";
+    speedField.textContent = "Speed multiplier";
+    const speedInput = document.createElement("input");
+    speedInput.type = "number";
+    speedInput.min = "0.6";
+    speedInput.max = "1.5";
+    speedInput.step = "0.05";
+    speedInput.value = Number(beat.voiceDirection?.speedMultiplier ?? 1).toFixed(2);
+    speedInput.onchange = () => {
+      const next = Math.max(0.6, Math.min(1.5, Number(speedInput.value) || 1));
+      speedInput.value = next.toFixed(2);
+      beat.voiceDirection = {
+        ...(beat.voiceDirection || {}),
+        speedMultiplier: next,
+        source: "user"
+      };
+      onPlanChanged(plan);
+    };
+    speedField.appendChild(speedInput);
+
+    const pitchField = document.createElement("label");
+    pitchField.className = "beat-inspector-field";
+    pitchField.textContent = "Pitch offset";
+    const pitchInput = document.createElement("input");
+    pitchInput.type = "number";
+    pitchInput.min = "-6";
+    pitchInput.max = "6";
+    pitchInput.step = "0.25";
+    pitchInput.value = Number(beat.voiceDirection?.pitchOffset ?? 0).toFixed(2);
+    pitchInput.onchange = () => {
+      const next = Math.max(-6, Math.min(6, Number(pitchInput.value) || 0));
+      pitchInput.value = next.toFixed(2);
+      beat.voiceDirection = {
+        ...(beat.voiceDirection || {}),
+        pitchOffset: next,
+        source: "user"
+      };
+      onPlanChanged(plan);
+    };
+    pitchField.appendChild(pitchInput);
+
     const captionStyleField = document.createElement("label");
     captionStyleField.className = "beat-inspector-field";
     captionStyleField.textContent = "Caption style";
@@ -343,6 +385,8 @@ export function createBeatWorkspaceController({
       pauseBeforeField,
       pauseAfterField,
       deliveryNoteField,
+      speedField,
+      pitchField,
       captionStyleField,
       captionEmphasisField,
       assetsInfo,

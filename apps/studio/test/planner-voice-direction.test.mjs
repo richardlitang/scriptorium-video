@@ -9,6 +9,11 @@ test("planner schema requests beat-level voice direction fields", async () => {
   assert.match(server, /pauseBeforeSeconds/);
   assert.match(server, /pauseAfterSeconds/);
   assert.match(server, /deliveryNote/);
+  assert.match(server, /speedMultiplier/);
+  assert.match(server, /pitchOffset/);
+  assert.match(server, /voiceConfidence/);
+  assert.match(server, /visualConfidence/);
+  assert.match(server, /shotType/);
   assert.match(server, /sfxCues/);
 });
 
@@ -18,6 +23,8 @@ test("beat inspector exposes editable voice tuning controls", async () => {
   assert.match(moduleSource, /Pause before \(seconds\)/);
   assert.match(moduleSource, /Pause after \(seconds\)/);
   assert.match(moduleSource, /Delivery note/);
+  assert.match(moduleSource, /Speed multiplier/);
+  assert.match(moduleSource, /Pitch offset/);
   assert.match(moduleSource, /Caption style/);
   assert.match(moduleSource, /Caption emphasis phrases/);
 });

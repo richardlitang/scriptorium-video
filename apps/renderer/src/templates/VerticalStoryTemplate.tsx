@@ -14,6 +14,10 @@ function dbToVolume(levelDb: number): number {
   return Math.max(0, Math.min(1, linear));
 }
 
+function duckingFactorAt(timeSeconds: number, voiceRanges: Array<{ start: number; end: number }>): number {
+  return voiceRanges.some((range) => timeSeconds >= range.start && timeSeconds < range.end) ? 0.35 : 1;
+}
+
 export const VerticalStoryTemplate: React.FC<RemotionInputProps> = ({
   renderBundle,
   assetUrls
@@ -32,6 +36,9 @@ export const VerticalStoryTemplate: React.FC<RemotionInputProps> = ({
   const activeMediaId = activeSegment.mediaAssetIds[0];
   const activeMedia = assetManifest.assets.find((asset) => asset.id === activeMediaId);
   const activeMediaUrl = activeMediaId ? assetUrls[activeMediaId] : undefined;
+  const voiceRanges = timeline.segments
+    .filter((segment) => Boolean(segment.voiceAssetId))
+    .map((segment) => ({ start: segment.startSeconds, end: segment.endSeconds }));
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#020617" }}>
@@ -60,7 +67,16 @@ export const VerticalStoryTemplate: React.FC<RemotionInputProps> = ({
               from={Math.round(cue.startSeconds * fps)}
               durationInFrames={Math.max(1, Math.ceil(cue.durationSeconds * fps))}
             >
-              <Audio src={src} volume={dbToVolume(cue.levelDb)} />
+              <Audio
+                src={src}
+                volume={(frameInSequence) => {
+                  const cueTime = cue.startSeconds + frameInSequence / fps;
+                  const baseVolume = dbToVolume(cue.levelDb);
+                  return cue.role === "music"
+                    ? baseVolume * duckingFactorAt(cueTime, voiceRanges)
+                    : baseVolume;
+                }}
+              />
             </Sequence>
           );
         })

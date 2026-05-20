@@ -179,7 +179,11 @@ export async function generateTTSForProject(
       voiceId: plan.voice.voiceId,
       outputPath: absolutePath,
       format: plan.voice.format,
-      options: plan.voice.options,
+      options: {
+        ...plan.voice.options,
+        ...(resolved.voiceOptions.speed !== undefined ? { speed: resolved.voiceOptions.speed } : {}),
+        ...(resolved.voiceOptions.pitch !== undefined ? { pitch: resolved.voiceOptions.pitch } : {})
+      },
       delivery: resolved.delivery,
       providerOptions: resolved.providerOptions
     });

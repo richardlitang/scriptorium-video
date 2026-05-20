@@ -107,6 +107,8 @@ export const VoiceDirectionSchema = z.object({
   pauseBeforeSeconds: z.number().min(0).max(1.2).default(0),
   pauseAfterSeconds: z.number().min(0).max(1.2).default(0),
   intensity: z.number().min(0).max(1).default(0.5),
+  speedMultiplier: z.number().min(0.6).max(1.5).default(1),
+  pitchOffset: z.number().min(-6).max(6).default(0),
   source: z.enum(["user", "llm", "default"]).default("default")
 }).strict();
 
@@ -177,6 +179,13 @@ export const VideoPlanSchema = z.object({
     resolution: z.object({
       width: z.number().int().positive(),
       height: z.number().int().positive()
+    }).strict().optional(),
+    captionTuning: z.object({
+      targetMaxWords: z.number().int().min(4).max(30).optional(),
+      hardMaxWords: z.number().int().min(6).max(40).optional(),
+      targetMaxDurationSeconds: z.number().min(1.5).max(12).optional(),
+      hardMaxDurationSeconds: z.number().min(2).max(14).optional(),
+      minWordsBeforeSentenceBreak: z.number().int().min(2).max(20).optional()
     }).strict().optional()
   }).strict().default({}),
   providers: z.object({

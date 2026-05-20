@@ -35,6 +35,11 @@ function rulesForMode(mode: string): CaptionRules {
   };
 }
 
+function clampNumber(value: number | undefined, fallback: number, min: number, max: number): number {
+  if (value === undefined || !Number.isFinite(value)) return fallback;
+  return Math.max(min, Math.min(max, value));
+}
+
 type TranscriptWord = {
   word: string;
   startSeconds: number;
@@ -106,7 +111,17 @@ export async function generateCaptionsForProject(
   const timeline = await readJsonFile(paths.timeline, TimelineSchema);
   const transcriptPath = path.join(paths.captionsDir, "transcript.json");
   const transcript = await readJsonFile(transcriptPath, TranscriptFileSchema);
-  const rules = rulesForMode(plan.mode);
+  const baseRules = rulesForMode(plan.mode);
+  const tuning = plan.overrides?.captionTuning;
+  const rules: CaptionRules = {
+    targetMaxWords: Math.round(clampNumber(tuning?.targetMaxWords, baseRules.targetMaxWords, 4, 30)),
+    hardMaxWords: Math.round(clampNumber(tuning?.hardMaxWords, baseRules.hardMaxWords, 6, 40)),
+    targetMaxDurationSeconds: clampNumber(tuning?.targetMaxDurationSeconds, baseRules.targetMaxDurationSeconds, 1.5, 12),
+    hardMaxDurationSeconds: clampNumber(tuning?.hardMaxDurationSeconds, baseRules.hardMaxDurationSeconds, 2, 14),
+    minWordsBeforeSentenceBreak: Math.round(
+      clampNumber(tuning?.minWordsBeforeSentenceBreak, baseRules.minWordsBeforeSentenceBreak, 2, 20)
+    )
+  };
   const emphasisWords = new Set(
     plan.sections
       .flatMap((section) => section.beats)

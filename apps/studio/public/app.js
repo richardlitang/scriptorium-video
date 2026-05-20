@@ -114,6 +114,9 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Build a reusable visual bible for consistency.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
+  "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
+  "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
+  "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."

@@ -40,6 +40,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
   });
 
   for (const section of loaded.videoPlan.sections) {
+    let previousIntensity: number | undefined;
     for (const beat of section.beats) {
       const voice = loaded.assetManifest.assets.find((asset) => asset.role === "voiceover" && asset.beatId === beat.id);
       const media = loaded.assetManifest.assets.filter((asset) => asset.role !== "voiceover" && asset.beatId === beat.id);
@@ -59,6 +60,48 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           path: `video-plan.sections.${section.id}.beats.${beat.id}`
         });
       }
+
+      const pauses =
+        (beat.voiceDirection?.pauseBeforeSeconds ?? 0) +
+        (beat.voiceDirection?.pauseAfterSeconds ?? 0);
+      if (pauses > 1.4) {
+        checks.push({
+          id: "shared.voice.pause_budget",
+          severity: "warning",
+          message: `Beat ${beat.id} has high combined pause budget (${pauses.toFixed(2)}s).`,
+          path: `video-plan.sections.${section.id}.beats.${beat.id}`
+        });
+      }
+
+      const intensity = beat.voiceDirection?.intensity;
+      if (previousIntensity !== undefined && intensity !== undefined && Math.abs(intensity - previousIntensity) > 0.45) {
+        checks.push({
+          id: "shared.voice.intensity_jump",
+          severity: "warning",
+          message: `Beat ${beat.id} has an abrupt intensity jump from previous beat.`,
+          path: `video-plan.sections.${section.id}.beats.${beat.id}`
+        });
+      }
+      if (intensity !== undefined) previousIntensity = intensity;
+    }
+  }
+
+  const promptCounts = new Map();
+  for (const section of loaded.videoPlan.sections) {
+    for (const beat of section.beats) {
+      const prompt = String(beat.media?.[0]?.prompt || beat.notes || "").replace(/\s+/g, " ").trim().toLowerCase();
+      if (!prompt) continue;
+      promptCounts.set(prompt, (promptCounts.get(prompt) || 0) + 1);
+    }
+  }
+  for (const [prompt, count] of promptCounts.entries()) {
+    if (count >= 3) {
+      checks.push({
+        id: "shared.visual.prompt_repetition",
+        severity: "warning",
+        message: `A visual prompt pattern repeats ${count} times; expect continuity drift or repetitive shots.`,
+        path: prompt.slice(0, 120)
+      });
     }
   }
 

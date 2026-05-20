@@ -1,4 +1,5 @@
 import path from "node:path";
+import { access, copyFile, mkdir } from "node:fs/promises";
 import { AssetManifestSchema, type Asset } from "./schemas/asset-manifest.schema.js";
 import { TimelineSchema, type Timeline } from "./schemas/timeline.schema.js";
 import { resolveConfig } from "./config-resolver.js";
@@ -40,6 +41,76 @@ function resolveCueAsset(assets: Asset[], beatId: string, cueId: string, assetId
       (asset.role === "sfx" || asset.role === "music") &&
       (asset.id === cueId || asset.beatId === beatId)
   );
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function cueSlug(kind: string): string {
+  return String(kind || "cue")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 60) || "cue";
+}
+
+async function resolveCueAssetFromLibrary(
+  projectId: string,
+  rootDir: string,
+  projectDir: string,
+  kind: string,
+  assets: Asset[]
+): Promise<Asset | undefined> {
+  const slug = cueSlug(kind);
+  const existing = assets.find((asset) => (asset.role === "sfx" || asset.role === "music") && asset.id === `sfx-lib-${slug}`);
+  if (existing) return existing;
+
+  const candidates = [
+    path.join(rootDir, "content", "sfx", `${slug}.wav`),
+    path.join(rootDir, "content", "sfx", `${slug}.mp3`),
+    path.join(rootDir, "content", "sfx", `${slug}.m4a`),
+    process.env.LVSTUDIO_SFX_LIBRARY_DIR ? path.join(process.env.LVSTUDIO_SFX_LIBRARY_DIR, `${slug}.wav`) : "",
+    process.env.LVSTUDIO_SFX_LIBRARY_DIR ? path.join(process.env.LVSTUDIO_SFX_LIBRARY_DIR, `${slug}.mp3`) : "",
+    process.env.LVSTUDIO_SFX_LIBRARY_DIR ? path.join(process.env.LVSTUDIO_SFX_LIBRARY_DIR, `${slug}.m4a`) : ""
+  ].filter(Boolean);
+
+  const sourcePath = await (async () => {
+    for (const candidate of candidates) {
+      if (await fileExists(candidate)) return candidate;
+    }
+    return undefined;
+  })();
+  if (!sourcePath) return undefined;
+
+  const ext = path.extname(sourcePath).toLowerCase() || ".wav";
+  const relativePath = path.join("assets", "audio", "sfx", "library", `${slug}${ext}`);
+  const absolutePath = path.resolve(projectDir, relativePath);
+  await mkdir(path.dirname(absolutePath), { recursive: true });
+  if (!(await fileExists(absolutePath))) {
+    await copyFile(sourcePath, absolutePath);
+  }
+  const created: Asset = {
+    id: `sfx-lib-${slug}`,
+    type: "audio",
+    role: "sfx",
+    path: relativePath,
+    source: {
+      kind: "manual",
+      provider: "sfx-library"
+    },
+    durationSeconds: 0,
+    status: "generated",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  assets.push(created);
+  return created;
 }
 
 function durationForBeat(beat: Beat, voiceAsset: Asset | undefined, mediaAssets: Asset[]): number {
@@ -116,40 +187,41 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse({ ...manifest, assets }));
 
   let cursor = 0;
-  const segments = plan.sections.flatMap((section) =>
-    section.beats
-      .sort((a, b) => a.order - b.order)
-      .map((beat) => {
+  const segments = [];
+  for (const section of plan.sections) {
+    for (const beat of section.beats.sort((a, b) => a.order - b.order)) {
         const voiceAsset = findVoiceAsset(assets, beat.id);
         const mediaAssets = findMediaAssets(assets, beat.id);
         const durationSeconds = durationForBeat(beat, voiceAsset, mediaAssets);
         const segmentStart = cursor;
         const segmentEnd = cursor + durationSeconds;
-        const audioCues = (beat.sfxCues ?? []).flatMap((cue) => {
-          const cueAsset = resolveCueAsset(assets, beat.id, cue.id, cue.assetId);
+        const audioCues = [];
+        for (const cue of beat.sfxCues ?? []) {
+          let cueAsset = resolveCueAsset(assets, beat.id, cue.id, cue.assetId);
+          if (!cueAsset && cue.kind) {
+            cueAsset = await resolveCueAssetFromLibrary(projectId, rootDir, paths.projectDir, cue.kind, assets);
+          }
           if (!cueAsset) {
             issues.push({
               level: "warning",
               beatId: beat.id,
               message: `Cue asset not found for ${cue.id}.`
             });
-            return [];
+            continue;
           }
           const rawStart =
             cue.placement === "beat_end"
               ? segmentEnd + cue.offsetSeconds
               : segmentStart + cue.offsetSeconds;
           const startSeconds = Math.max(0, rawStart);
-          return [
-            {
-              assetId: cueAsset.id,
-              role: cueAsset.role === "music" ? "music" : "sfx",
-              startSeconds,
-              durationSeconds: cueAsset.durationSeconds ?? 0,
-              levelDb: cue.levelDb
-            }
-          ];
-        });
+          audioCues.push({
+            assetId: cueAsset.id,
+            role: cueAsset.role === "music" ? "music" : "sfx",
+            startSeconds,
+            durationSeconds: cueAsset.durationSeconds ?? 0,
+            levelDb: cue.levelDb
+          });
+        }
         const segment = {
           sectionId: section.id,
           beatId: beat.id,
@@ -165,9 +237,9 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
           }
         };
         cursor = segmentEnd;
-        return segment;
-      })
-  );
+        segments.push(segment);
+    }
+  }
 
   const timeline = TimelineSchema.parse({
     schemaVersion: 1,
@@ -180,6 +252,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
     segments
   });
 
+  await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse({ ...manifest, assets }));
   await writeJsonFile(paths.timeline, timeline);
   return {
     timeline,

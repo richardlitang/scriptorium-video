@@ -641,16 +641,20 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     return Math.max(min, Math.min(max, numeric));
   };
   const normalizeVoiceDirection = (beatDraft) => {
+    const confidence = clampNumber(beatDraft.voiceConfidence, 0.7, 0, 1);
+    const conservative = confidence < 0.45;
     const profile = allowedVoiceProfiles.has(beatDraft.voiceProfile) ? beatDraft.voiceProfile : "neutral";
     return {
-      profile,
+      profile: conservative ? "neutral" : profile,
       deliveryNote: String(beatDraft.deliveryNote || "").trim() || undefined,
       emphasis: Array.isArray(beatDraft.emphasis)
         ? beatDraft.emphasis.map((entry) => String(entry || "").trim()).filter(Boolean).slice(0, 12)
         : [],
-      pauseBeforeSeconds: clampNumber(beatDraft.pauseBeforeSeconds, 0, 0, 1.2),
-      pauseAfterSeconds: clampNumber(beatDraft.pauseAfterSeconds, 0, 0, 1.2),
-      intensity: clampNumber(beatDraft.intensity, 0.5, 0, 1),
+      pauseBeforeSeconds: conservative ? 0 : clampNumber(beatDraft.pauseBeforeSeconds, 0, 0, 1.2),
+      pauseAfterSeconds: conservative ? 0.08 : clampNumber(beatDraft.pauseAfterSeconds, 0, 0, 1.2),
+      intensity: conservative ? 0.45 : clampNumber(beatDraft.intensity, 0.5, 0, 1),
+      speedMultiplier: clampNumber(beatDraft.speedMultiplier, 1, 0.6, 1.5),
+      pitchOffset: clampNumber(beatDraft.pitchOffset, 0, -6, 6),
       source: "llm"
     };
   };
@@ -703,6 +707,15 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       ...(currentPlan.visualBible || {}),
       ...(draft.visualBible || {})
     },
+    overrides: {
+      ...(currentPlan.overrides || {}),
+      ...(draft.captionTuning ? {
+        captionTuning: {
+          ...(currentPlan.overrides?.captionTuning || {}),
+          ...draft.captionTuning
+        }
+      } : {})
+    },
     sections: draft.sections.map((section, sectionIndex) => {
       const sectionId = slugify(section.title, `section-${sectionIndex + 1}`);
       return {
@@ -716,6 +729,20 @@ function buildPlanFromAiDraft(currentPlan, draft) {
         beats: section.beats.map((beat, beatIndex) => {
           const beatNumber = String(beatIndex + 1).padStart(3, "0");
           const beatId = `${sectionId}-${beatNumber}`;
+          const shotMetadata = [
+            beat.shotType ? `Shot type: ${beat.shotType}` : "",
+            beat.cameraDistance ? `Camera distance: ${beat.cameraDistance}` : "",
+            beat.lighting ? `Lighting: ${beat.lighting}` : "",
+            beat.lens ? `Lens: ${beat.lens}` : "",
+            beat.composition ? `Composition: ${beat.composition}` : "",
+            beat.subjectContinuity ? `Subject continuity: ${beat.subjectContinuity}` : "",
+            beat.negativePromptAdditions ? `Avoid (beat-specific): ${beat.negativePromptAdditions}` : ""
+          ].filter(Boolean).join("\n");
+          const visualConfidence = clampNumber(beat.visualConfidence, 0.7, 0, 1);
+          const conservativeVisual = visualConfidence < 0.45;
+          const motionType = ["none", "slow_zoom_in", "slow_zoom_out", "pan_left", "pan_right"].includes(beat.motion)
+            ? beat.motion
+            : "slow_zoom_in";
           return {
             id: beatId,
             order: beatIndex + 1,
@@ -731,16 +758,24 @@ function buildPlanFromAiDraft(currentPlan, draft) {
                 id: `${beatId}-visual`,
                 type: "title_card",
                 role: "primary_visual",
-                prompt: [beat.visualPrompt || beat.narration, visualBibleSuffix].filter(Boolean).join("\n\n"),
+                prompt: [
+                  beat.visualPrompt || beat.narration,
+                  shotMetadata,
+                  visualBibleSuffix,
+                  conservativeVisual ? "Keep framing simple and continuity-safe. Avoid creative leaps for this beat." : ""
+                ].filter(Boolean).join("\n\n"),
                 scaleMode: "cover",
                 placement: "background"
               }
             ],
-            motion: { type: beat.motion || "slow_zoom_in", intensity: 0.08 },
+            motion: {
+              type: conservativeVisual ? "slow_zoom_in" : motionType,
+              intensity: conservativeVisual ? 0.05 : 0.08
+            },
             caption: { emphasis: beat.emphasis || [], style: beat.captionStyle || "default" },
             voiceDirection: normalizeVoiceDirection(beat),
             sfxCues: normalizeSfxCues(beat),
-            notes: [beat.notes || beat.visualPrompt || "", visualBibleSuffix].filter(Boolean).join("\n\n")
+            notes: [beat.notes || beat.visualPrompt || "", shotMetadata, visualBibleSuffix].filter(Boolean).join("\n\n")
           };
         })
       };
@@ -776,6 +811,9 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Build a reusable visual bible for consistency.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
+  "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
+  "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
+  "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."
@@ -832,6 +870,17 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
             required: ["title", "voice", "visualBible", "sections", "warnings"],
             properties: {
               title: { type: "string" },
+              captionTuning: {
+                type: "object",
+                additionalProperties: false,
+                properties: {
+                  targetMaxWords: { type: "number" },
+                  hardMaxWords: { type: "number" },
+                  targetMaxDurationSeconds: { type: "number" },
+                  hardMaxDurationSeconds: { type: "number" },
+                  minWordsBeforeSentenceBreak: { type: "number" }
+                }
+              },
               voice: {
                 type: "object",
                 additionalProperties: false,
@@ -874,7 +923,7 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
                       items: {
                         type: "object",
                         additionalProperties: false,
-                        required: ["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote"],
+                        required: ["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "visualConfidence"],
                         properties: {
                           narration: { type: "string" },
                           visualPrompt: { type: "string" },
@@ -887,7 +936,18 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
                           pauseBeforeSeconds: { type: "number" },
                           pauseAfterSeconds: { type: "number" },
                           deliveryNote: { type: "string" },
+                          speedMultiplier: { type: "number" },
+                          pitchOffset: { type: "number" },
+                          voiceConfidence: { type: "number" },
+                          visualConfidence: { type: "number" },
                           captionStyle: { type: "string" },
+                          shotType: { type: "string" },
+                          cameraDistance: { type: "string" },
+                          lighting: { type: "string" },
+                          lens: { type: "string" },
+                          composition: { type: "string" },
+                          subjectContinuity: { type: "string" },
+                          negativePromptAdditions: { type: "string" },
                           sfxCues: {
                             type: "array",
                             items: {

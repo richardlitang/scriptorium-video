@@ -50,6 +50,7 @@ test("resolveVoiceDirection returns neutral defaults when voiceDirection is miss
     cfg_weight: 0.45,
     temperature: 0.6
   });
+  assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0 });
 });
 
 test("resolveVoiceDirection maps key_point profile to stable chatterbox settings", () => {
@@ -73,6 +74,7 @@ test("resolveVoiceDirection maps key_point profile to stable chatterbox settings
     temperature: 0.68
   });
   assert.deepEqual(resolved.pauses, { beforeSeconds: 0.1, afterSeconds: 0.35 });
+  assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0 });
 });
 
 test("resolveVoiceDirection does not inject chatterbox options for non-chatterbox providers", () => {
@@ -88,4 +90,25 @@ test("resolveVoiceDirection does not inject chatterbox options for non-chatterbo
     planWithTts("openai")
   );
   assert.deepEqual(resolved.providerOptions, {});
+  assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0 });
+});
+
+test("resolveVoiceDirection computes per-beat speed and pitch from multipliers and offsets", () => {
+  const plan = planWithTts("openai");
+  plan.voice.options.speed = 0.9;
+  plan.voice.options.pitch = -0.1;
+  const resolved = resolveVoiceDirection(
+    beatWithDirection({
+      profile: "neutral",
+      intensity: 0.5,
+      emphasis: [],
+      pauseBeforeSeconds: 0,
+      pauseAfterSeconds: 0,
+      speedMultiplier: 1.2,
+      pitchOffset: 0.3,
+      source: "llm"
+    }),
+    plan
+  );
+  assert.deepEqual(resolved.voiceOptions, { speed: 1.08, pitch: 0.2 });
 });

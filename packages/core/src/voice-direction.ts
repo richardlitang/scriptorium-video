@@ -33,6 +33,10 @@ export type ResolvedVoiceDirection = {
     afterSeconds: number;
   };
   providerOptions: Record<string, unknown>;
+  voiceOptions: {
+    speed?: number;
+    pitch?: number;
+  };
 };
 
 export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoiceDirection {
@@ -46,6 +50,13 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoic
     providerOptions.temperature = profile.temperature;
   }
 
+  const baseSpeed = typeof plan.voice.options?.speed === "number" ? plan.voice.options.speed : undefined;
+  const speed = baseSpeed !== undefined
+    ? Number((baseSpeed * direction.speedMultiplier).toFixed(3))
+    : undefined;
+  const basePitch = typeof plan.voice.options?.pitch === "number" ? plan.voice.options.pitch : 0;
+  const pitch = Number((basePitch + direction.pitchOffset).toFixed(3));
+
   return {
     delivery: {
       profile: direction.profile,
@@ -57,6 +68,10 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoic
       beforeSeconds: direction.pauseBeforeSeconds,
       afterSeconds: direction.pauseAfterSeconds
     },
-    providerOptions
+    providerOptions,
+    voiceOptions: {
+      speed,
+      pitch
+    }
   };
 }
