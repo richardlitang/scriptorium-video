@@ -572,9 +572,9 @@ async function runDraftJob(projectId, body) {
           const draft = await generatePlanDraftWithOpenAi({
             story,
             currentPlan: plan,
-            feel: body.feel ?? "cinematic supernatural suspense",
-            pacing: body.pacing ?? "measured",
-            visualStyle: body.visualStyle ?? "dark cinematic realism",
+            feel: body.feel ?? "eerie animated suspense with emotional intensity",
+            pacing: body.pacing ?? "measured slow-burn with sharp turns",
+            visualStyle: body.visualStyle ?? "stylized animated cinematic frames, explicitly non-photorealistic",
             format: body.format ?? "short_story",
             systemPrompt: body.systemPrompt,
             userPromptTemplate: body.userPromptTemplate
@@ -2357,9 +2357,9 @@ const server = createServer(async (req, res) => {
       const result = await generatePlanDraftWithOpenAi({
         story: body.story,
         currentPlan: details.plan,
-        feel: body.feel ?? "cinematic supernatural suspense",
-        pacing: body.pacing ?? "measured",
-        visualStyle: body.visualStyle ?? "dark cinematic realism",
+        feel: body.feel ?? "eerie animated suspense with emotional intensity",
+        pacing: body.pacing ?? "measured slow-burn with sharp turns",
+        visualStyle: body.visualStyle ?? "stylized animated cinematic frames, explicitly non-photorealistic",
         format: body.format ?? "short_story",
         systemPrompt: body.systemPrompt,
         userPromptTemplate: body.userPromptTemplate

@@ -70,9 +70,6 @@ const aiPlanBtn = document.getElementById("ai-plan-btn");
 const storyFeel = document.getElementById("story-feel");
 const storyPacing = document.getElementById("story-pacing");
 const storyVisualStyle = document.getElementById("story-visual-style");
-const storyFeelCustom = document.getElementById("story-feel-custom");
-const storyPacingCustom = document.getElementById("story-pacing-custom");
-const storyVisualStyleCustom = document.getElementById("story-visual-style-custom");
 const storySystemPrompt = document.getElementById("story-system-prompt");
 const storyUserPromptTemplate = document.getElementById("story-user-prompt-template");
 const resetPromptDefaultsBtn = document.getElementById("reset-prompt-defaults-btn");
@@ -207,15 +204,11 @@ function writeStored(projectId, key, value) {
   localStorage.setItem(storageKey(projectId, key), value);
 }
 
-function resolvedStorySetting(selectEl, customEl) {
-  return customEl.value.trim() || selectEl.value;
-}
-
 function currentStoryDirection() {
   return {
-    feel: resolvedStorySetting(storyFeel, storyFeelCustom),
-    pacing: resolvedStorySetting(storyPacing, storyPacingCustom),
-    visualStyle: resolvedStorySetting(storyVisualStyle, storyVisualStyleCustom)
+    feel: storyFeel.value.trim(),
+    pacing: storyPacing.value.trim(),
+    visualStyle: storyVisualStyle.value.trim()
   };
 }
 
@@ -223,11 +216,8 @@ function saveUiState() {
   if (!selectedProjectId) return;
   writeStored(selectedProjectId, "story", storyInput.value);
   writeStored(selectedProjectId, "feel", storyFeel.value);
-  writeStored(selectedProjectId, "feelCustom", storyFeelCustom.value);
   writeStored(selectedProjectId, "pacing", storyPacing.value);
-  writeStored(selectedProjectId, "pacingCustom", storyPacingCustom.value);
   writeStored(selectedProjectId, "visualStyle", storyVisualStyle.value);
-  writeStored(selectedProjectId, "visualStyleCustom", storyVisualStyleCustom.value);
   writeStored(selectedProjectId, "systemPrompt", storySystemPrompt.value);
   writeStored(selectedProjectId, "userPromptTemplate", storyUserPromptTemplate.value);
   writeStored(selectedProjectId, "imageEnabled", imageEnabled.checked ? "true" : "false");
@@ -239,11 +229,8 @@ function saveUiState() {
 function restoreUiState(projectId) {
   storyInput.value = readStored(projectId, "story");
   storyFeel.value = readStored(projectId, "feel", storyFeel.value);
-  storyFeelCustom.value = readStored(projectId, "feelCustom", "");
   storyPacing.value = readStored(projectId, "pacing", storyPacing.value);
-  storyPacingCustom.value = readStored(projectId, "pacingCustom", "");
   storyVisualStyle.value = readStored(projectId, "visualStyle", storyVisualStyle.value);
-  storyVisualStyleCustom.value = readStored(projectId, "visualStyleCustom", "");
   storySystemPrompt.value = readStored(projectId, "systemPrompt", DEFAULT_PLANNER_SYSTEM_PROMPT);
   storyUserPromptTemplate.value = readStored(projectId, "userPromptTemplate", DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
   imageEnabled.checked = readStored(projectId, "imageEnabled", imageEnabled.checked ? "true" : "false") === "true";
@@ -1222,11 +1209,8 @@ function applyPendingStoryState(pendingStory, pendingUiState, projectId) {
   if (!pendingStory.trim() || !projectId || selectedProjectId !== projectId) return;
   storyInput.value = pendingStory;
   storyFeel.value = pendingUiState.feel;
-  storyFeelCustom.value = pendingUiState.feelCustom;
   storyPacing.value = pendingUiState.pacing;
-  storyPacingCustom.value = pendingUiState.pacingCustom;
   storyVisualStyle.value = pendingUiState.visualStyle;
-  storyVisualStyleCustom.value = pendingUiState.visualStyleCustom;
   storySystemPrompt.value = pendingUiState.systemPrompt;
   storyUserPromptTemplate.value = pendingUiState.userPromptTemplate;
   imageEnabled.checked = pendingUiState.imageEnabled === "true";
@@ -1243,11 +1227,8 @@ newProjectBtn.onclick = async () => {
   const pendingStory = storyInput.value;
   const pendingUiState = {
     feel: storyFeel.value,
-    feelCustom: storyFeelCustom.value,
     pacing: storyPacing.value,
-    pacingCustom: storyPacingCustom.value,
     visualStyle: storyVisualStyle.value,
-    visualStyleCustom: storyVisualStyleCustom.value,
     systemPrompt: storySystemPrompt.value,
     userPromptTemplate: storyUserPromptTemplate.value,
     imageEnabled: imageEnabled.checked ? "true" : "false",
@@ -1384,11 +1365,8 @@ renderBtn.onclick = async () => {
   }
   const pendingUiState = {
     feel: storyFeel.value,
-    feelCustom: storyFeelCustom.value,
     pacing: storyPacing.value,
-    pacingCustom: storyPacingCustom.value,
     visualStyle: storyVisualStyle.value,
-    visualStyleCustom: storyVisualStyleCustom.value,
     systemPrompt: storySystemPrompt.value,
     userPromptTemplate: storyUserPromptTemplate.value,
     imageEnabled: imageEnabled.checked ? "true" : "false",
@@ -1634,10 +1612,6 @@ storyInput.addEventListener("keyup", updateStoryButtons);
 storyInput.addEventListener("paste", syncStoryButtonsSoon);
 storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, storySystemPrompt, storyUserPromptTemplate, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
-  control.addEventListener("change", saveUiState);
-});
-[storyFeelCustom, storyPacingCustom, storyVisualStyleCustom].forEach((control) => {
-  control.addEventListener("input", saveUiState);
   control.addEventListener("change", saveUiState);
 });
 voiceSettingsController.setupEvents();
