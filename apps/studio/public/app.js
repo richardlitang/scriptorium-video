@@ -322,6 +322,7 @@ function defaultDraftButtonLabel() {
 function ttsAvailability() {
   const status = ttsHealthState?.status || "checking";
   if (status === "ready" && ttsHealthState?.ok) return "ready";
+  if (status === "no_health_endpoint" && ttsHealthState?.ok) return "ready_degraded";
   if (status === "loading") return "loading";
   if (status === "failed") return "failed";
   if (status === "unreachable") return "unreachable";
@@ -343,6 +344,16 @@ function renderTtsHealthPill() {
     if (ttsHealthDetail) {
       ttsHealthDetail.classList.add("ok");
       ttsHealthDetail.textContent = "Narration service is ready. You can run Make Draft, Regenerate Narration, or Direct Voice now.";
+    }
+    return;
+  }
+  if (availability === "ready_degraded") {
+    ttsHealthPill.classList.add("warn");
+    ttsHealthPill.textContent = "TTS: reachable (no /health)";
+    ttsHealthPill.title = "TTS endpoint is reachable but does not expose /health; Studio will proceed optimistically.";
+    if (ttsHealthDetail) {
+      ttsHealthDetail.classList.add("warn");
+      ttsHealthDetail.textContent = "TTS server is reachable, but it does not provide a health endpoint. Draft actions are enabled; if generation fails, verify the speech endpoint configuration.";
     }
     return;
   }
@@ -379,7 +390,7 @@ function updateStoryButtons() {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = storyInput.value.trim().length > 0;
   const draftJobRunning = currentDraftJob && ["queued", "running"].includes(currentDraftJob.status);
-  const ttsReady = ttsAvailability() === "ready";
+  const ttsReady = ttsAvailability() === "ready" || ttsAvailability() === "ready_degraded";
   const ttsWarming = ttsAvailability() === "loading" || ttsAvailability() === "checking";
   convertStoryBtn.disabled = !hasSelectedProject || !hasStory;
   aiPlanBtn.disabled = !hasSelectedProject || !hasStory;
@@ -1243,7 +1254,7 @@ async function refreshTtsHealth() {
 renderBtn.onclick = async () => {
   const hasStory = storyInput.value.trim().length > 0;
   if (!hasStory) return;
-  if (ttsAvailability() !== "ready") {
+  if (!["ready", "ready_degraded"].includes(ttsAvailability())) {
     const msg = ttsAvailability() === "loading" || ttsAvailability() === "checking"
       ? "TTS model is still warming up. Wait for 'TTS: ready' then try Make Draft."
       : `TTS is unavailable: ${ttsHealthState.error || "check Chatterbox server."}`;

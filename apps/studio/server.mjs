@@ -164,6 +164,15 @@ async function readTtsHealth() {
     });
     const payload = await response.json().catch(() => ({}));
     if (!response.ok) {
+      if (response.status === 404) {
+        return {
+          provider: "chatterbox",
+          ok: true,
+          status: "no_health_endpoint",
+          sampleRate: null,
+          error: `Health endpoint not found at ${CHATTERBOX_HEALTH_URL}`
+        };
+      }
       return {
         provider: "chatterbox",
         ok: false,
