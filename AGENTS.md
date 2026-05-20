@@ -34,10 +34,15 @@ Use MCP tools first for operational workflows.
 
 ## Execution Defaults
 
-- On every run, surface important realizations as they emerge:
-  - architecture constraints
-  - pattern drift
-  - risky coupling
-  - behavior that may regress later
+- On every run, surface important realizations as they emerge.
+- Realizations must focus on improvement opportunities, not just observations:
+  - architecture: boundaries, ownership, coupling, data flow, fallback strategy
+  - code quality: complexity hotspots, duplication, weak validation/defaulting, test gaps
+  - patterns: inconsistency with existing conventions, missing abstractions, unsafe shortcuts
+  - design/UX: workflow friction, unclear controls, poor defaults, weak feedback states
+- Each realization should include:
+  - `problem`: what is weak or likely to fail later
+  - `impact`: why it matters (quality, speed, reliability, cost)
+  - `improvement`: concrete change to implement next
 - If unsure, do not generate new assets/artifacts/jobs speculatively. Pause generation and clarify first.
-- Before ending a run, include a short "Realizations" section in the handoff when any of the above is detected.
+- Before ending a run, include a short `Realizations` section in the handoff when any of the above is detected.

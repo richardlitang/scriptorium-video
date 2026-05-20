@@ -29,6 +29,7 @@ const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
 const CHATTERBOX_SPEECH_URL = process.env.CHATTERBOX_TTS_URL ?? "http://127.0.0.1:8000/v1/audio/speech";
 const voicePreviewCache = new Map();
+const STUDIO_TEST_MODE = process.env.LVSTUDIO_TEST_MODE === "1";
 
 const port = Number(process.env.PORT ?? "4173");
 
@@ -825,6 +826,73 @@ function fillPlannerTemplate(template, values) {
 }
 
 async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, visualStyle, format, systemPrompt, userPromptTemplate }) {
+  if (STUDIO_TEST_MODE) {
+    return {
+      plan: buildPlanFromAiDraft(currentPlan, {
+        title: currentPlan.title || "Test Plan",
+        voice: {
+          voiceId: "alloy",
+          speed: 0.92,
+          direction: "engaged",
+          language: "en"
+        },
+        visualBible: {
+          stylePreset: "cinematic_illustration",
+          lookAndFeel: "grounded",
+          palette: ["#111111", "#f1f1f1"],
+          eraAndLocation: "present day",
+          characterAnchors: ["same protagonist"],
+          continuityRules: ["keep wardrobe stable"],
+          negativePrompt: "watermarks"
+        },
+        captionTuning: {
+          targetMaxWords: 14,
+          hardMaxWords: 20,
+          targetMaxDurationSeconds: 5,
+          hardMaxDurationSeconds: 6.5,
+          minWordsBeforeSentenceBreak: 8
+        },
+        sections: [
+          {
+            title: "Intro",
+            summary: "test",
+            purpose: "test",
+            beats: [
+              {
+                narration: story.split(/\s+/).slice(0, 20).join(" ") || "test narration",
+                visualPrompt: "test visual",
+                estimatedDurationSeconds: 3,
+                motion: "slow_zoom_in",
+                emphasis: ["test"],
+                notes: "test",
+                voiceProfile: "neutral",
+                intensity: 0.5,
+                pauseBeforeSeconds: 0,
+                pauseAfterSeconds: 0.1,
+                deliveryNote: "clear",
+                speedMultiplier: 1,
+                pitchOffset: 0,
+                voiceConfidence: 0.8,
+                visualConfidence: 0.8,
+                shotType: "close up",
+                cameraDistance: "medium",
+                lighting: "low key",
+                lens: "35mm",
+                composition: "centered",
+                subjectContinuity: "same subject",
+                negativePromptAdditions: "none",
+                captionStyle: "default",
+                sfxCues: []
+              }
+            ]
+          }
+        ],
+        warnings: []
+      }),
+      warnings: [],
+      model: "test-mode"
+    };
+  }
   const apiKey = await getOpenAiApiKey();
   const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-4o-mini";
   const promptValues = {
@@ -1787,6 +1855,9 @@ async function listProjects() {
 }
 
 async function runLvstudio(args) {
+  if (STUDIO_TEST_MODE) {
+    return runLvstudioTestMode(args);
+  }
   const command = ["pnpm", "lvstudio", ...args].join(" ");
   const startedAt = Date.now();
   try {
@@ -1824,6 +1895,133 @@ async function runLvstudio(args) {
     });
     throw new Error(message);
   }
+}
+
+async function runLvstudioTestMode(args) {
+  const command = args[0];
+  const projectId = args[1];
+  if (!projectId && command !== "create") return { stdout: "ok", stderr: "" };
+  const projectDir = projectId ? path.join(projectsDir, projectId) : null;
+  const now = new Date().toISOString();
+
+  if (command === "create") {
+    const mode = args[3] || "short_story";
+    const plan = {
+      schemaVersion: 1,
+      title: projectId,
+      mode,
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      providers: { llm: "manual", tts: "chatterbox", transcription: "mock", media: "manual-media", renderer: "remotion" },
+      voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: { speed: 0.92 } },
+      sections: [{ id: "intro", title: "Intro", beats: [{ id: "intro-001", order: 1, narration: "Test narration.", timing: { mediaPolicy: "loop_or_freeze", locked: false }, media: [], motion: { type: "none", intensity: 0 }, caption: { emphasis: [], style: "default" }, sfxCues: [] }] }]
+    };
+    await mkdir(projectDir, { recursive: true });
+    await mkdir(path.join(projectDir, "captions"), { recursive: true });
+    await mkdir(path.join(projectDir, "assets", "audio", "voice"), { recursive: true });
+    await mkdir(path.join(projectDir, "renders"), { recursive: true });
+    await writeFile(path.join(projectDir, "project.json"), `${JSON.stringify({ schemaVersion: 1, id: projectId, title: projectId, createdAt: now, updatedAt: now, status: "draft" }, null, 2)}\n`, "utf8");
+    await writeFile(path.join(projectDir, "video-plan.json"), `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+    await writeFile(path.join(projectDir, "asset-manifest.json"), `${JSON.stringify({ schemaVersion: 1, assets: [] }, null, 2)}\n`, "utf8");
+    return { stdout: "created", stderr: "" };
+  }
+
+  if (command === "sync") {
+    const plan = await safeReadJson(path.join(projectDir, "video-plan.json"));
+    const segments = [];
+    let cursor = 0;
+    for (const section of plan.sections ?? []) {
+      for (const beat of section.beats ?? []) {
+        const durationSeconds = beat.timing?.estimatedDurationSeconds || 3;
+        segments.push({
+          sectionId: section.id,
+          beatId: beat.id,
+          startSeconds: cursor,
+          endSeconds: cursor + durationSeconds,
+          durationSeconds,
+          voiceAssetId: `voice-${beat.id}`,
+          mediaAssetIds: [],
+          audioCues: [],
+          renderPolicy: { mediaPolicy: beat.timing?.mediaPolicy || "loop_or_freeze", scaleMode: "cover" }
+        });
+        cursor += durationSeconds;
+      }
+    }
+    const timeline = { schemaVersion: 1, generatedAt: now, sourcePlanHash: sha256(JSON.stringify(plan)), fps: 30, width: 1080, height: 1920, durationSeconds: Math.max(1, cursor), segments };
+    await writeFile(path.join(projectDir, "timeline.json"), `${JSON.stringify(timeline, null, 2)}\n`, "utf8");
+    return { stdout: "synced", stderr: "" };
+  }
+
+  if (command === "generate:tts") {
+    const plan = await safeReadJson(path.join(projectDir, "video-plan.json"));
+    const manifestPath = path.join(projectDir, "asset-manifest.json");
+    const manifest = await safeReadJson(manifestPath).catch(() => ({ schemaVersion: 1, assets: [] }));
+    for (const section of plan.sections ?? []) {
+      for (const beat of section.beats ?? []) {
+        const rel = path.join("assets", "audio", "voice", `${beat.id}.wav`);
+        await mkdir(path.dirname(path.join(projectDir, rel)), { recursive: true });
+        await writeFile(path.join(projectDir, rel), "stub", "utf8");
+        manifest.assets = (manifest.assets || []).filter((asset) => asset.id !== `voice-${beat.id}`);
+        manifest.assets.push({
+          id: `voice-${beat.id}`,
+          type: "audio",
+          role: "voiceover",
+          sectionId: section.id,
+          beatId: beat.id,
+          path: rel,
+          source: { kind: "generated", provider: "test", inputHash: "test" },
+          durationSeconds: beat.timing?.estimatedDurationSeconds || 3,
+          status: "generated",
+          createdAt: now,
+          updatedAt: now
+        });
+      }
+    }
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
+    return { stdout: "tts", stderr: "" };
+  }
+
+  if (command === "transcribe") {
+    const timeline = await safeReadJson(path.join(projectDir, "timeline.json"));
+    const words = [];
+    const segments = [];
+    for (const segment of timeline.segments ?? []) {
+      const text = "test line";
+      segments.push({ startSeconds: segment.startSeconds, endSeconds: segment.endSeconds, text });
+      words.push({ word: "test", startSeconds: segment.startSeconds, endSeconds: segment.startSeconds + 0.5, confidence: 1 });
+      words.push({ word: "line", startSeconds: segment.startSeconds + 0.5, endSeconds: segment.startSeconds + 1, confidence: 1 });
+    }
+    const transcript = { schemaVersion: 1, status: "generated", source: { provider: "mock", audioAssetIds: [] }, text: "test line", durationSeconds: timeline.durationSeconds, segments, words };
+    await mkdir(path.join(projectDir, "captions"), { recursive: true });
+    await writeFile(path.join(projectDir, "captions", "transcript.json"), `${JSON.stringify(transcript, null, 2)}\n`, "utf8");
+    return { stdout: "transcribed", stderr: "" };
+  }
+
+  if (command === "captions") {
+    const timeline = await safeReadJson(path.join(projectDir, "timeline.json"));
+    const captions = (timeline.segments || []).map((segment, index) => ({
+      id: `caption-${index + 1}`,
+      beatId: segment.beatId,
+      startSeconds: segment.startSeconds,
+      endSeconds: Math.min(segment.endSeconds, segment.startSeconds + 1.5),
+      text: "test line",
+      style: "default",
+      words: []
+    }));
+    await writeFile(path.join(projectDir, "captions", "captions.json"), `${JSON.stringify({ schemaVersion: 1, status: "generated", source: { transcriptionProvider: "mock", audioAssetIds: [] }, captions }, null, 2)}\n`, "utf8");
+    return { stdout: "captions", stderr: "" };
+  }
+
+  if (command === "render") {
+    await mkdir(path.join(projectDir, "renders"), { recursive: true });
+    await writeFile(path.join(projectDir, "renders", "draft.mp4"), "stub", "utf8");
+    return { stdout: "rendered", stderr: "" };
+  }
+
+  if (command === "check") return { stdout: "{\"status\":\"pass\",\"checks\":[]}", stderr: "" };
+  if (command === "review") return { stdout: "{\"issues\":[],\"summary\":{\"critical\":0,\"warning\":0,\"suggestion\":0}}", stderr: "" };
+  if (command === "direct:voice") return { stdout: "{}", stderr: "" };
+  return { stdout: "ok", stderr: "" };
 }
 
 async function runLvstudioReport(args) {

@@ -14,7 +14,37 @@ export function createBeatWorkspaceController({
   imageQualityValue,
   onBeatJobQueued
 }) {
+  const selectedBeatIds = new Set();
+
+  function ensureSelectedWithinPlan(plan) {
+    const validIds = new Set((plan.sections ?? []).flatMap((section) => (section.beats ?? []).map((beat) => beat.id)));
+    for (const beatId of [...selectedBeatIds]) {
+      if (!validIds.has(beatId)) selectedBeatIds.delete(beatId);
+    }
+  }
+
+  function voiceTuningSnapshot(beat) {
+    return {
+      profile: beat.voiceDirection?.profile ?? "neutral",
+      intensity: beat.voiceDirection?.intensity ?? 0.5,
+      pauseBeforeSeconds: beat.voiceDirection?.pauseBeforeSeconds ?? 0,
+      pauseAfterSeconds: beat.voiceDirection?.pauseAfterSeconds ?? 0,
+      deliveryNote: beat.voiceDirection?.deliveryNote,
+      speedMultiplier: beat.voiceDirection?.speedMultiplier ?? 1,
+      pitchOffset: beat.voiceDirection?.pitchOffset ?? 0
+    };
+  }
+
+  function applyVoiceTuning(targetBeat, tuning) {
+    targetBeat.voiceDirection = {
+      ...(targetBeat.voiceDirection || {}),
+      ...tuning,
+      source: "user"
+    };
+  }
+
   function renderTimeline({ projectId, plan, timeline, assets, runState }) {
+    ensureSelectedWithinPlan(plan);
     timelineEl.innerHTML = "";
     const reviewCountsByBeat = getReviewIssues().reduce((acc, issue) => {
       if (!issue.beatId) return acc;
@@ -57,6 +87,14 @@ export function createBeatWorkspaceController({
 
         const top = document.createElement("div");
         top.className = "beat-card-top";
+        const selectToggle = document.createElement("input");
+        selectToggle.type = "checkbox";
+        selectToggle.checked = selectedBeatIds.has(beat.id);
+        selectToggle.onclick = (event) => {
+          event.stopPropagation();
+          if (selectToggle.checked) selectedBeatIds.add(beat.id);
+          else selectedBeatIds.delete(beat.id);
+        };
         const beatId = document.createElement("span");
         beatId.className = "beat-id";
         beatId.textContent = beat.id;
@@ -64,7 +102,7 @@ export function createBeatWorkspaceController({
         duration.className = "beat-duration";
         const seconds = beatDurationSeconds(beat.id, timeline);
         duration.textContent = seconds > 0 ? `${seconds.toFixed(1)}s` : "n/a";
-        top.append(beatId, duration);
+        top.append(selectToggle, beatId, duration);
         card.appendChild(top);
 
         const copy = document.createElement("div");
@@ -337,6 +375,33 @@ export function createBeatWorkspaceController({
 
     const actions = document.createElement("div");
     actions.className = "beat-inspector-actions";
+    const applySectionBtn = document.createElement("button");
+    applySectionBtn.type = "button";
+    applySectionBtn.textContent = "Apply Voice Tuning to Section";
+    applySectionBtn.onclick = () => {
+      const tuning = voiceTuningSnapshot(beat);
+      for (const sectionBeat of section.beats ?? []) {
+        applyVoiceTuning(sectionBeat, tuning);
+      }
+      onPlanChanged(plan);
+      renderInspector({ projectId, plan, assets, timeline });
+    };
+    const applySelectedBtn = document.createElement("button");
+    applySelectedBtn.type = "button";
+    applySelectedBtn.textContent = "Apply Voice Tuning to Selected Beats";
+    applySelectedBtn.onclick = () => {
+      const tuning = voiceTuningSnapshot(beat);
+      let applied = 0;
+      for (const planSection of plan.sections ?? []) {
+        for (const sectionBeat of planSection.beats ?? []) {
+          if (!selectedBeatIds.has(sectionBeat.id)) continue;
+          applyVoiceTuning(sectionBeat, tuning);
+          applied += 1;
+        }
+      }
+      if (applied > 0) onPlanChanged(plan);
+      renderInspector({ projectId, plan, assets, timeline });
+    };
     const regenerateBtn = document.createElement("button");
     regenerateBtn.type = "button";
     regenerateBtn.textContent = "Regenerate Beat";
@@ -371,7 +436,7 @@ export function createBeatWorkspaceController({
         renderNowBtn.disabled = false;
       }
     };
-    actions.append(regenerateBtn, renderNowBtn);
+    actions.append(applySelectedBtn, applySectionBtn, regenerateBtn, renderNowBtn);
 
     const assetsInfo = document.createElement("div");
     assetsInfo.className = "feedback-row";
