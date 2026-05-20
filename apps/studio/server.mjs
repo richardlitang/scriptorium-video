@@ -511,6 +511,13 @@ function parsePlanFromStoryInput(rawInput) {
   return undefined;
 }
 
+function isScaffoldPlaceholderPlan(plan) {
+  const beats = (plan?.sections ?? []).flatMap((section) => section.beats ?? []);
+  return beats.some((beat) =>
+    String(beat?.narration ?? "").trim().toLowerCase() === "replace this narration with your first beat."
+  );
+}
+
 function applyDraftDefaults(plan) {
   return {
     ...plan,
@@ -687,9 +694,31 @@ function ttsProviderForBeat(defaultProvider, beat) {
     defaultProvider;
 }
 
+function draftAudioStepCount(plan) {
+  const providers = new Set();
+  let beatCount = 0;
+  for (const section of plan.sections ?? []) {
+    for (const beat of section.beats ?? []) {
+      beatCount += 1;
+      providers.add(ttsProviderForBeat(plan.providers.tts, beat));
+    }
+  }
+  if (beatCount === 0) return 0;
+  return providers.size === 1 ? 1 : beatCount;
+}
+
 async function generateDraftAudioBySection(projectId, job, plan, transcriptionProvider) {
   const sections = plan.sections ?? [];
-  const totalBeats = sections.reduce((sum, section) => sum + ((section.beats ?? []).length), 0);
+  const beatRefs = sections.flatMap((section) =>
+    [...(section.beats ?? [])]
+      .sort((a, b) => a.order - b.order)
+      .map((beat) => ({
+        section,
+        beat,
+        provider: ttsProviderForBeat(plan.providers.tts, beat)
+      }))
+  );
+  const totalBeats = beatRefs.length;
   let beatCursor = 0;
   const voiceSettings = await readVoiceSettings();
   await appendRunTrace(projectId, job.id, "audio.start", {
@@ -697,11 +726,36 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
     voiceSettings: summarizeVoiceSettingsForTrace(voiceSettings),
     totalBeats
   }).catch(() => {});
-  for (const section of sections) {
-    const beats = [...(section.beats ?? [])].sort((a, b) => a.order - b.order);
-    for (const beat of beats) {
+
+  const uniqueProviders = [...new Set(beatRefs.map((ref) => ref.provider))];
+  if (beatRefs.length > 0 && uniqueProviders.length === 1) {
+    const provider = uniqueProviders[0];
+    await appendRunTrace(projectId, job.id, "audio.batch.start", {
+      provider,
+      beatCount: beatRefs.length,
+      beats: beatRefs.map((ref) => ({
+        beatId: ref.beat.id,
+        sectionId: ref.section.id,
+        narrationWords: countWords(ref.beat.narration)
+      }))
+    }).catch(() => {});
+    await writeDraftJobState(projectId, job, {
+      phase: "audio",
+      label: `Narration: ${beatRefs.length} beat(s) · ${provider}`,
+      currentBeatId: beatRefs[0]?.beat.id,
+      currentBeatIndex: 1,
+      currentBeatTotal: totalBeats
+    });
+    await runRetriedDraftStep(projectId, job, `Narration: ${beatRefs.length} beat(s) · ${provider}`, () =>
+      runLvstudio(["generate:tts", projectId, "--provider", provider, "--force"])
+    );
+    await appendRunTrace(projectId, job.id, "audio.batch.complete", {
+      provider,
+      beatCount: beatRefs.length
+    }).catch(() => {});
+  } else {
+    for (const { section, beat, provider } of beatRefs) {
       beatCursor += 1;
-      const provider = ttsProviderForBeat(plan.providers.tts, beat);
       await appendRunTrace(projectId, job.id, "audio.beat.start", {
         beatId: beat.id,
         sectionId: section.id,
@@ -714,7 +768,7 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
       }).catch(() => {});
       await writeDraftJobState(projectId, job, {
         phase: "audio",
-        label: `Narration: ${section.title} · ${beat.order}/${beats.length} · ${beat.id}`,
+        label: `Narration: ${section.title} · ${beat.order}/${section.beats?.length ?? 1} · ${beat.id}`,
         currentSectionId: section.id,
         currentSectionTitle: section.title,
         currentBeatId: beat.id,
@@ -863,7 +917,7 @@ async function runDraftJob(projectId, body) {
         job.completed += 1;
         await writeDraftJobState(projectId, job);
       }
-      const audioSteps = (plan.sections ?? []).reduce((total, section) => total + (section.beats?.length ?? 0), 0);
+      const audioSteps = draftAudioStepCount(plan);
       job.total = planningSteps + ttsRoutingSteps + imageSteps + audioSteps + 6;
       if (job.total < 1) job.total = 1;
 
@@ -2896,6 +2950,18 @@ const server = createServer(async (req, res) => {
       const activeJob = activeDraftJobs.get(projectId);
       if (activeJob) return sendJson(res, 202, { ok: true, data: jobProgress(activeJob) });
       const body = await parseJsonBody(req);
+      const story = String(body.story || "").trim();
+      if (!story) {
+        const candidatePlan = body.plan && typeof body.plan === "object"
+          ? body.plan
+          : (await getProjectDetails(projectId)).plan;
+        if (isScaffoldPlaceholderPlan(candidatePlan)) {
+          return sendJson(res, 400, {
+            ok: false,
+            message: "Make Draft needs story text or a saved plan with real narration. The current plan still contains scaffold placeholder narration."
+          });
+        }
+      }
       return sendJson(res, 202, {
         ok: true,
         message: "Draft job queued.",

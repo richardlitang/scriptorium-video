@@ -118,7 +118,8 @@ program
       force: options.force === true,
       noCache: options.noCache === true || options.cache === false,
       onlySection: options.onlySection,
-      onlyBeat: options.onlyBeat
+      onlyBeat: options.onlyBeat,
+      concurrency: options.concurrency
     });
   });
 

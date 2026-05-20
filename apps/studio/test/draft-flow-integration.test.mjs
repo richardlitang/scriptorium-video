@@ -115,3 +115,73 @@ test("studio draft flow works end-to-end in test mode", async () => {
     server.kill("SIGTERM");
   }
 });
+
+test("studio rejects scaffold placeholder draft without story", async () => {
+  if (process.env.LVSTUDIO_RUN_SERVER_TESTS !== "1") {
+    return;
+  }
+  const projectId = `placeholder-${Date.now().toString(36)}`;
+  const port = 4200 + Math.floor(Math.random() * 1000);
+  const baseUrl = `http://127.0.0.1:${port}`;
+  const logsRef = { value: "" };
+  const server = spawn("node", ["apps/studio/server.mjs"], {
+    env: {
+      ...process.env,
+      PORT: String(port),
+      LVSTUDIO_TEST_MODE: "1"
+    },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  server.stdout?.on("data", (chunk) => {
+    logsRef.value += chunk.toString();
+  });
+  server.stderr?.on("data", (chunk) => {
+    logsRef.value += chunk.toString();
+  });
+  try {
+    await waitForServer(baseUrl, server, logsRef);
+    await api(baseUrl, "/api/projects", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        id: projectId,
+        title: "Placeholder Guard",
+        mode: "short_story",
+        platform: "local_only"
+      })
+    });
+
+    const response = await fetch(`${baseUrl}/api/projects/${projectId}/draft-job`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        story: "",
+        plan: {
+          schemaVersion: 1,
+          title: "Placeholder Guard",
+          mode: "short_story",
+          targetPlatform: "local_only",
+          providers: { tts: "chatterbox", transcription: "mock" },
+          voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
+          sections: [{
+            id: "intro",
+            title: "Intro",
+            beats: [{
+              id: "intro-001",
+              order: 1,
+              narration: "Replace this narration with your first beat.",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false },
+              media: []
+            }]
+          }]
+        }
+      })
+    });
+    const data = await response.json();
+    assert.equal(response.status, 400);
+    assert.equal(data.ok, false);
+    assert.match(data.message, /Make Draft needs story text/);
+  } finally {
+    server.kill("SIGTERM");
+  }
+});

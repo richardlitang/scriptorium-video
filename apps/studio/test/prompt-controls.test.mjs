@@ -30,6 +30,15 @@ test("Studio app wires planner prompt controls into requests", async () => {
   assert.match(appJs, /imageCoverage:\s*normalizeImageCoverage\(imageBudget\.value\)/);
 });
 
+test("Make Draft preserves pasted story through implicit project creation", async () => {
+  const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
+  assert.match(appJs, /const pendingStory = storyInput\.value;/);
+  assert.match(appJs, /createProjectFromTitle\(projectTitleFromStory\(pendingStory\)\)/);
+  assert.match(appJs, /applyPendingStoryState\(pendingStory, pendingUiState, projectId\)/);
+  assert.match(appJs, /story:\s*pendingStory/);
+  assert.match(appJs, /writeStored\(selectedProjectId, "lastDraftStory", pendingStory\)/);
+});
+
 test("Studio app does not redeclare visual asset helpers", async () => {
   const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
   assert.equal((appJs.match(/function visualAssetForBeat\(/g) ?? []).length, 1);
@@ -113,10 +122,19 @@ test("renderer applies planner visual edit cues to media selection and effects",
 test("studio draft jobs expose beat-level narration status and use planner TTS routing", async () => {
   const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
   assert.match(server, /function ttsProviderForBeat\(defaultProvider, beat\)/);
+  assert.match(server, /function draftAudioStepCount\(plan\)/);
   assert.match(server, /beat\.voiceDirection\?\.ttsProvider/);
   assert.doesNotMatch(server, /function tagalogScore/);
-  assert.match(server, /Narration: \$\{section\.title\} · \$\{beat\.order\}\/\$\{beats\.length\} · \$\{beat\.id\}/);
+  assert.match(server, /Narration: \$\{section\.title\} · \$\{beat\.order\}\/\$\{section\.beats\?\.length \?\? 1\} · \$\{beat\.id\}/);
+  assert.match(server, /Narration: \$\{beatRefs\.length\} beat\(s\) · \$\{provider\}/);
   assert.match(server, /"--only-beat", beat\.id/);
+});
+
+test("studio draft endpoint rejects empty story with scaffold placeholder plan", async () => {
+  const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  assert.match(server, /function isScaffoldPlaceholderPlan\(plan\)/);
+  assert.match(server, /replace this narration with your first beat\./);
+  assert.match(server, /Make Draft needs story text or a saved plan with real narration/);
 });
 
 test("studio uses an LLM orchestrator to map missing TTS routing metadata", async () => {

@@ -1377,7 +1377,8 @@ async function refreshTtsHealth() {
 }
 
 renderBtn.onclick = async () => {
-  const hasStory = storyInput.value.trim().length > 0;
+  const pendingStory = storyInput.value;
+  const hasStory = pendingStory.trim().length > 0;
   if (!hasStory) return;
   if (!["ready", "ready_degraded"].includes(ttsAvailability())) {
     const msg = ttsAvailability() === "loading" || ttsAvailability() === "checking"
@@ -1404,8 +1405,8 @@ renderBtn.onclick = async () => {
       Notification.requestPermission().catch(() => {});
     }
     if (!selectedProjectId) {
-      const projectId = await createProjectFromTitle(projectTitleFromStory(storyInput.value));
-      applyPendingStoryState(storyInput.value, pendingUiState, projectId);
+      const projectId = await createProjectFromTitle(projectTitleFromStory(pendingStory));
+      applyPendingStoryState(pendingStory, pendingUiState, projectId);
     }
     if (!selectedProjectId) throw new Error("Project was not selected after creation.");
     const plan = JSON.parse(planEditor.value);
@@ -1414,7 +1415,7 @@ renderBtn.onclick = async () => {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        story: storyInput.value,
+        story: pendingStory,
         plan,
         feel: storyDirection.feel,
         pacing: storyDirection.pacing,
@@ -1430,7 +1431,7 @@ renderBtn.onclick = async () => {
     hasUnsavedPlan = false;
     needsPrepareDraft = false;
     needsRender = true;
-    writeStored(selectedProjectId, "lastDraftStory", storyInput.value);
+    writeStored(selectedProjectId, "lastDraftStory", pendingStory);
     renderDraftJobState(result.data);
     await jobCenter.refresh(selectedProjectId);
     startDraftJobPolling(selectedProjectId);
