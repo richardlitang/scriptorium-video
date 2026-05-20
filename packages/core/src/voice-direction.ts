@@ -71,6 +71,13 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan, providerId = 
   const language = direction.language || plan.voice.options?.language;
   if (language) voiceOptions.language = language;
 
+  const pauseBeforeSeconds = direction.pauseBeforeMs !== undefined
+    ? Number((direction.pauseBeforeMs / 1000).toFixed(3))
+    : direction.pauseBeforeSeconds;
+  const pauseAfterSeconds = direction.pauseAfterMs !== undefined
+    ? Number((direction.pauseAfterMs / 1000).toFixed(3))
+    : direction.pauseAfterSeconds;
+
   return {
     delivery: {
       profile: direction.profile,
@@ -79,8 +86,8 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan, providerId = 
       emphasis: direction.emphasis
     },
     pauses: {
-      beforeSeconds: direction.pauseBeforeSeconds,
-      afterSeconds: direction.pauseAfterSeconds
+      beforeSeconds: pauseBeforeSeconds,
+      afterSeconds: pauseAfterSeconds
     },
     providerOptions,
     voiceOptions,

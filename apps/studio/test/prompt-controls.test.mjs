@@ -74,8 +74,7 @@ test("planner prompt defines section and beat segmentation rules", async () => {
     assert.match(source, /A section is a coherent narrative arc, setting\/time shift, or major topic turn/);
     assert.match(source, /A beat is an edit unit: one visual moment plus one spoken thought/);
     assert.match(source, /prefer beats around 2-6 seconds and roughly 6-20 spoken words/);
-    assert.match(source, /pause is needed before a specific word or phrase inside a sentence/);
-    assert.match(source, /split into adjacent beats at that anchor and put pauseBeforeSeconds on the second beat/);
+    assert.match(source, /Use millisecond pause controls for delivery precision: pauseBeforeMs and pauseAfterMs per beat \(0-1200\)/);
     assert.match(source, /Do not create one-word beats unless that single word is intentionally the reveal or punchline/);
   }
 });
@@ -111,7 +110,7 @@ test("OpenAI planner schema satisfies strict required-property rules", async () 
   assert.match(draftOrchestrator, /required: \["targetMaxWords", "hardMaxWords", "targetMaxDurationSeconds", "hardMaxDurationSeconds", "minWordsBeforeSentenceBreak"\]/);
   assert.match(draftOrchestrator, /minWordsBeforeSentenceBreak: \{ type: "number", minimum: 2, maximum: 20 \}/);
   assert.match(draftOrchestrator, /required: \["title", "summary", "purpose", "feel", "pacing", "visualStyle", "beats"\]/);
-  assert.match(draftOrchestrator, /required: \["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "narrationLanguage", "ttsProvider", "visualConfidence", "captionStyle", "shotType", "cameraDistance", "lighting", "lens", "composition", "subjectContinuity", "negativePromptAdditions", "sfxCues", "visualEditCues", "silenceWindows", "endingPolicy"\]/);
+  assert.match(draftOrchestrator, /required: \["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeMs", "pauseAfterMs", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "narrationLanguage", "ttsProvider", "visualConfidence", "captionStyle", "shotType", "cameraDistance", "lighting", "lens", "composition", "subjectContinuity", "negativePromptAdditions", "sfxCues", "visualEditCues", "silenceWindows", "endingPolicy"\]/);
   assert.match(draftOrchestrator, /required: \["id", "kind", "placement", "offsetSeconds", "levelDb", "pan", "proximity", "duckMusic"\]/);
   assert.match(draftOrchestrator, /ttsProvider: \{ type: "string", enum: \["chatterbox", "mms", "openai"\] \}/);
 });

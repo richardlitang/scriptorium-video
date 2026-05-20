@@ -132,3 +132,20 @@ test("resolveVoiceDirection carries planner language and provider routing", () =
   assert.deepEqual(resolved.providerOptions, {});
   assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0, language: "fil" });
 });
+
+test("resolveVoiceDirection prioritizes millisecond pause controls when present", () => {
+  const resolved = resolveVoiceDirection(
+    beatWithDirection({
+      profile: "neutral",
+      intensity: 0.5,
+      emphasis: [],
+      pauseBeforeMs: 180,
+      pauseAfterMs: 640,
+      pauseBeforeSeconds: 0,
+      pauseAfterSeconds: 0,
+      source: "llm"
+    }),
+    planWithTts("openai")
+  );
+  assert.deepEqual(resolved.pauses, { beforeSeconds: 0.18, afterSeconds: 0.64 });
+});

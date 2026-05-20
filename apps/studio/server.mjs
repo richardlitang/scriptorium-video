@@ -1347,6 +1347,8 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       emphasis: Array.isArray(beatDraft.emphasis)
         ? beatDraft.emphasis.map((entry) => String(entry || "").trim()).filter(Boolean).slice(0, 12)
         : [],
+      pauseBeforeMs: conservative ? 0 : clampInteger(beatDraft.pauseBeforeMs, 0, 0, 1200),
+      pauseAfterMs: conservative ? 80 : clampInteger(beatDraft.pauseAfterMs, 0, 0, 1200),
       pauseBeforeSeconds: conservative ? 0 : clampNumber(beatDraft.pauseBeforeSeconds, 0, 0, 1.2),
       pauseAfterSeconds: conservative ? 0.08 : clampNumber(beatDraft.pauseAfterSeconds, 0, 0, 1.2),
       intensity: conservative ? 0.45 : clampNumber(beatDraft.intensity, 0.5, 0, 1),
