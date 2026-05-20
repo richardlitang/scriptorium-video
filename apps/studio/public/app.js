@@ -108,6 +108,59 @@ let ttsHealthState = {
   error: null
 };
 
+let deleteProjectDialogState = null;
+
+function closeDeleteProjectDialog() {
+  const overlay = document.getElementById("project-delete-overlay");
+  if (overlay) overlay.remove();
+  deleteProjectDialogState = null;
+}
+
+function openDeleteProjectDialog(project) {
+  closeDeleteProjectDialog();
+  const overlay = document.createElement("div");
+  overlay.id = "project-delete-overlay";
+  overlay.className = "project-delete-overlay";
+  overlay.innerHTML = `
+    <div class="project-delete-modal" role="dialog" aria-modal="true" aria-labelledby="project-delete-title">
+      <h3 id="project-delete-title">Delete Project</h3>
+      <p>Delete <strong>${project.title || project.id}</strong> (<code>${project.id}</code>) and all of its files?</p>
+      <label class="project-delete-check">
+        <input id="project-delete-check" type="checkbox" />
+        I understand this cannot be undone.
+      </label>
+      <div class="project-delete-actions">
+        <button type="button" id="project-delete-cancel" class="ghost-btn">Cancel</button>
+        <button type="button" id="project-delete-confirm" disabled>Delete Project</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  deleteProjectDialogState = { projectId: project.id };
+  const check = overlay.querySelector("#project-delete-check");
+  const confirmBtn = overlay.querySelector("#project-delete-confirm");
+  const cancelBtn = overlay.querySelector("#project-delete-cancel");
+  check.onchange = () => {
+    confirmBtn.disabled = !check.checked;
+  };
+  cancelBtn.onclick = () => closeDeleteProjectDialog();
+  overlay.onclick = (event) => {
+    if (event.target === overlay) closeDeleteProjectDialog();
+  };
+  confirmBtn.onclick = async () => {
+    if (!deleteProjectDialogState || deleteProjectDialogState.projectId !== project.id) return;
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Deleting...";
+    await fetchJson(`/api/projects/${encodeURIComponent(project.id)}`, { method: "DELETE" });
+    if (selectedProjectId === project.id) {
+      selectedProjectId = null;
+      localStorage.removeItem("lvstudio:selectedProjectId");
+    }
+    closeDeleteProjectDialog();
+    await loadProjects();
+  };
+}
+
 const DEFAULT_PLANNER_SYSTEM_PROMPT =
   "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Keep voice direction engaged and language-appropriate. Return JSON only.";
 
@@ -255,47 +308,11 @@ async function loadProjects() {
     deleteBtn.className = "project-delete-btn";
     deleteBtn.textContent = "Delete";
     deleteBtn.title = `Delete ${project.id}`;
-    const deleteConfirm = document.createElement("div");
-    deleteConfirm.className = "project-delete-confirm";
-    deleteConfirm.hidden = true;
-    const deleteCheckLabel = document.createElement("label");
-    const deleteCheck = document.createElement("input");
-    deleteCheck.type = "checkbox";
-    deleteCheckLabel.append(deleteCheck, document.createTextNode(` Confirm delete ${project.id}`));
-    const deleteConfirmBtn = document.createElement("button");
-    deleteConfirmBtn.type = "button";
-    deleteConfirmBtn.textContent = "Delete Project";
-    deleteConfirmBtn.disabled = true;
-    const deleteCancelBtn = document.createElement("button");
-    deleteCancelBtn.type = "button";
-    deleteCancelBtn.textContent = "Cancel";
-    deleteCheck.onchange = () => {
-      deleteConfirmBtn.disabled = !deleteCheck.checked;
-    };
-    deleteCancelBtn.onclick = (event) => {
-      event.stopPropagation();
-      deleteCheck.checked = false;
-      deleteConfirmBtn.disabled = true;
-      deleteConfirm.hidden = true;
-    };
-    deleteConfirmBtn.onclick = async (event) => {
-      event.stopPropagation();
-      if (!deleteCheck.checked) return;
-      deleteConfirmBtn.disabled = true;
-      deleteConfirmBtn.textContent = "Deleting...";
-      await fetchJson(`/api/projects/${encodeURIComponent(project.id)}`, { method: "DELETE" });
-      if (selectedProjectId === project.id) {
-        selectedProjectId = null;
-        localStorage.removeItem("lvstudio:selectedProjectId");
-      }
-      await loadProjects();
-    };
     deleteBtn.onclick = async (event) => {
       event.stopPropagation();
-      deleteConfirm.hidden = false;
+      openDeleteProjectDialog(project);
     };
-    actions.append(deleteBtn, deleteConfirm);
-    deleteConfirm.append(deleteCheckLabel, deleteConfirmBtn, deleteCancelBtn);
+    actions.append(deleteBtn);
     el.append(info, actions);
     projectList.appendChild(el);
     firstProjectElement ??= el;
