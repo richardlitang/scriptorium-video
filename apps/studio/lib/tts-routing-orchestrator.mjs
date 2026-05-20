@@ -26,7 +26,12 @@ const TTS_ROUTING_SCHEMA = {
 
 export function planNeedsTtsRouting(plan) {
   return (plan.sections ?? []).some((section) =>
-    (section.beats ?? []).some((beat) => !beat.voiceDirection?.language || !beat.voiceDirection?.ttsProvider)
+    (section.beats ?? []).some((beat) =>
+      !beat.voiceDirection?.language ||
+      !beat.voiceDirection?.ttsProvider ||
+      beat.voiceDirection?.source === "llm" ||
+      beat.directionMeta?.sources?.ttsRouting === "llm"
+    )
   );
 }
 
@@ -59,10 +64,11 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
           content: [
             "You are a video production TTS routing orchestrator.",
             "Map each beat to the best local TTS provider and narration language.",
-            "Use chatterbox for English narration.",
-            "Use mms for Filipino/Tagalog narration, including short quoted Tagalog lines.",
+            "Use chatterbox for mostly English narration, including English beats with short Filipino/Tagalog quotes.",
+            "Use mms only when the beat narration itself is mostly Filipino/Tagalog.",
             "Use openai only when neither local provider is appropriate.",
             "Do not infer from character names alone; route based on the actual spoken narration text.",
+            "English narration with Filipino names, places, or words like Lola is still English unless the spoken sentence itself is mostly Filipino/Tagalog.",
             "Return JSON only."
           ].join("\\n")
         },
@@ -90,6 +96,7 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
         beats: (section.beats ?? []).map((beat) => {
           const route = routes.get(beat.id);
           if (!route) return beat;
+          if (beat.voiceDirection?.source === "user" || beat.directionMeta?.sources?.ttsRouting === "user") return beat;
           const language = String(route.narrationLanguage || "").trim().toLowerCase() || plan.voice?.options?.language || "en";
           const ttsProvider = ["chatterbox", "mms", "openai"].includes(route.ttsProvider) ? route.ttsProvider : plan.providers?.tts;
           return {

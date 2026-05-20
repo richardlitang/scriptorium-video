@@ -180,7 +180,7 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- For every beat set narrationLanguage as a BCP-47-ish code such as en, fil, tgl, en+fil, or mixed.",
-  "- For every beat set ttsProvider: use chatterbox for English narration, mms for Filipino/Tagalog narration, and openai only when neither local provider is appropriate.",
+  "- For every beat set ttsProvider for the majority spoken language of the whole beat: use chatterbox for mostly English narration, including English beats with short Tagalog quotes; use mms only when the beat narration itself is mostly Filipino/Tagalog; use openai only when neither local provider is appropriate.",
   "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
   "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
   "- Decide sparse editorial timing: visualEditCues, silenceWindows, and endingPolicy for retention-focused switches/effects only where appropriate.",
