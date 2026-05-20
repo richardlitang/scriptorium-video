@@ -158,6 +158,16 @@ test("studio clamps planner caption tuning to video-plan schema bounds", async (
   assert.match(server, /tuning: captionTuning/);
 });
 
+test("studio preflights routed TTS providers before draft generation work", async () => {
+  const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  assert.match(server, /function ttsProvidersForPlan\(plan\)/);
+  assert.match(server, /async function preflightDraftTtsProviders\(plan\)/);
+  assert.match(server, /if \(provider === "mms"\) return readMmsHealth\(\)/);
+  assert.match(server, /Draft requires unavailable TTS provider\(s\):/);
+  assert.match(server, /label: "Checking narration providers"/);
+  assert.match(server, /appendRunTrace\(projectId, job\.id, "tts_preflight\.complete"/);
+});
+
 test("studio uses an LLM orchestrator to map missing TTS routing metadata", async () => {
   const ttsOrchestrator = await readFile(path.resolve("apps/studio/lib/tts-routing-orchestrator.mjs"), "utf8");
   const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");

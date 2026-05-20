@@ -40,6 +40,17 @@ const CHATTERBOX_HEALTH_URL = (() => {
     return "http://127.0.0.1:8000/health";
   }
 })();
+const MMS_SPEECH_URL = process.env.MMS_TTS_URL ?? "http://127.0.0.1:8001/v1/audio/speech";
+const MMS_HEALTH_URL = (() => {
+  try {
+    const url = new URL(MMS_SPEECH_URL);
+    url.pathname = "/health";
+    url.search = "";
+    return url.toString();
+  } catch {
+    return "http://127.0.0.1:8001/health";
+  }
+})();
 const voicePreviewCache = new Map();
 const STUDIO_TEST_MODE = process.env.LVSTUDIO_TEST_MODE === "1";
 
@@ -209,6 +220,79 @@ async function readTtsHealth() {
   } finally {
     clearTimeout(timer);
   }
+}
+
+async function readMmsHealth() {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2500);
+  try {
+    const response = await fetch(MMS_HEALTH_URL, {
+      method: "GET",
+      signal: controller.signal
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return {
+        provider: "mms",
+        ok: false,
+        status: "failed",
+        sampleRate: null,
+        error: `health-check-failed (${response.status})`,
+        healthUrl: MMS_HEALTH_URL
+      };
+    }
+    return {
+      provider: "mms",
+      ok: payload.ok === true,
+      status: payload.status || (payload.ok ? "ready" : "failed"),
+      sampleRate: typeof payload.sampleRate === "number" ? payload.sampleRate : null,
+      model: payload.model || null,
+      error: payload.error || null,
+      healthUrl: MMS_HEALTH_URL
+    };
+  } catch (error) {
+    return {
+      provider: "mms",
+      ok: false,
+      status: "unreachable",
+      sampleRate: null,
+      error: error?.name === "AbortError" ? "health-check-timeout" : String(error?.message || error),
+      healthUrl: MMS_HEALTH_URL
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function ttsProvidersForPlan(plan) {
+  return [...new Set((plan.sections ?? []).flatMap((section) =>
+    (section.beats ?? []).map((beat) => ttsProviderForBeat(plan.providers.tts, beat))
+  ))].filter(Boolean).sort();
+}
+
+async function preflightDraftTtsProviders(plan) {
+  const providers = ttsProvidersForPlan(plan);
+  const checks = await Promise.all(providers.map(async (provider) => {
+    if (provider === "chatterbox") return readTtsHealth();
+    if (provider === "mms") return readMmsHealth();
+    if (provider === "openai") {
+      try {
+        await getOpenAiApiKey();
+        return { provider, ok: true, status: "ready", error: null };
+      } catch (error) {
+        return { provider, ok: false, status: "missing_credentials", error: error instanceof Error ? error.message : String(error) };
+      }
+    }
+    return { provider, ok: true, status: "unchecked", error: null };
+  }));
+  const failed = checks.filter((check) => !check.ok);
+  if (failed.length > 0) {
+    const details = failed
+      .map((check) => `${check.provider}: ${check.status}${check.error ? ` (${check.error})` : ""}`)
+      .join("; ");
+    throw new Error(`Draft requires unavailable TTS provider(s): ${details}`);
+  }
+  return checks;
 }
 
 function safeVoiceReferenceFileName(rawName) {
@@ -917,6 +1001,16 @@ async function runDraftJob(projectId, body) {
         job.completed += 1;
         await writeDraftJobState(projectId, job);
       }
+
+      await writeDraftJobState(projectId, job, {
+        phase: "tts_preflight",
+        label: "Checking narration providers"
+      });
+      const ttsPreflight = await preflightDraftTtsProviders(plan);
+      await appendRunTrace(projectId, job.id, "tts_preflight.complete", {
+        providers: ttsPreflight
+      }).catch(() => {});
+
       const audioSteps = draftAudioStepCount(plan);
       job.total = planningSteps + ttsRoutingSteps + imageSteps + audioSteps + 6;
       if (job.total < 1) job.total = 1;
