@@ -783,6 +783,47 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     if (visualEditCues.length === 0 && silenceWindows.length === 0 && !endingPolicy) return undefined;
     return { visualEditCues, silenceWindows, endingPolicy };
   };
+  const clone = (value) => (value === undefined ? undefined : JSON.parse(JSON.stringify(value)));
+  const isLocked = (meta, path) => Array.isArray(meta?.lockedPaths) && meta.lockedPaths.includes(path);
+  const mergeDirectionWithLocks = (previousDirection, previousMeta, nextDirection, nextSources = {}) => {
+    const merged = clone(nextDirection) || {};
+    const previous = previousDirection || {};
+    if (isLocked(previousMeta, "creative")) {
+      merged.creative = clone(previous.creative);
+    } else if (isLocked(previousMeta, "creative.feel") || isLocked(previousMeta, "creative.pacing") || isLocked(previousMeta, "creative.visualStyle")) {
+      merged.creative = merged.creative || {};
+      if (isLocked(previousMeta, "creative.feel")) merged.creative.feel = previous.creative?.feel;
+      if (isLocked(previousMeta, "creative.pacing")) merged.creative.pacing = previous.creative?.pacing;
+      if (isLocked(previousMeta, "creative.visualStyle")) merged.creative.visualStyle = previous.creative?.visualStyle;
+    }
+    if (isLocked(previousMeta, "voice")) merged.voice = clone(previous.voice);
+    if (isLocked(previousMeta, "caption")) merged.caption = clone(previous.caption);
+    if (isLocked(previousMeta, "caption.emphasis")) {
+      merged.caption = merged.caption || {};
+      merged.caption.emphasis = clone(previous.caption?.emphasis) || [];
+    }
+    if (isLocked(previousMeta, "caption.style")) {
+      merged.caption = merged.caption || {};
+      merged.caption.style = previous.caption?.style;
+    }
+    if (isLocked(previousMeta, "caption.tuning")) {
+      merged.caption = merged.caption || {};
+      merged.caption.tuning = clone(previous.caption?.tuning);
+    }
+    if (isLocked(previousMeta, "motion")) merged.motion = clone(previous.motion);
+    if (isLocked(previousMeta, "sfx")) merged.sfxCues = clone(previous.sfxCues) || [];
+    if (isLocked(previousMeta, "editorial")) merged.editorial = clone(previous.editorial);
+    return {
+      direction: merged,
+      directionMeta: {
+        lockedPaths: previousMeta?.lockedPaths || [],
+        sources: {
+          ...(previousMeta?.sources || {}),
+          ...nextSources
+        }
+      }
+    };
+  };
   const visualBible = draft.visualBible || {};
   const visualBibleSuffix = [
     visualBible.stylePreset ? `Style preset: ${visualBible.stylePreset}` : "",
@@ -796,7 +837,7 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     visualBible.negativePrompt ? `Avoid: ${visualBible.negativePrompt}` : ""
   ].filter(Boolean).join("\n");
 
-  return {
+  const nextPlan = {
     ...currentPlan,
     title: draft.title,
     providers: {
@@ -821,23 +862,18 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       ...(draft.visualBible || {})
     },
     direction: {
-      ...(currentPlan.direction || {}),
       creative: {
-        ...(currentPlan.direction?.creative || {}),
         feel: String(draft.feel || "").trim() || undefined,
         pacing: String(draft.pacing || "").trim() || undefined,
         visualStyle: String(draft.visualStyle || "").trim() || undefined
       },
       caption: {
-        ...(currentPlan.direction?.caption || {}),
         tuning: {
-          ...(currentPlan.direction?.caption?.tuning || {}),
           ...(draft.captionTuning || {})
         }
       }
     },
     directionMeta: {
-      ...(currentPlan.directionMeta || {}),
       lockedPaths: currentPlan.directionMeta?.lockedPaths || [],
       sources: {
         ...(currentPlan.directionMeta?.sources || {}),
@@ -856,26 +892,29 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     },
     sections: draft.sections.map((section, sectionIndex) => {
       const sectionId = slugify(section.title, `section-${sectionIndex + 1}`);
+      const previousSection = currentPlan.sections?.[sectionIndex];
       return {
         id: sectionId,
         title: section.title,
         purpose: section.purpose || section.summary || "AI planned story section",
-        direction: {
+        ...mergeDirectionWithLocks(
+          previousSection?.direction,
+          previousSection?.directionMeta,
+          {
           creative: {
             feel: String(section.feel || "").trim() || undefined,
             pacing: String(section.pacing || "").trim() || undefined,
             visualStyle: String(section.visualStyle || "").trim() || undefined
           }
-        },
-        directionMeta: {
-          lockedPaths: [],
-          sources: { creative: "llm" }
-        },
+          },
+          { creative: "llm" }
+        ),
         estimatedDurationSeconds: section.beats.reduce(
           (total, beat) => total + (beat.estimatedDurationSeconds || estimateDurationSeconds(beat.narration)),
           0
         ),
         beats: section.beats.map((beat, beatIndex) => {
+          const previousBeat = previousSection?.beats?.[beatIndex];
           const beatNumber = String(beatIndex + 1).padStart(3, "0");
           const beatId = `${sectionId}-${beatNumber}`;
           const shotMetadata = [
@@ -921,7 +960,10 @@ function buildPlanFromAiDraft(currentPlan, draft) {
               type: conservativeVisual ? "slow_zoom_in" : motionType,
               intensity: conservativeVisual ? 0.05 : 0.08
             },
-            direction: {
+            ...mergeDirectionWithLocks(
+              previousBeat?.direction,
+              previousBeat?.directionMeta,
+              {
               voice: normalizeVoiceDirection(beat),
               caption: { style: beat.captionStyle || "default", emphasis: beat.emphasis || [] },
               motion: {
@@ -930,17 +972,15 @@ function buildPlanFromAiDraft(currentPlan, draft) {
               },
               sfxCues: normalizeSfxCues(beat),
               editorial: normalizeEditorial(beat)
-            },
-            directionMeta: {
-              lockedPaths: [],
-              sources: {
+              },
+              {
                 voice: "llm",
                 caption: "llm",
                 motion: "llm",
                 sfx: "llm",
                 editorial: "llm"
               }
-            },
+            ),
             caption: { emphasis: beat.emphasis || [], style: beat.captionStyle || "default" },
             voiceDirection: normalizeVoiceDirection(beat),
             sfxCues: normalizeSfxCues(beat),
@@ -951,6 +991,15 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       };
     })
   };
+  const mergedPlanDirection = mergeDirectionWithLocks(
+    currentPlan.direction,
+    currentPlan.directionMeta,
+    nextPlan.direction,
+    nextPlan.directionMeta?.sources || {}
+  );
+  nextPlan.direction = mergedPlanDirection.direction;
+  nextPlan.directionMeta = mergedPlanDirection.directionMeta;
+  return nextPlan;
 }
 
 function extractResponseText(responseJson) {
