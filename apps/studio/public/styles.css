@@ -242,6 +242,25 @@ h3 {
   margin-right: 6px;
 }
 
+.tts-health-detail {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.tts-health-detail.ok {
+  color: #b7f0c0;
+}
+
+.tts-health-detail.warn {
+  color: #ffd79a;
+}
+
+.tts-health-detail.bad {
+  color: #ffb2a3;
+}
+
 .job-banner {
   display: flex;
   justify-content: space-between;

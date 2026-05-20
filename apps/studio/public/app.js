@@ -17,6 +17,7 @@ const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
 const ttsHealthPill = document.getElementById("tts-health-pill");
+const ttsHealthDetail = document.getElementById("tts-health-detail");
 const jobBanner = document.getElementById("job-banner");
 const jobBannerTitle = document.getElementById("job-banner-title");
 const jobBannerDetail = document.getElementById("job-banner-detail");
@@ -331,26 +332,46 @@ function renderTtsHealthPill() {
   if (!ttsHealthPill) return;
   const availability = ttsAvailability();
   ttsHealthPill.className = "status-pill";
+  if (ttsHealthDetail) {
+    ttsHealthDetail.className = "tts-health-detail";
+  }
   if (availability === "ready") {
     ttsHealthPill.classList.add("ok");
     const sampleRateLabel = ttsHealthState.sampleRate ? ` (${ttsHealthState.sampleRate}Hz)` : "";
     ttsHealthPill.textContent = `TTS: ready${sampleRateLabel}`;
     ttsHealthPill.title = "Chatterbox is ready for draft narration.";
+    if (ttsHealthDetail) {
+      ttsHealthDetail.classList.add("ok");
+      ttsHealthDetail.textContent = "Narration service is ready. You can run Make Draft, Regenerate Narration, or Direct Voice now.";
+    }
     return;
   }
   if (availability === "loading") {
     ttsHealthPill.classList.add("warn");
     ttsHealthPill.textContent = "TTS: warming model...";
     ttsHealthPill.title = "First run downloads/loads the TTS model. Draft actions are paused until ready.";
+    if (ttsHealthDetail) {
+      ttsHealthDetail.classList.add("warn");
+      ttsHealthDetail.textContent = "Model is loading/downloading in the background. This is expected on first run and may take a few minutes. Studio auto-rechecks every 8 seconds.";
+    }
     return;
   }
   ttsHealthPill.classList.add("bad");
   if (availability === "checking") {
     ttsHealthPill.textContent = "TTS: checking...";
     ttsHealthPill.title = "Checking Chatterbox status.";
+    if (ttsHealthDetail) {
+      ttsHealthDetail.classList.add("warn");
+      ttsHealthDetail.textContent = "Checking narration service availability. If this stays here for more than ~20 seconds, verify the Chatterbox server process is running.";
+    }
   } else {
     ttsHealthPill.textContent = "TTS: unavailable";
     ttsHealthPill.title = ttsHealthState.error || "Chatterbox is unreachable or failed to load.";
+    if (ttsHealthDetail) {
+      ttsHealthDetail.classList.add("bad");
+      const reason = ttsHealthState.error ? `Reason: ${ttsHealthState.error}. ` : "";
+      ttsHealthDetail.textContent = `${reason}Start the Chatterbox server, keep this page open, and Studio will enable draft actions automatically once status becomes ready.`;
+    }
   }
 }
 
