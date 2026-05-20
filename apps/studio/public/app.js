@@ -70,6 +70,9 @@ const aiPlanBtn = document.getElementById("ai-plan-btn");
 const storyFeel = document.getElementById("story-feel");
 const storyPacing = document.getElementById("story-pacing");
 const storyVisualStyle = document.getElementById("story-visual-style");
+const storyFeelCustom = document.getElementById("story-feel-custom");
+const storyPacingCustom = document.getElementById("story-pacing-custom");
+const storyVisualStyleCustom = document.getElementById("story-visual-style-custom");
 const storySystemPrompt = document.getElementById("story-system-prompt");
 const storyUserPromptTemplate = document.getElementById("story-user-prompt-template");
 const resetPromptDefaultsBtn = document.getElementById("reset-prompt-defaults-btn");
@@ -122,10 +125,12 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Output requirements:",
   "- Build a reusable visual bible for consistency.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
+  "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
   "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
+  "- Add optional visualEditCues, silenceWindows, and endingPolicy for retention-focused editing only where appropriate.",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."
@@ -144,12 +149,27 @@ function writeStored(projectId, key, value) {
   localStorage.setItem(storageKey(projectId, key), value);
 }
 
+function resolvedStorySetting(selectEl, customEl) {
+  return customEl.value.trim() || selectEl.value;
+}
+
+function currentStoryDirection() {
+  return {
+    feel: resolvedStorySetting(storyFeel, storyFeelCustom),
+    pacing: resolvedStorySetting(storyPacing, storyPacingCustom),
+    visualStyle: resolvedStorySetting(storyVisualStyle, storyVisualStyleCustom)
+  };
+}
+
 function saveUiState() {
   if (!selectedProjectId) return;
   writeStored(selectedProjectId, "story", storyInput.value);
   writeStored(selectedProjectId, "feel", storyFeel.value);
+  writeStored(selectedProjectId, "feelCustom", storyFeelCustom.value);
   writeStored(selectedProjectId, "pacing", storyPacing.value);
+  writeStored(selectedProjectId, "pacingCustom", storyPacingCustom.value);
   writeStored(selectedProjectId, "visualStyle", storyVisualStyle.value);
+  writeStored(selectedProjectId, "visualStyleCustom", storyVisualStyleCustom.value);
   writeStored(selectedProjectId, "systemPrompt", storySystemPrompt.value);
   writeStored(selectedProjectId, "userPromptTemplate", storyUserPromptTemplate.value);
   writeStored(selectedProjectId, "imageEnabled", imageEnabled.checked ? "true" : "false");
@@ -161,8 +181,11 @@ function saveUiState() {
 function restoreUiState(projectId) {
   storyInput.value = readStored(projectId, "story");
   storyFeel.value = readStored(projectId, "feel", storyFeel.value);
+  storyFeelCustom.value = readStored(projectId, "feelCustom", "");
   storyPacing.value = readStored(projectId, "pacing", storyPacing.value);
+  storyPacingCustom.value = readStored(projectId, "pacingCustom", "");
   storyVisualStyle.value = readStored(projectId, "visualStyle", storyVisualStyle.value);
+  storyVisualStyleCustom.value = readStored(projectId, "visualStyleCustom", "");
   storySystemPrompt.value = readStored(projectId, "systemPrompt", DEFAULT_PLANNER_SYSTEM_PROMPT);
   storyUserPromptTemplate.value = readStored(projectId, "userPromptTemplate", DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
   imageEnabled.checked = readStored(projectId, "imageEnabled", imageEnabled.checked ? "true" : "false") === "true";
@@ -1019,15 +1042,16 @@ function runSignal() {
 }
 
 async function requestAiPlanFromStory() {
+  const storyDirection = currentStoryDirection();
   const result = await fetchJson(`/api/projects/${selectedProjectId}/plan-from-story`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     ...runSignal(),
     body: JSON.stringify({
       story: storyInput.value,
-      feel: storyFeel.value,
-      pacing: storyPacing.value,
-      visualStyle: storyVisualStyle.value,
+      feel: storyDirection.feel,
+      pacing: storyDirection.pacing,
+      visualStyle: storyDirection.visualStyle,
       systemPrompt: storySystemPrompt.value,
       userPromptTemplate: storyUserPromptTemplate.value,
       format: "short_story"
@@ -1122,8 +1146,11 @@ function applyPendingStoryState(pendingStory, pendingUiState, projectId) {
   if (!pendingStory.trim() || !projectId || selectedProjectId !== projectId) return;
   storyInput.value = pendingStory;
   storyFeel.value = pendingUiState.feel;
+  storyFeelCustom.value = pendingUiState.feelCustom;
   storyPacing.value = pendingUiState.pacing;
+  storyPacingCustom.value = pendingUiState.pacingCustom;
   storyVisualStyle.value = pendingUiState.visualStyle;
+  storyVisualStyleCustom.value = pendingUiState.visualStyleCustom;
   storySystemPrompt.value = pendingUiState.systemPrompt;
   storyUserPromptTemplate.value = pendingUiState.userPromptTemplate;
   imageEnabled.checked = pendingUiState.imageEnabled === "true";
@@ -1140,8 +1167,11 @@ newProjectBtn.onclick = async () => {
   const pendingStory = storyInput.value;
   const pendingUiState = {
     feel: storyFeel.value,
+    feelCustom: storyFeelCustom.value,
     pacing: storyPacing.value,
+    pacingCustom: storyPacingCustom.value,
     visualStyle: storyVisualStyle.value,
+    visualStyleCustom: storyVisualStyleCustom.value,
     systemPrompt: storySystemPrompt.value,
     userPromptTemplate: storyUserPromptTemplate.value,
     imageEnabled: imageEnabled.checked ? "true" : "false",
@@ -1278,8 +1308,11 @@ renderBtn.onclick = async () => {
   }
   const pendingUiState = {
     feel: storyFeel.value,
+    feelCustom: storyFeelCustom.value,
     pacing: storyPacing.value,
+    pacingCustom: storyPacingCustom.value,
     visualStyle: storyVisualStyle.value,
+    visualStyleCustom: storyVisualStyleCustom.value,
     systemPrompt: storySystemPrompt.value,
     userPromptTemplate: storyUserPromptTemplate.value,
     imageEnabled: imageEnabled.checked ? "true" : "false",
@@ -1299,15 +1332,16 @@ renderBtn.onclick = async () => {
     }
     if (!selectedProjectId) throw new Error("Project was not selected after creation.");
     const plan = JSON.parse(planEditor.value);
+    const storyDirection = currentStoryDirection();
     const result = await fetchJson(`/api/projects/${selectedProjectId}/draft-job`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         story: storyInput.value,
         plan,
-        feel: storyFeel.value,
-        pacing: storyPacing.value,
-        visualStyle: storyVisualStyle.value,
+        feel: storyDirection.feel,
+        pacing: storyDirection.pacing,
+        visualStyle: storyDirection.visualStyle,
         systemPrompt: storySystemPrompt.value,
         userPromptTemplate: storyUserPromptTemplate.value,
         imageEnabled: imageEnabled.checked,
@@ -1472,14 +1506,15 @@ aiPlanBtn.onclick = async () => {
   aiPlanBtn.disabled = true;
   aiPlanBtn.textContent = "Generating...";
   try {
+    const storyDirection = currentStoryDirection();
     const result = await fetchJson(`/api/projects/${selectedProjectId}/plan-from-story`, {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         story: storyInput.value,
-        feel: storyFeel.value,
-        pacing: storyPacing.value,
-        visualStyle: storyVisualStyle.value,
+        feel: storyDirection.feel,
+        pacing: storyDirection.pacing,
+        visualStyle: storyDirection.visualStyle,
         systemPrompt: storySystemPrompt.value,
         userPromptTemplate: storyUserPromptTemplate.value,
         format: "short_story"
@@ -1523,6 +1558,10 @@ storyInput.addEventListener("keyup", updateStoryButtons);
 storyInput.addEventListener("paste", syncStoryButtonsSoon);
 storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, storySystemPrompt, storyUserPromptTemplate, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
+  control.addEventListener("change", saveUiState);
+});
+[storyFeelCustom, storyPacingCustom, storyVisualStyleCustom].forEach((control) => {
+  control.addEventListener("input", saveUiState);
   control.addEventListener("change", saveUiState);
 });
 voiceSettingsController.setupEvents();

@@ -924,6 +924,7 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Output requirements:",
   "- Build a reusable visual bible for consistency.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
+  "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
