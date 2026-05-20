@@ -1239,9 +1239,10 @@ function beatHasVisualAsset(assets, assetId, beatId) {
 }
 
 function normalizeImageCoverage(value) {
+  if (value === "llm" || value === "story" || value === "global") return "llm";
   if (value === "beat" || value === "999") return "beat";
   if (value === "balanced" || value === "key") return "balanced";
-  return "section";
+  return "llm";
 }
 
 function balancedSectionTargets(sectionTargets) {
@@ -1271,6 +1272,15 @@ function balancedSectionTargets(sectionTargets) {
     .map((entry) => entry.target);
 }
 
+function llmGlobalTargets(allTargets) {
+  const selected = allTargets.filter((target) => {
+    const role = target.beat.visual?.coverageRole;
+    return role === "anchor" || role === "key_moment";
+  });
+  if (selected.length > 0) return selected;
+  return allTargets.length > 0 ? [allTargets[0]] : [];
+}
+
 function selectImageTargets(plan, manifest, mode, coverage, options) {
   const allTargets = imageTargetsFromPlan(plan);
   const assets = manifest.assets ?? [];
@@ -1289,6 +1299,11 @@ function selectImageTargets(plan, manifest, mode, coverage, options) {
   };
   if (coverage === "beat") {
     return allTargets.filter((target) =>
+      (mode === "all" ? true : !beatHasVisualAsset(assets, target.assetId, target.beat.id)) && unlockedTarget(target)
+    );
+  }
+  if (coverage === "llm") {
+    return llmGlobalTargets(allTargets).filter((target) =>
       (mode === "all" ? true : !beatHasVisualAsset(assets, target.assetId, target.beat.id)) && unlockedTarget(target)
     );
   }
@@ -1567,6 +1582,13 @@ function buildPlanFromAiDraft(currentPlan, draft) {
           const motionType = ["none", "slow_zoom_in", "slow_zoom_out", "pan_left", "pan_right"].includes(beat.motion)
             ? beat.motion
             : "slow_zoom_in";
+          const imageChangeDecision = beat.imageChangeDecision === "hold" ? "hold" : "change";
+          const coverageRole =
+            sectionIndex === 0 && beatIndex === 0
+              ? "anchor"
+              : imageChangeDecision === "change"
+                ? "key_moment"
+                : "none";
           return {
             id: beatId,
             order: beatIndex + 1,
@@ -1595,6 +1617,14 @@ function buildPlanFromAiDraft(currentPlan, draft) {
             motion: {
               type: conservativeVisual ? "slow_zoom_in" : motionType,
               intensity: conservativeVisual ? 0.05 : 0.08
+            },
+            visual: {
+              prompt: beat.visualPrompt || beat.narration,
+              priority: coverageRole === "anchor" ? 5 : coverageRole === "key_moment" ? 4 : 2,
+              needsUniqueImage: imageChangeDecision === "change",
+              reusePolicy: imageChangeDecision === "change" ? "none" : "allow-reuse",
+              coverageRole,
+              source: "llm"
             },
             ...mergeDirectionWithLocks(
               previousBeat?.direction,

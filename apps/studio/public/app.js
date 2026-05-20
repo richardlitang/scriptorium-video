@@ -186,6 +186,7 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
   "- If Feel, Pacing, or Visual style is blank, infer a concise story-appropriate value and keep it consistent.",
   "- Enforce Visual style literally; do not add a visual medium, realism level, or style direction that conflicts with it.",
+  "- Decide image changes globally across the whole video, not per section quota. Mark each beat imageChangeDecision as change or hold.",
   "- For every beat set voiceProfile, intensity, pauseBeforeMs, pauseAfterMs, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- For every beat set narrationLanguage as a BCP-47-ish code such as en, fil, tgl, en+fil, or mixed.",
@@ -244,22 +245,24 @@ function restoreUiState(projectId) {
   storyUserPromptTemplate.value = readStored(projectId, "userPromptTemplate", DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
   imageEnabled.checked = readStored(projectId, "imageEnabled", "true") === "true";
   imageMode.value = readStored(projectId, "imageMode", "missing");
-  imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", "balanced"));
+  imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", "llm"));
   imageQuality.value = readStored(projectId, "imageQuality", "low");
   selectedBeatId = readStored(projectId, "selectedBeatId", "");
   voiceSettingsController.restorePreviewLines(projectId);
 }
 
 function normalizeImageCoverage(value) {
+  if (value === "llm" || value === "story" || value === "global") return "llm";
   if (value === "beat" || value === "999") return "beat";
   if (value === "balanced" || value === "key") return "balanced";
-  return "section";
+  return "llm";
 }
 
 function imageCoverageLabel(coverage) {
+  if (coverage === "llm") return "llm story-driven changes";
   if (coverage === "beat") return "full beat-by-beat";
   if (coverage === "balanced") return "balanced key moments";
-  return "lean section anchors";
+  return "llm story-driven changes";
 }
 
 function fmt(value) {
@@ -1129,6 +1132,17 @@ async function currentVisualCoverage(projectId, coverage) {
     });
     const missing = targets.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
     return { missing: missing.length, total: targets.length };
+  }
+
+  if (coverage === "llm") {
+    const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
+    const targets = beats.filter((beat, index) => {
+      const role = beat.visual?.coverageRole;
+      return role === "anchor" || role === "key_moment" || index === 0;
+    });
+    const uniqueTargets = targets.filter((beat, index, all) => all.findIndex((entry) => entry?.id === beat?.id) === index);
+    const missing = uniqueTargets.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
+    return { missing: missing.length, total: uniqueTargets.length };
   }
 
   const sections = plan.sections ?? [];

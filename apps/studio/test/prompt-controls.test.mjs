@@ -75,6 +75,7 @@ test("planner prompt defines section and beat segmentation rules", async () => {
     assert.match(source, /A beat is an edit unit: one visual moment plus one spoken thought/);
     assert.match(source, /prefer beats around 2-6 seconds and roughly 6-20 spoken words/);
     assert.match(source, /Use millisecond pause controls for delivery precision: pauseBeforeMs and pauseAfterMs per beat \(0-1200\)/);
+    assert.match(source, /Decide image changes globally across the whole video, not per section quota/);
     assert.match(source, /Do not create one-word beats unless that single word is intentionally the reveal or punchline/);
   }
 });
@@ -110,7 +111,7 @@ test("OpenAI planner schema satisfies strict required-property rules", async () 
   assert.match(draftOrchestrator, /required: \["targetMaxWords", "hardMaxWords", "targetMaxDurationSeconds", "hardMaxDurationSeconds", "minWordsBeforeSentenceBreak"\]/);
   assert.match(draftOrchestrator, /minWordsBeforeSentenceBreak: \{ type: "number", minimum: 2, maximum: 20 \}/);
   assert.match(draftOrchestrator, /required: \["title", "summary", "purpose", "feel", "pacing", "visualStyle", "beats"\]/);
-  assert.match(draftOrchestrator, /required: \["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeMs", "pauseAfterMs", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "narrationLanguage", "ttsProvider", "visualConfidence", "captionStyle", "shotType", "cameraDistance", "lighting", "lens", "composition", "subjectContinuity", "negativePromptAdditions", "sfxCues", "visualEditCues", "silenceWindows", "endingPolicy"\]/);
+  assert.match(draftOrchestrator, /required: \["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "imageChangeDecision", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeMs", "pauseAfterMs", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "narrationLanguage", "ttsProvider", "visualConfidence", "captionStyle", "shotType", "cameraDistance", "lighting", "lens", "composition", "subjectContinuity", "negativePromptAdditions", "sfxCues", "visualEditCues", "silenceWindows", "endingPolicy"\]/);
   assert.match(draftOrchestrator, /required: \["id", "kind", "placement", "offsetSeconds", "levelDb", "pan", "proximity", "duckMusic"\]/);
   assert.match(draftOrchestrator, /ttsProvider: \{ type: "string", enum: \["chatterbox", "mms", "openai"\] \}/);
 });
@@ -168,6 +169,15 @@ test("studio preflights routed TTS providers before draft generation work", asyn
   assert.match(server, /Draft requires unavailable TTS provider\(s\):/);
   assert.match(server, /label: "Checking narration providers"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "tts_preflight\.complete"/);
+});
+
+test("studio defaults photo coverage to llm story-driven target selection", async () => {
+  const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
+  assert.match(server, /if \(value === "llm" \|\| value === "story" \|\| value === "global"\) return "llm"/);
+  assert.match(server, /function llmGlobalTargets\(allTargets\)/);
+  assert.match(appJs, /imageBudget\.value = normalizeImageCoverage\(readStored\(projectId, "imageBudget", "llm"\)\)/);
+  assert.match(appJs, /if \(coverage === "llm"\) return "llm story-driven changes"/);
 });
 
 test("studio uses an LLM orchestrator to map missing TTS routing metadata", async () => {

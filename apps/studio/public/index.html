@@ -88,7 +88,7 @@
               <input id="image-enabled" type="checkbox" checked />
               <span>
                 <strong>Generate AI photos during draft</strong>
-                <small>Uses OpenAI images and places visuals automatically per beat.</small>
+                <small>Uses OpenAI images and places visuals at LLM-selected story moments.</small>
               </span>
             </label>
             <div class="compact-controls">
@@ -102,8 +102,8 @@
               <label>
                 Photo density
                 <select id="image-budget">
+                  <option value="llm">LLM story-driven (default)</option>
                   <option value="balanced">Balanced key moments</option>
-                  <option value="section">Lean section anchors</option>
                   <option value="beat">Full beat-by-beat</option>
                 </select>
               </label>
