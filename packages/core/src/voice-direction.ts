@@ -1,5 +1,6 @@
 import type { Beat, VideoPlan } from "./schemas/video-plan.schema.js";
 import { VoiceDirectionSchema } from "./schemas/video-plan.schema.js";
+import { resolveBeatProductionDirection } from "./resolve-production-direction.js";
 
 type ChatterboxProfile = {
   exaggeration: number;
@@ -40,7 +41,11 @@ export type ResolvedVoiceDirection = {
 };
 
 export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoiceDirection {
-  const direction = VoiceDirectionSchema.parse(beat.voiceDirection ?? {});
+  const section = plan.sections.find((entry) => entry.beats.some((candidate) => candidate.id === beat.id));
+  const resolvedDirection = section
+    ? resolveBeatProductionDirection(plan, section, beat).voiceDirection
+    : VoiceDirectionSchema.parse(beat.voiceDirection ?? {});
+  const direction = resolvedDirection;
   const profile = CHATTERBOX_PROFILE_MAP[direction.profile] ?? CHATTERBOX_PROFILE_MAP.neutral;
 
   const providerOptions: Record<string, unknown> = {};

@@ -7,6 +7,7 @@ import { hashFile } from "./hash.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
 import { probeMedia } from "./media-probe.js";
 import { getProjectPaths } from "./paths.js";
+import { resolveBeatProductionDirection } from "./resolve-production-direction.js";
 import { VideoPlanSchema, type Beat } from "./schemas/video-plan.schema.js";
 
 const EPSILON = 0.001;
@@ -200,13 +201,14 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
   const segments = [];
   for (const section of plan.sections) {
     for (const beat of section.beats.sort((a, b) => a.order - b.order)) {
+        const resolvedDirection = resolveBeatProductionDirection(plan, section, beat);
         const voiceAsset = findVoiceAsset(assets, beat.id);
         const mediaAssets = findMediaAssets(assets, beat.id);
         const durationSeconds = durationForBeat(beat, voiceAsset, mediaAssets);
         const segmentStart = cursor;
         const segmentEnd = cursor + durationSeconds;
         const audioCues = [];
-        for (const cue of beat.sfxCues ?? []) {
+        for (const cue of resolvedDirection.sfxCues ?? []) {
           let cueAsset = resolveCueAsset(assets, beat.id, cue.id, cue.assetId);
           if (!cueAsset && cue.kind) {
             cueAsset = await resolveCueAssetFromLibrary(projectId, rootDir, paths.projectDir, cue.kind, assets);
@@ -233,7 +235,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
             duckMusic: cue.duckMusic ?? false
           });
         }
-        const visualEditCues = (beat.editorial?.visualEditCues ?? []).map((cue) => {
+        const visualEditCues = (resolvedDirection.editorial?.visualEditCues ?? []).map((cue) => {
           const startSeconds = cueStartForPlacement(cue.placement, segmentStart, segmentEnd, cue.offsetSeconds);
           return {
             id: cue.id,
@@ -244,7 +246,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
             intensity: cue.intensity
           };
         });
-        const silenceWindows = (beat.editorial?.silenceWindows ?? []).map((window) => {
+        const silenceWindows = (resolvedDirection.editorial?.silenceWindows ?? []).map((window) => {
           const startSeconds = cueStartForPlacement(window.placement, segmentStart, segmentEnd, window.offsetSeconds);
           const endSeconds = startSeconds + window.durationSeconds;
           return {
@@ -267,7 +269,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
           audioCues,
           visualEditCues,
           silenceWindows,
-          endingPolicy: beat.editorial?.endingPolicy,
+          endingPolicy: resolvedDirection.editorial?.endingPolicy,
           renderPolicy: {
             mediaPolicy: beat.timing.mediaPolicy,
             scaleMode: beat.media[0]?.scaleMode ?? "cover"

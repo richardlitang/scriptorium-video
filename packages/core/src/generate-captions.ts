@@ -7,6 +7,7 @@ import { VideoPlanSchema } from "./schemas/video-plan.schema.js";
 import { getProjectPaths } from "./paths.js";
 import { hashFile } from "./hash.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
+import { resolveBeatProductionDirection } from "./resolve-production-direction.js";
 
 type CaptionRules = {
   targetMaxWords: number;
@@ -112,20 +113,45 @@ export async function generateCaptionsForProject(
   const transcriptPath = path.join(paths.captionsDir, "transcript.json");
   const transcript = await readJsonFile(transcriptPath, TranscriptFileSchema);
   const baseRules = rulesForMode(plan.mode);
-  const tuning = plan.overrides?.captionTuning;
+  const allBeats = plan.sections.flatMap((section) => section.beats.map((beat) => ({ section, beat })));
+  const projectTuning = plan.overrides?.captionTuning;
+  const directionalTuning = allBeats.reduce<Record<string, number | undefined>>((acc, entry) => {
+    const tuning = resolveBeatProductionDirection(plan, entry.section, entry.beat).caption.tuning;
+    for (const [key, value] of Object.entries(tuning)) {
+      if (value !== undefined && acc[key] === undefined) acc[key] = value;
+    }
+    return acc;
+  }, {});
   const rules: CaptionRules = {
-    targetMaxWords: Math.round(clampNumber(tuning?.targetMaxWords, baseRules.targetMaxWords, 4, 30)),
-    hardMaxWords: Math.round(clampNumber(tuning?.hardMaxWords, baseRules.hardMaxWords, 6, 40)),
-    targetMaxDurationSeconds: clampNumber(tuning?.targetMaxDurationSeconds, baseRules.targetMaxDurationSeconds, 1.5, 12),
-    hardMaxDurationSeconds: clampNumber(tuning?.hardMaxDurationSeconds, baseRules.hardMaxDurationSeconds, 2, 14),
+    targetMaxWords: Math.round(clampNumber(directionalTuning.targetMaxWords ?? projectTuning?.targetMaxWords, baseRules.targetMaxWords, 4, 30)),
+    hardMaxWords: Math.round(clampNumber(directionalTuning.hardMaxWords ?? projectTuning?.hardMaxWords, baseRules.hardMaxWords, 6, 40)),
+    targetMaxDurationSeconds: clampNumber(
+      directionalTuning.targetMaxDurationSeconds ?? projectTuning?.targetMaxDurationSeconds,
+      baseRules.targetMaxDurationSeconds,
+      1.5,
+      12
+    ),
+    hardMaxDurationSeconds: clampNumber(
+      directionalTuning.hardMaxDurationSeconds ?? projectTuning?.hardMaxDurationSeconds,
+      baseRules.hardMaxDurationSeconds,
+      2,
+      14
+    ),
     minWordsBeforeSentenceBreak: Math.round(
-      clampNumber(tuning?.minWordsBeforeSentenceBreak, baseRules.minWordsBeforeSentenceBreak, 2, 20)
+      clampNumber(
+        directionalTuning.minWordsBeforeSentenceBreak ?? projectTuning?.minWordsBeforeSentenceBreak,
+        baseRules.minWordsBeforeSentenceBreak,
+        2,
+        20
+      )
     )
   };
+  const beatDirectionById = new Map(
+    allBeats.map(({ section, beat }) => [beat.id, resolveBeatProductionDirection(plan, section, beat)])
+  );
   const emphasisWords = new Set(
-    plan.sections
-      .flatMap((section) => section.beats)
-      .flatMap((beat) => beat.caption.emphasis.map((entry) => entry.toLowerCase()))
+    [...beatDirectionById.values()]
+      .flatMap((direction) => direction.caption.emphasis.map((entry) => entry.toLowerCase()))
   );
 
   const captions: Array<{
@@ -148,14 +174,14 @@ export async function generateCaptionsForProject(
     const start = current[0].startSeconds;
     const end = current[current.length - 1].endSeconds;
     const segment = timeline.segments.find((entry) => start >= entry.startSeconds && start < entry.endSeconds);
-    const beat = plan.sections.flatMap((section) => section.beats).find((entry) => entry.id === segment?.beatId);
+    const beatDirection = segment?.beatId ? beatDirectionById.get(segment.beatId) : undefined;
     captions.push({
       id: `caption-${String(captions.length + 1).padStart(3, "0")}`,
       beatId: segment?.beatId,
       startSeconds: Number(start.toFixed(3)),
       endSeconds: Number(end.toFixed(3)),
       text: current.map((word) => word.word).join(" "),
-      style: beat?.caption.style ?? "default",
+      style: beatDirection?.caption.style ?? "default",
       words: current.map((word) => ({
         ...word,
         emphasis: emphasisWords.has(word.word.toLowerCase())

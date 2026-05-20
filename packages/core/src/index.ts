@@ -13,6 +13,7 @@ export * from "./project-service.js";
 export * from "./review-project.js";
 export * from "./render/build-render-bundle.js";
 export * from "./renderer-provider.js";
+export * from "./resolve-production-direction.js";
 export * from "./schemas/asset-manifest.schema.js";
 export * from "./schemas/captions.schema.js";
 export * from "./schemas/project.schema.js";

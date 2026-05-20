@@ -186,6 +186,63 @@ export function createBeatWorkspaceController({
     sectionInfo.textContent = `${section.title} · ${beat.id} · ${beatDurationSeconds(beat.id, timeline).toFixed(1)}s`;
     inspectorEl.appendChild(sectionInfo);
 
+    const sectionFeelField = document.createElement("label");
+    sectionFeelField.className = "beat-inspector-field";
+    sectionFeelField.textContent = "Section feel";
+    const sectionFeelInput = document.createElement("input");
+    sectionFeelInput.type = "text";
+    sectionFeelInput.value = section.direction?.creative?.feel || "";
+    sectionFeelInput.onchange = () => {
+      const currentDirection = section.direction || {};
+      section.direction = {
+        ...currentDirection,
+        creative: {
+          ...(currentDirection.creative || {}),
+          feel: sectionFeelInput.value.trim() || undefined
+        }
+      };
+      onPlanChanged(plan);
+    };
+    sectionFeelField.appendChild(sectionFeelInput);
+
+    const sectionPacingField = document.createElement("label");
+    sectionPacingField.className = "beat-inspector-field";
+    sectionPacingField.textContent = "Section pacing";
+    const sectionPacingInput = document.createElement("input");
+    sectionPacingInput.type = "text";
+    sectionPacingInput.value = section.direction?.creative?.pacing || "";
+    sectionPacingInput.onchange = () => {
+      const currentDirection = section.direction || {};
+      section.direction = {
+        ...currentDirection,
+        creative: {
+          ...(currentDirection.creative || {}),
+          pacing: sectionPacingInput.value.trim() || undefined
+        }
+      };
+      onPlanChanged(plan);
+    };
+    sectionPacingField.appendChild(sectionPacingInput);
+
+    const sectionVisualStyleField = document.createElement("label");
+    sectionVisualStyleField.className = "beat-inspector-field";
+    sectionVisualStyleField.textContent = "Section visual style";
+    const sectionVisualStyleInput = document.createElement("input");
+    sectionVisualStyleInput.type = "text";
+    sectionVisualStyleInput.value = section.direction?.creative?.visualStyle || "";
+    sectionVisualStyleInput.onchange = () => {
+      const currentDirection = section.direction || {};
+      section.direction = {
+        ...currentDirection,
+        creative: {
+          ...(currentDirection.creative || {}),
+          visualStyle: sectionVisualStyleInput.value.trim() || undefined
+        }
+      };
+      onPlanChanged(plan);
+    };
+    sectionVisualStyleField.appendChild(sectionVisualStyleInput);
+
     const narrationField = document.createElement("label");
     narrationField.className = "beat-inspector-field";
     narrationField.textContent = "Script";
@@ -444,6 +501,9 @@ export function createBeatWorkspaceController({
 
     inspectorEl.append(
       sectionInfo,
+      sectionFeelField,
+      sectionPacingField,
+      sectionVisualStyleField,
       narrationField,
       voiceField,
       intensityField,

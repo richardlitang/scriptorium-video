@@ -820,6 +820,22 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       ...(currentPlan.visualBible || {}),
       ...(draft.visualBible || {})
     },
+    direction: {
+      ...(currentPlan.direction || {}),
+      creative: {
+        ...(currentPlan.direction?.creative || {}),
+        feel: String(draft.feel || "").trim() || undefined,
+        pacing: String(draft.pacing || "").trim() || undefined,
+        visualStyle: String(draft.visualStyle || "").trim() || undefined
+      },
+      caption: {
+        ...(currentPlan.direction?.caption || {}),
+        tuning: {
+          ...(currentPlan.direction?.caption?.tuning || {}),
+          ...(draft.captionTuning || {})
+        }
+      }
+    },
     overrides: {
       ...(currentPlan.overrides || {}),
       ...(draft.captionTuning ? {
@@ -835,6 +851,13 @@ function buildPlanFromAiDraft(currentPlan, draft) {
         id: sectionId,
         title: section.title,
         purpose: section.purpose || section.summary || "AI planned story section",
+        direction: {
+          creative: {
+            feel: String(section.feel || "").trim() || undefined,
+            pacing: String(section.pacing || "").trim() || undefined,
+            visualStyle: String(section.visualStyle || "").trim() || undefined
+          }
+        },
         estimatedDurationSeconds: section.beats.reduce(
           (total, beat) => total + (beat.estimatedDurationSeconds || estimateDurationSeconds(beat.narration)),
           0
@@ -885,6 +908,16 @@ function buildPlanFromAiDraft(currentPlan, draft) {
               type: conservativeVisual ? "slow_zoom_in" : motionType,
               intensity: conservativeVisual ? 0.05 : 0.08
             },
+            direction: {
+              voice: normalizeVoiceDirection(beat),
+              caption: { style: beat.captionStyle || "default", emphasis: beat.emphasis || [] },
+              motion: {
+                type: conservativeVisual ? "slow_zoom_in" : motionType,
+                intensity: conservativeVisual ? 0.05 : 0.08
+              },
+              sfxCues: normalizeSfxCues(beat),
+              editorial: normalizeEditorial(beat)
+            },
             caption: { emphasis: beat.emphasis || [], style: beat.captionStyle || "default" },
             voiceDirection: normalizeVoiceDirection(beat),
             sfxCues: normalizeSfxCues(beat),
@@ -923,6 +956,7 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "",
   "Output requirements:",
   "- Build a reusable visual bible for consistency.",
+  "- Set section-level creative direction (feel, pacing, visual style) so sections can vary while staying coherent.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
   "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
@@ -1053,6 +1087,9 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
             required: ["title", "voice", "visualBible", "sections", "warnings"],
             properties: {
               title: { type: "string" },
+              feel: { type: "string" },
+              pacing: { type: "string" },
+              visualStyle: { type: "string" },
               captionTuning: {
                 type: "object",
                 additionalProperties: false,
@@ -1100,6 +1137,9 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
                     title: { type: "string" },
                     summary: { type: "string" },
                     purpose: { type: "string" },
+                    feel: { type: "string" },
+                    pacing: { type: "string" },
+                    visualStyle: { type: "string" },
                     beats: {
                       type: "array",
                       minItems: 1,

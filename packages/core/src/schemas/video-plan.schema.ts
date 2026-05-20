@@ -158,6 +158,47 @@ export const VoiceDirectionSchema = z.object({
   source: z.enum(["user", "llm", "default"]).default("default")
 }).strict();
 
+export const VoiceDirectionOverrideSchema = z.object({
+  profile: VoiceProfileSchema.optional(),
+  deliveryNote: z.string().optional(),
+  emphasis: z.array(z.string()).optional(),
+  pauseBeforeSeconds: z.number().min(0).max(1.2).optional(),
+  pauseAfterSeconds: z.number().min(0).max(1.2).optional(),
+  intensity: z.number().min(0).max(1).optional(),
+  speedMultiplier: z.number().min(0.6).max(1.5).optional(),
+  pitchOffset: z.number().min(-6).max(6).optional(),
+  source: z.enum(["user", "llm", "default"]).optional()
+}).strict();
+
+export const CaptionDirectionOverrideSchema = z.object({
+  style: z.string().optional(),
+  emphasis: z.array(z.string()).optional(),
+  tuning: z.object({
+    targetMaxWords: z.number().int().min(4).max(30).optional(),
+    hardMaxWords: z.number().int().min(6).max(40).optional(),
+    targetMaxDurationSeconds: z.number().min(1.5).max(12).optional(),
+    hardMaxDurationSeconds: z.number().min(2).max(14).optional(),
+    minWordsBeforeSentenceBreak: z.number().int().min(2).max(20).optional()
+  }).strict().optional()
+}).strict();
+
+export const CreativeDirectionSchema = z.object({
+  feel: z.string().optional(),
+  pacing: z.string().optional(),
+  visualStyle: z.string().optional(),
+  tension: z.number().min(0).max(1).optional(),
+  continuityStrictness: z.number().min(0).max(1).optional()
+}).strict();
+
+export const ProductionDirectionSchema = z.object({
+  creative: CreativeDirectionSchema.optional(),
+  voice: VoiceDirectionOverrideSchema.optional(),
+  caption: CaptionDirectionOverrideSchema.optional(),
+  motion: MotionSchema.partial().strict().optional(),
+  sfxCues: z.array(SoundCueIntentSchema).optional(),
+  editorial: BeatEditorialSchema.optional()
+}).strict();
+
 export const BeatSchema = z.object({
   id: z.string(),
   order: z.number().int().positive(),
@@ -172,6 +213,7 @@ export const BeatSchema = z.object({
     emphasis: z.array(z.string()).default([]),
     style: z.string().default("default")
   }).strict().default({ emphasis: [], style: "default" }),
+  direction: ProductionDirectionSchema.optional(),
   voiceDirection: VoiceDirectionSchema.optional(),
   sfxCues: z.array(SoundCueIntentSchema).default([]),
   editorial: BeatEditorialSchema.optional(),
@@ -184,6 +226,7 @@ export const SectionSchema = z.object({
   title: z.string(),
   purpose: z.string().optional(),
   estimatedDurationSeconds: z.number().positive().optional(),
+  direction: ProductionDirectionSchema.optional(),
   beats: z.array(BeatSchema).min(1)
 }).strict();
 
@@ -244,9 +287,12 @@ export const VideoPlanSchema = z.object({
   }).strict(),
   voice: VoiceSchema,
   visualBible: VisualBibleSchema.optional(),
+  direction: ProductionDirectionSchema.optional(),
   sections: z.array(SectionSchema).min(1)
 }).strict();
 
 export type ArtifactStatus = z.infer<typeof ArtifactStatusSchema>;
 export type Beat = z.infer<typeof BeatSchema>;
+export type Section = z.infer<typeof SectionSchema>;
+export type SoundCueIntent = z.infer<typeof SoundCueIntentSchema>;
 export type VideoPlan = z.infer<typeof VideoPlanSchema>;
