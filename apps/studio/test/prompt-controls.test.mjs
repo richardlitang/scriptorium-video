@@ -165,12 +165,16 @@ test("studio preflights routed TTS providers before draft generation work", asyn
   const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
   assert.match(server, /function ttsProvidersForPlan\(plan\)/);
   assert.match(server, /async function preflightDraftTtsProviders\(plan\)/);
+  assert.match(server, /function chatterboxAutoStartEnabled\(\)/);
+  assert.match(server, /async function tryAutoStartChatterbox\(/);
+  assert.match(server, /async function ensureChatterboxReady\(/);
   assert.match(server, /if \(provider === "mms"\) return readMmsHealth\(\)/);
   assert.match(server, /Draft requires unavailable TTS provider\(s\):/);
   assert.match(server, /label: "Checking narration providers"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "tts_preflight\.complete"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "audio\.tts_preflight\.complete"/);
   assert.match(server, /const isProviderUnreachableError = \(message\) => \/TTS server is unreachable\/i\.test/);
+  assert.match(server, /appendRunTrace\(projectId, job\.id, "tts_recovery\.chatterbox"/);
   assert.match(server, /if \(isProviderUnreachableError\(message\)\) break;/);
 });
 

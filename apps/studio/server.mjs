@@ -1,5 +1,5 @@
 import { createServer } from "node:http";
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { readFile, readdir, writeFile, mkdir, appendFile, unlink, stat, rm } from "node:fs/promises";
 import { createReadStream } from "node:fs";
@@ -53,6 +53,9 @@ const MMS_HEALTH_URL = (() => {
 })();
 const voicePreviewCache = new Map();
 const STUDIO_TEST_MODE = process.env.LVSTUDIO_TEST_MODE === "1";
+const chatterboxStartState = {
+  pending: null
+};
 
 const port = Number(process.env.PORT ?? "4173");
 
@@ -222,6 +225,63 @@ async function readTtsHealth() {
   }
 }
 
+function chatterboxAutoStartEnabled() {
+  return process.env.LVSTUDIO_CHATTERBOX_AUTOSTART !== "0";
+}
+
+function chatterboxStartCommand() {
+  const python = process.env.LVSTUDIO_CHATTERBOX_PYTHON || "/private/tmp/lvstudio-chatterbox-venv/bin/python";
+  const script = process.env.LVSTUDIO_CHATTERBOX_START_SCRIPT || path.join(rootDir, "scripts", "chatterbox_tts_server.py");
+  const modelCache = process.env.CHATTERBOX_MODEL_CACHE || "/private/tmp/lvstudio-hf";
+  return { python, script, modelCache };
+}
+
+async function waitForChatterboxReady(timeoutMs = Number(process.env.LVSTUDIO_CHATTERBOX_START_TIMEOUT_MS ?? 45000)) {
+  const deadline = Date.now() + Math.max(1000, timeoutMs);
+  let last = null;
+  while (Date.now() < deadline) {
+    last = await readTtsHealth();
+    if (last.ok) return last;
+    await sleep(1000);
+  }
+  return last ?? { provider: "chatterbox", ok: false, status: "timeout", error: "start-timeout" };
+}
+
+async function tryAutoStartChatterbox(reason = "draft_preflight") {
+  if (!chatterboxAutoStartEnabled() || STUDIO_TEST_MODE) return { attempted: false, ready: await readTtsHealth() };
+  if (chatterboxStartState.pending) return chatterboxStartState.pending;
+
+  chatterboxStartState.pending = (async () => {
+    const command = chatterboxStartCommand();
+    const child = spawn(command.python, [command.script], {
+      cwd: rootDir,
+      detached: true,
+      stdio: "ignore",
+      env: {
+        ...process.env,
+        CHATTERBOX_MODEL_CACHE: command.modelCache
+      }
+    });
+    child.unref();
+    const ready = await waitForChatterboxReady();
+    return { attempted: true, reason, command, ready };
+  })();
+
+  try {
+    return await chatterboxStartState.pending;
+  } finally {
+    chatterboxStartState.pending = null;
+  }
+}
+
+async function ensureChatterboxReady(reason = "draft_preflight") {
+  const health = await readTtsHealth();
+  if (health.ok) return health;
+  if (!chatterboxAutoStartEnabled()) return health;
+  const recovered = await tryAutoStartChatterbox(reason);
+  return recovered.ready ?? health;
+}
+
 async function readMmsHealth() {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 2500);
@@ -273,7 +333,7 @@ function ttsProvidersForPlan(plan) {
 async function preflightDraftTtsProviders(plan) {
   const providers = ttsProvidersForPlan(plan);
   const checks = await Promise.all(providers.map(async (provider) => {
-    if (provider === "chatterbox") return readTtsHealth();
+    if (provider === "chatterbox") return ensureChatterboxReady("draft_preflight");
     if (provider === "mms") return readMmsHealth();
     if (provider === "openai") {
       try {
@@ -732,6 +792,18 @@ async function runTrackedForegroundJob(projectId, options, runner) {
 
 async function runRetriedDraftStep(projectId, job, label, operation) {
   const isProviderUnreachableError = (message) => /TTS server is unreachable/i.test(String(message || ""));
+  const maybeRecoverFromUnreachable = async (message) => {
+    if (!isProviderUnreachableError(message)) return false;
+    if (!/chatterbox/i.test(label)) return false;
+    const recovered = await ensureChatterboxReady("draft_step_retry");
+    await appendRunTrace(projectId, job.id, "tts_recovery.chatterbox", {
+      label,
+      ok: recovered.ok,
+      status: recovered.status,
+      error: recovered.error || null
+    }).catch(() => {});
+    return recovered.ok;
+  };
   let lastError;
   for (let attempt = 1; attempt <= job.maxAttempts; attempt += 1) {
     await writeDraftJobState(projectId, job, {
@@ -768,6 +840,11 @@ async function runRetriedDraftStep(projectId, job, label, operation) {
       await writeDraftJobState(projectId, job, {
         error: message
       });
+      const recovered = await maybeRecoverFromUnreachable(message);
+      if (recovered && attempt < job.maxAttempts) {
+        await sleep(500);
+        continue;
+      }
       if (isProviderUnreachableError(message)) break;
       if (attempt < job.maxAttempts) await sleep(1000 * attempt);
     }
