@@ -1238,6 +1238,21 @@ async function refreshTtsHealth() {
     const result = await fetchJson("/api/tts/health");
     ttsHealthState = result.data || ttsHealthState;
   } catch (error) {
+    const errorText = String(error || "");
+    const looksLikeMissingHealthRoute =
+      /not found/i.test(errorText) ||
+      /404/.test(errorText) ||
+      /\/api\/tts\/health/.test(errorText);
+    if (looksLikeMissingHealthRoute) {
+      ttsHealthState = {
+        provider: "chatterbox",
+        ok: false,
+        status: "checking",
+        sampleRate: null,
+        error: null
+      };
+      return;
+    }
     ttsHealthState = {
       provider: "chatterbox",
       ok: false,
