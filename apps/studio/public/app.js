@@ -1078,7 +1078,7 @@ function stopProgressPolling() {
   progressPollTimer = null;
 }
 
-function visualAssetForBeat(assets, beatId) {
+function ownedVisualAssetForBeat(assets, beatId) {
   return assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beatId);
 }
 
@@ -1091,7 +1091,7 @@ async function currentVisualCoverage(projectId, coverage) {
   const plan = details.data.plan;
   if (coverage === "beat") {
     const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
-    const missing = beats.filter((beat) => !visualAssetForBeat(assets, beat.id));
+    const missing = beats.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
     return { missing: missing.length, total: beats.length };
   }
   if (coverage === "balanced") {
@@ -1101,13 +1101,13 @@ async function currentVisualCoverage(projectId, coverage) {
       return [beats[0], beats[Math.floor(beats.length / 2)], beats[beats.length - 1]]
         .filter((beat, index, all) => all.findIndex((entry) => entry?.id === beat?.id) === index);
     });
-    const missing = targets.filter((beat) => !visualAssetForBeat(assets, beat.id));
+    const missing = targets.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
     return { missing: missing.length, total: targets.length };
   }
 
   const sections = plan.sections ?? [];
   const missing = sections.filter((section) =>
-    !(section.beats ?? []).some((beat) => visualAssetForBeat(assets, beat.id))
+    !(section.beats ?? []).some((beat) => ownedVisualAssetForBeat(assets, beat.id))
   );
   return { missing: missing.length, total: sections.length };
 }

@@ -27,6 +27,12 @@ test("Studio app wires planner prompt controls into requests", async () => {
   assert.match(appJs, /imageCoverage:\s*normalizeImageCoverage\(imageBudget\.value\)/);
 });
 
+test("Studio app does not redeclare visual asset helpers", async () => {
+  const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
+  assert.equal((appJs.match(/function visualAssetForBeat\(/g) ?? []).length, 1);
+  assert.equal((appJs.match(/function ownedVisualAssetForBeat\(/g) ?? []).length, 1);
+});
+
 test("planner prompt tells the model creative controls govern every beat", async () => {
   const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
   assert.match(draftOrchestrator, /Treat Feel, Pacing, and Visual style as creative direction for every beat/);
