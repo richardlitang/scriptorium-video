@@ -232,8 +232,14 @@ h3 {
 .hero-actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
   position: relative;
   z-index: 1;
+}
+
+#tts-health-pill {
+  margin-right: 6px;
 }
 
 .job-banner {

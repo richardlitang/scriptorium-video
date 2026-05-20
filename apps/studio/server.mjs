@@ -28,6 +28,16 @@ const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjso
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 const OPENAI_IMAGES_URL = "https://api.openai.com/v1/images/generations";
 const CHATTERBOX_SPEECH_URL = process.env.CHATTERBOX_TTS_URL ?? "http://127.0.0.1:8000/v1/audio/speech";
+const CHATTERBOX_HEALTH_URL = (() => {
+  try {
+    const url = new URL(CHATTERBOX_SPEECH_URL);
+    url.pathname = "/health";
+    url.search = "";
+    return url.toString();
+  } catch {
+    return "http://127.0.0.1:8000/health";
+  }
+})();
 const voicePreviewCache = new Map();
 const STUDIO_TEST_MODE = process.env.LVSTUDIO_TEST_MODE === "1";
 
@@ -136,6 +146,50 @@ async function previewVoice(settings, text) {
     voicePreviewCache.delete(firstKey);
   }
   return bytes;
+}
+
+async function readTtsHealth() {
+  if (STUDIO_TEST_MODE) {
+    return { provider: "chatterbox", ok: true, status: "ready", sampleRate: 24000, error: null };
+  }
+  const headers = {};
+  if (process.env.CHATTERBOX_TTS_API_KEY) headers.authorization = `Bearer ${process.env.CHATTERBOX_TTS_API_KEY}`;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 2500);
+  try {
+    const response = await fetch(CHATTERBOX_HEALTH_URL, {
+      method: "GET",
+      headers,
+      signal: controller.signal
+    });
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok) {
+      return {
+        provider: "chatterbox",
+        ok: false,
+        status: "failed",
+        sampleRate: null,
+        error: `health-check-failed (${response.status})`
+      };
+    }
+    return {
+      provider: "chatterbox",
+      ok: payload.ok === true,
+      status: payload.status || (payload.ok ? "ready" : "failed"),
+      sampleRate: typeof payload.sampleRate === "number" ? payload.sampleRate : null,
+      error: payload.error || null
+    };
+  } catch (error) {
+    return {
+      provider: "chatterbox",
+      ok: false,
+      status: "unreachable",
+      sampleRate: null,
+      error: error?.name === "AbortError" ? "health-check-timeout" : String(error?.message || error)
+    };
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 function safeVoiceReferenceFileName(rawName) {
@@ -2199,6 +2253,11 @@ const server = createServer(async (req, res) => {
         message: "Voice settings saved.",
         data: await writeVoiceSettings(body)
       });
+    }
+
+    if (pathname === "/api/tts/health" && req.method === "GET") {
+      const data = await readTtsHealth();
+      return sendJson(res, 200, { ok: true, data });
     }
 
     if (pathname === "/api/settings/voice/preview" && req.method === "POST") {

@@ -16,6 +16,7 @@ const qualityOutput = document.getElementById("quality-output");
 const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
+const ttsHealthPill = document.getElementById("tts-health-pill");
 const jobBanner = document.getElementById("job-banner");
 const jobBannerTitle = document.getElementById("job-banner-title");
 const jobBannerDetail = document.getElementById("job-banner-detail");
@@ -95,6 +96,13 @@ let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let selectedBeatId = null;
 let selectedInspectorTab = "script";
+let ttsHealthState = {
+  provider: "chatterbox",
+  ok: false,
+  status: "checking",
+  sampleRate: null,
+  error: null
+};
 
 const DEFAULT_PLANNER_SYSTEM_PROMPT =
   "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Keep voice direction engaged and language-appropriate. Return JSON only.";
@@ -310,18 +318,61 @@ function defaultDraftButtonLabel() {
   return selectedProjectId ? "Make Draft" : "Create Draft";
 }
 
+function ttsAvailability() {
+  const status = ttsHealthState?.status || "checking";
+  if (status === "ready" && ttsHealthState?.ok) return "ready";
+  if (status === "loading") return "loading";
+  if (status === "failed") return "failed";
+  if (status === "unreachable") return "unreachable";
+  return "checking";
+}
+
+function renderTtsHealthPill() {
+  if (!ttsHealthPill) return;
+  const availability = ttsAvailability();
+  ttsHealthPill.className = "status-pill";
+  if (availability === "ready") {
+    ttsHealthPill.classList.add("ok");
+    const sampleRateLabel = ttsHealthState.sampleRate ? ` (${ttsHealthState.sampleRate}Hz)` : "";
+    ttsHealthPill.textContent = `TTS: ready${sampleRateLabel}`;
+    ttsHealthPill.title = "Chatterbox is ready for draft narration.";
+    return;
+  }
+  if (availability === "loading") {
+    ttsHealthPill.classList.add("warn");
+    ttsHealthPill.textContent = "TTS: warming model...";
+    ttsHealthPill.title = "First run downloads/loads the TTS model. Draft actions are paused until ready.";
+    return;
+  }
+  ttsHealthPill.classList.add("bad");
+  if (availability === "checking") {
+    ttsHealthPill.textContent = "TTS: checking...";
+    ttsHealthPill.title = "Checking Chatterbox status.";
+  } else {
+    ttsHealthPill.textContent = "TTS: unavailable";
+    ttsHealthPill.title = ttsHealthState.error || "Chatterbox is unreachable or failed to load.";
+  }
+}
+
 function updateStoryButtons() {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = storyInput.value.trim().length > 0;
   const draftJobRunning = currentDraftJob && ["queued", "running"].includes(currentDraftJob.status);
+  const ttsReady = ttsAvailability() === "ready";
+  const ttsWarming = ttsAvailability() === "loading" || ttsAvailability() === "checking";
   convertStoryBtn.disabled = !hasSelectedProject || !hasStory;
   aiPlanBtn.disabled = !hasSelectedProject || !hasStory;
   clearStoryBtn.disabled = !hasStory;
-  renderBtn.disabled = !hasStory || draftJobRunning;
-  if (!draftJobRunning) renderBtn.textContent = hasStory ? defaultDraftButtonLabel() : "Paste Story First";
+  renderBtn.disabled = !hasStory || draftJobRunning || !ttsReady;
+  if (!draftJobRunning) {
+    if (!hasStory) renderBtn.textContent = "Paste Story First";
+    else if (!ttsReady) renderBtn.textContent = ttsWarming ? "TTS Warming..." : "TTS Unavailable";
+    else renderBtn.textContent = defaultDraftButtonLabel();
+  }
   voiceSettingsBtn.disabled = false;
-  directVoiceBtn.disabled = !hasSelectedProject;
-  regenerateAudioBtn.disabled = !hasSelectedProject;
+  directVoiceBtn.disabled = !hasSelectedProject || !ttsReady;
+  regenerateAudioBtn.disabled = !hasSelectedProject || !ttsReady;
+  prepareDraftBtn.disabled = !hasSelectedProject || !ttsReady;
 }
 
 function syncStoryButtonsSoon() {
@@ -1150,9 +1201,34 @@ async function selectProject(projectId, element) {
   updateStoryButtons();
 }
 
+async function refreshTtsHealth() {
+  try {
+    const result = await fetchJson("/api/tts/health");
+    ttsHealthState = result.data || ttsHealthState;
+  } catch (error) {
+    ttsHealthState = {
+      provider: "chatterbox",
+      ok: false,
+      status: "unreachable",
+      sampleRate: null,
+      error: String(error)
+    };
+  } finally {
+    renderTtsHealthPill();
+    updateStoryButtons();
+  }
+}
+
 renderBtn.onclick = async () => {
   const hasStory = storyInput.value.trim().length > 0;
   if (!hasStory) return;
+  if (ttsAvailability() !== "ready") {
+    const msg = ttsAvailability() === "loading" || ttsAvailability() === "checking"
+      ? "TTS model is still warming up. Wait for 'TTS: ready' then try Make Draft."
+      : `TTS is unavailable: ${ttsHealthState.error || "check Chatterbox server."}`;
+    renderStoryFeedback([{ level: "warning", text: msg }]);
+    return;
+  }
   const pendingUiState = {
     feel: storyFeel.value,
     pacing: storyPacing.value,
@@ -1488,6 +1564,11 @@ savePlanBtn.onclick = async () => {
 voiceSettingsController.loadSettings().catch((error) => {
   voiceSettingsStatus.textContent = String(error);
 });
+
+refreshTtsHealth().catch(() => {});
+setInterval(() => {
+  refreshTtsHealth().catch(() => {});
+}, 8000);
 
 loadProjects().catch((error) => {
   projectMeta.textContent = String(error);

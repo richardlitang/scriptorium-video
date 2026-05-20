@@ -3,6 +3,7 @@ import type { RenderBundle } from "@lvstudio/core";
 import { CaptionLayer } from "../components/CaptionLayer";
 import { MediaLayer } from "../components/MediaLayer";
 import { SectionTitleCard } from "../components/SectionTitleCard";
+import { activeSilenceAt, shouldCutToBlack } from "./editorial-runtime";
 
 type RemotionInputProps = {
   renderBundle: RenderBundle;
@@ -17,25 +18,6 @@ function dbToVolume(levelDb: number): number {
 
 function duckingFactorAt(timeSeconds: number, voiceRanges: Array<{ start: number; end: number }>): number {
   return voiceRanges.some((range) => timeSeconds >= range.start && timeSeconds < range.end) ? 0.35 : 1;
-}
-
-function activeSilenceAt(
-  timeSeconds: number,
-  windows: Array<{ startSeconds: number; endSeconds: number; muteMusic: boolean; muteSfx: boolean; keepVoice: boolean }>
-) {
-  return windows.find((window) => timeSeconds >= window.startSeconds && timeSeconds < window.endSeconds);
-}
-
-function shouldCutToBlack(
-  timeSeconds: number,
-  cues: Array<{ type: string; startSeconds: number; durationSeconds: number; target: string }>
-): boolean {
-  return cues.some((cue) =>
-    (cue.type === "cut_to_black" || cue.type === "hold_black") &&
-    cue.target === "black" &&
-    timeSeconds >= cue.startSeconds &&
-    timeSeconds < cue.startSeconds + cue.durationSeconds
-  );
 }
 
 export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
