@@ -179,6 +179,86 @@ export function createBeatWorkspaceController({
     };
     voiceField.appendChild(voiceSelect);
 
+    const intensityField = document.createElement("label");
+    intensityField.className = "beat-inspector-field";
+    intensityField.textContent = "Voice intensity";
+    const intensityInput = document.createElement("input");
+    intensityInput.type = "range";
+    intensityInput.min = "0";
+    intensityInput.max = "1";
+    intensityInput.step = "0.05";
+    intensityInput.value = Number(beat.voiceDirection?.intensity ?? 0.5).toFixed(2);
+    const intensityValue = document.createElement("output");
+    intensityValue.value = Number(intensityInput.value).toFixed(2);
+    intensityInput.oninput = () => {
+      intensityValue.value = Number(intensityInput.value).toFixed(2);
+      beat.voiceDirection = {
+        ...(beat.voiceDirection || {}),
+        intensity: Number(intensityInput.value),
+        source: "user"
+      };
+      onPlanChanged(plan);
+    };
+    intensityField.append(intensityInput, intensityValue);
+
+    const pauseBeforeField = document.createElement("label");
+    pauseBeforeField.className = "beat-inspector-field";
+    pauseBeforeField.textContent = "Pause before (seconds)";
+    const pauseBeforeInput = document.createElement("input");
+    pauseBeforeInput.type = "number";
+    pauseBeforeInput.min = "0";
+    pauseBeforeInput.max = "1.2";
+    pauseBeforeInput.step = "0.05";
+    pauseBeforeInput.value = Number(beat.voiceDirection?.pauseBeforeSeconds ?? 0).toFixed(2);
+    pauseBeforeInput.onchange = () => {
+      const next = Math.max(0, Math.min(1.2, Number(pauseBeforeInput.value) || 0));
+      pauseBeforeInput.value = next.toFixed(2);
+      beat.voiceDirection = {
+        ...(beat.voiceDirection || {}),
+        pauseBeforeSeconds: next,
+        source: "user"
+      };
+      onPlanChanged(plan);
+    };
+    pauseBeforeField.appendChild(pauseBeforeInput);
+
+    const pauseAfterField = document.createElement("label");
+    pauseAfterField.className = "beat-inspector-field";
+    pauseAfterField.textContent = "Pause after (seconds)";
+    const pauseAfterInput = document.createElement("input");
+    pauseAfterInput.type = "number";
+    pauseAfterInput.min = "0";
+    pauseAfterInput.max = "1.2";
+    pauseAfterInput.step = "0.05";
+    pauseAfterInput.value = Number(beat.voiceDirection?.pauseAfterSeconds ?? 0).toFixed(2);
+    pauseAfterInput.onchange = () => {
+      const next = Math.max(0, Math.min(1.2, Number(pauseAfterInput.value) || 0));
+      pauseAfterInput.value = next.toFixed(2);
+      beat.voiceDirection = {
+        ...(beat.voiceDirection || {}),
+        pauseAfterSeconds: next,
+        source: "user"
+      };
+      onPlanChanged(plan);
+    };
+    pauseAfterField.appendChild(pauseAfterInput);
+
+    const deliveryNoteField = document.createElement("label");
+    deliveryNoteField.className = "beat-inspector-field";
+    deliveryNoteField.textContent = "Delivery note";
+    const deliveryNoteInput = document.createElement("textarea");
+    deliveryNoteInput.rows = 2;
+    deliveryNoteInput.value = beat.voiceDirection?.deliveryNote || "";
+    deliveryNoteInput.oninput = () => {
+      beat.voiceDirection = {
+        ...(beat.voiceDirection || {}),
+        deliveryNote: deliveryNoteInput.value.trim() || undefined,
+        source: "user"
+      };
+      onPlanChanged(plan);
+    };
+    deliveryNoteField.appendChild(deliveryNoteInput);
+
     const actions = document.createElement("div");
     actions.className = "beat-inspector-actions";
     const regenerateBtn = document.createElement("button");
@@ -221,7 +301,17 @@ export function createBeatWorkspaceController({
     assetsInfo.className = "feedback-row";
     assetsInfo.textContent = `Image: ${imageAsset ? imageAsset.status : "missing"} · Audio: ${voiceAsset ? voiceAsset.status : "missing"}`;
 
-    inspectorEl.append(sectionInfo, narrationField, voiceField, assetsInfo, actions);
+    inspectorEl.append(
+      sectionInfo,
+      narrationField,
+      voiceField,
+      intensityField,
+      pauseBeforeField,
+      pauseAfterField,
+      deliveryNoteField,
+      assetsInfo,
+      actions
+    );
   }
 
   return {

@@ -622,6 +622,50 @@ function selectImageTargets(plan, manifest, mode, coverage, options) {
 }
 
 function buildPlanFromAiDraft(currentPlan, draft) {
+  const allowedVoiceProfiles = new Set([
+    "neutral",
+    "warm_open",
+    "clear_explainer",
+    "authoritative",
+    "energetic",
+    "key_point",
+    "reflective",
+    "tense",
+    "reveal",
+    "urgent",
+    "soft_close"
+  ]);
+  const clampNumber = (value, fallback, min, max) => {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) return fallback;
+    return Math.max(min, Math.min(max, numeric));
+  };
+  const normalizeVoiceDirection = (beatDraft) => {
+    const profile = allowedVoiceProfiles.has(beatDraft.voiceProfile) ? beatDraft.voiceProfile : "neutral";
+    return {
+      profile,
+      deliveryNote: String(beatDraft.deliveryNote || "").trim() || undefined,
+      emphasis: Array.isArray(beatDraft.emphasis)
+        ? beatDraft.emphasis.map((entry) => String(entry || "").trim()).filter(Boolean).slice(0, 12)
+        : [],
+      pauseBeforeSeconds: clampNumber(beatDraft.pauseBeforeSeconds, 0, 0, 1.2),
+      pauseAfterSeconds: clampNumber(beatDraft.pauseAfterSeconds, 0, 0, 1.2),
+      intensity: clampNumber(beatDraft.intensity, 0.5, 0, 1),
+      source: "llm"
+    };
+  };
+  const normalizeSfxCues = (beatDraft) => {
+    if (!Array.isArray(beatDraft.sfxCues)) return [];
+    return beatDraft.sfxCues
+      .slice(0, 6)
+      .map((cue, index) => ({
+        id: String(cue.id || `cue-${index + 1}`),
+        kind: String(cue.kind || "ambience"),
+        placement: ["beat_start", "beat_end", "key_point", "manual"].includes(cue.placement) ? cue.placement : "manual",
+        offsetSeconds: clampNumber(cue.offsetSeconds, 0, -5, 5),
+        levelDb: clampNumber(cue.levelDb, -16, -48, 12)
+      }));
+  };
   const visualBible = draft.visualBible || {};
   const visualBibleSuffix = [
     visualBible.stylePreset ? `Style preset: ${visualBible.stylePreset}` : "",
@@ -693,7 +737,9 @@ function buildPlanFromAiDraft(currentPlan, draft) {
               }
             ],
             motion: { type: beat.motion || "slow_zoom_in", intensity: 0.08 },
-            caption: { emphasis: beat.emphasis || [], style: "default" },
+            caption: { emphasis: beat.emphasis || [], style: beat.captionStyle || "default" },
+            voiceDirection: normalizeVoiceDirection(beat),
+            sfxCues: normalizeSfxCues(beat),
             notes: [beat.notes || beat.visualPrompt || "", visualBibleSuffix].filter(Boolean).join("\n\n")
           };
         })
@@ -729,6 +775,9 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Output requirements:",
   "- Build a reusable visual bible for consistency.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
+  "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
+  "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
+  "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."
 ].join("\n");
 
@@ -825,14 +874,35 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
                       items: {
                         type: "object",
                         additionalProperties: false,
-                        required: ["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes"],
+                        required: ["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote"],
                         properties: {
                           narration: { type: "string" },
                           visualPrompt: { type: "string" },
                           estimatedDurationSeconds: { type: "number" },
                           motion: { type: "string", enum: ["none", "slow_zoom_in", "slow_zoom_out", "pan_left", "pan_right"] },
                           emphasis: { type: "array", items: { type: "string" } },
-                          notes: { type: "string" }
+                          notes: { type: "string" },
+                          voiceProfile: { type: "string", enum: ["neutral", "warm_open", "clear_explainer", "authoritative", "energetic", "key_point", "reflective", "tense", "reveal", "urgent", "soft_close"] },
+                          intensity: { type: "number" },
+                          pauseBeforeSeconds: { type: "number" },
+                          pauseAfterSeconds: { type: "number" },
+                          deliveryNote: { type: "string" },
+                          captionStyle: { type: "string" },
+                          sfxCues: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              additionalProperties: false,
+                              required: ["id", "kind", "placement", "offsetSeconds", "levelDb"],
+                              properties: {
+                                id: { type: "string" },
+                                kind: { type: "string" },
+                                placement: { type: "string", enum: ["beat_start", "beat_end", "key_point", "manual"] },
+                                offsetSeconds: { type: "number" },
+                                levelDb: { type: "number" }
+                              }
+                            }
+                          }
                         }
                       }
                     }

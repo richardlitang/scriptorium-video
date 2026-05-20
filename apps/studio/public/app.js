@@ -113,6 +113,9 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Output requirements:",
   "- Build a reusable visual bible for consistency.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
+  "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
+  "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
+  "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."
 ].join("\n");
 
