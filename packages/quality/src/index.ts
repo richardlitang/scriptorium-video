@@ -2,21 +2,14 @@ import { access } from "node:fs/promises";
 import path from "node:path";
 import {
   buildRenderBundle,
+  QualityFindingSchema,
+  QualityReportSchema,
   getProjectPaths,
   loadProject
 } from "@lvstudio/core";
 
-export type QualityCheck = {
-  id: string;
-  severity: "info" | "warning" | "error";
-  message: string;
-  path?: string;
-};
-
-export type QualityResult = {
-  status: "pass" | "warn" | "fail";
-  checks: QualityCheck[];
-};
+export type QualityCheck = import("@lvstudio/core").QualityFinding;
+export type QualityResult = import("@lvstudio/core").QualityReport;
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -42,22 +35,26 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
   for (const section of loaded.videoPlan.sections) {
     let previousIntensity: number | undefined;
     for (const beat of section.beats) {
+      const segment = bundle.timeline.segments.find((entry) => entry.beatId === beat.id);
       const voice = loaded.assetManifest.assets.find((asset) => asset.role === "voiceover" && asset.beatId === beat.id);
-      const media = loaded.assetManifest.assets.filter((asset) => asset.role !== "voiceover" && asset.beatId === beat.id);
       if (!voice) {
         checks.push({
           id: "shared.beat.voice",
           severity: "error",
           message: `Beat ${beat.id} has no voiceover asset.`,
-          path: `video-plan.sections.${section.id}.beats.${beat.id}`
+          path: `video-plan.sections.${section.id}.beats.${beat.id}`,
+          beatId: beat.id,
+          sectionId: section.id
         });
       }
-      if (beat.media.length > 0 && media.length === 0) {
+      if (beat.media.length > 0 && (!segment || segment.mediaAssetIds.length === 0)) {
         checks.push({
           id: "shared.beat.media",
           severity: "error",
-          message: `Beat ${beat.id} references media intent but no resolved media asset exists.`,
-          path: `video-plan.sections.${section.id}.beats.${beat.id}`
+          message: `Beat ${beat.id} references media intent but no resolved timeline media asset exists.`,
+          path: `video-plan.sections.${section.id}.beats.${beat.id}`,
+          beatId: beat.id,
+          sectionId: section.id
         });
       }
 
@@ -69,7 +66,10 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           id: "shared.voice.pause_budget",
           severity: "warning",
           message: `Beat ${beat.id} has high combined pause budget (${pauses.toFixed(2)}s).`,
-          path: `video-plan.sections.${section.id}.beats.${beat.id}`
+          path: `video-plan.sections.${section.id}.beats.${beat.id}`,
+          beatId: beat.id,
+          sectionId: section.id,
+          data: { pausesSeconds: Number(pauses.toFixed(3)) }
         });
       }
 
@@ -79,7 +79,14 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           id: "shared.voice.intensity_jump",
           severity: "warning",
           message: `Beat ${beat.id} has an abrupt intensity jump from previous beat.`,
-          path: `video-plan.sections.${section.id}.beats.${beat.id}`
+          path: `video-plan.sections.${section.id}.beats.${beat.id}`,
+          beatId: beat.id,
+          sectionId: section.id,
+          data: {
+            previousIntensity,
+            currentIntensity: intensity,
+            delta: Math.abs(intensity - previousIntensity)
+          }
         });
       }
       if (intensity !== undefined) previousIntensity = intensity;
@@ -98,7 +105,10 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           id: "shared.editorial.visual_cue_density",
           severity: "warning",
           message: `Beat ${beat.id} has ${visualCueCount} visual edit cues; consider reducing for cleaner pacing.`,
-          path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.visualEditCues`
+          path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.visualEditCues`,
+          beatId: beat.id,
+          sectionId: section.id,
+          data: { visualCueCount }
         });
       }
 
@@ -113,7 +123,10 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
             id: "shared.editorial.silence_overlap",
             severity: "warning",
             message: `Beat ${beat.id} has overlapping silence windows (${previous.id}, ${current.id}).`,
-            path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`
+            path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`,
+            beatId: beat.id,
+            sectionId: section.id,
+            data: { previousWindowId: previous.id, currentWindowId: current.id }
           });
           break;
         }
@@ -123,7 +136,13 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           id: "shared.editorial.silence_overuse",
           severity: "warning",
           message: `Beat ${beat.id} mutes audio for ${Math.round((silenceTotal / segment.durationSeconds) * 100)}% of its duration.`,
-          path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`
+          path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`,
+          beatId: beat.id,
+          sectionId: section.id,
+          data: {
+            silenceSeconds: Number(silenceTotal.toFixed(3)),
+            segmentDurationSeconds: Number(segment.durationSeconds.toFixed(3))
+          }
         });
       }
     }
@@ -133,8 +152,10 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
   for (const section of loaded.videoPlan.sections) {
     for (const beat of section.beats) {
       const prompt = String(beat.media?.[0]?.prompt || beat.notes || "").replace(/\s+/g, " ").trim().toLowerCase();
-      if (!prompt) continue;
-      promptCounts.set(prompt, (promptCounts.get(prompt) || 0) + 1);
+      const visualPrompt = String(beat.visual?.prompt || "").replace(/\s+/g, " ").trim().toLowerCase();
+      const promptText = visualPrompt || prompt;
+      if (!promptText) continue;
+      promptCounts.set(promptText, (promptCounts.get(promptText) || 0) + 1);
     }
   }
   for (const [prompt, count] of promptCounts.entries()) {
@@ -143,7 +164,8 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
         id: "shared.visual.prompt_repetition",
         severity: "warning",
         message: `A visual prompt pattern repeats ${count} times; expect continuity drift or repetitive shots.`,
-        path: prompt.slice(0, 120)
+        path: prompt.slice(0, 120),
+        data: { repeatedCount: count }
       });
     }
   }
@@ -182,14 +204,20 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
         checks.push({
           id: "short_story.max_beat_duration",
           severity: "error",
-          message: `Beat ${segment.beatId} exceeds 7 seconds.`
+          message: `Beat ${segment.beatId} exceeds 7 seconds.`,
+          beatId: segment.beatId,
+          sectionId: segment.sectionId,
+          data: { durationSeconds: segment.durationSeconds }
         });
       }
       if (segment.durationSeconds > 6) {
         checks.push({
           id: "short_story.visual_change_frequency",
           severity: "warning",
-          message: `Beat ${segment.beatId} exceeds 6 seconds without guaranteed visual change.`
+          message: `Beat ${segment.beatId} exceeds 6 seconds without guaranteed visual change.`,
+          beatId: segment.beatId,
+          sectionId: segment.sectionId,
+          data: { durationSeconds: segment.durationSeconds }
         });
       }
     }
@@ -198,7 +226,10 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
       checks.push({
         id: "short_story.ending_black_hold",
         severity: "warning",
-        message: "Final cut-to-black hold is very short (<0.6s); completion-view effect may be weak."
+        message: "Final cut-to-black hold is very short (<0.6s); completion-view effect may be weak.",
+        beatId: finalSegment.beatId,
+        sectionId: finalSegment.sectionId,
+        data: { holdSeconds: finalSegment.endingPolicy.holdSeconds ?? 0 }
       });
     }
     if (!loaded.captions || loaded.captions.captions.length === 0) {
@@ -212,12 +243,13 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
         const words = caption.text.split(/\s+/).filter(Boolean).length;
         if (words > 7) {
           checks.push({
-            id: "short_story.caption_words",
-            severity: "error",
-            message: `Caption ${caption.id} exceeds 7 words.`
-          });
-        }
+          id: "short_story.caption_words",
+          severity: "error",
+          message: `Caption ${caption.id} exceeds 7 words.`,
+          data: { captionId: caption.id, words }
+        });
       }
+    }
     }
   }
 
@@ -234,7 +266,8 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
         checks.push({
           id: "long_documentary.section_purpose",
           severity: "warning",
-          message: `Section ${section.id} is missing a purpose.`
+          message: `Section ${section.id} is missing a purpose.`,
+          sectionId: section.id
         });
       }
     }
@@ -250,8 +283,12 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
 
   const hasError = checks.some((check) => check.severity === "error");
   const hasWarning = checks.some((check) => check.severity === "warning");
-  return {
+  const result = {
     status: hasError ? "fail" : hasWarning ? "warn" : "pass",
     checks
   };
+  return QualityReportSchema.parse({
+    ...result,
+    checks: result.checks.map((check) => QualityFindingSchema.parse(check))
+  });
 }

@@ -46,3 +46,14 @@ Use MCP tools first for operational workflows.
   - `improvement`: concrete change to implement next
 - If unsure, do not generate new assets/artifacts/jobs speculatively. Pause generation and clarify first.
 - Before ending a run, include a short `Realizations` section in the handoff when any of the above is detected.
+
+## Autonomy Mode
+
+- Default behavior is end-to-end autonomous execution unless the user specifies a boundary.
+- `go` means continue through all remaining slices in the current objective, not a fixed batch size.
+- Do not stop between slices unless a critical blocker is hit:
+  - destructive action not explicitly requested
+  - required permission/escalation
+  - missing credentials/secrets required to proceed
+  - conflicting requirements that materially change behavior
+  - failing checks that cannot be fixed safely in this run

@@ -126,7 +126,7 @@ export async function generateTTSForProject(
       return;
     }
 
-    const resolved = resolveVoiceDirection(beat.beat, plan);
+    const resolved = resolveVoiceDirection(beat.beat, plan, providerId);
     const inputHash = cacheKey(
       plan,
       providerId,
@@ -182,7 +182,8 @@ export async function generateTTSForProject(
       options: {
         ...plan.voice.options,
         ...(resolved.voiceOptions.speed !== undefined ? { speed: resolved.voiceOptions.speed } : {}),
-        ...(resolved.voiceOptions.pitch !== undefined ? { pitch: resolved.voiceOptions.pitch } : {})
+        ...(resolved.voiceOptions.pitch !== undefined ? { pitch: resolved.voiceOptions.pitch } : {}),
+        ...(resolved.voiceOptions.language ? { language: resolved.voiceOptions.language } : {})
       },
       delivery: resolved.delivery,
       providerOptions: resolved.providerOptions

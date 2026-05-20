@@ -93,6 +93,19 @@ export const BeatEditorialSchema = z.object({
   endingPolicy: EndingPolicySchema.optional()
 }).strict();
 
+export const VisualIntentSchema = z.object({
+  prompt: z.string().optional(),
+  priority: z.number().int().min(1).max(5).default(3),
+  needsUniqueImage: z.boolean().default(false),
+  reusePolicy: z.union([
+    z.literal("none"),
+    z.literal("allow-reuse"),
+    z.string().min(1)
+  ]).default("allow-reuse"),
+  coverageRole: z.enum(["anchor", "key_moment", "supporting", "none"]).default("supporting"),
+  source: z.enum(["user", "llm", "default"]).default("default")
+}).strict();
+
 export const MediaIntentSchema = z.object({
   id: z.string(),
   type: z.enum([
@@ -155,6 +168,8 @@ export const VoiceDirectionSchema = z.object({
   intensity: z.number().min(0).max(1).default(0.5),
   speedMultiplier: z.number().min(0.6).max(1.5).default(1),
   pitchOffset: z.number().min(-6).max(6).default(0),
+  language: z.string().optional(),
+  ttsProvider: z.string().optional(),
   source: z.enum(["user", "llm", "default"]).default("default")
 }).strict();
 
@@ -167,6 +182,8 @@ export const VoiceDirectionOverrideSchema = z.object({
   intensity: z.number().min(0).max(1).optional(),
   speedMultiplier: z.number().min(0.6).max(1.5).optional(),
   pitchOffset: z.number().min(-6).max(6).optional(),
+  language: z.string().optional(),
+  ttsProvider: z.string().optional(),
   source: z.enum(["user", "llm", "default"]).optional()
 }).strict();
 
@@ -193,6 +210,7 @@ export const CreativeDirectionSchema = z.object({
 export const ProductionDirectionSchema = z.object({
   creative: CreativeDirectionSchema.optional(),
   voice: VoiceDirectionOverrideSchema.optional(),
+  visual: VisualIntentSchema.optional(),
   caption: CaptionDirectionOverrideSchema.optional(),
   motion: MotionSchema.partial().strict().optional(),
   sfxCues: z.array(SoundCueIntentSchema).optional(),
@@ -214,6 +232,7 @@ export const BeatSchema = z.object({
   }),
   media: z.array(MediaIntentSchema).default([]),
   motion: MotionSchema.default({ type: "slow_zoom_in", intensity: 0.1 }),
+  visual: VisualIntentSchema.optional(),
   caption: z.object({
     emphasis: z.array(z.string()).default([]),
     style: z.string().default("default")
@@ -296,6 +315,12 @@ export const VideoPlanSchema = z.object({
   visualBible: VisualBibleSchema.optional(),
   direction: ProductionDirectionSchema.optional(),
   directionMeta: DirectionMetaSchema.optional(),
+  orchestration: z.object({
+    version: z.literal(1).default(1),
+    model: z.string().optional(),
+    orchestratedAt: z.string().datetime().optional(),
+    warnings: z.array(z.string()).default([])
+  }).strict().optional(),
   sections: z.array(SectionSchema).min(1)
 }).strict();
 
@@ -303,4 +328,5 @@ export type ArtifactStatus = z.infer<typeof ArtifactStatusSchema>;
 export type Beat = z.infer<typeof BeatSchema>;
 export type Section = z.infer<typeof SectionSchema>;
 export type SoundCueIntent = z.infer<typeof SoundCueIntentSchema>;
+export type VisualIntent = z.infer<typeof VisualIntentSchema>;
 export type VideoPlan = z.infer<typeof VideoPlanSchema>;

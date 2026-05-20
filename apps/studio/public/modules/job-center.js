@@ -20,7 +20,7 @@ export function createJobCenterController({ listEl, fetchJobs, onRetry }) {
     if (!jobs.length) {
       const empty = document.createElement("div");
       empty.className = "feedback-row feedback-info";
-      empty.textContent = "No draft jobs yet.";
+      empty.textContent = "No jobs yet.";
       listEl.appendChild(empty);
       return;
     }
@@ -32,7 +32,7 @@ export function createJobCenterController({ listEl, fetchJobs, onRetry }) {
       top.className = "job-card-top";
       const title = document.createElement("div");
       const strong = document.createElement("strong");
-      strong.textContent = job.label || "Draft job";
+      strong.textContent = job.label || "Job";
       const small = document.createElement("small");
       small.textContent = `${job.status} · ${formatJobTime(job.startedAt)}`;
       title.append(strong, small);

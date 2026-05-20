@@ -37,10 +37,12 @@ export type ResolvedVoiceDirection = {
   voiceOptions: {
     speed?: number;
     pitch?: number;
+    language?: string;
   };
+  ttsProvider?: string;
 };
 
-export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoiceDirection {
+export function resolveVoiceDirection(beat: Beat, plan: VideoPlan, providerId = plan.providers.tts): ResolvedVoiceDirection {
   const section = plan.sections.find((entry) => entry.beats.some((candidate) => candidate.id === beat.id));
   const resolvedDirection = section
     ? resolveBeatProductionDirection(plan, section, beat).voiceDirection
@@ -49,7 +51,7 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoic
   const profile = CHATTERBOX_PROFILE_MAP[direction.profile] ?? CHATTERBOX_PROFILE_MAP.neutral;
 
   const providerOptions: Record<string, unknown> = {};
-  if (plan.providers.tts === "chatterbox") {
+  if (providerId === "chatterbox") {
     providerOptions.exaggeration = profile.exaggeration;
     providerOptions.cfg_weight = profile.cfg_weight;
     providerOptions.temperature = profile.temperature;
@@ -61,6 +63,13 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoic
     : undefined;
   const basePitch = typeof plan.voice.options?.pitch === "number" ? plan.voice.options.pitch : 0;
   const pitch = Number((basePitch + direction.pitchOffset).toFixed(3));
+
+  const voiceOptions: ResolvedVoiceDirection["voiceOptions"] = {
+    speed,
+    pitch
+  };
+  const language = direction.language || plan.voice.options?.language;
+  if (language) voiceOptions.language = language;
 
   return {
     delivery: {
@@ -74,9 +83,7 @@ export function resolveVoiceDirection(beat: Beat, plan: VideoPlan): ResolvedVoic
       afterSeconds: direction.pauseAfterSeconds
     },
     providerOptions,
-    voiceOptions: {
-      speed,
-      pitch
-    }
+    voiceOptions,
+    ttsProvider: direction.ttsProvider
   };
 }

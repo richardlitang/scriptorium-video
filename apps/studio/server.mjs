@@ -9,6 +9,7 @@ import { createHash } from "node:crypto";
 import { imageReuseKey, narrationFromImagePrompt, selectCachedImage } from "./image-cache.mjs";
 import { defaultVoiceSettings, normalizeVoiceSettings, voiceSettingsEnv } from "./voice-settings.mjs";
 import { publicAssetForPath } from "./static-assets.mjs";
+import { createOpenAiPlanOrchestrator, planNeedsTtsRouting } from "./lib/openai-plan-orchestrator.mjs";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -42,6 +43,14 @@ const voicePreviewCache = new Map();
 const STUDIO_TEST_MODE = process.env.LVSTUDIO_TEST_MODE === "1";
 
 const port = Number(process.env.PORT ?? "4173");
+
+const { generatePlanDraftWithOpenAi, routePlanTtsWithOpenAi } = createOpenAiPlanOrchestrator({
+  fetchImpl: fetch,
+  getOpenAiApiKey,
+  buildPlanFromAiDraft,
+  studioTestMode: STUDIO_TEST_MODE,
+  openAiResponsesUrl: OPENAI_RESPONSES_URL
+});
 
 function sendJson(res, status, data) {
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
@@ -361,6 +370,9 @@ function jobProgress(job, patch = {}) {
     label: job.label,
     completed: job.completed,
     total: job.total,
+    currentBeatId: job.currentBeatId,
+    currentBeatIndex: job.currentBeatIndex,
+    currentBeatTotal: job.currentBeatTotal,
     attempt: job.attempt,
     maxAttempts: job.maxAttempts,
     startedAt: job.startedAt,
@@ -400,6 +412,56 @@ async function writeDraftJobState(projectId, job, patch = {}) {
   });
 }
 
+function createForegroundJob({ kind, label, total = 1 }) {
+  return {
+    kind,
+    jobId: `${kind}-${Date.now().toString(36)}`,
+    status: "running",
+    phase: "running",
+    label,
+    completed: 0,
+    total: Math.max(1, Number(total) || 1),
+    startedAt: new Date().toISOString(),
+    finishedAt: undefined,
+    error: undefined,
+    output: ""
+  };
+}
+
+async function runTrackedForegroundJob(projectId, options, runner) {
+  const job = createForegroundJob(options);
+  const outputLines = [];
+  await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
+  const advance = async (label, operation) => {
+    job.label = label;
+    await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
+    const result = await operation();
+    if (result?.stdout?.trim()) outputLines.push(result.stdout.trim());
+    job.completed = Math.min(job.total, job.completed + 1);
+    await upsertRunJob(projectId, { ...job, output: outputLines.join("\n\n"), updatedAt: new Date().toISOString() });
+    return result;
+  };
+  try {
+    const result = await runner({ job, advance, outputLines });
+    job.status = "completed";
+    job.phase = "done";
+    job.finishedAt = new Date().toISOString();
+    job.label = options.completedLabel || job.label;
+    job.completed = job.total;
+    job.output = outputLines.join("\n\n");
+    await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
+    return result;
+  } catch (error) {
+    job.status = "failed";
+    job.phase = "failed";
+    job.finishedAt = new Date().toISOString();
+    job.error = error instanceof Error ? error.message : String(error);
+    job.output = [...outputLines, `Error:\n${job.error}`].join("\n\n");
+    await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
+    throw error;
+  }
+}
+
 async function runRetriedDraftStep(projectId, job, label, operation) {
   let lastError;
   for (let attempt = 1; attempt <= job.maxAttempts; attempt += 1) {
@@ -426,17 +488,34 @@ async function runRetriedDraftStep(projectId, job, label, operation) {
   throw lastError;
 }
 
+function ttsProviderForBeat(defaultProvider, beat) {
+  return beat.voiceDirection?.ttsProvider ||
+    beat.direction?.voice?.ttsProvider ||
+    defaultProvider;
+}
+
 async function generateDraftAudioBySection(projectId, job, plan, transcriptionProvider) {
   const sections = plan.sections ?? [];
+  const totalBeats = sections.reduce((sum, section) => sum + ((section.beats ?? []).length), 0);
+  let beatCursor = 0;
   for (const section of sections) {
-    await writeDraftJobState(projectId, job, {
-      phase: "audio",
-      currentSectionId: section.id,
-      currentSectionTitle: section.title
-    });
-    await runRetriedDraftStep(projectId, job, `Narration: ${section.title}`, () =>
-      runLvstudio(["generate:tts", projectId, "--provider", plan.providers.tts, "--force", "--only-section", section.id])
-    );
+    const beats = [...(section.beats ?? [])].sort((a, b) => a.order - b.order);
+    for (const beat of beats) {
+      beatCursor += 1;
+      const provider = ttsProviderForBeat(plan.providers.tts, beat);
+      await writeDraftJobState(projectId, job, {
+        phase: "audio",
+        label: `Narration: ${section.title} · ${beat.order}/${beats.length} · ${beat.id}`,
+        currentSectionId: section.id,
+        currentSectionTitle: section.title,
+        currentBeatId: beat.id,
+        currentBeatIndex: beatCursor,
+        currentBeatTotal: totalBeats
+      });
+      await runRetriedDraftStep(projectId, job, `Narration: ${section.title} · ${beat.id} · ${provider}`, () =>
+        runLvstudio(["generate:tts", projectId, "--provider", provider, "--force", "--only-beat", beat.id])
+      );
+    }
   }
 
   await writeDraftJobState(projectId, job, { phase: "sync" });
@@ -477,6 +556,8 @@ async function runDraftJob(projectId, body) {
       const story = String(body.story || "").trim();
       const imageEnabledForJob = body.imageEnabled !== false;
       const imageSteps = imageEnabledForJob ? 1 : 0;
+      let planningSteps = 0;
+      let ttsRoutingSteps = 0;
 
       if (story) {
         await writeDraftJobState(projectId, job, {
@@ -487,6 +568,7 @@ async function runDraftJob(projectId, body) {
         if (pastedPlan) {
           plan = applyDraftDefaults(pastedPlan);
         } else {
+          planningSteps = 1;
           const draft = await generatePlanDraftWithOpenAi({
             story,
             currentPlan: plan,
@@ -499,6 +581,8 @@ async function runDraftJob(projectId, body) {
           });
           plan = draft.plan;
           job.output.push(`AI plan:\nGenerated ${plan.sections.length} section(s) using ${draft.model}.`);
+          job.completed += 1;
+          await writeDraftJobState(projectId, job);
         }
         await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
       } else if (body.plan && typeof body.plan === "object") {
@@ -508,7 +592,24 @@ async function runDraftJob(projectId, body) {
 
       details = await getProjectDetails(projectId);
       plan = details.plan;
-      job.total = 1 + imageSteps + (plan.sections?.length ?? 0) + 5;
+      const needsTtsRouting = planNeedsTtsRouting(plan);
+      if (needsTtsRouting) {
+        ttsRoutingSteps = 1;
+        await writeDraftJobState(projectId, job, {
+          phase: "tts_routing",
+          label: "Mapping narration language and TTS provider"
+        });
+        const routed = await routePlanTtsWithOpenAi(plan);
+        plan = routed.plan;
+        await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
+        job.output.push(`TTS routing:\nMapped ${plan.sections.flatMap((section) => section.beats ?? []).length} beat(s) using ${routed.model}.`);
+        if (routed.warnings?.length) job.output.push(`TTS routing warnings:\n${routed.warnings.join("\n")}`);
+        job.completed += 1;
+        await writeDraftJobState(projectId, job);
+      }
+      const audioSteps = (plan.sections ?? []).reduce((total, section) => total + (section.beats?.length ?? 0), 0);
+      job.total = planningSteps + ttsRoutingSteps + imageSteps + audioSteps + 6;
+      if (job.total < 1) job.total = 1;
 
       await writeDraftJobState(projectId, job, { phase: "save", label: "Saving plan and syncing timeline" });
       await runRetriedDraftStep(projectId, job, "Initial sync", () => runLvstudio(["sync", projectId]));
@@ -517,7 +618,7 @@ async function runDraftJob(projectId, body) {
         await writeDraftJobState(projectId, job, { phase: "images", label: "Generating images" });
         const imageResult = await generateProjectImages(projectId, {
           mode: body.imageMode ?? "missing",
-          coverage: body.imageCoverage === "beat" ? "beat" : "section",
+          coverage: normalizeImageCoverage(body.imageCoverage),
           quality: body.imageQuality ?? "low",
           size: "1024x1536"
         });
@@ -653,6 +754,39 @@ function beatHasVisualAsset(assets, assetId, beatId) {
   );
 }
 
+function normalizeImageCoverage(value) {
+  if (value === "beat" || value === "999") return "beat";
+  if (value === "balanced" || value === "key") return "balanced";
+  return "section";
+}
+
+function balancedSectionTargets(sectionTargets) {
+  if (sectionTargets.length <= 2) return sectionTargets;
+  const limit = Math.min(3, Math.max(2, Math.ceil(sectionTargets.length / 2)));
+  return sectionTargets
+    .map((target, index) => {
+      const text = [
+        target.beat.narration,
+        target.beat.notes,
+        target.beat.visualPrompt,
+        target.beat.voiceDirection?.deliveryNote
+      ].join(" ").toLowerCase();
+      const intensity = Number(target.beat.voiceDirection?.intensity ?? target.beat.intensity ?? 0);
+      const turningPoint = /\b(reveal|turn|sudden|suddenly|discover|realize|realise|but then|door|shadow|blood|scream|final|ending)\b/.test(text);
+      const score =
+        (index === 0 ? 40 : 0) +
+        (index === sectionTargets.length - 1 ? 35 : 0) +
+        (turningPoint ? 24 : 0) +
+        intensity * 20 +
+        Math.min(10, Number(target.beat.estimatedDurationSeconds ?? 0));
+      return { target, score, index };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index)
+    .slice(0, limit)
+    .sort((a, b) => a.index - b.index)
+    .map((entry) => entry.target);
+}
+
 function selectImageTargets(plan, manifest, mode, coverage, options) {
   const allTargets = imageTargetsFromPlan(plan);
   const assets = manifest.assets ?? [];
@@ -678,9 +812,12 @@ function selectImageTargets(plan, manifest, mode, coverage, options) {
   const bySection = groupTargetsBySection(allTargets);
   const selected = [];
   for (const [sectionId, sectionTargets] of bySection.entries()) {
-    if (mode === "missing" && sectionHasVisualAsset(assets, sectionId)) continue;
-    const target = sectionTargets.find(unlockedTarget);
-    if (target) selected.push(target);
+    const coverageTargets = coverage === "balanced" ? balancedSectionTargets(sectionTargets) : sectionTargets.slice(0, 1);
+    if (coverage !== "balanced" && mode === "missing" && sectionHasVisualAsset(assets, sectionId)) continue;
+    for (const target of coverageTargets) {
+      if (mode === "missing" && beatHasVisualAsset(assets, target.assetId, target.beat.id)) continue;
+      if (unlockedTarget(target)) selected.push(target);
+    }
   }
   return selected;
 }
@@ -708,6 +845,10 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     const confidence = clampNumber(beatDraft.voiceConfidence, 0.7, 0, 1);
     const conservative = confidence < 0.45;
     const profile = allowedVoiceProfiles.has(beatDraft.voiceProfile) ? beatDraft.voiceProfile : "neutral";
+    const language = String(beatDraft.narrationLanguage || "").trim().toLowerCase() || undefined;
+    const ttsProvider = ["chatterbox", "mms", "openai"].includes(beatDraft.ttsProvider)
+      ? beatDraft.ttsProvider
+      : undefined;
     return {
       profile: conservative ? "neutral" : profile,
       deliveryNote: String(beatDraft.deliveryNote || "").trim() || undefined,
@@ -719,6 +860,8 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       intensity: conservative ? 0.45 : clampNumber(beatDraft.intensity, 0.5, 0, 1),
       speedMultiplier: clampNumber(beatDraft.speedMultiplier, 1, 0.6, 1.5),
       pitchOffset: clampNumber(beatDraft.pitchOffset, 0, -6, 6),
+      language,
+      ttsProvider,
       source: "llm"
     };
   };
@@ -1002,336 +1145,6 @@ function buildPlanFromAiDraft(currentPlan, draft) {
   return nextPlan;
 }
 
-function extractResponseText(responseJson) {
-  if (typeof responseJson.output_text === "string") return responseJson.output_text;
-  for (const item of responseJson.output ?? []) {
-    for (const content of item.content ?? []) {
-      if (content.type === "output_text" && typeof content.text === "string") return content.text;
-    }
-  }
-  throw new Error("OpenAI planner response did not include output text.");
-}
-
-const DEFAULT_PLANNER_SYSTEM_PROMPT =
-  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Keep voice direction engaged and language-appropriate. Return JSON only.";
-
-const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
-  "Story:",
-  "{{story}}",
-  "",
-  "Current title: {{currentTitle}}",
-  "Feel: {{feel}}",
-  "Pacing: {{pacing}}",
-  "Visual style: {{visualStyle}}",
-  "Format: {{format}}",
-  "Target: {{target}}",
-  "",
-  "Output requirements:",
-  "- Build a reusable visual bible for consistency.",
-  "- Set section-level creative direction (feel, pacing, visual style) so sections can vary while staying coherent.",
-  "- Produce per-beat narration + image-generation-ready visual prompts.",
-  "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
-  "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
-  "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
-  "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
-  "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
-  "- Add optional visualEditCues, silenceWindows, and endingPolicy for retention-focused editing only where appropriate.",
-  "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
-  "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
-  "- Surface warnings when uncertain or under-specified."
-].join("\n");
-
-function fillPlannerTemplate(template, values) {
-  const source = String(template || DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
-  return source.replace(/\{\{(\w+)\}\}/g, (_, key) => String(values[key] ?? ""));
-}
-
-async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, visualStyle, format, systemPrompt, userPromptTemplate }) {
-  if (STUDIO_TEST_MODE) {
-    return {
-      plan: buildPlanFromAiDraft(currentPlan, {
-        title: currentPlan.title || "Test Plan",
-        voice: {
-          voiceId: "alloy",
-          speed: 0.92,
-          direction: "engaged",
-          language: "en"
-        },
-        visualBible: {
-          stylePreset: "cinematic_illustration",
-          lookAndFeel: "grounded",
-          palette: ["#111111", "#f1f1f1"],
-          eraAndLocation: "present day",
-          characterAnchors: ["same protagonist"],
-          continuityRules: ["keep wardrobe stable"],
-          negativePrompt: "watermarks"
-        },
-        captionTuning: {
-          targetMaxWords: 14,
-          hardMaxWords: 20,
-          targetMaxDurationSeconds: 5,
-          hardMaxDurationSeconds: 6.5,
-          minWordsBeforeSentenceBreak: 8
-        },
-        sections: [
-          {
-            title: "Intro",
-            summary: "test",
-            purpose: "test",
-            beats: [
-              {
-                narration: story.split(/\s+/).slice(0, 20).join(" ") || "test narration",
-                visualPrompt: "test visual",
-                estimatedDurationSeconds: 3,
-                motion: "slow_zoom_in",
-                emphasis: ["test"],
-                notes: "test",
-                voiceProfile: "neutral",
-                intensity: 0.5,
-                pauseBeforeSeconds: 0,
-                pauseAfterSeconds: 0.1,
-                deliveryNote: "clear",
-                speedMultiplier: 1,
-                pitchOffset: 0,
-                voiceConfidence: 0.8,
-                visualConfidence: 0.8,
-                shotType: "close up",
-                cameraDistance: "medium",
-                lighting: "low key",
-                lens: "35mm",
-                composition: "centered",
-                subjectContinuity: "same subject",
-                negativePromptAdditions: "none",
-                captionStyle: "default",
-                sfxCues: []
-              }
-            ]
-          }
-        ],
-        warnings: []
-      }),
-      warnings: [],
-      model: "test-mode"
-    };
-  }
-  const apiKey = await getOpenAiApiKey();
-  const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-4o-mini";
-  const promptValues = {
-    story,
-    currentTitle: currentPlan.title,
-    feel,
-    pacing,
-    visualStyle,
-    format,
-    target: "short horror/story video with per-beat narration and image-generation-ready visual prompts"
-  };
-  const resolvedSystemPrompt = String(systemPrompt || DEFAULT_PLANNER_SYSTEM_PROMPT).trim() || DEFAULT_PLANNER_SYSTEM_PROMPT;
-  let resolvedUserPrompt = fillPlannerTemplate(userPromptTemplate, promptValues).trim();
-  if (!resolvedUserPrompt.includes(promptValues.story)) {
-    resolvedUserPrompt = `${resolvedUserPrompt}\n\nStory:\n${promptValues.story}`.trim();
-  }
-  const response = await fetch(OPENAI_RESPONSES_URL, {
-    method: "POST",
-    headers: {
-      authorization: `Bearer ${apiKey}`,
-      "content-type": "application/json"
-    },
-    body: JSON.stringify({
-      model,
-      input: [
-        {
-          role: "system",
-          content: resolvedSystemPrompt
-        },
-        {
-          role: "user",
-          content: resolvedUserPrompt
-        }
-      ],
-      text: {
-        format: {
-          type: "json_schema",
-          name: "video_plan_draft",
-          strict: true,
-          schema: {
-            type: "object",
-            additionalProperties: false,
-            required: ["title", "voice", "visualBible", "sections", "warnings"],
-            properties: {
-              title: { type: "string" },
-              feel: { type: "string" },
-              pacing: { type: "string" },
-              visualStyle: { type: "string" },
-              captionTuning: {
-                type: "object",
-                additionalProperties: false,
-                properties: {
-                  targetMaxWords: { type: "number" },
-                  hardMaxWords: { type: "number" },
-                  targetMaxDurationSeconds: { type: "number" },
-                  hardMaxDurationSeconds: { type: "number" },
-                  minWordsBeforeSentenceBreak: { type: "number" }
-                }
-              },
-              voice: {
-                type: "object",
-                additionalProperties: false,
-                required: ["voiceId", "speed", "direction", "language"],
-                properties: {
-                  voiceId: { type: "string", enum: ["alloy", "ash", "ballad", "cedar", "coral", "echo", "fable", "marin", "nova", "onyx", "sage", "shimmer", "verse"] },
-                  speed: { type: "number" },
-                  direction: { type: "string" },
-                  language: { type: "string" }
-                }
-              },
-              visualBible: {
-                type: "object",
-                additionalProperties: false,
-                required: ["stylePreset", "lookAndFeel", "palette", "eraAndLocation", "characterAnchors", "continuityRules", "negativePrompt"],
-                properties: {
-                  stylePreset: { type: "string" },
-                  lookAndFeel: { type: "string" },
-                  palette: { type: "array", items: { type: "string" } },
-                  eraAndLocation: { type: "string" },
-                  characterAnchors: { type: "array", items: { type: "string" } },
-                  continuityRules: { type: "array", items: { type: "string" } },
-                  negativePrompt: { type: "string" }
-                }
-              },
-              sections: {
-                type: "array",
-                minItems: 1,
-                items: {
-                  type: "object",
-                  additionalProperties: false,
-                  required: ["title", "summary", "purpose", "beats"],
-                  properties: {
-                    title: { type: "string" },
-                    summary: { type: "string" },
-                    purpose: { type: "string" },
-                    feel: { type: "string" },
-                    pacing: { type: "string" },
-                    visualStyle: { type: "string" },
-                    beats: {
-                      type: "array",
-                      minItems: 1,
-                      items: {
-                        type: "object",
-                        additionalProperties: false,
-                        required: ["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "visualConfidence"],
-                        properties: {
-                          narration: { type: "string" },
-                          visualPrompt: { type: "string" },
-                          estimatedDurationSeconds: { type: "number" },
-                          motion: { type: "string", enum: ["none", "slow_zoom_in", "slow_zoom_out", "pan_left", "pan_right"] },
-                          emphasis: { type: "array", items: { type: "string" } },
-                          notes: { type: "string" },
-                          voiceProfile: { type: "string", enum: ["neutral", "warm_open", "clear_explainer", "authoritative", "energetic", "key_point", "reflective", "tense", "reveal", "urgent", "soft_close"] },
-                          intensity: { type: "number" },
-                          pauseBeforeSeconds: { type: "number" },
-                          pauseAfterSeconds: { type: "number" },
-                          deliveryNote: { type: "string" },
-                          speedMultiplier: { type: "number" },
-                          pitchOffset: { type: "number" },
-                          voiceConfidence: { type: "number" },
-                          visualConfidence: { type: "number" },
-                          captionStyle: { type: "string" },
-                          shotType: { type: "string" },
-                          cameraDistance: { type: "string" },
-                          lighting: { type: "string" },
-                          lens: { type: "string" },
-                          composition: { type: "string" },
-                          subjectContinuity: { type: "string" },
-                          negativePromptAdditions: { type: "string" },
-                          sfxCues: {
-                            type: "array",
-                            items: {
-                              type: "object",
-                              additionalProperties: false,
-                              required: ["id", "kind", "placement", "offsetSeconds", "levelDb"],
-                              properties: {
-                                id: { type: "string" },
-                                kind: { type: "string" },
-                                placement: { type: "string", enum: ["beat_start", "beat_end", "key_point", "manual"] },
-                                offsetSeconds: { type: "number" },
-                                levelDb: { type: "number" },
-                                pan: { type: "number" },
-                                proximity: { type: "string", enum: ["distant", "room", "close", "close_mic"] },
-                                duckMusic: { type: "boolean" }
-                              }
-                            }
-                          },
-                          visualEditCues: {
-                            type: "array",
-                            items: {
-                              type: "object",
-                              additionalProperties: false,
-                              required: ["id", "type", "placement", "offsetSeconds", "durationSeconds", "target", "intensity"],
-                              properties: {
-                                id: { type: "string" },
-                                type: { type: "string", enum: ["smash_cut", "cut_to_black", "hold_black", "j_cut", "l_cut", "slow_pan", "push_in", "hard_cut", "match_cut"] },
-                                placement: { type: "string", enum: ["beat_start", "beat_end", "key_point", "manual"] },
-                                offsetSeconds: { type: "number" },
-                                durationSeconds: { type: "number" },
-                                target: { type: "string", enum: ["black", "current_visual", "next_visual"] },
-                                intensity: { type: "number" }
-                              }
-                            }
-                          },
-                          silenceWindows: {
-                            type: "array",
-                            items: {
-                              type: "object",
-                              additionalProperties: false,
-                              required: ["id", "placement", "offsetSeconds", "durationSeconds", "muteMusic", "muteSfx", "keepVoice"],
-                              properties: {
-                                id: { type: "string" },
-                                placement: { type: "string", enum: ["beat_start", "beat_end", "before_reveal", "manual"] },
-                                offsetSeconds: { type: "number" },
-                                durationSeconds: { type: "number" },
-                                muteMusic: { type: "boolean" },
-                                muteSfx: { type: "boolean" },
-                                keepVoice: { type: "boolean" }
-                              }
-                            }
-                          },
-                          endingPolicy: {
-                            type: "object",
-                            additionalProperties: false,
-                            required: ["cutToBlack", "holdSeconds", "audioPolicy", "avoidOutro"],
-                            properties: {
-                              cutToBlack: { type: "boolean" },
-                              holdSeconds: { type: "number" },
-                              audioPolicy: { type: "string", enum: ["hard_silence", "fade_out", "none"] },
-                              avoidOutro: { type: "boolean" }
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-              },
-              warnings: { type: "array", items: { type: "string" } }
-            }
-          }
-        }
-      }
-    })
-  });
-  if (!response.ok) {
-    const body = await response.text().catch(() => "");
-    throw new Error(`OpenAI planner request failed: ${response.status} ${body.slice(0, 300)}`);
-  }
-  const text = extractResponseText(await response.json());
-  const draft = JSON.parse(text);
-  return {
-    plan: buildPlanFromAiDraft(currentPlan, draft),
-    warnings: draft.warnings,
-    model
-  };
-}
-
 async function readImageHistory(projectId) {
   const logPath = path.join(imageHistoryDir, `${projectId}.ndjson`);
   const raw = await readFile(logPath, "utf8").catch(() => "");
@@ -1413,12 +1226,23 @@ function parseRunTime(value) {
   return Number.isFinite(time) ? time : 0;
 }
 
+function jobSortTime(job) {
+  return Math.max(
+    parseRunTime(job?.updatedAt),
+    parseRunTime(job?.finishedAt),
+    parseRunTime(job?.startedAt)
+  );
+}
+
 function normalizeRunState(raw = {}) {
   const jobs = Array.isArray(raw.jobs) ? raw.jobs.filter((job) => job && typeof job === "object" && job.jobId) : [];
   if (raw.progress?.jobId && !jobs.some((job) => job.jobId === raw.progress.jobId)) jobs.push(raw.progress);
-  jobs.sort((a, b) => parseRunTime(b.startedAt || b.updatedAt || b.finishedAt) - parseRunTime(a.startedAt || a.updatedAt || a.finishedAt));
+  jobs.sort((a, b) => jobSortTime(b) - jobSortTime(a));
   const trimmed = jobs.slice(0, 30);
-  const active = trimmed.find((job) => ["queued", "running"].includes(job.status)) ?? trimmed[0] ?? null;
+  const active = trimmed.find((job) => ["queued", "running"].includes(job.status)) ??
+    trimmed.find((job) => job.kind === "draft_job") ??
+    trimmed[0] ??
+    null;
   const status = active && ["queued", "running"].includes(active.status)
     ? "queued"
     : active?.status === "failed"
@@ -1543,7 +1367,7 @@ async function generateProjectImages(projectId, options = {}) {
   const manifest = await safeReadJson(manifestPath).catch(() => ({ schemaVersion: 1, assets: [] }));
   const history = await readImageHistory(projectId);
   const mode = options.mode === "selected" ? "selected" : options.mode === "missing" ? "missing" : "all";
-  const coverage = options.coverage === "beat" ? "beat" : "section";
+  const coverage = normalizeImageCoverage(options.coverage);
   const size = options.size || "1024x1536";
   const quality = options.quality || "low";
   const promptOverrides = options.promptOverrides && typeof options.promptOverrides === "object" ? options.promptOverrides : {};
@@ -1971,8 +1795,8 @@ async function readQualityHistory(projectId) {
     .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
 }
 
-function isDraftJobHistory(entry) {
-  return entry?.kind === "draft_job" || entry?.kind === "draft_job_failed" || entry?.kind === "beat_regenerate" || entry?.kind === "beat_regenerate_failed";
+function isJobHistory(entry) {
+  return Boolean(entry?.kind && entry?.summary);
 }
 
 async function listDraftJobs(projectId) {
@@ -1980,8 +1804,8 @@ async function listDraftJobs(projectId) {
   const active = activeDraftJobs.get(projectId);
   const activeBeat = activeBeatJobs.get(projectId);
   const history = (await readQualityHistory(projectId))
-    .filter(isDraftJobHistory)
-    .slice(0, 12)
+    .filter(isJobHistory)
+    .slice(0, 24)
     .map((entry) => ({
       id: `${entry.kind}-${sha256(`${entry.timestamp}-${entry.summary}`).slice(0, 8)}`,
       status: entry.kind.endsWith("_failed") ? "failed" : "completed",
@@ -1992,7 +1816,19 @@ async function listDraftJobs(projectId) {
       kind: entry.kind
     }));
 
-  const runStateJob = (runState.jobs ?? []).find((job) => ["draft_job", "beat_regenerate_job"].includes(job.kind));
+  const runStateJobs = (runState.jobs ?? []).slice(0, 24).map((job) => ({
+    id: job.jobId,
+    status: job.status,
+    startedAt: job.startedAt,
+    finishedAt: job.finishedAt,
+    label: job.label || job.kind,
+    output: job.output ?? "",
+    kind: `${job.kind}_runstate`,
+    error: job.error,
+    completed: job.completed,
+    total: job.total,
+    currentSectionTitle: job.currentSectionTitle ?? job.beatId
+  }));
   const liveJobs = [];
   if (active) {
     const current = jobProgress(active);
@@ -2026,22 +1862,11 @@ async function listDraftJobs(projectId) {
       currentSectionTitle: current.beatId
     });
   }
-  if (liveJobs.length === 0 && runStateJob) {
-    liveJobs.push({
-      id: runStateJob.jobId,
-      status: runStateJob.status,
-      startedAt: runStateJob.startedAt,
-      finishedAt: runStateJob.finishedAt,
-      label: runStateJob.label,
-      output: runStateJob.output ?? "",
-      kind: `${runStateJob.kind}_runstate`,
-      error: runStateJob.error,
-      completed: runStateJob.completed,
-      total: runStateJob.total,
-      currentSectionTitle: runStateJob.currentSectionTitle ?? runStateJob.beatId
-    });
-  }
-  const jobs = [...liveJobs, ...history.filter((item) => !liveJobs.some((live) => live.id === item.id))];
+  const jobs = [
+    ...liveJobs,
+    ...runStateJobs.filter((item) => !liveJobs.some((live) => live.id === item.id)),
+    ...history.filter((item) => !liveJobs.some((live) => live.id === item.id) && !runStateJobs.some((job) => job.id === item.id))
+  ];
   return { jobs };
 }
 
@@ -2484,8 +2309,20 @@ const server = createServer(async (req, res) => {
       await writeFile(planPath, `${JSON.stringify(nextPlan, null, 2)}\n`, "utf8");
       try {
         const skipCheck = requestUrl.searchParams.get("check") === "false";
-        const syncResult = await runLvstudio(["sync", projectId]);
-        const checkResult = skipCheck ? undefined : await runLvstudio(["check", projectId]);
+        const { syncResult, checkResult } = await runTrackedForegroundJob(
+          projectId,
+          {
+            kind: "plan_save_job",
+            label: "Saving plan",
+            total: skipCheck ? 1 : 2,
+            completedLabel: "Plan saved"
+          },
+          async ({ advance }) => {
+            const syncResult = await advance("Syncing plan", () => runLvstudio(["sync", projectId]));
+            const checkResult = skipCheck ? undefined : await advance("Running plan check", () => runLvstudio(["check", projectId]));
+            return { syncResult, checkResult };
+          }
+        );
         const output = [syncResult.stdout.trim(), checkResult?.stdout.trim()].filter(Boolean).join("\n\n");
         await appendQualityHistory(projectId, {
           timestamp: new Date().toISOString(),
@@ -2637,7 +2474,11 @@ const server = createServer(async (req, res) => {
 
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/quality") && req.method === "GET") {
       const projectId = pathname.split("/")[3];
-      const result = await runLvstudio(["check", projectId]);
+      const result = await runTrackedForegroundJob(
+        projectId,
+        { kind: "quality_check_job", label: "Running quality check", total: 1, completedLabel: "Quality check complete" },
+        async ({ advance }) => advance("Running quality check", () => runLvstudio(["check", projectId]))
+      );
       await appendQualityHistory(projectId, {
         timestamp: new Date().toISOString(),
         kind: "quality_check",
@@ -2727,22 +2568,28 @@ const server = createServer(async (req, res) => {
           status: "preparing",
           updatedAt: new Date().toISOString()
         });
-        const steps = [
-          await runLvstudio(["generate:tts", projectId, "--provider", ttsProvider, "--force"]),
-          await runLvstudio(["sync", projectId]),
-          await runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider]),
-          await runLvstudio(["captions", projectId])
-        ];
-        const checkResult = await runLvstudioReport(["check", projectId]);
-        const checkLabel = checkResult.ok ? "Quality check:" : "Quality check warnings/errors:";
+        const steps = await runTrackedForegroundJob(
+          projectId,
+          { kind: "prepare_draft_job", label: "Preparing draft", total: 5, completedLabel: "Prepare draft complete" },
+          async ({ advance }) => ([
+            await advance("Generating narration", () => runLvstudio(["generate:tts", projectId, "--provider", ttsProvider, "--force"])),
+            await advance("Syncing timeline", () => runLvstudio(["sync", projectId])),
+            await advance("Transcribing narration", () => runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider])),
+            await advance("Generating captions", () => runLvstudio(["captions", projectId])),
+            await advance("Running quality check", () => runLvstudioReport(["check", projectId]))
+          ])
+        );
+        const checkStdout = steps[4]?.stdout?.trim() ?? "";
+        const qualityFailed = steps[4]?.ok === false;
+        const checkLabel = qualityFailed ? "Quality check warnings/errors:" : "Quality check:";
         const output = [
           ...steps.map((step) => step.stdout.trim()).filter(Boolean),
-          `${checkLabel}\n${checkResult.stdout.trim()}`
+          `${checkLabel}\n${checkStdout}`
         ].join("\n\n");
         await appendQualityHistory(projectId, {
           timestamp: new Date().toISOString(),
           kind: "prepare_draft",
-          summary: checkResult.ok
+          summary: !qualityFailed
             ? "Draft audio, captions, sync, and quality checks completed."
             : "Draft audio, captions, and sync completed with quality check warnings/errors.",
           output
@@ -2752,7 +2599,7 @@ const server = createServer(async (req, res) => {
           status: "prepared",
           updatedAt: new Date().toISOString()
         });
-        return { output, qualityOk: checkResult.ok };
+        return { output, qualityOk: !qualityFailed };
       });
       return sendJson(res, 200, { ok: true, ...result });
     }
@@ -2760,7 +2607,11 @@ const server = createServer(async (req, res) => {
     if (pathname.startsWith("/api/projects/") && pathname.endsWith("/direct-voice") && req.method === "POST") {
       const projectId = pathname.split("/")[3];
       const result = await runProjectMutation(projectId, async () => {
-        const step = await runLvstudio(["direct:voice", projectId]);
+        const step = await runTrackedForegroundJob(
+          projectId,
+          { kind: "direct_voice_job", label: "Generating voice direction", total: 1, completedLabel: "Voice direction ready" },
+          async ({ advance }) => advance("Generating voice direction", () => runLvstudio(["direct:voice", projectId]))
+        );
         await appendQualityHistory(projectId, {
           timestamp: new Date().toISOString(),
           kind: "direct_voice",
@@ -2783,7 +2634,11 @@ const server = createServer(async (req, res) => {
           status: "rendering",
           updatedAt: new Date().toISOString()
         });
-        const result = await runLvstudio(["render", projectId, "--quality", quality, ...(force ? ["--force"] : [])]);
+        const result = await runTrackedForegroundJob(
+          projectId,
+          { kind: "render_job", label: `Rendering ${quality}`, total: 1, completedLabel: `Render ${quality} complete` },
+          async ({ advance }) => advance(`Rendering ${quality}`, () => runLvstudio(["render", projectId, "--quality", quality, ...(force ? ["--force"] : [])]))
+        );
         const planHash = sha256(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
         const timelineHash = sha256(await readFile(path.join(projectDir, "timeline.json"), "utf8").catch(() => ""));
         await appendQualityHistory(projectId, {

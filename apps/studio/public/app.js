@@ -129,9 +129,13 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
+  "- For every beat set narrationLanguage as a BCP-47-ish code such as en, fil, tgl, en+fil, or mixed.",
+  "- For every beat set ttsProvider: use chatterbox for English narration, mms for Filipino/Tagalog narration, and openai only when neither local provider is appropriate.",
   "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
   "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
-  "- Add optional visualEditCues, silenceWindows, and endingPolicy for retention-focused editing only where appropriate.",
+  "- Decide sparse editorial timing: visualEditCues, silenceWindows, and endingPolicy for retention-focused switches/effects only where appropriate.",
+  "- Use visualEditCues to mark exact visual switches and effects: target next_visual for early visual changes, current_visual for push_in/slow_pan/hard_cut/smash_cut, and black only for cut_to_black/hold_black.",
+  "- Keep visualEditCues sparse: normally 0-2 per beat, up to 4 only for a major reveal or ending.",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."
@@ -198,7 +202,15 @@ function restoreUiState(projectId) {
 }
 
 function normalizeImageCoverage(value) {
-  return value === "beat" || value === "999" ? "beat" : "section";
+  if (value === "beat" || value === "999") return "beat";
+  if (value === "balanced" || value === "key") return "balanced";
+  return "section";
+}
+
+function imageCoverageLabel(coverage) {
+  if (coverage === "beat") return "full beat-by-beat";
+  if (coverage === "balanced") return "balanced key moments";
+  return "lean section anchors";
 }
 
 function fmt(value) {
@@ -236,15 +248,41 @@ async function loadProjects() {
     const info = document.createElement("div");
     info.innerHTML = `<strong>${project.title || project.id}</strong><br/><small>${project.id} · ${project.mode} · ${project.status}</small>`;
     info.onclick = () => selectProject(project.id, el);
+    const actions = document.createElement("div");
+    actions.className = "project-item-actions";
     const deleteBtn = document.createElement("button");
     deleteBtn.type = "button";
     deleteBtn.className = "project-delete-btn";
     deleteBtn.textContent = "Delete";
     deleteBtn.title = `Delete ${project.id}`;
-    deleteBtn.onclick = async (event) => {
+    const deleteConfirm = document.createElement("div");
+    deleteConfirm.className = "project-delete-confirm";
+    deleteConfirm.hidden = true;
+    const deleteCheckLabel = document.createElement("label");
+    const deleteCheck = document.createElement("input");
+    deleteCheck.type = "checkbox";
+    deleteCheckLabel.append(deleteCheck, document.createTextNode(` Confirm delete ${project.id}`));
+    const deleteConfirmBtn = document.createElement("button");
+    deleteConfirmBtn.type = "button";
+    deleteConfirmBtn.textContent = "Delete Project";
+    deleteConfirmBtn.disabled = true;
+    const deleteCancelBtn = document.createElement("button");
+    deleteCancelBtn.type = "button";
+    deleteCancelBtn.textContent = "Cancel";
+    deleteCheck.onchange = () => {
+      deleteConfirmBtn.disabled = !deleteCheck.checked;
+    };
+    deleteCancelBtn.onclick = (event) => {
       event.stopPropagation();
-      const typed = prompt(`Type ${project.id} to delete "${project.title || project.id}" and all of its files.`);
-      if (typed !== project.id) return;
+      deleteCheck.checked = false;
+      deleteConfirmBtn.disabled = true;
+      deleteConfirm.hidden = true;
+    };
+    deleteConfirmBtn.onclick = async (event) => {
+      event.stopPropagation();
+      if (!deleteCheck.checked) return;
+      deleteConfirmBtn.disabled = true;
+      deleteConfirmBtn.textContent = "Deleting...";
       await fetchJson(`/api/projects/${encodeURIComponent(project.id)}`, { method: "DELETE" });
       if (selectedProjectId === project.id) {
         selectedProjectId = null;
@@ -252,7 +290,13 @@ async function loadProjects() {
       }
       await loadProjects();
     };
-    el.append(info, deleteBtn);
+    deleteBtn.onclick = async (event) => {
+      event.stopPropagation();
+      deleteConfirm.hidden = false;
+    };
+    actions.append(deleteBtn, deleteConfirm);
+    deleteConfirm.append(deleteCheckLabel, deleteConfirmBtn, deleteCancelBtn);
+    el.append(info, actions);
     projectList.appendChild(el);
     firstProjectElement ??= el;
     if (project.id === preferredProjectId) preferredProjectElement = el;
@@ -878,7 +922,7 @@ function setRunStatus(items) {
 
 function imageProgressLine(progress) {
   if (!progress || progress.kind !== "image_generation") return undefined;
-  const coverage = progress.coverage === "beat" ? "per beat" : "per section";
+  const coverage = imageCoverageLabel(progress.coverage);
   const total = Number(progress.total) || 0;
   const completed = Math.min(total, Number(progress.completed) || 0);
   const current = progress.currentBeatId ? ` · ${progress.currentBeatId}` : "";
@@ -893,7 +937,11 @@ function draftJobProgressLine(job) {
   const completed = Math.min(total, Number(job.completed) || 0);
   const retry = job.attempt > 1 ? ` · retry ${job.attempt}/${job.maxAttempts}` : "";
   const section = job.currentSectionTitle ? ` · ${job.currentSectionTitle}` : "";
-  return `${job.label || job.phase || "Working"} · ${completed}/${total}${retry}${section}`;
+  const beat =
+    Number(job.currentBeatIndex) > 0 && Number(job.currentBeatTotal) > 0
+      ? ` · beat ${job.currentBeatIndex}/${job.currentBeatTotal}`
+      : "";
+  return `${job.label || job.phase || "Working"} · ${completed}/${total}${beat}${retry}${section}`;
 }
 
 function showJobBanner(title, detail, status = "running") {
@@ -1030,6 +1078,16 @@ async function currentVisualCoverage(projectId, coverage) {
     const missing = beats.filter((beat) => !visualAssetForBeat(assets, beat.id));
     return { missing: missing.length, total: beats.length };
   }
+  if (coverage === "balanced") {
+    const targets = (plan.sections ?? []).flatMap((section) => {
+      const beats = section.beats ?? [];
+      if (beats.length <= 2) return beats;
+      return [beats[0], beats[Math.floor(beats.length / 2)], beats[beats.length - 1]]
+        .filter((beat, index, all) => all.findIndex((entry) => entry?.id === beat?.id) === index);
+    });
+    const missing = targets.filter((beat) => !visualAssetForBeat(assets, beat.id));
+    return { missing: missing.length, total: targets.length };
+  }
 
   const sections = plan.sections ?? [];
   const missing = sections.filter((section) =>
@@ -1091,7 +1149,7 @@ async function generateImagesForCurrentPlan(progressSteps = ["Generating images.
     })
   });
   stopProgressPolling();
-  const coverageLabel = result.data.coverage === "beat" ? "per beat" : "per section";
+  const coverageLabel = imageCoverageLabel(result.data.coverage);
   qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} new image(s), coverage ${coverageLabel}. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
   await refreshMediaPreview(selectedProjectId);
   return result;

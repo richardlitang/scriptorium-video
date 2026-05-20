@@ -3,7 +3,7 @@ import type { RenderBundle } from "@lvstudio/core";
 import { CaptionLayer } from "../components/CaptionLayer";
 import { MediaLayer } from "../components/MediaLayer";
 import { SectionTitleCard } from "../components/SectionTitleCard";
-import { activeSilenceAt, shouldCutToBlack } from "./editorial-runtime";
+import { activeSilenceAt, activeVisualCueAt, shouldCutToBlack, visualCueStyle } from "./editorial-runtime";
 
 type RemotionInputProps = {
   renderBundle: RenderBundle;
@@ -32,17 +32,22 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
     timeline.segments.find(
       (segment) => timeSeconds >= segment.startSeconds && timeSeconds < segment.endSeconds
     ) ?? timeline.segments[0];
+  const activeSegmentIndex = Math.max(0, timeline.segments.findIndex((segment) => segment === activeSegment));
+  const visualEditCues = timeline.segments.flatMap((segment) => segment.visualEditCues ?? []);
+  const activeVisualCue = activeVisualCueAt(timeSeconds, visualEditCues);
+  const visualSegment = activeVisualCue?.target === "next_visual"
+    ? timeline.segments[activeSegmentIndex + 1] ?? activeSegment
+    : activeSegment;
   const activeBeat = videoPlan.sections
     .flatMap((section) => section.beats)
-    .find((beat) => beat.id === activeSegment.beatId);
-  const activeMediaId = activeSegment.mediaAssetIds[0];
+    .find((beat) => beat.id === visualSegment.beatId);
+  const activeMediaId = visualSegment.mediaAssetIds[0];
   const activeMedia = assetManifest.assets.find((asset) => asset.id === activeMediaId);
   const activeMediaUrl = activeMediaId ? assetUrls[activeMediaId] : undefined;
   const voiceRanges = timeline.segments
     .filter((segment) => Boolean(segment.voiceAssetId))
     .map((segment) => ({ start: segment.startSeconds, end: segment.endSeconds }));
   const silenceWindows = timeline.segments.flatMap((segment) => segment.silenceWindows ?? []);
-  const visualEditCues = timeline.segments.flatMap((segment) => segment.visualEditCues ?? []);
   const cutToBlack = shouldCutToBlack(timeSeconds, visualEditCues);
 
   const sectionStarts = videoPlan.sections
@@ -64,7 +69,9 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
       {cutToBlack ? (
         <AbsoluteFill style={{ backgroundColor: "#000000" }} />
       ) : (
-        <MediaLayer asset={activeMedia} src={activeMediaUrl} motion={activeBeat?.motion} />
+        <AbsoluteFill style={visualCueStyle(activeVisualCue, timeSeconds)}>
+          <MediaLayer asset={activeMedia} src={activeMediaUrl} motion={activeBeat?.motion} />
+        </AbsoluteFill>
       )}
 
       {timeline.segments.map((segment) => {

@@ -29,8 +29,34 @@ function findVoiceAsset(assets: Asset[], beatId: string): Asset | undefined {
   return assets.find((asset) => asset.beatId === beatId && asset.role === "voiceover");
 }
 
-function findMediaAssets(assets: Asset[], beatId: string): Asset[] {
-  return assets.filter((asset) => asset.beatId === beatId && asset.role !== "voiceover");
+function beatOrderIndex(beats: Beat[], beatId: string): number {
+  return beats.findIndex((beat) => beat.id === beatId);
+}
+
+function findMediaAssets(assets: Asset[], sectionId: string, beats: Beat[], beatId: string): Asset[] {
+  const exact = assets.filter((asset) => asset.beatId === beatId && asset.role !== "voiceover");
+  if (exact.length > 0) return exact;
+
+  const targetIndex = beatOrderIndex(beats, beatId);
+  if (targetIndex < 0) return [];
+  const sectionVisuals = assets
+    .filter((asset) =>
+      asset.sectionId === sectionId &&
+      asset.role === "primary_visual" &&
+      asset.beatId
+    )
+    .map((asset) => ({
+      asset,
+      index: beatOrderIndex(beats, asset.beatId ?? "")
+    }))
+    .filter((entry) => entry.index >= 0)
+    .sort((a, b) => {
+      const distance = Math.abs(a.index - targetIndex) - Math.abs(b.index - targetIndex);
+      if (distance !== 0) return distance;
+      return b.index - a.index;
+    });
+
+  return sectionVisuals[0] ? [sectionVisuals[0].asset] : [];
 }
 
 function resolveCueAsset(assets: Asset[], beatId: string, cueId: string, assetId?: string): Asset | undefined {
@@ -200,10 +226,11 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
   let cursor = 0;
   const segments = [];
   for (const section of plan.sections) {
-    for (const beat of section.beats.sort((a, b) => a.order - b.order)) {
+    const orderedBeats = section.beats.sort((a, b) => a.order - b.order);
+    for (const beat of orderedBeats) {
         const resolvedDirection = resolveBeatProductionDirection(plan, section, beat);
         const voiceAsset = findVoiceAsset(assets, beat.id);
-        const mediaAssets = findMediaAssets(assets, beat.id);
+        const mediaAssets = findMediaAssets(assets, section.id, orderedBeats, beat.id);
         const durationSeconds = durationForBeat(beat, voiceAsset, mediaAssets);
         const segmentStart = cursor;
         const segmentEnd = cursor + durationSeconds;

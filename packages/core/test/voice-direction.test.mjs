@@ -112,3 +112,23 @@ test("resolveVoiceDirection computes per-beat speed and pitch from multipliers a
   );
   assert.deepEqual(resolved.voiceOptions, { speed: 1.08, pitch: 0.2 });
 });
+
+test("resolveVoiceDirection carries planner language and provider routing", () => {
+  const resolved = resolveVoiceDirection(
+    beatWithDirection({
+      profile: "neutral",
+      intensity: 0.5,
+      emphasis: [],
+      pauseBeforeSeconds: 0,
+      pauseAfterSeconds: 0,
+      language: "fil",
+      ttsProvider: "mms",
+      source: "llm"
+    }),
+    planWithTts("chatterbox"),
+    "mms"
+  );
+  assert.equal(resolved.ttsProvider, "mms");
+  assert.deepEqual(resolved.providerOptions, {});
+  assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0, language: "fil" });
+});

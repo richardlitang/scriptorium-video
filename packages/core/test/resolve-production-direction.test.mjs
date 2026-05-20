@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { resolveBeatProductionDirection } from "../dist/resolve-production-direction.js";
+import { VideoPlanSchema } from "../dist/schemas/video-plan.schema.js";
 
 function basePlan() {
   return {
@@ -79,6 +80,45 @@ test("resolveBeatProductionDirection applies project -> section -> beat preceden
   assert.equal(resolved.creative.visualStyle, "beat visual");
 });
 
+test("resolveBeatProductionDirection resolves visual intent with beat precedence", () => {
+  const plan = basePlan();
+  plan.direction = {
+    visual: {
+      coverageRole: "supporting",
+      priority: 2,
+      needsUniqueImage: false,
+      reusePolicy: "allow-reuse",
+      source: "llm"
+    }
+  };
+  plan.sections[0].direction = {
+    visual: {
+      coverageRole: "key_moment",
+      priority: 4,
+      needsUniqueImage: true,
+      reusePolicy: "none",
+      source: "llm"
+    }
+  };
+  plan.sections[0].beats[0].visual = {
+    coverageRole: "anchor",
+    priority: 5,
+    needsUniqueImage: true,
+    reusePolicy: "none",
+    source: "user"
+  };
+
+  const resolved = resolveBeatProductionDirection(
+    plan,
+    plan.sections[0],
+    plan.sections[0].beats[0]
+  );
+
+  assert.equal(resolved.visual?.coverageRole, "anchor");
+  assert.equal(resolved.visual?.priority, 5);
+  assert.equal(resolved.visual?.source, "user");
+});
+
 test("resolveBeatProductionDirection preserves legacy beat fields as final fallback", () => {
   const plan = basePlan();
   plan.sections[0].beats[0].voiceDirection = {
@@ -118,4 +158,18 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
   assert.deepEqual(resolved.caption.emphasis, ["legacy-caption"]);
   assert.equal(resolved.sfxCues.length, 1);
   assert.equal(resolved.sfxCues[0].kind, "knock");
+});
+
+test("VideoPlan schema accepts orchestration metadata", () => {
+  const plan = basePlan();
+  plan.orchestration = {
+    version: 1,
+    model: "gpt-5.4",
+    orchestratedAt: "2026-05-20T12:00:00.000Z",
+    warnings: ["minor continuity uncertainty"]
+  };
+  const parsed = VideoPlanSchema.parse(plan);
+  assert.equal(parsed.orchestration?.version, 1);
+  assert.equal(parsed.orchestration?.model, "gpt-5.4");
+  assert.deepEqual(parsed.orchestration?.warnings, ["minor continuity uncertainty"]);
 });

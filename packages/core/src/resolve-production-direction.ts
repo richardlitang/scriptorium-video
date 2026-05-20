@@ -5,6 +5,7 @@ import {
   type Beat,
   type Section,
   type SoundCueIntent,
+  type VisualIntent,
   type VideoPlan
 } from "./schemas/video-plan.schema.js";
 
@@ -32,6 +33,7 @@ export type ResolvedBeatProductionDirection = {
     emphasis: string[];
     tuning: CaptionTuning;
   };
+  visual?: VisualIntent;
   motion: ReturnType<typeof MotionSchema.parse>;
   sfxCues: SoundCueIntent[];
   editorial?: ReturnType<typeof BeatEditorialSchema.parse>;
@@ -144,6 +146,13 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
     ...(beat.motion || {})
   });
 
+  const visual = firstDefined(
+    beat.direction?.visual,
+    beat.visual,
+    section.direction?.visual,
+    plan.direction?.visual,
+  );
+
   const sfxCues = (
     firstDefined(
       beat.direction?.sfxCues,
@@ -168,6 +177,7 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
       emphasis,
       tuning: resolveCaptionTuning(plan, section, beat)
     },
+    visual,
     motion,
     sfxCues,
     editorial: editorialSource ? BeatEditorialSchema.parse(editorialSource) : undefined,

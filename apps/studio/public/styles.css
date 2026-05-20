@@ -185,6 +185,36 @@ h3 {
   font-size: 11px;
 }
 
+.project-item-actions {
+  display: grid;
+  gap: 8px;
+  justify-items: end;
+}
+
+.project-delete-confirm {
+  display: grid;
+  gap: 6px;
+  padding: 9px;
+  border: 1px solid rgba(213, 95, 63, 0.35);
+  border-radius: 10px;
+  background: rgba(213, 95, 63, 0.1);
+  min-width: 180px;
+}
+
+.project-delete-confirm label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #ffd9cc;
+}
+
+.project-delete-confirm button {
+  border-radius: 10px;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
 .workbench {
   display: grid;
   gap: 16px;

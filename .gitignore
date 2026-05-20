@@ -6,3 +6,5 @@ dist/
 .studio-data/
 content/projects/*/renders/*.mp4
 content/projects/*/renders/*.webm
+__pycache__/
+*.pyc

@@ -248,3 +248,102 @@ test("syncProject maps editorial cues and sound cue mix controls into timeline",
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("syncProject reuses nearest section visual when balanced coverage leaves a beat without its own image", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-sync-balanced-visuals-"));
+  const projectId = "fixture";
+  const projectDir = path.join(root, "content", "projects", projectId);
+  try {
+    await mkdir(path.join(projectDir, "assets", "images", "generated"), { recursive: true });
+    await writeFile(path.join(projectDir, "assets", "images", "generated", "intro-001.png"), "stub", "utf8");
+    await writeFile(path.join(projectDir, "assets", "images", "generated", "intro-003.png"), "stub", "utf8");
+
+    const beat = (id, order) => ({
+      id,
+      order,
+      narration: `Beat ${order}.`,
+      timing: { mediaPolicy: "loop_or_freeze", locked: false, estimatedDurationSeconds: 2 },
+      media: [{ id: `${id}-visual`, type: "title_card", role: "primary_visual", prompt: `visual ${order}`, scaleMode: "cover", placement: "background" }],
+      motion: { type: "none", intensity: 0 },
+      caption: { emphasis: [], style: "default" },
+      voiceDirection: {
+        profile: "neutral",
+        emphasis: [],
+        pauseBeforeSeconds: 0,
+        pauseAfterSeconds: 0,
+        intensity: 0.5,
+        speedMultiplier: 1,
+        pitchOffset: 0,
+        source: "default"
+      },
+      sfxCues: []
+    });
+
+    await writeJson(path.join(projectDir, "video-plan.json"), {
+      schemaVersion: 1,
+      title: "Fixture",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      providers: {
+        llm: "manual",
+        tts: "chatterbox",
+        transcription: "mock",
+        media: "manual-media",
+        renderer: "remotion"
+      },
+      voice: {
+        provider: "chatterbox",
+        voiceId: "clone",
+        format: "wav",
+        options: {}
+      },
+      sections: [
+        {
+          id: "intro",
+          title: "Intro",
+          beats: [beat("intro-001", 1), beat("intro-002", 2), beat("intro-003", 3)]
+        }
+      ]
+    });
+
+    await writeJson(path.join(projectDir, "asset-manifest.json"), {
+      schemaVersion: 1,
+      assets: [
+        {
+          id: "image-intro-001",
+          type: "image",
+          role: "primary_visual",
+          sectionId: "intro",
+          beatId: "intro-001",
+          path: "assets/images/generated/intro-001.png",
+          source: { kind: "generated", provider: "openai-image", inputHash: "a" },
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: "image-intro-003",
+          type: "image",
+          role: "primary_visual",
+          sectionId: "intro",
+          beatId: "intro-003",
+          path: "assets/images/generated/intro-003.png",
+          source: { kind: "generated", provider: "openai-image", inputHash: "b" },
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ]
+    });
+
+    const { timeline } = await syncProject(projectId, root);
+    assert.deepEqual(timeline.segments.map((segment) => segment.mediaAssetIds[0]), [
+      "image-intro-001",
+      "image-intro-003",
+      "image-intro-003"
+    ]);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
