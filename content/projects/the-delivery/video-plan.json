@@ -1,0 +1,606 @@
+{
+  "schemaVersion": 1,
+  "title": "The Delivery",
+  "mode": "short_story",
+  "targetPlatform": "local_only",
+  "stylePackId": "default",
+  "templateId": "vertical-story",
+  "exportProfile": "shorts-1080x1920",
+  "overrides": {
+    "targetDurationSeconds": 60
+  },
+  "providers": {
+    "llm": "manual",
+    "tts": "chatterbox",
+    "transcription": "mock",
+    "media": "manual-media",
+    "renderer": "remotion"
+  },
+  "voice": {
+    "provider": "chatterbox",
+    "voiceId": "clone",
+    "format": "wav",
+    "options": {
+      "speed": 1.2,
+      "emotion": "engaged, suspenseful, and intimate"
+    }
+  },
+  "sections": [
+    {
+      "id": "unexpected-deliveries",
+      "title": "Unexpected Deliveries",
+      "purpose": "Introduce the central mystery.",
+      "estimatedDurationSeconds": 20,
+      "beats": [
+        {
+          "id": "unexpected-deliveries-001",
+          "order": 1,
+          "narration": "A college student named Mia started getting food deliveries she never ordered.",
+          "timing": {
+            "estimatedDurationSeconds": 8,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "unexpected-deliveries-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A dimly lit college apartment, the table cluttered with surprise food deliveries.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Soft background music builds intrigue."
+        },
+        {
+          "id": "unexpected-deliveries-002",
+          "order": 2,
+          "narration": "At first, it was funny.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "unexpected-deliveries-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia laughing as she opens a box of ramen.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Light humor in her expression."
+        },
+        {
+          "id": "unexpected-deliveries-003",
+          "order": 3,
+          "narration": "One night: ramen. Next night: bubble tea. Then groceries.",
+          "timing": {
+            "estimatedDurationSeconds": 7,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "unexpected-deliveries-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Quick cuts of the various food types appearing in her apartment.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Playful music transitions to a more suspenseful tone."
+        }
+      ]
+    },
+    {
+      "id": "a-cryptic-message",
+      "title": "A Cryptic Message",
+      "purpose": "Heighten the mystery and suspense.",
+      "estimatedDurationSeconds": 15,
+      "beats": [
+        {
+          "id": "a-cryptic-message-001",
+          "order": 1,
+          "narration": "Every order had the same note: 'Don’t forget to eat.'",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "a-cryptic-message-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of the note, with Mia's hands trembling as she holds it.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "sudden noise cue"
+            ],
+            "style": "default"
+          },
+          "notes": "Intensify the music to create tension."
+        },
+        {
+          "id": "a-cryptic-message-002",
+          "order": 2,
+          "narration": "Mia thought it was her boyfriend being sweet.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "a-cryptic-message-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia texting on her phone with a smile.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_left",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Switch to softer music momentarily."
+        },
+        {
+          "id": "a-cryptic-message-003",
+          "order": 3,
+          "narration": "He said, 'What deliveries?'",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "a-cryptic-message-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia’s face drops, confusion set in.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "dramatic pause"
+            ],
+            "style": "default"
+          },
+          "notes": "Moment of realization."
+        }
+      ]
+    },
+    {
+      "id": "chilling-discovery",
+      "title": "Chilling Discovery",
+      "purpose": "Build suspense on the identity of the orderer.",
+      "estimatedDurationSeconds": 15,
+      "beats": [
+        {
+          "id": "chilling-discovery-001",
+          "order": 1,
+          "narration": "The orders were paid for by someone named Mia Chen.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "chilling-discovery-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia scrolling through her phone, eyes wide with shock.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "escalating sound"
+            ],
+            "style": "default"
+          },
+          "notes": "Maintain a creepy undertone."
+        },
+        {
+          "id": "chilling-discovery-002",
+          "order": 2,
+          "narration": "Her exact name. Her exact apartment.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "chilling-discovery-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Footage revealing her apartment door.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Increase heartbeats in the background."
+        },
+        {
+          "id": "chilling-discovery-003",
+          "order": 3,
+          "narration": "But the phone number was different.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "chilling-discovery-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia looking puzzled, the camera focuses on her narrowed eyes.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "sharp sound cue"
+            ],
+            "style": "default"
+          },
+          "notes": "Shift to a climax in the music."
+        }
+      ]
+    },
+    {
+      "id": "the-realization",
+      "title": "The Realization",
+      "purpose": "Heighten the climax of the story.",
+      "estimatedDurationSeconds": 15,
+      "beats": [
+        {
+          "id": "the-realization-001",
+          "order": 1,
+          "narration": "So Mia called it.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-realization-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "She hesitantly dials the number, the camera close on her hand.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Silence before the next event."
+        },
+        {
+          "id": "the-realization-002",
+          "order": 2,
+          "narration": "Across the room, inside her locked closet, a phone started ringing.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-realization-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Dramatic shift to the closet, showcasing the phone vibrating.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_left",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "loud ring sound"
+            ],
+            "style": "default"
+          },
+          "notes": "Increase tension with abrupt music change."
+        },
+        {
+          "id": "the-realization-003",
+          "order": 3,
+          "narration": "She froze.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-realization-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia standing still, fear etched on her face.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "heartbeat sound"
+            ],
+            "style": "default"
+          },
+          "notes": "Maximize suspense before the next beat."
+        }
+      ]
+    },
+    {
+      "id": "the-final-clue",
+      "title": "The Final Clue",
+      "purpose": "Deliver the climax twist.",
+      "estimatedDurationSeconds": 15,
+      "beats": [
+        {
+          "id": "the-final-clue-001",
+          "order": 1,
+          "narration": "Then the delivery app pinged again: 'Your driver is arriving.'",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-final-clue-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia steps back, eyes wide, with the phone in her trembling hand.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Tension peaks."
+        },
+        {
+          "id": "the-final-clue-002",
+          "order": 2,
+          "narration": "A second later, there was a knock.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-final-clue-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up of the door, shadows moving outside.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "loud knock sound"
+            ],
+            "style": "default"
+          },
+          "notes": "Each sound amplifies fear."
+        },
+        {
+          "id": "the-final-clue-003",
+          "order": 3,
+          "narration": "Mia looked through the peephole. No driver. Just a paper bag on the floor.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-final-clue-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "View through the peephole, showing the mysterious bag.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [],
+            "style": "default"
+          },
+          "notes": "Maintain an eerie ambiance."
+        }
+      ]
+    },
+    {
+      "id": "the-revelation",
+      "title": "The Revelation",
+      "purpose": "Conclude the suspense with a haunting note.",
+      "estimatedDurationSeconds": 11,
+      "beats": [
+        {
+          "id": "the-revelation-001",
+          "order": 1,
+          "narration": "Inside was her student ID. The one she had lost three years ago.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-revelation-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Mia gasping as she sees her ID, tears welling in her eyes.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "whispering sound"
+            ],
+            "style": "default"
+          },
+          "notes": "Heightened emotion as she realizes."
+        },
+        {
+          "id": "the-revelation-002",
+          "order": 2,
+          "narration": "And a note: 'I’ve been taking care of you longer than you think.'",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-revelation-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of the eerie note, written in an unsettling handwriting.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "sudden dramatic music shift"
+            ],
+            "style": "default"
+          },
+          "notes": "Final impactful moment."
+        }
+      ]
+    }
+  ]
+}

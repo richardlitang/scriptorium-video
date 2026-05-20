@@ -1,0 +1,1271 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "image-strange-deliveries-begin-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "strange-deliveries-begin",
+      "beatId": "strange-deliveries-begin-001",
+      "path": "assets/images/generated/strange-deliveries-begin-001.v1.9be878747f.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "9be878747f0a944c14c2d56ea7afb58efd9db13440ab6e2c9f998deeab9c7012",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Strange Deliveries Begin.\nSection purpose: To establish the initial intrigue and humor of the situation..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: A college student named Mia started getting food deliveries she never ordered.\nNext beat narration: At first, it was funny. One night: ramen. Next night: bubble tea. Then groceries.\n\nVisual target:\nA dimly lit college apartment, cluttered with books and a laptop, showing a delivery bag on the table. A clock shows late evening.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:17:20.291Z",
+      "updatedAt": "2026-05-19T09:20:51.800Z"
+    },
+    {
+      "id": "image-the-misunderstanding-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-misunderstanding",
+      "beatId": "the-misunderstanding-001",
+      "path": "assets/images/generated/the-misunderstanding-001.v1.0bc053888e.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "0bc053888e8a55de693c74fb15306d2bd62f4455acb6a6d9b422f172baab1b01",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 5: The Misunderstanding.\nSection purpose: To introduce tension and build suspense through misunderstanding..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Mia thought it was her boyfriend being sweet, so she texted him. He said, 'What deliveries?'\nNext beat narration: That's when she checked the receipts. The orders were paid for by someone named Mia Chen—her exact name.\n\nVisual target:\nA split screen showing Mia texting on her bed, looking hopeful, and her boyfriend looking confused on his phone.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:17:42.393Z",
+      "updatedAt": "2026-05-19T09:20:52.871Z"
+    },
+    {
+      "id": "image-unanswered-questions-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unanswered-questions",
+      "beatId": "unanswered-questions-001",
+      "path": "assets/images/generated/unanswered-questions-001.v1.b11c81d505.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "b11c81d50551fb5188aecacbdfcf4a40541dd411b3ee3c66098d3e3bfc9d8b38",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 5: Unanswered Questions.\nSection purpose: To create an escalating sense of dread and suspense..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: But the phone number was different. So Mia called it.\nNext beat narration: Across the room, inside her locked closet, a phone started ringing.\n\nVisual target:\nMia hesitates before dialing a strange number, her face illuminated by her phone's glow.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:00.742Z",
+      "updatedAt": "2026-05-19T09:20:52.695Z"
+    },
+    {
+      "id": "image-the-knock-on-the-door-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-knock-on-the-door",
+      "beatId": "the-knock-on-the-door-001",
+      "path": "assets/images/generated/the-knock-on-the-door-001.v1.b4304a7bb8.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "b4304a7bb8814d15bbc89d958058f0b3983ba95d5f1bb24e16ec0a5270747a8b",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 4 of 5: The Knock on the Door.\nSection purpose: To heighten suspense and lead to the climax..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Then the delivery app pinged again. 'Your driver is arriving.' A second later, there was a knock.\nNext beat narration: Mia looked through the peephole. No driver. Just a paper bag on the floor.\n\nVisual target:\nMia in a panic, standing still, her eyes wide as the knock echoes throughout her quiet apartment.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:22.496Z",
+      "updatedAt": "2026-05-19T09:20:52.845Z"
+    },
+    {
+      "id": "image-a-haunting-revelation-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "a-haunting-revelation",
+      "beatId": "a-haunting-revelation-001",
+      "path": "assets/images/generated/a-haunting-revelation-001.v1.3ff3ee11f5.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "3ff3ee11f5c5d601f5ec9bec4b029d819ebad3e2391e8230acc763e09aefad7f",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 5: A Haunting Revelation.\nSection purpose: To reveal the climax's intensity and mystery..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Inside was her student ID. The one she had lost three years ago.\nNext beat narration: And a note: 'I’ve been taking care of you longer than you think.'\n\nVisual target:\nMia kneeling to pick up the bag, revealing a familiar ID card that she stares at in disbelief.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.484Z",
+      "updatedAt": "2026-05-19T09:20:52.819Z"
+    },
+    {
+      "id": "image-strange-deliveries-begin-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "strange-deliveries-begin",
+      "beatId": "strange-deliveries-begin-002",
+      "path": "assets/images/generated/strange-deliveries-begin-001.v1.9be878747f.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-strange-deliveries-begin-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Strange Deliveries Begin.\nSection purpose: To establish the initial intrigue and humor of the situation..\nBeat 2 of 3 in this section.\nPrevious beat narration: A college student named Mia started getting food deliveries she never ordered.\nCurrent beat narration: At first, it was funny. One night: ramen. Next night: bubble tea. Then groceries.\nNext beat narration: Every order had the same note: 'Don't forget to eat.'\n\nVisual target:\nClose-ups of the food items as Mia unpacks them, a smirk on her face as she takes selfies with her ramen.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.485Z",
+      "updatedAt": "2026-05-19T09:20:52.803Z"
+    },
+    {
+      "id": "image-strange-deliveries-begin-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "strange-deliveries-begin",
+      "beatId": "strange-deliveries-begin-003",
+      "path": "assets/images/generated/strange-deliveries-begin-001.v1.9be878747f.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-strange-deliveries-begin-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Strange Deliveries Begin.\nSection purpose: To establish the initial intrigue and humor of the situation..\nBeat 3 of 3 in this section.\nPrevious beat narration: At first, it was funny. One night: ramen. Next night: bubble tea. Then groceries.\nCurrent beat narration: Every order had the same note: 'Don't forget to eat.'\nNext beat narration: none; this closes the section.\n\nVisual target:\nA close-up of the note as Mia holds it, puzzled but amused.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.485Z",
+      "updatedAt": "2026-05-19T09:20:52.823Z"
+    },
+    {
+      "id": "image-the-misunderstanding-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-misunderstanding",
+      "beatId": "the-misunderstanding-002",
+      "path": "assets/images/generated/the-misunderstanding-001.v1.0bc053888e.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-misunderstanding-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 5: The Misunderstanding.\nSection purpose: To introduce tension and build suspense through misunderstanding..\nBeat 2 of 2 in this section.\nPrevious beat narration: Mia thought it was her boyfriend being sweet, so she texted him. He said, 'What deliveries?'\nCurrent beat narration: That's when she checked the receipts. The orders were paid for by someone named Mia Chen—her exact name.\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia glancing at her phone screen, a look of disbelief as she reads the receipts with her name.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.485Z",
+      "updatedAt": "2026-05-19T09:20:52.854Z"
+    },
+    {
+      "id": "image-unanswered-questions-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unanswered-questions",
+      "beatId": "unanswered-questions-002",
+      "path": "assets/images/generated/unanswered-questions-001.v1.b11c81d505.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-unanswered-questions-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 5: Unanswered Questions.\nSection purpose: To create an escalating sense of dread and suspense..\nBeat 2 of 2 in this section.\nPrevious beat narration: But the phone number was different. So Mia called it.\nCurrent beat narration: Across the room, inside her locked closet, a phone started ringing.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA close-up shot of a cell phone vibrating inside a dark closet, visible only through slightly ajar doors.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.485Z",
+      "updatedAt": "2026-05-19T09:20:52.696Z"
+    },
+    {
+      "id": "image-the-knock-on-the-door-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-knock-on-the-door",
+      "beatId": "the-knock-on-the-door-002",
+      "path": "assets/images/generated/the-knock-on-the-door-001.v1.b4304a7bb8.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-knock-on-the-door-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 4 of 5: The Knock on the Door.\nSection purpose: To heighten suspense and lead to the climax..\nBeat 2 of 2 in this section.\nPrevious beat narration: Then the delivery app pinged again. 'Your driver is arriving.' A second later, there was a knock.\nCurrent beat narration: Mia looked through the peephole. No driver. Just a paper bag on the floor.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA tight shot of Mia's eye peering through the peephole, her breath quickening, revealing only a brown bag on the floor underneath her door.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.485Z",
+      "updatedAt": "2026-05-19T09:20:52.851Z"
+    },
+    {
+      "id": "image-a-haunting-revelation-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "a-haunting-revelation",
+      "beatId": "a-haunting-revelation-002",
+      "path": "assets/images/generated/a-haunting-revelation-001.v1.3ff3ee11f5.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-a-haunting-revelation-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 5: A Haunting Revelation.\nSection purpose: To reveal the climax's intensity and mystery..\nBeat 2 of 2 in this section.\nPrevious beat narration: Inside was her student ID. The one she had lost three years ago.\nCurrent beat narration: And a note: 'I’ve been taking care of you longer than you think.'\nNext beat narration: none; this closes the section.\n\nVisual target:\nA close-up of the note, handwritten, as the camera focuses on the ominous message.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:18:39.485Z",
+      "updatedAt": "2026-05-19T09:20:52.842Z"
+    },
+    {
+      "id": "image-mysterious-deliveries-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "mysterious-deliveries",
+      "beatId": "mysterious-deliveries-001",
+      "path": "assets/images/generated/mysterious-deliveries-001.v1.0a4807750c.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "0a4807750cafa296c8c8096619c061f945c9e648f8f2e79b4b0d3b631b974813",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Mysterious Deliveries.\nSection purpose: To introduce the mysterious occurrences in Mia's life..\nBeat 1 of 4 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: A college student named Mia started getting food deliveries she never ordered.\nNext beat narration: At first, it was funny.\n\nVisual target:\nA dimly lit college apartment with Mia sitting at her desk, looking puzzled at a delivery bag.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:28:47.185Z",
+      "updatedAt": "2026-05-19T09:20:52.621Z"
+    },
+    {
+      "id": "image-the-confusion-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-confusion",
+      "beatId": "the-confusion-001",
+      "path": "assets/images/generated/the-confusion-001.v1.a4d2c62f17.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "a4d2c62f1738cbea89447aaf3a3e541612f96b233b76732c285009dd1e19560b",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 5: The Confusion.\nSection purpose: To build suspense and confusion around Mia's deliveries..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Mia thought it was her boyfriend being sweet, so she texted him.\nNext beat narration: He said, ‘What deliveries?’\n\nVisual target:\nMia smiles, holding her phone, light from the screen illuminating her face.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:28:46.644Z",
+      "updatedAt": "2026-05-19T09:20:52.851Z"
+    },
+    {
+      "id": "image-the-phone-call-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-phone-call",
+      "beatId": "the-phone-call-001",
+      "path": "assets/images/generated/the-phone-call-001.v1.8e6b3a7ca0.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "8e6b3a7ca0a62322ce455b808266e734c785bccf88381d0b06fbed26b2e6b28d",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 5: The Phone Call.\nSection purpose: To escalate the tension and hint at the supernatural..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: So Mia called it.\nNext beat narration: Inside her locked closet, a phone started ringing.\n\nVisual target:\nMia holding her phone hesitantly, glancing towards a locked closet across the room.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:06.952Z",
+      "updatedAt": "2026-05-19T09:20:52.858Z"
+    },
+    {
+      "id": "image-the-knock-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-knock",
+      "beatId": "the-knock-001",
+      "path": "assets/images/generated/the-knock-001.v1.a4201ea8a4.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "a4201ea8a4804a32e421fe7a777a520ecda29a6cf198c04d127fdf14a0174a4a",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 4 of 5: The Knock.\nSection purpose: To drive home the suspense and horror elements of the story..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Then the delivery app pinged again: ‘Your driver is arriving.’\nNext beat narration: A second later, there was a knock.\n\nVisual target:\nMia’s phone lighting up with the delivery app notification, her expression turning serious.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:04.022Z",
+      "updatedAt": "2026-05-19T09:20:52.635Z"
+    },
+    {
+      "id": "image-the-final-note-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-final-note",
+      "beatId": "the-final-note-001",
+      "path": "assets/images/generated/the-final-note-001.v1.6879e820de.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "6879e820dea909aac231524664186087ac91d22f928e13b87627a4bb50eeea86",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 5: The Final Note.\nSection purpose: To conclude the story with a shocking revelation..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Inside was her student ID. The one she had lost three years ago.\nNext beat narration: And a note: ‘I’ve been taking care of you longer than you think.’\n\nVisual target:\nMia’s hand trembling as she opens the bag, revealing her student ID and a chilling note.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.374Z",
+      "updatedAt": "2026-05-19T09:20:52.852Z"
+    },
+    {
+      "id": "image-mysterious-deliveries-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "mysterious-deliveries",
+      "beatId": "mysterious-deliveries-002",
+      "path": "assets/images/generated/mysterious-deliveries-001.v1.0a4807750c.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-mysterious-deliveries-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Mysterious Deliveries.\nSection purpose: To introduce the mysterious occurrences in Mia's life..\nBeat 2 of 4 in this section.\nPrevious beat narration: A college student named Mia started getting food deliveries she never ordered.\nCurrent beat narration: At first, it was funny.\nNext beat narration: One night: ramen. Next night: bubble tea. Then groceries.\n\nVisual target:\nMia laughs as she opens a delivery bag filled with ramen noodles, her room softly illuminated.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.851Z"
+    },
+    {
+      "id": "image-mysterious-deliveries-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "mysterious-deliveries",
+      "beatId": "mysterious-deliveries-003",
+      "path": "assets/images/generated/mysterious-deliveries-001.v1.0a4807750c.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-mysterious-deliveries-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Mysterious Deliveries.\nSection purpose: To introduce the mysterious occurrences in Mia's life..\nBeat 3 of 4 in this section.\nPrevious beat narration: At first, it was funny.\nCurrent beat narration: One night: ramen. Next night: bubble tea. Then groceries.\nNext beat narration: Every order had the same note: ‘Don’t forget to eat.’\n\nVisual target:\nA montage of delivery bags on her table, each labeled with a new order; the lighting shifts from warm to slightly eerie.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.766Z"
+    },
+    {
+      "id": "image-mysterious-deliveries-004",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "mysterious-deliveries",
+      "beatId": "mysterious-deliveries-004",
+      "path": "assets/images/generated/mysterious-deliveries-001.v1.0a4807750c.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-mysterious-deliveries-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 5: Mysterious Deliveries.\nSection purpose: To introduce the mysterious occurrences in Mia's life..\nBeat 4 of 4 in this section.\nPrevious beat narration: One night: ramen. Next night: bubble tea. Then groceries.\nCurrent beat narration: Every order had the same note: ‘Don’t forget to eat.’\nNext beat narration: none; this closes the section.\n\nVisual target:\nClose-up of the note inside a delivery bag, faint shadows creeping around it.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.880Z"
+    },
+    {
+      "id": "image-the-confusion-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-confusion",
+      "beatId": "the-confusion-002",
+      "path": "assets/images/generated/the-confusion-001.v1.a4d2c62f17.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-confusion-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 5: The Confusion.\nSection purpose: To build suspense and confusion around Mia's deliveries..\nBeat 2 of 3 in this section.\nPrevious beat narration: Mia thought it was her boyfriend being sweet, so she texted him.\nCurrent beat narration: He said, ‘What deliveries?’\nNext beat narration: That’s when she checked the receipts. The orders were paid for by someone named Mia Chen.\n\nVisual target:\nCut to the boyfriend's confused face on a facetime screen, tension in the air.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.837Z"
+    },
+    {
+      "id": "image-the-confusion-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-confusion",
+      "beatId": "the-confusion-003",
+      "path": "assets/images/generated/the-confusion-001.v1.a4d2c62f17.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-confusion-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 5: The Confusion.\nSection purpose: To build suspense and confusion around Mia's deliveries..\nBeat 3 of 3 in this section.\nPrevious beat narration: He said, ‘What deliveries?’\nCurrent beat narration: That’s when she checked the receipts. The orders were paid for by someone named Mia Chen.\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia looks shocked, scrolling through her phone showing unfamiliar receipts.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.853Z"
+    },
+    {
+      "id": "image-the-phone-call-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-phone-call",
+      "beatId": "the-phone-call-002",
+      "path": "assets/images/generated/the-phone-call-001.v1.8e6b3a7ca0.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-phone-call-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 5: The Phone Call.\nSection purpose: To escalate the tension and hint at the supernatural..\nBeat 2 of 3 in this section.\nPrevious beat narration: So Mia called it.\nCurrent beat narration: Inside her locked closet, a phone started ringing.\nNext beat narration: She froze.\n\nVisual target:\nThe camera shifts to the closet as we hear a phone vibrate, shadows moving behind the door.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.874Z"
+    },
+    {
+      "id": "image-the-phone-call-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-phone-call",
+      "beatId": "the-phone-call-003",
+      "path": "assets/images/generated/the-phone-call-001.v1.8e6b3a7ca0.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-phone-call-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 5: The Phone Call.\nSection purpose: To escalate the tension and hint at the supernatural..\nBeat 3 of 3 in this section.\nPrevious beat narration: Inside her locked closet, a phone started ringing.\nCurrent beat narration: She froze.\nNext beat narration: none; this closes the section.\n\nVisual target:\nClose-up on Mia’s wide eyes, filled with shock and fear, as the ringing continues.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.621Z"
+    },
+    {
+      "id": "image-the-knock-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-knock",
+      "beatId": "the-knock-002",
+      "path": "assets/images/generated/the-knock-001.v1.a4201ea8a4.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-knock-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 4 of 5: The Knock.\nSection purpose: To drive home the suspense and horror elements of the story..\nBeat 2 of 3 in this section.\nPrevious beat narration: Then the delivery app pinged again: ‘Your driver is arriving.’\nCurrent beat narration: A second later, there was a knock.\nNext beat narration: Mia looked through the peephole. No driver. Just a paper bag on the floor.\n\nVisual target:\nA close-up of the door as the echo of the knock reverberates through the apartment.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.793Z"
+    },
+    {
+      "id": "image-the-knock-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-knock",
+      "beatId": "the-knock-003",
+      "path": "assets/images/generated/the-knock-001.v1.a4201ea8a4.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-knock-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 4 of 5: The Knock.\nSection purpose: To drive home the suspense and horror elements of the story..\nBeat 3 of 3 in this section.\nPrevious beat narration: A second later, there was a knock.\nCurrent beat narration: Mia looked through the peephole. No driver. Just a paper bag on the floor.\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia peering through the peephole, her eye reflecting a dim light from the outside; a paper bag visible through the door.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.872Z"
+    },
+    {
+      "id": "image-the-final-note-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-final-note",
+      "beatId": "the-final-note-002",
+      "path": "assets/images/generated/the-final-note-001.v1.6879e820de.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-final-note-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 5: The Final Note.\nSection purpose: To conclude the story with a shocking revelation..\nBeat 2 of 2 in this section.\nPrevious beat narration: Inside was her student ID. The one she had lost three years ago.\nCurrent beat narration: And a note: ‘I’ve been taking care of you longer than you think.’\nNext beat narration: none; this closes the section.\n\nVisual target:\nClose-up of the note, dark and cryptic, while shadows swirl in the background.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:29:23.376Z",
+      "updatedAt": "2026-05-19T09:20:52.868Z"
+    },
+    {
+      "id": "voice-mysterious-deliveries-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "mysterious-deliveries",
+      "beatId": "mysterious-deliveries-001",
+      "path": "assets/audio/voice/mysterious-deliveries-001.ea9e6879f7.1779122248126.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "ea9e6879f7"
+      },
+      "durationSeconds": 3.56,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:37:28.123Z",
+      "updatedAt": "2026-05-19T09:20:52.852Z"
+    },
+    {
+      "id": "image-introduction-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "introduction",
+      "beatId": "introduction-001",
+      "path": "assets/images/generated/introduction-001.v1.bd882806b7.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "bd882806b7d6eb92db840746cf3ae79fd1ecdfb559fc9a33c34925c7d9b62000",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 6: Introduction.\nSection purpose: Set the stage and introduce Mia's strange situation..\nBeat 1 of 1 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Mia, a college student, started getting food deliveries she never ordered.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA dimly lit college apartment, with a young woman scrolling through her phone, puzzled.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:30.740Z",
+      "updatedAt": "2026-05-19T09:20:52.827Z"
+    },
+    {
+      "id": "image-initial-humor-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "initial-humor",
+      "beatId": "initial-humor-001",
+      "path": "assets/images/generated/initial-humor-001.v1.c00cbf8a45.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "c00cbf8a457b07e0a86026fd6969a809e4240636b2449f8c8dbb8d6a13e4f14c",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 6: Initial Humor.\nSection purpose: Show the initial light-hearted nature of the situation..\nBeat 1 of 1 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: At first, it was funny. One night: ramen. Next night: bubble tea.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA series of quick cuts showing Mia opening boxes of ramen and bubble tea, smiling with confusion.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:30.446Z",
+      "updatedAt": "2026-05-19T09:20:52.787Z"
+    },
+    {
+      "id": "image-the-realization-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-realization",
+      "beatId": "the-realization-001",
+      "path": "assets/images/generated/the-realization-001.v1.5a0af49465.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "5a0af494655a182a5d301a6ff89e58289af306ce1dfba533cc9b349ce7b06555",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 6: The Realization.\nSection purpose: Build tension as Mia uncovers the mystery..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Every order had the same note: 'Don’t forget to eat.'\nNext beat narration: She texted her boyfriend, who was puzzled.\n\nVisual target:\nClose-up of the note inside a food bag, Mia's hand reaching for it.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:46.947Z",
+      "updatedAt": "2026-05-19T09:20:52.734Z"
+    },
+    {
+      "id": "image-the-revelation-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-revelation",
+      "beatId": "the-revelation-001",
+      "path": "assets/images/generated/the-revelation-001.v1.fd115ab538.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "fd115ab538efb70983d96f652789b66ce06a3ac9fa2bed23ead0ad7a5410ea62",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 6 of 6: The Revelation.\nSection purpose: Deliver the final shock and mystery..\nBeat 1 of 2 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Just a paper bag on the floor. Inside was her student ID, the one she lost three years ago.\nNext beat narration: And a note: 'I’ve been taking care of you longer than you think.'\n\nVisual target:\nShot of a bag on the floor, the ID barely visible inside.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:46.090Z",
+      "updatedAt": "2026-05-19T09:20:52.869Z"
+    },
+    {
+      "id": "image-the-realization-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-realization",
+      "beatId": "the-realization-002",
+      "path": "assets/images/generated/the-realization-001.v1.5a0af49465.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-realization-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 6: The Realization.\nSection purpose: Build tension as Mia uncovers the mystery..\nBeat 2 of 3 in this section.\nPrevious beat narration: Every order had the same note: 'Don’t forget to eat.'\nCurrent beat narration: She texted her boyfriend, who was puzzled.\nNext beat narration: Mia checked the receipts: someone named 'Mia Chen' was paying.\n\nVisual target:\nText conversation visible on a phone, Mia's face showing confusion as she reads his messages.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:46.953Z",
+      "updatedAt": "2026-05-19T09:20:52.840Z"
+    },
+    {
+      "id": "image-the-realization-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-realization",
+      "beatId": "the-realization-003",
+      "path": "assets/images/generated/the-realization-001.v1.5a0af49465.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-realization-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 6: The Realization.\nSection purpose: Build tension as Mia uncovers the mystery..\nBeat 3 of 3 in this section.\nPrevious beat narration: She texted her boyfriend, who was puzzled.\nCurrent beat narration: Mia checked the receipts: someone named 'Mia Chen' was paying.\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia's shocked expression as she views the receipts on her laptop.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:46.953Z",
+      "updatedAt": "2026-05-19T09:20:52.858Z"
+    },
+    {
+      "id": "image-the-revelation-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-revelation",
+      "beatId": "the-revelation-002",
+      "path": "assets/images/generated/the-revelation-001.v1.fd115ab538.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-revelation-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 6 of 6: The Revelation.\nSection purpose: Deliver the final shock and mystery..\nBeat 2 of 2 in this section.\nPrevious beat narration: Just a paper bag on the floor. Inside was her student ID, the one she lost three years ago.\nCurrent beat narration: And a note: 'I’ve been taking care of you longer than you think.'\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia holding the note, her expression shifting from confusion to terror.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:46.953Z",
+      "updatedAt": "2026-05-19T09:20:52.621Z"
+    },
+    {
+      "id": "voice-introduction-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "introduction",
+      "beatId": "introduction-001",
+      "path": "assets/audio/voice/introduction-001.51f0da6ecf.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "51f0da6ecf"
+      },
+      "durationSeconds": 4.32,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.774Z"
+    },
+    {
+      "id": "voice-initial-humor-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "initial-humor",
+      "beatId": "initial-humor-001",
+      "path": "assets/audio/voice/initial-humor-001.8807a52b20.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "8807a52b20"
+      },
+      "durationSeconds": 4.28,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.796Z"
+    },
+    {
+      "id": "voice-the-realization-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-realization",
+      "beatId": "the-realization-001",
+      "path": "assets/audio/voice/the-realization-001.a4b728b1ce.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "a4b728b1ce"
+      },
+      "durationSeconds": 1.56,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.828Z"
+    },
+    {
+      "id": "voice-the-realization-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-realization",
+      "beatId": "the-realization-002",
+      "path": "assets/audio/voice/the-realization-002.9e2f66af0b.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "9e2f66af0b"
+      },
+      "durationSeconds": 5.12,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.759Z"
+    },
+    {
+      "id": "voice-the-realization-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-realization",
+      "beatId": "the-realization-003",
+      "path": "assets/audio/voice/the-realization-003.6743cf9ff9.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "6743cf9ff9"
+      },
+      "durationSeconds": 2.32,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.765Z"
+    },
+    {
+      "id": "voice-the-phone-call-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-phone-call",
+      "beatId": "the-phone-call-001",
+      "path": "assets/audio/voice/the-phone-call-001.da7c822ce7.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "da7c822ce7"
+      },
+      "durationSeconds": 3.4,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.695Z"
+    },
+    {
+      "id": "voice-the-phone-call-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-phone-call",
+      "beatId": "the-phone-call-002",
+      "path": "assets/audio/voice/the-phone-call-002.04acbcb4fd.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "04acbcb4fd"
+      },
+      "durationSeconds": 3.28,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.782Z"
+    },
+    {
+      "id": "voice-the-knock-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-knock",
+      "beatId": "the-knock-001",
+      "path": "assets/audio/voice/the-knock-001.458b818038.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "458b818038"
+      },
+      "durationSeconds": 1.92,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.839Z"
+    },
+    {
+      "id": "voice-the-knock-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-knock",
+      "beatId": "the-knock-002",
+      "path": "assets/audio/voice/the-knock-002.d3b733c001.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "d3b733c001"
+      },
+      "durationSeconds": 2.56,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.816Z"
+    },
+    {
+      "id": "voice-the-revelation-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-revelation",
+      "beatId": "the-revelation-001",
+      "path": "assets/audio/voice/the-revelation-001.a082eb8fa8.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "a082eb8fa8"
+      },
+      "durationSeconds": 5.4,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.847Z"
+    },
+    {
+      "id": "voice-the-revelation-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-revelation",
+      "beatId": "the-revelation-002",
+      "path": "assets/audio/voice/the-revelation-002.09324846e1.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "09324846e1"
+      },
+      "durationSeconds": 3.84,
+      "status": "generated",
+      "createdAt": "2026-05-18T16:46:50.852Z",
+      "updatedAt": "2026-05-19T09:20:52.821Z"
+    },
+    {
+      "id": "image-unexpected-deliveries-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-001",
+      "path": "assets/images/generated/unexpected-deliveries-001.v1.bde5fbded5.png",
+      "source": {
+        "kind": "cached",
+        "provider": "openai-image",
+        "inputHash": "bde5fbded52817ca570253443c2f6afe8e99907114253bf215a0dfb6c3c21e1d",
+        "originalPath": "content/projects/the-delivery/assets/images/generated/mysterious-deliveries-001.v1.0a4807750c.png",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 6: Unexpected Deliveries.\nSection purpose: Introduce the central mystery..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: A college student named Mia started getting food deliveries she never ordered.\nNext beat narration: At first, it was funny.\n\nVisual target:\nA dimly lit college apartment, the table cluttered with surprise food deliveries.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:02.440Z",
+      "updatedAt": "2026-05-19T09:20:52.872Z"
+    },
+    {
+      "id": "image-a-cryptic-message-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-001",
+      "path": "assets/images/generated/a-cryptic-message-001.v1.afe3fa4513.png",
+      "source": {
+        "kind": "cached",
+        "provider": "openai-image",
+        "inputHash": "afe3fa4513f6547ae1fe05854ae87e2aff16dbe22cbfe03dd387fd721f46c818",
+        "originalPath": "content/projects/the-delivery/assets/images/generated/the-realization-001.v1.5a0af49465.png",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 6: A Cryptic Message.\nSection purpose: Heighten the mystery and suspense..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Every order had the same note: 'Don’t forget to eat.'\nNext beat narration: Mia thought it was her boyfriend being sweet.\n\nVisual target:\nClose-up of the note, with Mia's hands trembling as she holds it.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:02.440Z",
+      "updatedAt": "2026-05-19T09:20:52.873Z"
+    },
+    {
+      "id": "image-chilling-discovery-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-001",
+      "path": "assets/images/generated/chilling-discovery-001.v1.66db29ace7.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "66db29ace72e2c3462ca1921c0e348275670eaf680600babfaa22385dcd8668e",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 6: Chilling Discovery.\nSection purpose: Build suspense on the identity of the orderer..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: The orders were paid for by someone named Mia Chen.\nNext beat narration: Her exact name. Her exact apartment.\n\nVisual target:\nMia scrolling through her phone, eyes wide with shock.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.400Z",
+      "updatedAt": "2026-05-19T09:20:52.884Z"
+    },
+    {
+      "id": "image-the-final-clue-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-001",
+      "path": "assets/images/generated/the-final-clue-001.v1.74bc876942.png",
+      "source": {
+        "kind": "cached",
+        "provider": "openai-image",
+        "inputHash": "74bc87694286f5f44b7c146259fc85f0d97e2a72053758ad0dd91a4342dffd65",
+        "originalPath": "content/projects/the-delivery/assets/images/generated/the-knock-001.v1.a4201ea8a4.png",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 6: The Final Clue.\nSection purpose: Deliver the climax twist..\nBeat 1 of 3 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Then the delivery app pinged again: 'Your driver is arriving.'\nNext beat narration: A second later, there was a knock.\n\nVisual target:\nMia steps back, eyes wide, with the phone in her trembling hand.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:02.447Z",
+      "updatedAt": "2026-05-19T09:20:52.873Z"
+    },
+    {
+      "id": "image-unexpected-deliveries-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-002",
+      "path": "assets/images/generated/unexpected-deliveries-001.v1.bde5fbded5.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-unexpected-deliveries-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 6: Unexpected Deliveries.\nSection purpose: Introduce the central mystery..\nBeat 2 of 3 in this section.\nPrevious beat narration: A college student named Mia started getting food deliveries she never ordered.\nCurrent beat narration: At first, it was funny.\nNext beat narration: One night: ramen. Next night: bubble tea. Then groceries.\n\nVisual target:\nMia laughing as she opens a box of ramen.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.875Z"
+    },
+    {
+      "id": "image-unexpected-deliveries-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-003",
+      "path": "assets/images/generated/unexpected-deliveries-001.v1.bde5fbded5.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-unexpected-deliveries-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 1 of 6: Unexpected Deliveries.\nSection purpose: Introduce the central mystery..\nBeat 3 of 3 in this section.\nPrevious beat narration: At first, it was funny.\nCurrent beat narration: One night: ramen. Next night: bubble tea. Then groceries.\nNext beat narration: none; this closes the section.\n\nVisual target:\nQuick cuts of the various food types appearing in her apartment.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.821Z"
+    },
+    {
+      "id": "image-a-cryptic-message-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-002",
+      "path": "assets/images/generated/a-cryptic-message-001.v1.afe3fa4513.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-a-cryptic-message-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 6: A Cryptic Message.\nSection purpose: Heighten the mystery and suspense..\nBeat 2 of 3 in this section.\nPrevious beat narration: Every order had the same note: 'Don’t forget to eat.'\nCurrent beat narration: Mia thought it was her boyfriend being sweet.\nNext beat narration: He said, 'What deliveries?'\n\nVisual target:\nMia texting on her phone with a smile.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.774Z"
+    },
+    {
+      "id": "image-a-cryptic-message-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-003",
+      "path": "assets/images/generated/a-cryptic-message-001.v1.afe3fa4513.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-a-cryptic-message-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 2 of 6: A Cryptic Message.\nSection purpose: Heighten the mystery and suspense..\nBeat 3 of 3 in this section.\nPrevious beat narration: Mia thought it was her boyfriend being sweet.\nCurrent beat narration: He said, 'What deliveries?'\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia’s face drops, confusion set in.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.864Z"
+    },
+    {
+      "id": "image-chilling-discovery-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-002",
+      "path": "assets/images/generated/chilling-discovery-001.v1.66db29ace7.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-chilling-discovery-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 6: Chilling Discovery.\nSection purpose: Build suspense on the identity of the orderer..\nBeat 2 of 3 in this section.\nPrevious beat narration: The orders were paid for by someone named Mia Chen.\nCurrent beat narration: Her exact name. Her exact apartment.\nNext beat narration: But the phone number was different.\n\nVisual target:\nFootage revealing her apartment door.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.784Z"
+    },
+    {
+      "id": "image-chilling-discovery-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-003",
+      "path": "assets/images/generated/chilling-discovery-001.v1.66db29ace7.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-chilling-discovery-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 3 of 6: Chilling Discovery.\nSection purpose: Build suspense on the identity of the orderer..\nBeat 3 of 3 in this section.\nPrevious beat narration: Her exact name. Her exact apartment.\nCurrent beat narration: But the phone number was different.\nNext beat narration: none; this closes the section.\n\nVisual target:\nMia looking puzzled, the camera focuses on her narrowed eyes.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.874Z"
+    },
+    {
+      "id": "image-the-final-clue-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-002",
+      "path": "assets/images/generated/the-final-clue-001.v1.74bc876942.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-final-clue-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 6: The Final Clue.\nSection purpose: Deliver the climax twist..\nBeat 2 of 3 in this section.\nPrevious beat narration: Then the delivery app pinged again: 'Your driver is arriving.'\nCurrent beat narration: A second later, there was a knock.\nNext beat narration: Mia looked through the peephole. No driver. Just a paper bag on the floor.\n\nVisual target:\nA close-up of the door, shadows moving outside.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.874Z"
+    },
+    {
+      "id": "image-the-final-clue-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-003",
+      "path": "assets/images/generated/the-final-clue-001.v1.74bc876942.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-final-clue-001",
+        "prompt": "Project title: The Delivery.\nStory mode: short_story; target platform: local_only.\nSection 5 of 6: The Final Clue.\nSection purpose: Deliver the climax twist..\nBeat 3 of 3 in this section.\nPrevious beat narration: A second later, there was a knock.\nCurrent beat narration: Mia looked through the peephole. No driver. Just a paper bag on the floor.\nNext beat narration: none; this closes the section.\n\nVisual target:\nView through the peephole, showing the mysterious bag.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:22.403Z",
+      "updatedAt": "2026-05-19T09:20:52.848Z"
+    },
+    {
+      "id": "voice-unexpected-deliveries-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-001",
+      "path": "assets/audio/voice/unexpected-deliveries-001.79e3964202.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "79e3964202"
+      },
+      "durationSeconds": 5,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.695Z"
+    },
+    {
+      "id": "voice-unexpected-deliveries-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-002",
+      "path": "assets/audio/voice/unexpected-deliveries-002.924145d898.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "924145d898"
+      },
+      "durationSeconds": 1.64,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.837Z"
+    },
+    {
+      "id": "voice-unexpected-deliveries-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-003",
+      "path": "assets/audio/voice/unexpected-deliveries-003.3ddb6ecfe3.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "3ddb6ecfe3"
+      },
+      "durationSeconds": 6.2,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.796Z"
+    },
+    {
+      "id": "voice-a-cryptic-message-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-001",
+      "path": "assets/audio/voice/a-cryptic-message-001.61273953f0.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "61273953f0"
+      },
+      "durationSeconds": 3.48,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.828Z"
+    },
+    {
+      "id": "voice-a-cryptic-message-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-002",
+      "path": "assets/audio/voice/a-cryptic-message-002.e113375f8a.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "e113375f8a"
+      },
+      "durationSeconds": 3.04,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.852Z"
+    },
+    {
+      "id": "voice-a-cryptic-message-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-003",
+      "path": "assets/audio/voice/a-cryptic-message-003.183d111ec8.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "183d111ec8"
+      },
+      "durationSeconds": 2.44,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.837Z"
+    },
+    {
+      "id": "voice-chilling-discovery-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-001",
+      "path": "assets/audio/voice/chilling-discovery-001.3ae2df3112.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "3ae2df3112"
+      },
+      "durationSeconds": 3.72,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.696Z"
+    },
+    {
+      "id": "voice-chilling-discovery-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-002",
+      "path": "assets/audio/voice/chilling-discovery-002.f2957bf237.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "f2957bf237"
+      },
+      "durationSeconds": 3.16,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.782Z"
+    },
+    {
+      "id": "voice-chilling-discovery-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-003",
+      "path": "assets/audio/voice/chilling-discovery-003.263e5376c7.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "263e5376c7"
+      },
+      "durationSeconds": 2.76,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.860Z"
+    },
+    {
+      "id": "voice-the-final-clue-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-001",
+      "path": "assets/audio/voice/the-final-clue-001.0855813087.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "0855813087"
+      },
+      "durationSeconds": 4.52,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.635Z"
+    },
+    {
+      "id": "voice-the-final-clue-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-002",
+      "path": "assets/audio/voice/the-final-clue-002.77c9601a16.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "77c9601a16"
+      },
+      "durationSeconds": 3.56,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.830Z"
+    },
+    {
+      "id": "voice-the-final-clue-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-003",
+      "path": "assets/audio/voice/the-final-clue-003.5a804cb93d.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "5a804cb93d"
+      },
+      "durationSeconds": 21.92,
+      "status": "generated",
+      "createdAt": "2026-05-19T09:12:27.281Z",
+      "updatedAt": "2026-05-19T09:20:52.811Z"
+    }
+  ]
+}

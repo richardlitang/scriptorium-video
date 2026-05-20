@@ -429,7 +429,9 @@ async function runDraftJob(projectId, body) {
             feel: body.feel ?? "cinematic supernatural suspense",
             pacing: body.pacing ?? "measured",
             visualStyle: body.visualStyle ?? "dark cinematic realism",
-            format: body.format ?? "short_story"
+            format: body.format ?? "short_story",
+            systemPrompt: body.systemPrompt,
+            userPromptTemplate: body.userPromptTemplate
           });
           plan = draft.plan;
           job.output.push(`AI plan:\nGenerated ${plan.sections.length} section(s) using ${draft.model}.`);
@@ -710,9 +712,48 @@ function extractResponseText(responseJson) {
   throw new Error("OpenAI planner response did not include output text.");
 }
 
-async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, visualStyle, format }) {
+const DEFAULT_PLANNER_SYSTEM_PROMPT =
+  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Keep voice direction engaged and language-appropriate. Return JSON only.";
+
+const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
+  "Story:",
+  "{{story}}",
+  "",
+  "Current title: {{currentTitle}}",
+  "Feel: {{feel}}",
+  "Pacing: {{pacing}}",
+  "Visual style: {{visualStyle}}",
+  "Format: {{format}}",
+  "Target: {{target}}",
+  "",
+  "Output requirements:",
+  "- Build a reusable visual bible for consistency.",
+  "- Produce per-beat narration + image-generation-ready visual prompts.",
+  "- Surface warnings when uncertain or under-specified."
+].join("\n");
+
+function fillPlannerTemplate(template, values) {
+  const source = String(template || DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
+  return source.replace(/\{\{(\w+)\}\}/g, (_, key) => String(values[key] ?? ""));
+}
+
+async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, visualStyle, format, systemPrompt, userPromptTemplate }) {
   const apiKey = await getOpenAiApiKey();
   const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-4o-mini";
+  const promptValues = {
+    story,
+    currentTitle: currentPlan.title,
+    feel,
+    pacing,
+    visualStyle,
+    format,
+    target: "short horror/story video with per-beat narration and image-generation-ready visual prompts"
+  };
+  const resolvedSystemPrompt = String(systemPrompt || DEFAULT_PLANNER_SYSTEM_PROMPT).trim() || DEFAULT_PLANNER_SYSTEM_PROMPT;
+  let resolvedUserPrompt = fillPlannerTemplate(userPromptTemplate, promptValues).trim();
+  if (!resolvedUserPrompt.includes(promptValues.story)) {
+    resolvedUserPrompt = `${resolvedUserPrompt}\n\nStory:\n${promptValues.story}`.trim();
+  }
   const response = await fetch(OPENAI_RESPONSES_URL, {
     method: "POST",
     headers: {
@@ -724,20 +765,11 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
       input: [
         {
           role: "system",
-          content:
-            "You convert raw story prose into a local video production plan. Preserve story wording unless light segmentation is needed. Build a reusable visual bible that keeps character age/look, setting, and style consistent across every beat. Use cinematic prompts grounded in concrete action, setting, era, and culture. Avoid generic abstractions, fake text, and continuity drift. Voice direction should be engaged and clear, and language should match the story language or code-switching needs. Return JSON only."
+          content: resolvedSystemPrompt
         },
         {
           role: "user",
-          content: JSON.stringify({
-            story,
-            currentTitle: currentPlan.title,
-            feel,
-            pacing,
-            visualStyle,
-            format,
-            target: "short horror/story video with per-beat narration and image-generation-ready visual prompts"
-          })
+          content: resolvedUserPrompt
         }
       ],
       text: {
@@ -1866,7 +1898,9 @@ const server = createServer(async (req, res) => {
         feel: body.feel ?? "cinematic supernatural suspense",
         pacing: body.pacing ?? "measured",
         visualStyle: body.visualStyle ?? "dark cinematic realism",
-        format: body.format ?? "short_story"
+        format: body.format ?? "short_story",
+        systemPrompt: body.systemPrompt,
+        userPromptTemplate: body.userPromptTemplate
       });
       return sendJson(res, 200, {
         ok: true,

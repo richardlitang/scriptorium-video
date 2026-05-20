@@ -1,0 +1,266 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-19T09:20:52.888Z",
+  "sourcePlanHash": "bed8bb416165125dcbfe3af2d8ce508139865a4aed0c3589099cdc1b283674fc",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "durationSeconds": 79.68,
+  "segments": [
+    {
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-001",
+      "startSeconds": 0,
+      "endSeconds": 5,
+      "durationSeconds": 5,
+      "voiceAssetId": "voice-unexpected-deliveries-001",
+      "mediaAssetIds": [
+        "image-unexpected-deliveries-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-002",
+      "startSeconds": 5,
+      "endSeconds": 6.64,
+      "durationSeconds": 1.64,
+      "voiceAssetId": "voice-unexpected-deliveries-002",
+      "mediaAssetIds": [
+        "image-unexpected-deliveries-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "unexpected-deliveries",
+      "beatId": "unexpected-deliveries-003",
+      "startSeconds": 6.64,
+      "endSeconds": 12.84,
+      "durationSeconds": 6.2,
+      "voiceAssetId": "voice-unexpected-deliveries-003",
+      "mediaAssetIds": [
+        "image-unexpected-deliveries-003"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-001",
+      "startSeconds": 12.84,
+      "endSeconds": 16.32,
+      "durationSeconds": 3.48,
+      "voiceAssetId": "voice-a-cryptic-message-001",
+      "mediaAssetIds": [
+        "image-a-cryptic-message-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-002",
+      "startSeconds": 16.32,
+      "endSeconds": 19.36,
+      "durationSeconds": 3.04,
+      "voiceAssetId": "voice-a-cryptic-message-002",
+      "mediaAssetIds": [
+        "image-a-cryptic-message-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "a-cryptic-message",
+      "beatId": "a-cryptic-message-003",
+      "startSeconds": 19.36,
+      "endSeconds": 21.8,
+      "durationSeconds": 2.44,
+      "voiceAssetId": "voice-a-cryptic-message-003",
+      "mediaAssetIds": [
+        "image-a-cryptic-message-003"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-001",
+      "startSeconds": 21.8,
+      "endSeconds": 25.52,
+      "durationSeconds": 3.72,
+      "voiceAssetId": "voice-chilling-discovery-001",
+      "mediaAssetIds": [
+        "image-chilling-discovery-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-002",
+      "startSeconds": 25.52,
+      "endSeconds": 28.68,
+      "durationSeconds": 3.16,
+      "voiceAssetId": "voice-chilling-discovery-002",
+      "mediaAssetIds": [
+        "image-chilling-discovery-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "chilling-discovery",
+      "beatId": "chilling-discovery-003",
+      "startSeconds": 28.68,
+      "endSeconds": 31.439999999999998,
+      "durationSeconds": 2.76,
+      "voiceAssetId": "voice-chilling-discovery-003",
+      "mediaAssetIds": [
+        "image-chilling-discovery-003"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-realization",
+      "beatId": "the-realization-001",
+      "startSeconds": 31.439999999999998,
+      "endSeconds": 33,
+      "durationSeconds": 1.56,
+      "voiceAssetId": "voice-the-realization-001",
+      "mediaAssetIds": [
+        "image-the-realization-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-realization",
+      "beatId": "the-realization-002",
+      "startSeconds": 33,
+      "endSeconds": 38.12,
+      "durationSeconds": 5.12,
+      "voiceAssetId": "voice-the-realization-002",
+      "mediaAssetIds": [
+        "image-the-realization-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-realization",
+      "beatId": "the-realization-003",
+      "startSeconds": 38.12,
+      "endSeconds": 40.44,
+      "durationSeconds": 2.32,
+      "voiceAssetId": "voice-the-realization-003",
+      "mediaAssetIds": [
+        "image-the-realization-003"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-001",
+      "startSeconds": 40.44,
+      "endSeconds": 44.959999999999994,
+      "durationSeconds": 4.52,
+      "voiceAssetId": "voice-the-final-clue-001",
+      "mediaAssetIds": [
+        "image-the-final-clue-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-002",
+      "startSeconds": 44.959999999999994,
+      "endSeconds": 48.519999999999996,
+      "durationSeconds": 3.56,
+      "voiceAssetId": "voice-the-final-clue-002",
+      "mediaAssetIds": [
+        "image-the-final-clue-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-final-clue",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 48.519999999999996,
+      "endSeconds": 70.44,
+      "durationSeconds": 21.92,
+      "voiceAssetId": "voice-the-final-clue-003",
+      "mediaAssetIds": [
+        "image-the-final-clue-003"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-revelation",
+      "beatId": "the-revelation-001",
+      "startSeconds": 70.44,
+      "endSeconds": 75.84,
+      "durationSeconds": 5.4,
+      "voiceAssetId": "voice-the-revelation-001",
+      "mediaAssetIds": [
+        "image-the-revelation-001"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-revelation",
+      "beatId": "the-revelation-002",
+      "startSeconds": 75.84,
+      "endSeconds": 79.68,
+      "durationSeconds": 3.84,
+      "voiceAssetId": "voice-the-revelation-002",
+      "mediaAssetIds": [
+        "image-the-revelation-002"
+      ],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    }
+  ]
+}

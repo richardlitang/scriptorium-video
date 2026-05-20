@@ -1,0 +1,1055 @@
+{
+  "schemaVersion": 1,
+  "title": "My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home.",
+  "mode": "short_story",
+  "targetPlatform": "local_only",
+  "stylePackId": "default",
+  "templateId": "vertical-story",
+  "exportProfile": "shorts-1080x1920",
+  "overrides": {
+    "targetDurationSeconds": 60
+  },
+  "providers": {
+    "llm": "manual",
+    "tts": "chatterbox",
+    "transcription": "mock",
+    "media": "manual-media",
+    "renderer": "remotion"
+  },
+  "voice": {
+    "provider": "chatterbox",
+    "voiceId": "clone",
+    "format": "wav",
+    "options": {
+      "speed": 1,
+      "emotion": "engaged and suspenseful"
+    }
+  },
+  "sections": [
+    {
+      "id": "introduction",
+      "title": "Introduction",
+      "purpose": "Set the atmosphere of the story and introduce Carlo's first fright.",
+      "estimatedDurationSeconds": 30,
+      "beats": [
+        {
+          "id": "introduction-001",
+          "order": 1,
+          "narration": "At exactly 11:46 PM, during a brownout in their province, nine-year-old Carlo woke up screaming that something was biting his feet.",
+          "timing": {
+            "estimatedDurationSeconds": 8,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "introduction-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A pitch-black bedroom illuminated by a flickering candle, with Carlo's terrified face visible as shadows loom in the background.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "hushed whispers",
+              "creepy ambiance"
+            ],
+            "style": "default"
+          },
+          "notes": "Heavy rain and distant thunder sound effects enhance the mood."
+        },
+        {
+          "id": "introduction-002",
+          "order": 2,
+          "narration": "His mother rushed into the room with a candle.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "introduction-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A silhouette of Carlo’s mother appearing in the doorway, holding a flickering candle, casting elongated shadows.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "urgency"
+            ],
+            "style": "default"
+          },
+          "notes": "Candlelight flickers emphasizing tension."
+        },
+        {
+          "id": "introduction-003",
+          "order": 3,
+          "narration": "But when she pulled off his blanket, there were no ants. No wounds. No blood.",
+          "timing": {
+            "estimatedDurationSeconds": 7,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "introduction-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of Carlo’s feet with no visible marks, focusing on the blanket being pulled away.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "unsettling normalcy"
+            ],
+            "style": "default"
+          },
+          "notes": "Include silence to intensify the contrast with the previous sounds."
+        },
+        {
+          "id": "introduction-004",
+          "order": 4,
+          "narration": "Just tiny, muddy handprints wrapped around both of his ankles.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "introduction-004-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Focus on the tiny, muddy handprints around Carlo's ankles, eerie and inexplicable.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "intrusiveness"
+            ],
+            "style": "default"
+          },
+          "notes": "The imagery should feel otherworldly."
+        },
+        {
+          "id": "introduction-005",
+          "order": 5,
+          "narration": "To understand what happened, you need to know one thing.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "introduction-005-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A dark screen with ominous shadows moving in the background, hinting at something sinister.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "mystery"
+            ],
+            "style": "default"
+          },
+          "notes": "Pause briefly to build suspense."
+        }
+      ]
+    },
+    {
+      "id": "the-curse-of-the-mound",
+      "title": "The Curse of the Mound",
+      "purpose": "To illustrate how Carlo’s actions disturb the spirit world.",
+      "estimatedDurationSeconds": 45,
+      "beats": [
+        {
+          "id": "the-curse-of-the-mound-001",
+          "order": 1,
+          "narration": "Earlier that afternoon, Carlo had been playing with his cousins behind their Lola’s house.",
+          "timing": {
+            "estimatedDurationSeconds": 8,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A sunlit backyard with children playing joyfully, the mound in the background partly hidden under a santol tree.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "childhood joy"
+            ],
+            "style": "default"
+          },
+          "notes": "Bright colors contrast the dark tone that follows."
+        },
+        {
+          "id": "the-curse-of-the-mound-002",
+          "order": 2,
+          "narration": "There was an old mound of dirt under the santol tree — small, round, and covered in grass.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up of the mound, overgrown with grass, appearing innocuous yet foreboding.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "ominous presence"
+            ],
+            "style": "default"
+          },
+          "notes": "Add a slight shadow effect on the mound."
+        },
+        {
+          "id": "the-curse-of-the-mound-003",
+          "order": 3,
+          "narration": "Their Lola always warned them: ‘Huwag niyong gagalawin ’yan. Bahay ’yan ng nuno.’",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "An elderly woman, Lola, with a worried expression, gesturing at the mound to the children, emphasizing her warning.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_left",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "tension in the air"
+            ],
+            "style": "default"
+          },
+          "notes": "Capture her unease through facial expressions."
+        },
+        {
+          "id": "the-curse-of-the-mound-004",
+          "order": 4,
+          "narration": "But Carlo was nine. And nine-year-olds think warnings are just adults trying to ruin fun.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-004-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up of Carlo laughing with a mischievous expression as he stands before the mound.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "childish defiance"
+            ],
+            "style": "default"
+          },
+          "notes": "Create a contrast between his smile and what follows."
+        },
+        {
+          "id": "the-curse-of-the-mound-005",
+          "order": 5,
+          "narration": "So when his cousin dared him, Carlo laughed, ran up to the mound…",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-005-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Carlo sprinting towards the mound, determination in his eyes, oblivious to the danger.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "naivety"
+            ],
+            "style": "default"
+          },
+          "notes": "Use upbeat background music transitioning to silence."
+        },
+        {
+          "id": "the-curse-of-the-mound-006",
+          "order": 6,
+          "narration": "...and kicked it as hard as he could.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-006-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A child’s foot smashing into the muddy mound, dirt flying everywhere.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "impact"
+            ],
+            "style": "default"
+          },
+          "notes": "Transition to eerie silence as the kick lands."
+        },
+        {
+          "id": "the-curse-of-the-mound-007",
+          "order": 7,
+          "narration": "The moment his foot hit the mound, everything went quiet.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-007-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "The scene freezes, with dirt suspended in air, no sound aside from an ominous hum.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "disquieting stillness"
+            ],
+            "style": "default"
+          },
+          "notes": "Silence must feel tangible and eerie."
+        },
+        {
+          "id": "the-curse-of-the-mound-008",
+          "order": 8,
+          "narration": "Then, from somewhere under the ground, Carlo heard a tiny old voice whisper: ‘Hindi ka nagpaalam.’",
+          "timing": {
+            "estimatedDurationSeconds": 7,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-curse-of-the-mound-008-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "An overhead shot of Carlo standing still, the ground below him appearing to pulsate softly.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "foreboding voice"
+            ],
+            "style": "default"
+          },
+          "notes": "Use a whispering, echoing effect for the voice."
+        }
+      ]
+    },
+    {
+      "id": "the-consequences",
+      "title": "The Consequences",
+      "purpose": "To heighten tension and build suspense about the impending threat.",
+      "estimatedDurationSeconds": 60,
+      "beats": [
+        {
+          "id": "the-consequences-001",
+          "order": 1,
+          "narration": "That night, Carlo got a fever.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Carlo lying in bed, sweat on his brow, a thermometer reading high, candlelight flickering beside him.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "vulnerability"
+            ],
+            "style": "default"
+          },
+          "notes": "Convey a sense of discomfort and anxiety."
+        },
+        {
+          "id": "the-consequences-002",
+          "order": 2,
+          "narration": "His right foot swelled until his slipper wouldn’t fit.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of Carlo’s foot, visibly swollen, with the slipper crumpled beside it.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "pain"
+            ],
+            "style": "default"
+          },
+          "notes": "Focus on the slipper emphasizing his discomfort."
+        },
+        {
+          "id": "the-consequences-003",
+          "order": 3,
+          "narration": "His Lola rubbed coconut oil over his skin, whispered prayers, and kept saying, ‘Say sorry before it follows you inside.’",
+          "timing": {
+            "estimatedDurationSeconds": 7,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Lola tenderly applying coconut oil to Carlo's foot, her expression filled with worry.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "care and worry"
+            ],
+            "style": "default"
+          },
+          "notes": "Contrast the warmth of maternal care with the dark theme."
+        },
+        {
+          "id": "the-consequences-004",
+          "order": 4,
+          "narration": "But Carlo refused. He said there was nothing to apologize to.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-004-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Carlo turning away defiantly, stubbornness etched on his face, shadows looming around him.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "stubbornness"
+            ],
+            "style": "default"
+          },
+          "notes": "Highlight his innocence and ignorance."
+        },
+        {
+          "id": "the-consequences-005",
+          "order": 5,
+          "narration": "That was when the scratching started.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-005-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "The candle’s flame flickering as ominous scratching sounds echo in the silence.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "tension"
+            ],
+            "style": "default"
+          },
+          "notes": "Use auditory cues to heighten suspense."
+        },
+        {
+          "id": "the-consequences-006",
+          "order": 6,
+          "narration": "At first, it came from under the bed.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-006-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "The camera panning to under the bed, darkness thickening the atmosphere.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "foreboding presence"
+            ],
+            "style": "default"
+          },
+          "notes": "Enhance the feeling that something is lurking."
+        },
+        {
+          "id": "the-consequences-007",
+          "order": 7,
+          "narration": "Then from inside the wall.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-007-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A close-up of the wall vibrating slightly, indicating movement behind it.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "alertness"
+            ],
+            "style": "default"
+          },
+          "notes": "Build anticipation through visual cues."
+        },
+        {
+          "id": "the-consequences-008",
+          "order": 8,
+          "narration": "Then from inside Carlo’s pillow.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-008-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Carlo’s pillow shaking, dirt slowly seeping through the seams, adding to the sense of dread.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "horrifying surprise"
+            ],
+            "style": "default"
+          },
+          "notes": "Use unsettling sound effects for added effect."
+        },
+        {
+          "id": "the-consequences-009",
+          "order": 9,
+          "narration": "His mother picked it up and screamed.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-009-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Carlo’s mother recoiling in horror as dirt spills from the pillow.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "shock"
+            ],
+            "style": "default"
+          },
+          "notes": "Capture the moment of revelation."
+        },
+        {
+          "id": "the-consequences-010",
+          "order": 10,
+          "narration": "The pillowcase was filled with soil. Wet, black soil.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-010-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of the soil, rich and dark, contrasting with the innocence of the pillow.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "unearthly ominousness"
+            ],
+            "style": "default"
+          },
+          "notes": "Silence breaks as realization dawns."
+        },
+        {
+          "id": "the-consequences-011",
+          "order": 11,
+          "narration": "And buried inside it was Carlo’s missing slipper. The one he had lost beside the mound.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-consequences-011-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Focus on the slipper, half-buried in the wet soil, surreal against the background.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "ominous discovery"
+            ],
+            "style": "default"
+          },
+          "notes": "Freeze the moment, allowing for reflection."
+        }
+      ]
+    },
+    {
+      "id": "the-resolution",
+      "title": "The Resolution",
+      "purpose": "To deliver the climax of the story with a twist ending.",
+      "estimatedDurationSeconds": 40,
+      "beats": [
+        {
+          "id": "the-resolution-001",
+          "order": 1,
+          "narration": "Carlo finally cried and whispered: ‘Tabi-tabi po. Sorry po.’",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-001-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Carlo shivering in fear, whispering a heartfelt apology toward the dark corner of the room.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "sincere fear"
+            ],
+            "style": "default"
+          },
+          "notes": "Tension peaks as he tries to reconcile."
+        },
+        {
+          "id": "the-resolution-002",
+          "order": 2,
+          "narration": "For a moment, the room became still.",
+          "timing": {
+            "estimatedDurationSeconds": 4,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-002-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A heavy silence enveloping the room, shadows appearing to dissipate slightly.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "stillness"
+            ],
+            "style": "default"
+          },
+          "notes": "Create a sense of scared relief."
+        },
+        {
+          "id": "the-resolution-003",
+          "order": 3,
+          "narration": "Then a tiny voice answered from under the bed: ‘Hindi ikaw ang kailangan naming kunin.’",
+          "timing": {
+            "estimatedDurationSeconds": 7,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-003-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "The camera focuses on the corner under the bed, an apparition just out of sight.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_out",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "ominous truth"
+            ],
+            "style": "default"
+          },
+          "notes": "The voice should echo chillingly."
+        },
+        {
+          "id": "the-resolution-004",
+          "order": 4,
+          "narration": "Carlo’s baby sister was standing inside her crib. Smiling.",
+          "timing": {
+            "estimatedDurationSeconds": 6,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-004-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A shot of the baby sister in her crib, innocent with mud on her feet, contrasting with the tension.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "pan_right",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "innocence vs. horror"
+            ],
+            "style": "default"
+          },
+          "notes": "Lighting shifts to enhance eerie contrast."
+        },
+        {
+          "id": "the-resolution-005",
+          "order": 5,
+          "narration": "Her feet were covered in mud.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-005-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "Close-up of the baby’s muddy feet, innocence tainted by the unsettling circumstances.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "chilling innocence"
+            ],
+            "style": "default"
+          },
+          "notes": "Focus on her pure smile and contrast it with the situation."
+        },
+        {
+          "id": "the-resolution-006",
+          "order": 6,
+          "narration": "And behind her, on the wall, written by tiny muddy fingers, were three words: ‘May utang pa.’",
+          "timing": {
+            "estimatedDurationSeconds": 7,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-006-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "The camera reveals the words written on the wall clearly, the mud glistening eerily in the candlelight.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "slow_zoom_in",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "unsettling clarity"
+            ],
+            "style": "default"
+          },
+          "notes": "The phrase should resonate with an ominous echo."
+        },
+        {
+          "id": "the-resolution-007",
+          "order": 7,
+          "narration": "There is still a debt.",
+          "timing": {
+            "estimatedDurationSeconds": 5,
+            "preferredMinSeconds": 4,
+            "preferredMaxSeconds": 20,
+            "mediaPolicy": "loop_or_freeze"
+          },
+          "media": [
+            {
+              "id": "the-resolution-007-visual",
+              "type": "title_card",
+              "role": "primary_visual",
+              "prompt": "A slow fade to black with the words lingering for a moment before complete darkness.",
+              "scaleMode": "cover",
+              "placement": "background"
+            }
+          ],
+          "motion": {
+            "type": "none",
+            "intensity": 0.08
+          },
+          "caption": {
+            "emphasis": [
+              "finality"
+            ],
+            "style": "default"
+          },
+          "notes": "End with haunting silence."
+        }
+      ]
+    }
+  ]
+}

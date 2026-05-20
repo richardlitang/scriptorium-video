@@ -68,6 +68,9 @@ const aiPlanBtn = document.getElementById("ai-plan-btn");
 const storyFeel = document.getElementById("story-feel");
 const storyPacing = document.getElementById("story-pacing");
 const storyVisualStyle = document.getElementById("story-visual-style");
+const storySystemPrompt = document.getElementById("story-system-prompt");
+const storyUserPromptTemplate = document.getElementById("story-user-prompt-template");
+const resetPromptDefaultsBtn = document.getElementById("reset-prompt-defaults-btn");
 const imageMode = document.getElementById("image-mode");
 const imageBudget = document.getElementById("image-budget");
 const imageQuality = document.getElementById("image-quality");
@@ -93,6 +96,29 @@ let currentDraftJob = null;
 let selectedBeatId = null;
 let selectedInspectorTab = "script";
 
+const DEFAULT_PLANNER_SYSTEM_PROMPT =
+  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Keep voice direction engaged and language-appropriate. Return JSON only.";
+
+const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
+  "Story:",
+  "{{story}}",
+  "",
+  "Current title: {{currentTitle}}",
+  "Feel: {{feel}}",
+  "Pacing: {{pacing}}",
+  "Visual style: {{visualStyle}}",
+  "Format: {{format}}",
+  "Target: {{target}}",
+  "",
+  "Output requirements:",
+  "- Build a reusable visual bible for consistency.",
+  "- Produce per-beat narration + image-generation-ready visual prompts.",
+  "- Surface warnings when uncertain or under-specified."
+].join("\n");
+
+storySystemPrompt.value = DEFAULT_PLANNER_SYSTEM_PROMPT;
+storyUserPromptTemplate.value = DEFAULT_PLANNER_USER_PROMPT_TEMPLATE;
+
 const storageKey = (projectId, key) => `lvstudio:${projectId}:${key}`;
 
 function readStored(projectId, key, fallback = "") {
@@ -109,6 +135,8 @@ function saveUiState() {
   writeStored(selectedProjectId, "feel", storyFeel.value);
   writeStored(selectedProjectId, "pacing", storyPacing.value);
   writeStored(selectedProjectId, "visualStyle", storyVisualStyle.value);
+  writeStored(selectedProjectId, "systemPrompt", storySystemPrompt.value);
+  writeStored(selectedProjectId, "userPromptTemplate", storyUserPromptTemplate.value);
   writeStored(selectedProjectId, "imageEnabled", imageEnabled.checked ? "true" : "false");
   writeStored(selectedProjectId, "imageMode", imageMode.value);
   writeStored(selectedProjectId, "imageBudget", imageBudget.value);
@@ -120,6 +148,8 @@ function restoreUiState(projectId) {
   storyFeel.value = readStored(projectId, "feel", storyFeel.value);
   storyPacing.value = readStored(projectId, "pacing", storyPacing.value);
   storyVisualStyle.value = readStored(projectId, "visualStyle", storyVisualStyle.value);
+  storySystemPrompt.value = readStored(projectId, "systemPrompt", DEFAULT_PLANNER_SYSTEM_PROMPT);
+  storyUserPromptTemplate.value = readStored(projectId, "userPromptTemplate", DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
   imageEnabled.checked = readStored(projectId, "imageEnabled", imageEnabled.checked ? "true" : "false") === "true";
   imageMode.value = readStored(projectId, "imageMode", imageMode.value);
   imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", imageBudget.value));
@@ -909,6 +939,8 @@ async function requestAiPlanFromStory() {
       feel: storyFeel.value,
       pacing: storyPacing.value,
       visualStyle: storyVisualStyle.value,
+      systemPrompt: storySystemPrompt.value,
+      userPromptTemplate: storyUserPromptTemplate.value,
       format: "short_story"
     })
   });
@@ -1003,6 +1035,8 @@ function applyPendingStoryState(pendingStory, pendingUiState, projectId) {
   storyFeel.value = pendingUiState.feel;
   storyPacing.value = pendingUiState.pacing;
   storyVisualStyle.value = pendingUiState.visualStyle;
+  storySystemPrompt.value = pendingUiState.systemPrompt;
+  storyUserPromptTemplate.value = pendingUiState.userPromptTemplate;
   imageEnabled.checked = pendingUiState.imageEnabled === "true";
   imageMode.value = pendingUiState.imageMode;
   imageBudget.value = pendingUiState.imageBudget;
@@ -1019,6 +1053,8 @@ newProjectBtn.onclick = async () => {
     feel: storyFeel.value,
     pacing: storyPacing.value,
     visualStyle: storyVisualStyle.value,
+    systemPrompt: storySystemPrompt.value,
+    userPromptTemplate: storyUserPromptTemplate.value,
     imageEnabled: imageEnabled.checked ? "true" : "false",
     imageMode: imageMode.value,
     imageBudget: normalizeImageCoverage(imageBudget.value),
@@ -1115,6 +1151,8 @@ renderBtn.onclick = async () => {
     feel: storyFeel.value,
     pacing: storyPacing.value,
     visualStyle: storyVisualStyle.value,
+    systemPrompt: storySystemPrompt.value,
+    userPromptTemplate: storyUserPromptTemplate.value,
     imageEnabled: imageEnabled.checked ? "true" : "false",
     imageMode: imageMode.value,
     imageBudget: normalizeImageCoverage(imageBudget.value),
@@ -1141,6 +1179,8 @@ renderBtn.onclick = async () => {
         feel: storyFeel.value,
         pacing: storyPacing.value,
         visualStyle: storyVisualStyle.value,
+        systemPrompt: storySystemPrompt.value,
+        userPromptTemplate: storyUserPromptTemplate.value,
         imageEnabled: imageEnabled.checked,
         imageMode: imageMode.value,
         imageCoverage: normalizeImageCoverage(imageBudget.value),
@@ -1311,6 +1351,8 @@ aiPlanBtn.onclick = async () => {
         feel: storyFeel.value,
         pacing: storyPacing.value,
         visualStyle: storyVisualStyle.value,
+        systemPrompt: storySystemPrompt.value,
+        userPromptTemplate: storyUserPromptTemplate.value,
         format: "short_story"
       })
     });
@@ -1351,7 +1393,7 @@ storyInput.addEventListener("change", () => {
 storyInput.addEventListener("keyup", updateStoryButtons);
 storyInput.addEventListener("paste", syncStoryButtonsSoon);
 storyInput.addEventListener("drop", syncStoryButtonsSoon);
-[storyFeel, storyPacing, storyVisualStyle, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
+[storyFeel, storyPacing, storyVisualStyle, storySystemPrompt, storyUserPromptTemplate, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
   control.addEventListener("change", saveUiState);
 });
 voiceSettingsController.setupEvents();
@@ -1382,6 +1424,12 @@ voiceSettingsDialog.addEventListener("close", () => {
 });
 voiceSettingsBtn.onclick = async () => {
   await voiceSettingsController.openDialog();
+};
+
+resetPromptDefaultsBtn.onclick = () => {
+  storySystemPrompt.value = DEFAULT_PLANNER_SYSTEM_PROMPT;
+  storyUserPromptTemplate.value = DEFAULT_PLANNER_USER_PROMPT_TEMPLATE;
+  saveUiState();
 };
 voiceSettingsClose.onclick = () => {
   voiceSettingsController.closeDialog();

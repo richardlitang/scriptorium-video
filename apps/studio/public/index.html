@@ -87,6 +87,19 @@
                 </select>
               </label>
             </div>
+            <div class="prompt-controls">
+              <label>
+                System Prompt (generic, highest priority)
+                <textarea id="story-system-prompt" spellcheck="false"></textarea>
+              </label>
+              <label>
+                User Prompt Template (editable defaults; supports placeholders like {{story}}, {{feel}}, {{pacing}}, {{visualStyle}}, {{format}}, {{currentTitle}}, {{target}})
+                <textarea id="story-user-prompt-template" spellcheck="false"></textarea>
+              </label>
+              <div class="prompt-actions">
+                <button id="reset-prompt-defaults-btn" type="button" class="ghost-btn">Reset Prompt Defaults</button>
+              </div>
+            </div>
           </article>
 
           <aside class="director-card">

@@ -1,0 +1,1444 @@
+{
+  "schemaVersion": 1,
+  "status": "generated",
+  "source": {
+    "transcriptionProvider": "mock",
+    "audioAssetIds": [
+      "voice-mysterious-deliveries-001",
+      "voice-introduction-001",
+      "voice-initial-humor-001",
+      "voice-the-realization-001",
+      "voice-the-realization-002",
+      "voice-the-realization-003",
+      "voice-the-phone-call-001",
+      "voice-the-phone-call-002",
+      "voice-the-knock-001",
+      "voice-the-knock-002",
+      "voice-the-revelation-001",
+      "voice-the-revelation-002",
+      "voice-unexpected-deliveries-001",
+      "voice-unexpected-deliveries-002",
+      "voice-unexpected-deliveries-003",
+      "voice-a-cryptic-message-001",
+      "voice-a-cryptic-message-002",
+      "voice-a-cryptic-message-003",
+      "voice-chilling-discovery-001",
+      "voice-chilling-discovery-002",
+      "voice-chilling-discovery-003",
+      "voice-the-final-clue-001",
+      "voice-the-final-clue-002",
+      "voice-the-final-clue-003"
+    ],
+    "sourceHash": "39ff250880bb7542fa8f700722480062345f8ddc88ec54cd11225d8ebf69e977"
+  },
+  "captions": [
+    {
+      "id": "caption-001",
+      "beatId": "unexpected-deliveries-001",
+      "startSeconds": 0,
+      "endSeconds": 2.083,
+      "text": "A college student named Mia",
+      "style": "default",
+      "words": [
+        {
+          "word": "A",
+          "startSeconds": 0,
+          "endSeconds": 0.417,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "college",
+          "startSeconds": 0.417,
+          "endSeconds": 0.833,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "student",
+          "startSeconds": 0.833,
+          "endSeconds": 1.25,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "named",
+          "startSeconds": 1.25,
+          "endSeconds": 1.667,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Mia",
+          "startSeconds": 1.667,
+          "endSeconds": 2.083,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-002",
+      "beatId": "unexpected-deliveries-001",
+      "startSeconds": 2.083,
+      "endSeconds": 4.167,
+      "text": "started getting food deliveries she",
+      "style": "default",
+      "words": [
+        {
+          "word": "started",
+          "startSeconds": 2.083,
+          "endSeconds": 2.5,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "getting",
+          "startSeconds": 2.5,
+          "endSeconds": 2.917,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "food",
+          "startSeconds": 2.917,
+          "endSeconds": 3.333,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "deliveries",
+          "startSeconds": 3.333,
+          "endSeconds": 3.75,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "she",
+          "startSeconds": 3.75,
+          "endSeconds": 4.167,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-003",
+      "beatId": "unexpected-deliveries-001",
+      "startSeconds": 4.167,
+      "endSeconds": 5,
+      "text": "never ordered.",
+      "style": "default",
+      "words": [
+        {
+          "word": "never",
+          "startSeconds": 4.167,
+          "endSeconds": 4.583,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ordered.",
+          "startSeconds": 4.583,
+          "endSeconds": 5,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-004",
+      "beatId": "unexpected-deliveries-002",
+      "startSeconds": 5,
+      "endSeconds": 6.64,
+      "text": "At first, it was funny.",
+      "style": "default",
+      "words": [
+        {
+          "word": "At",
+          "startSeconds": 5,
+          "endSeconds": 5.328,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "first,",
+          "startSeconds": 5.328,
+          "endSeconds": 5.656,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it",
+          "startSeconds": 5.656,
+          "endSeconds": 5.984,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 5.984,
+          "endSeconds": 6.312,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "funny.",
+          "startSeconds": 6.312,
+          "endSeconds": 6.64,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-005",
+      "beatId": "unexpected-deliveries-003",
+      "startSeconds": 6.64,
+      "endSeconds": 8.707,
+      "text": "One night: ramen.",
+      "style": "default",
+      "words": [
+        {
+          "word": "One",
+          "startSeconds": 6.64,
+          "endSeconds": 7.329,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "night:",
+          "startSeconds": 7.329,
+          "endSeconds": 8.018,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ramen.",
+          "startSeconds": 8.018,
+          "endSeconds": 8.707,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-006",
+      "beatId": "unexpected-deliveries-003",
+      "startSeconds": 8.707,
+      "endSeconds": 10.773,
+      "text": "Next night: bubble",
+      "style": "default",
+      "words": [
+        {
+          "word": "Next",
+          "startSeconds": 8.707,
+          "endSeconds": 9.396,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "night:",
+          "startSeconds": 9.396,
+          "endSeconds": 10.084,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bubble",
+          "startSeconds": 10.084,
+          "endSeconds": 10.773,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-007",
+      "beatId": "unexpected-deliveries-003",
+      "startSeconds": 10.773,
+      "endSeconds": 11.462,
+      "text": "tea.",
+      "style": "default",
+      "words": [
+        {
+          "word": "tea.",
+          "startSeconds": 10.773,
+          "endSeconds": 11.462,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-008",
+      "beatId": "unexpected-deliveries-003",
+      "startSeconds": 11.462,
+      "endSeconds": 12.84,
+      "text": "Then groceries.",
+      "style": "default",
+      "words": [
+        {
+          "word": "Then",
+          "startSeconds": 11.462,
+          "endSeconds": 12.151,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "groceries.",
+          "startSeconds": 12.151,
+          "endSeconds": 12.84,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-009",
+      "beatId": "a-cryptic-message-001",
+      "startSeconds": 12.84,
+      "endSeconds": 14.928,
+      "text": "Every order had the same note:",
+      "style": "default",
+      "words": [
+        {
+          "word": "Every",
+          "startSeconds": 12.84,
+          "endSeconds": 13.188,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "order",
+          "startSeconds": 13.188,
+          "endSeconds": 13.536,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "had",
+          "startSeconds": 13.536,
+          "endSeconds": 13.884,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 13.884,
+          "endSeconds": 14.232,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "same",
+          "startSeconds": 14.232,
+          "endSeconds": 14.58,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "note:",
+          "startSeconds": 14.58,
+          "endSeconds": 14.928,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-010",
+      "beatId": "a-cryptic-message-001",
+      "startSeconds": 14.928,
+      "endSeconds": 17.08,
+      "text": "'Don’t forget to eat.' Mia thought",
+      "style": "default",
+      "words": [
+        {
+          "word": "'Don’t",
+          "startSeconds": 14.928,
+          "endSeconds": 15.276,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "forget",
+          "startSeconds": 15.276,
+          "endSeconds": 15.624,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "to",
+          "startSeconds": 15.624,
+          "endSeconds": 15.972,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "eat.'",
+          "startSeconds": 15.972,
+          "endSeconds": 16.32,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Mia",
+          "startSeconds": 16.32,
+          "endSeconds": 16.7,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "thought",
+          "startSeconds": 16.7,
+          "endSeconds": 17.08,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-011",
+      "beatId": "a-cryptic-message-002",
+      "startSeconds": 17.08,
+      "endSeconds": 19.36,
+      "text": "it was her boyfriend being sweet.",
+      "style": "default",
+      "words": [
+        {
+          "word": "it",
+          "startSeconds": 17.08,
+          "endSeconds": 17.46,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 17.46,
+          "endSeconds": 17.84,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "her",
+          "startSeconds": 17.84,
+          "endSeconds": 18.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "boyfriend",
+          "startSeconds": 18.22,
+          "endSeconds": 18.6,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "being",
+          "startSeconds": 18.6,
+          "endSeconds": 18.98,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "sweet.",
+          "startSeconds": 18.98,
+          "endSeconds": 19.36,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-012",
+      "beatId": "a-cryptic-message-003",
+      "startSeconds": 19.36,
+      "endSeconds": 21.8,
+      "text": "He said, 'What deliveries?'",
+      "style": "default",
+      "words": [
+        {
+          "word": "He",
+          "startSeconds": 19.36,
+          "endSeconds": 19.97,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "said,",
+          "startSeconds": 19.97,
+          "endSeconds": 20.58,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "'What",
+          "startSeconds": 20.58,
+          "endSeconds": 21.19,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "deliveries?'",
+          "startSeconds": 21.19,
+          "endSeconds": 21.8,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-013",
+      "beatId": "chilling-discovery-001",
+      "startSeconds": 21.8,
+      "endSeconds": 24.032,
+      "text": "The orders were paid for by",
+      "style": "default",
+      "words": [
+        {
+          "word": "The",
+          "startSeconds": 21.8,
+          "endSeconds": 22.172,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "orders",
+          "startSeconds": 22.172,
+          "endSeconds": 22.544,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "were",
+          "startSeconds": 22.544,
+          "endSeconds": 22.916,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "paid",
+          "startSeconds": 22.916,
+          "endSeconds": 23.288,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "for",
+          "startSeconds": 23.288,
+          "endSeconds": 23.66,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "by",
+          "startSeconds": 23.66,
+          "endSeconds": 24.032,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-014",
+      "beatId": "chilling-discovery-001",
+      "startSeconds": 24.032,
+      "endSeconds": 25.52,
+      "text": "someone named Mia Chen.",
+      "style": "default",
+      "words": [
+        {
+          "word": "someone",
+          "startSeconds": 24.032,
+          "endSeconds": 24.404,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "named",
+          "startSeconds": 24.404,
+          "endSeconds": 24.776,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Mia",
+          "startSeconds": 24.776,
+          "endSeconds": 25.148,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Chen.",
+          "startSeconds": 25.148,
+          "endSeconds": 25.52,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-015",
+      "beatId": "chilling-discovery-002",
+      "startSeconds": 25.52,
+      "endSeconds": 27.1,
+      "text": "Her exact name.",
+      "style": "default",
+      "words": [
+        {
+          "word": "Her",
+          "startSeconds": 25.52,
+          "endSeconds": 26.047,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "exact",
+          "startSeconds": 26.047,
+          "endSeconds": 26.573,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "name.",
+          "startSeconds": 26.573,
+          "endSeconds": 27.1,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-016",
+      "beatId": "chilling-discovery-002",
+      "startSeconds": 27.1,
+      "endSeconds": 28.68,
+      "text": "Her exact apartment.",
+      "style": "default",
+      "words": [
+        {
+          "word": "Her",
+          "startSeconds": 27.1,
+          "endSeconds": 27.627,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "exact",
+          "startSeconds": 27.627,
+          "endSeconds": 28.153,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "apartment.",
+          "startSeconds": 28.153,
+          "endSeconds": 28.68,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-017",
+      "beatId": "chilling-discovery-003",
+      "startSeconds": 28.68,
+      "endSeconds": 30.98,
+      "text": "But the phone number was",
+      "style": "default",
+      "words": [
+        {
+          "word": "But",
+          "startSeconds": 28.68,
+          "endSeconds": 29.14,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 29.14,
+          "endSeconds": 29.6,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "phone",
+          "startSeconds": 29.6,
+          "endSeconds": 30.06,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "number",
+          "startSeconds": 30.06,
+          "endSeconds": 30.52,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 30.52,
+          "endSeconds": 30.98,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-018",
+      "beatId": "chilling-discovery-003",
+      "startSeconds": 30.98,
+      "endSeconds": 31.44,
+      "text": "different.",
+      "style": "default",
+      "words": [
+        {
+          "word": "different.",
+          "startSeconds": 30.98,
+          "endSeconds": 31.44,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-019",
+      "beatId": "the-realization-001",
+      "startSeconds": 31.44,
+      "endSeconds": 33,
+      "text": "So Mia called it.",
+      "style": "default",
+      "words": [
+        {
+          "word": "So",
+          "startSeconds": 31.44,
+          "endSeconds": 31.83,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "Mia",
+          "startSeconds": 31.83,
+          "endSeconds": 32.22,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "called",
+          "startSeconds": 32.22,
+          "endSeconds": 32.61,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "it.",
+          "startSeconds": 32.61,
+          "endSeconds": 33,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-020",
+      "beatId": "the-realization-002",
+      "startSeconds": 33,
+      "endSeconds": 35.327,
+      "text": "Across the room, inside her",
+      "style": "default",
+      "words": [
+        {
+          "word": "Across",
+          "startSeconds": 33,
+          "endSeconds": 33.465,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 33.465,
+          "endSeconds": 33.931,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "room,",
+          "startSeconds": 33.931,
+          "endSeconds": 34.396,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "inside",
+          "startSeconds": 34.396,
+          "endSeconds": 34.862,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "her",
+          "startSeconds": 34.862,
+          "endSeconds": 35.327,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-021",
+      "beatId": "the-realization-002",
+      "startSeconds": 35.327,
+      "endSeconds": 37.655,
+      "text": "locked closet, a phone started",
+      "style": "default",
+      "words": [
+        {
+          "word": "locked",
+          "startSeconds": 35.327,
+          "endSeconds": 35.793,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "closet,",
+          "startSeconds": 35.793,
+          "endSeconds": 36.258,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 36.258,
+          "endSeconds": 36.724,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "phone",
+          "startSeconds": 36.724,
+          "endSeconds": 37.189,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "started",
+          "startSeconds": 37.189,
+          "endSeconds": 37.655,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-022",
+      "beatId": "the-realization-002",
+      "startSeconds": 37.655,
+      "endSeconds": 38.12,
+      "text": "ringing.",
+      "style": "default",
+      "words": [
+        {
+          "word": "ringing.",
+          "startSeconds": 37.655,
+          "endSeconds": 38.12,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-023",
+      "beatId": "the-realization-003",
+      "startSeconds": 38.12,
+      "endSeconds": 40.44,
+      "text": "She froze.",
+      "style": "default",
+      "words": [
+        {
+          "word": "She",
+          "startSeconds": 38.12,
+          "endSeconds": 39.28,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "froze.",
+          "startSeconds": 39.28,
+          "endSeconds": 40.44,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-024",
+      "beatId": "the-final-clue-001",
+      "startSeconds": 40.44,
+      "endSeconds": 42.7,
+      "text": "Then the delivery app pinged",
+      "style": "default",
+      "words": [
+        {
+          "word": "Then",
+          "startSeconds": 40.44,
+          "endSeconds": 40.892,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 40.892,
+          "endSeconds": 41.344,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "delivery",
+          "startSeconds": 41.344,
+          "endSeconds": 41.796,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "app",
+          "startSeconds": 41.796,
+          "endSeconds": 42.248,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "pinged",
+          "startSeconds": 42.248,
+          "endSeconds": 42.7,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-025",
+      "beatId": "the-final-clue-001",
+      "startSeconds": 42.7,
+      "endSeconds": 44.96,
+      "text": "again: 'Your driver is arriving.'",
+      "style": "default",
+      "words": [
+        {
+          "word": "again:",
+          "startSeconds": 42.7,
+          "endSeconds": 43.152,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "'Your",
+          "startSeconds": 43.152,
+          "endSeconds": 43.604,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "driver",
+          "startSeconds": 43.604,
+          "endSeconds": 44.056,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "is",
+          "startSeconds": 44.056,
+          "endSeconds": 44.508,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "arriving.'",
+          "startSeconds": 44.508,
+          "endSeconds": 44.96,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-026",
+      "beatId": "the-final-clue-002",
+      "startSeconds": 44.96,
+      "endSeconds": 46.994,
+      "text": "A second later, there",
+      "style": "default",
+      "words": [
+        {
+          "word": "A",
+          "startSeconds": 44.96,
+          "endSeconds": 45.469,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "second",
+          "startSeconds": 45.469,
+          "endSeconds": 45.977,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "later,",
+          "startSeconds": 45.977,
+          "endSeconds": 46.486,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "there",
+          "startSeconds": 46.486,
+          "endSeconds": 46.994,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-027",
+      "beatId": "the-final-clue-002",
+      "startSeconds": 46.994,
+      "endSeconds": 48.52,
+      "text": "was a knock.",
+      "style": "default",
+      "words": [
+        {
+          "word": "was",
+          "startSeconds": 46.994,
+          "endSeconds": 47.503,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 47.503,
+          "endSeconds": 48.011,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "knock.",
+          "startSeconds": 48.011,
+          "endSeconds": 48.52,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-028",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 48.52,
+      "endSeconds": 51.651,
+      "text": "Mia looked",
+      "style": "default",
+      "words": [
+        {
+          "word": "Mia",
+          "startSeconds": 48.52,
+          "endSeconds": 50.086,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "looked",
+          "startSeconds": 50.086,
+          "endSeconds": 51.651,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-029",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 51.651,
+      "endSeconds": 54.783,
+      "text": "through the",
+      "style": "default",
+      "words": [
+        {
+          "word": "through",
+          "startSeconds": 51.651,
+          "endSeconds": 53.217,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 53.217,
+          "endSeconds": 54.783,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-030",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 54.783,
+      "endSeconds": 56.349,
+      "text": "peephole.",
+      "style": "default",
+      "words": [
+        {
+          "word": "peephole.",
+          "startSeconds": 54.783,
+          "endSeconds": 56.349,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-031",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 56.349,
+      "endSeconds": 59.48,
+      "text": "No driver.",
+      "style": "default",
+      "words": [
+        {
+          "word": "No",
+          "startSeconds": 56.349,
+          "endSeconds": 57.914,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "driver.",
+          "startSeconds": 57.914,
+          "endSeconds": 59.48,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-032",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 59.48,
+      "endSeconds": 62.611,
+      "text": "Just a",
+      "style": "default",
+      "words": [
+        {
+          "word": "Just",
+          "startSeconds": 59.48,
+          "endSeconds": 61.046,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 61.046,
+          "endSeconds": 62.611,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-033",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 62.611,
+      "endSeconds": 65.743,
+      "text": "paper bag",
+      "style": "default",
+      "words": [
+        {
+          "word": "paper",
+          "startSeconds": 62.611,
+          "endSeconds": 64.177,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "bag",
+          "startSeconds": 64.177,
+          "endSeconds": 65.743,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-034",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 65.743,
+      "endSeconds": 68.874,
+      "text": "on the",
+      "style": "default",
+      "words": [
+        {
+          "word": "on",
+          "startSeconds": 65.743,
+          "endSeconds": 67.309,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "the",
+          "startSeconds": 67.309,
+          "endSeconds": 68.874,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-035",
+      "beatId": "the-final-clue-003",
+      "startSeconds": 68.874,
+      "endSeconds": 70.44,
+      "text": "floor.",
+      "style": "default",
+      "words": [
+        {
+          "word": "floor.",
+          "startSeconds": 68.874,
+          "endSeconds": 70.44,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-036",
+      "beatId": "the-revelation-001",
+      "startSeconds": 70.44,
+      "endSeconds": 72.517,
+      "text": "Inside was her student ID.",
+      "style": "default",
+      "words": [
+        {
+          "word": "Inside",
+          "startSeconds": 70.44,
+          "endSeconds": 70.855,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "was",
+          "startSeconds": 70.855,
+          "endSeconds": 71.271,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "her",
+          "startSeconds": 71.271,
+          "endSeconds": 71.686,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "student",
+          "startSeconds": 71.686,
+          "endSeconds": 72.102,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ID.",
+          "startSeconds": 72.102,
+          "endSeconds": 72.517,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-037",
+      "beatId": "the-revelation-001",
+      "startSeconds": 72.517,
+      "endSeconds": 74.594,
+      "text": "The one she had lost",
+      "style": "default",
+      "words": [
+        {
+          "word": "The",
+          "startSeconds": 72.517,
+          "endSeconds": 72.932,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "one",
+          "startSeconds": 72.932,
+          "endSeconds": 73.348,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "she",
+          "startSeconds": 73.348,
+          "endSeconds": 73.763,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "had",
+          "startSeconds": 73.763,
+          "endSeconds": 74.178,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "lost",
+          "startSeconds": 74.178,
+          "endSeconds": 74.594,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-038",
+      "beatId": "the-revelation-001",
+      "startSeconds": 74.594,
+      "endSeconds": 75.84,
+      "text": "three years ago.",
+      "style": "default",
+      "words": [
+        {
+          "word": "three",
+          "startSeconds": 74.594,
+          "endSeconds": 75.009,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "years",
+          "startSeconds": 75.009,
+          "endSeconds": 75.425,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "ago.",
+          "startSeconds": 75.425,
+          "endSeconds": 75.84,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-039",
+      "beatId": "the-revelation-002",
+      "startSeconds": 75.84,
+      "endSeconds": 77.908,
+      "text": "And a note: 'I’ve been taking care",
+      "style": "default",
+      "words": [
+        {
+          "word": "And",
+          "startSeconds": 75.84,
+          "endSeconds": 76.135,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "a",
+          "startSeconds": 76.135,
+          "endSeconds": 76.431,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "note:",
+          "startSeconds": 76.431,
+          "endSeconds": 76.726,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "'I’ve",
+          "startSeconds": 76.726,
+          "endSeconds": 77.022,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "been",
+          "startSeconds": 77.022,
+          "endSeconds": 77.317,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "taking",
+          "startSeconds": 77.317,
+          "endSeconds": 77.612,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "care",
+          "startSeconds": 77.612,
+          "endSeconds": 77.908,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    },
+    {
+      "id": "caption-040",
+      "beatId": "the-revelation-002",
+      "startSeconds": 77.908,
+      "endSeconds": 79.68,
+      "text": "of you longer than you think.'",
+      "style": "default",
+      "words": [
+        {
+          "word": "of",
+          "startSeconds": 77.908,
+          "endSeconds": 78.203,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "you",
+          "startSeconds": 78.203,
+          "endSeconds": 78.498,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "longer",
+          "startSeconds": 78.498,
+          "endSeconds": 78.794,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "than",
+          "startSeconds": 78.794,
+          "endSeconds": 79.089,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "you",
+          "startSeconds": 79.089,
+          "endSeconds": 79.385,
+          "emphasis": false,
+          "confidence": 1
+        },
+        {
+          "word": "think.'",
+          "startSeconds": 79.385,
+          "endSeconds": 79.68,
+          "emphasis": false,
+          "confidence": 1
+        }
+      ]
+    }
+  ]
+}

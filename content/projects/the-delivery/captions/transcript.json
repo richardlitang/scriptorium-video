@@ -1,0 +1,986 @@
+{
+  "schemaVersion": 1,
+  "source": {
+    "provider": "mock",
+    "audioAssetIds": [
+      "voice-mysterious-deliveries-001",
+      "voice-introduction-001",
+      "voice-initial-humor-001",
+      "voice-the-realization-001",
+      "voice-the-realization-002",
+      "voice-the-realization-003",
+      "voice-the-phone-call-001",
+      "voice-the-phone-call-002",
+      "voice-the-knock-001",
+      "voice-the-knock-002",
+      "voice-the-revelation-001",
+      "voice-the-revelation-002",
+      "voice-unexpected-deliveries-001",
+      "voice-unexpected-deliveries-002",
+      "voice-unexpected-deliveries-003",
+      "voice-a-cryptic-message-001",
+      "voice-a-cryptic-message-002",
+      "voice-a-cryptic-message-003",
+      "voice-chilling-discovery-001",
+      "voice-chilling-discovery-002",
+      "voice-chilling-discovery-003",
+      "voice-the-final-clue-001",
+      "voice-the-final-clue-002",
+      "voice-the-final-clue-003"
+    ]
+  },
+  "text": "A college student named Mia started getting food deliveries she never ordered. At first, it was funny. One night: ramen. Next night: bubble tea. Then groceries. Every order had the same note: 'Don’t forget to eat.' Mia thought it was her boyfriend being sweet. He said, 'What deliveries?' The orders were paid for by someone named Mia Chen. Her exact name. Her exact apartment. But the phone number was different. So Mia called it. Across the room, inside her locked closet, a phone started ringing. She froze. Then the delivery app pinged again: 'Your driver is arriving.' A second later, there was a knock. Mia looked through the peephole. No driver. Just a paper bag on the floor. Inside was her student ID. The one she had lost three years ago. And a note: 'I’ve been taking care of you longer than you think.'",
+  "segments": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 5,
+      "text": "A college student named Mia started getting food deliveries she never ordered."
+    },
+    {
+      "startSeconds": 5,
+      "endSeconds": 6.64,
+      "text": "At first, it was funny."
+    },
+    {
+      "startSeconds": 6.64,
+      "endSeconds": 12.84,
+      "text": "One night: ramen. Next night: bubble tea. Then groceries."
+    },
+    {
+      "startSeconds": 12.84,
+      "endSeconds": 16.32,
+      "text": "Every order had the same note: 'Don’t forget to eat.'"
+    },
+    {
+      "startSeconds": 16.32,
+      "endSeconds": 19.36,
+      "text": "Mia thought it was her boyfriend being sweet."
+    },
+    {
+      "startSeconds": 19.36,
+      "endSeconds": 21.8,
+      "text": "He said, 'What deliveries?'"
+    },
+    {
+      "startSeconds": 21.8,
+      "endSeconds": 25.52,
+      "text": "The orders were paid for by someone named Mia Chen."
+    },
+    {
+      "startSeconds": 25.52,
+      "endSeconds": 28.68,
+      "text": "Her exact name. Her exact apartment."
+    },
+    {
+      "startSeconds": 28.68,
+      "endSeconds": 31.44,
+      "text": "But the phone number was different."
+    },
+    {
+      "startSeconds": 31.44,
+      "endSeconds": 33,
+      "text": "So Mia called it."
+    },
+    {
+      "startSeconds": 33,
+      "endSeconds": 38.12,
+      "text": "Across the room, inside her locked closet, a phone started ringing."
+    },
+    {
+      "startSeconds": 38.12,
+      "endSeconds": 40.44,
+      "text": "She froze."
+    },
+    {
+      "startSeconds": 40.44,
+      "endSeconds": 44.96,
+      "text": "Then the delivery app pinged again: 'Your driver is arriving.'"
+    },
+    {
+      "startSeconds": 44.96,
+      "endSeconds": 48.52,
+      "text": "A second later, there was a knock."
+    },
+    {
+      "startSeconds": 48.52,
+      "endSeconds": 70.44,
+      "text": "Mia looked through the peephole. No driver. Just a paper bag on the floor."
+    },
+    {
+      "startSeconds": 70.44,
+      "endSeconds": 75.84,
+      "text": "Inside was her student ID. The one she had lost three years ago."
+    },
+    {
+      "startSeconds": 75.84,
+      "endSeconds": 79.68,
+      "text": "And a note: 'I’ve been taking care of you longer than you think.'"
+    }
+  ],
+  "words": [
+    {
+      "startSeconds": 0,
+      "endSeconds": 0.417,
+      "word": "A",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 0.417,
+      "endSeconds": 0.833,
+      "word": "college",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 0.833,
+      "endSeconds": 1.25,
+      "word": "student",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.25,
+      "endSeconds": 1.667,
+      "word": "named",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 1.667,
+      "endSeconds": 2.083,
+      "word": "Mia",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.083,
+      "endSeconds": 2.5,
+      "word": "started",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.5,
+      "endSeconds": 2.917,
+      "word": "getting",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 2.917,
+      "endSeconds": 3.333,
+      "word": "food",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 3.333,
+      "endSeconds": 3.75,
+      "word": "deliveries",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 3.75,
+      "endSeconds": 4.167,
+      "word": "she",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 4.167,
+      "endSeconds": 4.583,
+      "word": "never",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 4.583,
+      "endSeconds": 5,
+      "word": "ordered.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 5,
+      "endSeconds": 5.328,
+      "word": "At",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 5.328,
+      "endSeconds": 5.656,
+      "word": "first,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 5.656,
+      "endSeconds": 5.984,
+      "word": "it",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 5.984,
+      "endSeconds": 6.312,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 6.312,
+      "endSeconds": 6.64,
+      "word": "funny.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 6.64,
+      "endSeconds": 7.329,
+      "word": "One",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 7.329,
+      "endSeconds": 8.018,
+      "word": "night:",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 8.018,
+      "endSeconds": 8.707,
+      "word": "ramen.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 8.707,
+      "endSeconds": 9.396,
+      "word": "Next",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 9.396,
+      "endSeconds": 10.084,
+      "word": "night:",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 10.084,
+      "endSeconds": 10.773,
+      "word": "bubble",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 10.773,
+      "endSeconds": 11.462,
+      "word": "tea.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 11.462,
+      "endSeconds": 12.151,
+      "word": "Then",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 12.151,
+      "endSeconds": 12.84,
+      "word": "groceries.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 12.84,
+      "endSeconds": 13.188,
+      "word": "Every",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 13.188,
+      "endSeconds": 13.536,
+      "word": "order",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 13.536,
+      "endSeconds": 13.884,
+      "word": "had",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 13.884,
+      "endSeconds": 14.232,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 14.232,
+      "endSeconds": 14.58,
+      "word": "same",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 14.58,
+      "endSeconds": 14.928,
+      "word": "note:",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 14.928,
+      "endSeconds": 15.276,
+      "word": "'Don’t",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 15.276,
+      "endSeconds": 15.624,
+      "word": "forget",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 15.624,
+      "endSeconds": 15.972,
+      "word": "to",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 15.972,
+      "endSeconds": 16.32,
+      "word": "eat.'",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 16.32,
+      "endSeconds": 16.7,
+      "word": "Mia",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 16.7,
+      "endSeconds": 17.08,
+      "word": "thought",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 17.08,
+      "endSeconds": 17.46,
+      "word": "it",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 17.46,
+      "endSeconds": 17.84,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 17.84,
+      "endSeconds": 18.22,
+      "word": "her",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 18.22,
+      "endSeconds": 18.6,
+      "word": "boyfriend",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 18.6,
+      "endSeconds": 18.98,
+      "word": "being",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 18.98,
+      "endSeconds": 19.36,
+      "word": "sweet.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 19.36,
+      "endSeconds": 19.97,
+      "word": "He",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 19.97,
+      "endSeconds": 20.58,
+      "word": "said,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 20.58,
+      "endSeconds": 21.19,
+      "word": "'What",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 21.19,
+      "endSeconds": 21.8,
+      "word": "deliveries?'",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 21.8,
+      "endSeconds": 22.172,
+      "word": "The",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 22.172,
+      "endSeconds": 22.544,
+      "word": "orders",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 22.544,
+      "endSeconds": 22.916,
+      "word": "were",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 22.916,
+      "endSeconds": 23.288,
+      "word": "paid",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 23.288,
+      "endSeconds": 23.66,
+      "word": "for",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 23.66,
+      "endSeconds": 24.032,
+      "word": "by",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 24.032,
+      "endSeconds": 24.404,
+      "word": "someone",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 24.404,
+      "endSeconds": 24.776,
+      "word": "named",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 24.776,
+      "endSeconds": 25.148,
+      "word": "Mia",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 25.148,
+      "endSeconds": 25.52,
+      "word": "Chen.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 25.52,
+      "endSeconds": 26.047,
+      "word": "Her",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 26.047,
+      "endSeconds": 26.573,
+      "word": "exact",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 26.573,
+      "endSeconds": 27.1,
+      "word": "name.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 27.1,
+      "endSeconds": 27.627,
+      "word": "Her",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 27.627,
+      "endSeconds": 28.153,
+      "word": "exact",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 28.153,
+      "endSeconds": 28.68,
+      "word": "apartment.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 28.68,
+      "endSeconds": 29.14,
+      "word": "But",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 29.14,
+      "endSeconds": 29.6,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 29.6,
+      "endSeconds": 30.06,
+      "word": "phone",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 30.06,
+      "endSeconds": 30.52,
+      "word": "number",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 30.52,
+      "endSeconds": 30.98,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 30.98,
+      "endSeconds": 31.44,
+      "word": "different.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 31.44,
+      "endSeconds": 31.83,
+      "word": "So",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 31.83,
+      "endSeconds": 32.22,
+      "word": "Mia",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 32.22,
+      "endSeconds": 32.61,
+      "word": "called",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 32.61,
+      "endSeconds": 33,
+      "word": "it.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 33,
+      "endSeconds": 33.465,
+      "word": "Across",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 33.465,
+      "endSeconds": 33.931,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 33.931,
+      "endSeconds": 34.396,
+      "word": "room,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 34.396,
+      "endSeconds": 34.862,
+      "word": "inside",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 34.862,
+      "endSeconds": 35.327,
+      "word": "her",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 35.327,
+      "endSeconds": 35.793,
+      "word": "locked",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 35.793,
+      "endSeconds": 36.258,
+      "word": "closet,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 36.258,
+      "endSeconds": 36.724,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 36.724,
+      "endSeconds": 37.189,
+      "word": "phone",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 37.189,
+      "endSeconds": 37.655,
+      "word": "started",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 37.655,
+      "endSeconds": 38.12,
+      "word": "ringing.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 38.12,
+      "endSeconds": 39.28,
+      "word": "She",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 39.28,
+      "endSeconds": 40.44,
+      "word": "froze.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 40.44,
+      "endSeconds": 40.892,
+      "word": "Then",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 40.892,
+      "endSeconds": 41.344,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 41.344,
+      "endSeconds": 41.796,
+      "word": "delivery",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 41.796,
+      "endSeconds": 42.248,
+      "word": "app",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 42.248,
+      "endSeconds": 42.7,
+      "word": "pinged",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 42.7,
+      "endSeconds": 43.152,
+      "word": "again:",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 43.152,
+      "endSeconds": 43.604,
+      "word": "'Your",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 43.604,
+      "endSeconds": 44.056,
+      "word": "driver",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 44.056,
+      "endSeconds": 44.508,
+      "word": "is",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 44.508,
+      "endSeconds": 44.96,
+      "word": "arriving.'",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 44.96,
+      "endSeconds": 45.469,
+      "word": "A",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 45.469,
+      "endSeconds": 45.977,
+      "word": "second",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 45.977,
+      "endSeconds": 46.486,
+      "word": "later,",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 46.486,
+      "endSeconds": 46.994,
+      "word": "there",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 46.994,
+      "endSeconds": 47.503,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 47.503,
+      "endSeconds": 48.011,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 48.011,
+      "endSeconds": 48.52,
+      "word": "knock.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 48.52,
+      "endSeconds": 50.086,
+      "word": "Mia",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 50.086,
+      "endSeconds": 51.651,
+      "word": "looked",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 51.651,
+      "endSeconds": 53.217,
+      "word": "through",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 53.217,
+      "endSeconds": 54.783,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 54.783,
+      "endSeconds": 56.349,
+      "word": "peephole.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 56.349,
+      "endSeconds": 57.914,
+      "word": "No",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 57.914,
+      "endSeconds": 59.48,
+      "word": "driver.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 59.48,
+      "endSeconds": 61.046,
+      "word": "Just",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 61.046,
+      "endSeconds": 62.611,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 62.611,
+      "endSeconds": 64.177,
+      "word": "paper",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 64.177,
+      "endSeconds": 65.743,
+      "word": "bag",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 65.743,
+      "endSeconds": 67.309,
+      "word": "on",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 67.309,
+      "endSeconds": 68.874,
+      "word": "the",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 68.874,
+      "endSeconds": 70.44,
+      "word": "floor.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 70.44,
+      "endSeconds": 70.855,
+      "word": "Inside",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 70.855,
+      "endSeconds": 71.271,
+      "word": "was",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 71.271,
+      "endSeconds": 71.686,
+      "word": "her",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 71.686,
+      "endSeconds": 72.102,
+      "word": "student",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 72.102,
+      "endSeconds": 72.517,
+      "word": "ID.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 72.517,
+      "endSeconds": 72.932,
+      "word": "The",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 72.932,
+      "endSeconds": 73.348,
+      "word": "one",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 73.348,
+      "endSeconds": 73.763,
+      "word": "she",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 73.763,
+      "endSeconds": 74.178,
+      "word": "had",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 74.178,
+      "endSeconds": 74.594,
+      "word": "lost",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 74.594,
+      "endSeconds": 75.009,
+      "word": "three",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 75.009,
+      "endSeconds": 75.425,
+      "word": "years",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 75.425,
+      "endSeconds": 75.84,
+      "word": "ago.",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 75.84,
+      "endSeconds": 76.135,
+      "word": "And",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 76.135,
+      "endSeconds": 76.431,
+      "word": "a",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 76.431,
+      "endSeconds": 76.726,
+      "word": "note:",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 76.726,
+      "endSeconds": 77.022,
+      "word": "'I’ve",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 77.022,
+      "endSeconds": 77.317,
+      "word": "been",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 77.317,
+      "endSeconds": 77.612,
+      "word": "taking",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 77.612,
+      "endSeconds": 77.908,
+      "word": "care",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 77.908,
+      "endSeconds": 78.203,
+      "word": "of",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 78.203,
+      "endSeconds": 78.498,
+      "word": "you",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 78.498,
+      "endSeconds": 78.794,
+      "word": "longer",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 78.794,
+      "endSeconds": 79.089,
+      "word": "than",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 79.089,
+      "endSeconds": 79.385,
+      "word": "you",
+      "confidence": 1
+    },
+    {
+      "startSeconds": 79.385,
+      "endSeconds": 79.68,
+      "word": "think.'",
+      "confidence": 1
+    }
+  ]
+}

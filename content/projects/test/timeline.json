@@ -1,0 +1,507 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-05-19T17:15:28.673Z",
+  "sourcePlanHash": "453219937b6a51d228953bc59c2022c4afb434a8982ddd42c5efed9285972d89",
+  "fps": 30,
+  "width": 1080,
+  "height": 1920,
+  "durationSeconds": 147.59999999999997,
+  "segments": [
+    {
+      "sectionId": "introduction",
+      "beatId": "introduction-001",
+      "startSeconds": 0,
+      "endSeconds": 9.68,
+      "durationSeconds": 9.68,
+      "voiceAssetId": "voice-introduction-001",
+      "mediaAssetIds": [
+        "image-introduction-001"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "introduction",
+      "beatId": "introduction-002",
+      "startSeconds": 9.68,
+      "endSeconds": 12.04,
+      "durationSeconds": 2.36,
+      "voiceAssetId": "voice-introduction-002",
+      "mediaAssetIds": [
+        "image-introduction-002"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "introduction",
+      "beatId": "introduction-003",
+      "startSeconds": 12.04,
+      "endSeconds": 17.36,
+      "durationSeconds": 5.32,
+      "voiceAssetId": "voice-introduction-003",
+      "mediaAssetIds": [
+        "image-introduction-003"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "introduction",
+      "beatId": "introduction-004",
+      "startSeconds": 17.36,
+      "endSeconds": 21.919999999999998,
+      "durationSeconds": 4.56,
+      "voiceAssetId": "voice-introduction-004",
+      "mediaAssetIds": [
+        "image-introduction-004"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "introduction",
+      "beatId": "introduction-005",
+      "startSeconds": 21.919999999999998,
+      "endSeconds": 25.439999999999998,
+      "durationSeconds": 3.52,
+      "voiceAssetId": "voice-introduction-005",
+      "mediaAssetIds": [
+        "image-introduction-005"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-001",
+      "startSeconds": 25.439999999999998,
+      "endSeconds": 30.4,
+      "durationSeconds": 4.96,
+      "voiceAssetId": "voice-the-curse-of-the-mound-001",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-001"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-002",
+      "startSeconds": 30.4,
+      "endSeconds": 36.8,
+      "durationSeconds": 6.4,
+      "voiceAssetId": "voice-the-curse-of-the-mound-002",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-002"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-003",
+      "startSeconds": 36.8,
+      "endSeconds": 43.48,
+      "durationSeconds": 6.68,
+      "voiceAssetId": "voice-the-curse-of-the-mound-003",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-003"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-004",
+      "startSeconds": 43.48,
+      "endSeconds": 49.919999999999995,
+      "durationSeconds": 6.44,
+      "voiceAssetId": "voice-the-curse-of-the-mound-004",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-004"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-005",
+      "startSeconds": 49.919999999999995,
+      "endSeconds": 54.8,
+      "durationSeconds": 4.88,
+      "voiceAssetId": "voice-the-curse-of-the-mound-005",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-005"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-006",
+      "startSeconds": 54.8,
+      "endSeconds": 57.36,
+      "durationSeconds": 2.56,
+      "voiceAssetId": "voice-the-curse-of-the-mound-006",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-006"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-007",
+      "startSeconds": 57.36,
+      "endSeconds": 61.28,
+      "durationSeconds": 3.92,
+      "voiceAssetId": "voice-the-curse-of-the-mound-007",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-007"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-008",
+      "startSeconds": 61.28,
+      "endSeconds": 75.92,
+      "durationSeconds": 14.64,
+      "voiceAssetId": "voice-the-curse-of-the-mound-008",
+      "mediaAssetIds": [
+        "image-the-curse-of-the-mound-008"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-001",
+      "startSeconds": 75.92,
+      "endSeconds": 78.64,
+      "durationSeconds": 2.72,
+      "voiceAssetId": "voice-the-consequences-001",
+      "mediaAssetIds": [
+        "image-the-consequences-001"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-002",
+      "startSeconds": 78.64,
+      "endSeconds": 81.76,
+      "durationSeconds": 3.12,
+      "voiceAssetId": "voice-the-consequences-002",
+      "mediaAssetIds": [
+        "image-the-consequences-002"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-003",
+      "startSeconds": 81.76,
+      "endSeconds": 90.16000000000001,
+      "durationSeconds": 8.4,
+      "voiceAssetId": "voice-the-consequences-003",
+      "mediaAssetIds": [
+        "image-the-consequences-003"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-004",
+      "startSeconds": 90.16000000000001,
+      "endSeconds": 94.12,
+      "durationSeconds": 3.96,
+      "voiceAssetId": "voice-the-consequences-004",
+      "mediaAssetIds": [
+        "image-the-consequences-004"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-005",
+      "startSeconds": 94.12,
+      "endSeconds": 96.24000000000001,
+      "durationSeconds": 2.12,
+      "voiceAssetId": "voice-the-consequences-005",
+      "mediaAssetIds": [
+        "image-the-consequences-005"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-006",
+      "startSeconds": 96.24000000000001,
+      "endSeconds": 98.80000000000001,
+      "durationSeconds": 2.56,
+      "voiceAssetId": "voice-the-consequences-006",
+      "mediaAssetIds": [
+        "image-the-consequences-006"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-007",
+      "startSeconds": 98.80000000000001,
+      "endSeconds": 101.16000000000001,
+      "durationSeconds": 2.36,
+      "voiceAssetId": "voice-the-consequences-007",
+      "mediaAssetIds": [
+        "image-the-consequences-007"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-008",
+      "startSeconds": 101.16000000000001,
+      "endSeconds": 103.72000000000001,
+      "durationSeconds": 2.56,
+      "voiceAssetId": "voice-the-consequences-008",
+      "mediaAssetIds": [
+        "image-the-consequences-008"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-009",
+      "startSeconds": 103.72000000000001,
+      "endSeconds": 106.44000000000001,
+      "durationSeconds": 2.72,
+      "voiceAssetId": "voice-the-consequences-009",
+      "mediaAssetIds": [
+        "image-the-consequences-009"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-010",
+      "startSeconds": 106.44000000000001,
+      "endSeconds": 110.44000000000001,
+      "durationSeconds": 4,
+      "voiceAssetId": "voice-the-consequences-010",
+      "mediaAssetIds": [
+        "image-the-consequences-010"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-011",
+      "startSeconds": 110.44000000000001,
+      "endSeconds": 116.12,
+      "durationSeconds": 5.68,
+      "voiceAssetId": "voice-the-consequences-011",
+      "mediaAssetIds": [
+        "image-the-consequences-011"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-001",
+      "startSeconds": 116.12,
+      "endSeconds": 120.76,
+      "durationSeconds": 4.64,
+      "voiceAssetId": "voice-the-resolution-001",
+      "mediaAssetIds": [
+        "image-the-resolution-001"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-002",
+      "startSeconds": 120.76,
+      "endSeconds": 123.2,
+      "durationSeconds": 2.44,
+      "voiceAssetId": "voice-the-resolution-002",
+      "mediaAssetIds": [
+        "image-the-resolution-002"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-003",
+      "startSeconds": 123.2,
+      "endSeconds": 130.04,
+      "durationSeconds": 6.84,
+      "voiceAssetId": "voice-the-resolution-003",
+      "mediaAssetIds": [
+        "image-the-resolution-003"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-004",
+      "startSeconds": 130.04,
+      "endSeconds": 136.07999999999998,
+      "durationSeconds": 6.04,
+      "voiceAssetId": "voice-the-resolution-004",
+      "mediaAssetIds": [
+        "image-the-resolution-004"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-005",
+      "startSeconds": 136.07999999999998,
+      "endSeconds": 138.2,
+      "durationSeconds": 2.12,
+      "voiceAssetId": "voice-the-resolution-005",
+      "mediaAssetIds": [
+        "image-the-resolution-005"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-006",
+      "startSeconds": 138.2,
+      "endSeconds": 145.95999999999998,
+      "durationSeconds": 7.76,
+      "voiceAssetId": "voice-the-resolution-006",
+      "mediaAssetIds": [
+        "image-the-resolution-006"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    },
+    {
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-007",
+      "startSeconds": 145.95999999999998,
+      "endSeconds": 147.59999999999997,
+      "durationSeconds": 1.64,
+      "voiceAssetId": "voice-the-resolution-007",
+      "mediaAssetIds": [
+        "image-the-resolution-007"
+      ],
+      "audioCues": [],
+      "renderPolicy": {
+        "mediaPolicy": "loop_or_freeze",
+        "scaleMode": "cover"
+      }
+    }
+  ]
+}

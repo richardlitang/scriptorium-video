@@ -1,0 +1,1307 @@
+{
+  "schemaVersion": 1,
+  "assets": [
+    {
+      "id": "image-introduction-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "introduction",
+      "beatId": "introduction-001",
+      "path": "assets/images/generated/introduction-001.v1.c9bd14ff76.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "c9bd14ff76baf2136bdca022a7986b5218a38d196f95e423181598368231352c",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 1 of 4: Introduction.\nSection purpose: Set the atmosphere of the story and introduce Carlo's first fright..\nBeat 1 of 5 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: At exactly 11:46 PM, during a brownout in their province, nine-year-old Carlo woke up screaming that something was biting his feet.\nNext beat narration: His mother rushed into the room with a candle.\n\nVisual target:\nA pitch-black bedroom illuminated by a flickering candle, with Carlo's terrified face visible as shadows loom in the background.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:47:40.216Z",
+      "updatedAt": "2026-05-19T17:15:27.868Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-001",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "8352b0cbec6be00e707337c0012c32ab7e66a7e70c01659e8b447a2e3b52b21a",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 1 of 8 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Earlier that afternoon, Carlo had been playing with his cousins behind their Lola’s house.\nNext beat narration: There was an old mound of dirt under the santol tree — small, round, and covered in grass.\n\nVisual target:\nA sunlit backyard with children playing joyfully, the mound in the background partly hidden under a santol tree.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:47:36.459Z",
+      "updatedAt": "2026-05-19T17:15:28.500Z"
+    },
+    {
+      "id": "image-the-consequences-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-001",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "576799c457fedfc7133d6a98be3a63bcffd297e2f6906bee2de12797f6fbe52b",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 1 of 11 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: That night, Carlo got a fever.\nNext beat narration: His right foot swelled until his slipper wouldn’t fit.\n\nVisual target:\nCarlo lying in bed, sweat on his brow, a thermometer reading high, candlelight flickering beside him.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:47:57.714Z",
+      "updatedAt": "2026-05-19T17:15:28.330Z"
+    },
+    {
+      "id": "image-the-resolution-001",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-001",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "873e9eaeed3fc1704adf3bdb4480b490aded490a85903fbfb99d9b39702dafa2",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 1 of 7 in this section.\nPrevious beat narration: none; this opens the section.\nCurrent beat narration: Carlo finally cried and whispered: ‘Tabi-tabi po. Sorry po.’\nNext beat narration: For a moment, the room became still.\n\nVisual target:\nCarlo shivering in fear, whispering a heartfelt apology toward the dark corner of the room.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.950Z",
+      "updatedAt": "2026-05-19T17:15:28.166Z"
+    },
+    {
+      "id": "image-introduction-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "introduction",
+      "beatId": "introduction-002",
+      "path": "assets/images/generated/introduction-001.v1.c9bd14ff76.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-introduction-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 1 of 4: Introduction.\nSection purpose: Set the atmosphere of the story and introduce Carlo's first fright..\nBeat 2 of 5 in this section.\nPrevious beat narration: At exactly 11:46 PM, during a brownout in their province, nine-year-old Carlo woke up screaming that something was biting his feet.\nCurrent beat narration: His mother rushed into the room with a candle.\nNext beat narration: But when she pulled off his blanket, there were no ants. No wounds. No blood.\n\nVisual target:\nA silhouette of Carlo’s mother appearing in the doorway, holding a flickering candle, casting elongated shadows.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.481Z"
+    },
+    {
+      "id": "image-introduction-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "introduction",
+      "beatId": "introduction-003",
+      "path": "assets/images/generated/introduction-001.v1.c9bd14ff76.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-introduction-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 1 of 4: Introduction.\nSection purpose: Set the atmosphere of the story and introduce Carlo's first fright..\nBeat 3 of 5 in this section.\nPrevious beat narration: His mother rushed into the room with a candle.\nCurrent beat narration: But when she pulled off his blanket, there were no ants. No wounds. No blood.\nNext beat narration: Just tiny, muddy handprints wrapped around both of his ankles.\n\nVisual target:\nClose-up of Carlo’s feet with no visible marks, focusing on the blanket being pulled away.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.448Z"
+    },
+    {
+      "id": "image-introduction-004",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "introduction",
+      "beatId": "introduction-004",
+      "path": "assets/images/generated/introduction-001.v1.c9bd14ff76.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-introduction-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 1 of 4: Introduction.\nSection purpose: Set the atmosphere of the story and introduce Carlo's first fright..\nBeat 4 of 5 in this section.\nPrevious beat narration: But when she pulled off his blanket, there were no ants. No wounds. No blood.\nCurrent beat narration: Just tiny, muddy handprints wrapped around both of his ankles.\nNext beat narration: To understand what happened, you need to know one thing.\n\nVisual target:\nFocus on the tiny, muddy handprints around Carlo's ankles, eerie and inexplicable.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.447Z"
+    },
+    {
+      "id": "image-introduction-005",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "introduction",
+      "beatId": "introduction-005",
+      "path": "assets/images/generated/introduction-001.v1.c9bd14ff76.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-introduction-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 1 of 4: Introduction.\nSection purpose: Set the atmosphere of the story and introduce Carlo's first fright..\nBeat 5 of 5 in this section.\nPrevious beat narration: Just tiny, muddy handprints wrapped around both of his ankles.\nCurrent beat narration: To understand what happened, you need to know one thing.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA dark screen with ominous shadows moving in the background, hinting at something sinister.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.448Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-002",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 2 of 8 in this section.\nPrevious beat narration: Earlier that afternoon, Carlo had been playing with his cousins behind their Lola’s house.\nCurrent beat narration: There was an old mound of dirt under the santol tree — small, round, and covered in grass.\nNext beat narration: Their Lola always warned them: ‘Huwag niyong gagalawin ’yan. Bahay ’yan ng nuno.’\n\nVisual target:\nA close-up of the mound, overgrown with grass, appearing innocuous yet foreboding.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.536Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-003",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 3 of 8 in this section.\nPrevious beat narration: There was an old mound of dirt under the santol tree — small, round, and covered in grass.\nCurrent beat narration: Their Lola always warned them: ‘Huwag niyong gagalawin ’yan. Bahay ’yan ng nuno.’\nNext beat narration: But Carlo was nine. And nine-year-olds think warnings are just adults trying to ruin fun.\n\nVisual target:\nAn elderly woman, Lola, with a worried expression, gesturing at the mound to the children, emphasizing her warning.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.541Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-004",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-004",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 4 of 8 in this section.\nPrevious beat narration: Their Lola always warned them: ‘Huwag niyong gagalawin ’yan. Bahay ’yan ng nuno.’\nCurrent beat narration: But Carlo was nine. And nine-year-olds think warnings are just adults trying to ruin fun.\nNext beat narration: So when his cousin dared him, Carlo laughed, ran up to the mound…\n\nVisual target:\nA close-up of Carlo laughing with a mischievous expression as he stands before the mound.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.494Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-005",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-005",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 5 of 8 in this section.\nPrevious beat narration: But Carlo was nine. And nine-year-olds think warnings are just adults trying to ruin fun.\nCurrent beat narration: So when his cousin dared him, Carlo laughed, ran up to the mound…\nNext beat narration: ...and kicked it as hard as he could.\n\nVisual target:\nCarlo sprinting towards the mound, determination in his eyes, oblivious to the danger.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.456Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-006",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-006",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 6 of 8 in this section.\nPrevious beat narration: So when his cousin dared him, Carlo laughed, ran up to the mound…\nCurrent beat narration: ...and kicked it as hard as he could.\nNext beat narration: The moment his foot hit the mound, everything went quiet.\n\nVisual target:\nA child’s foot smashing into the muddy mound, dirt flying everywhere.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.374Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-007",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-007",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 7 of 8 in this section.\nPrevious beat narration: ...and kicked it as hard as he could.\nCurrent beat narration: The moment his foot hit the mound, everything went quiet.\nNext beat narration: Then, from somewhere under the ground, Carlo heard a tiny old voice whisper: ‘Hindi ka nagpaalam.’\n\nVisual target:\nThe scene freezes, with dirt suspended in air, no sound aside from an ominous hum.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.537Z"
+    },
+    {
+      "id": "image-the-curse-of-the-mound-008",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-008",
+      "path": "assets/images/generated/the-curse-of-the-mound-001.v1.8352b0cbec.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-curse-of-the-mound-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 2 of 4: The Curse of the Mound.\nSection purpose: To illustrate how Carlo’s actions disturb the spirit world..\nBeat 8 of 8 in this section.\nPrevious beat narration: The moment his foot hit the mound, everything went quiet.\nCurrent beat narration: Then, from somewhere under the ground, Carlo heard a tiny old voice whisper: ‘Hindi ka nagpaalam.’\nNext beat narration: none; this closes the section.\n\nVisual target:\nAn overhead shot of Carlo standing still, the ground below him appearing to pulsate softly.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.540Z"
+    },
+    {
+      "id": "image-the-consequences-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-002",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 2 of 11 in this section.\nPrevious beat narration: That night, Carlo got a fever.\nCurrent beat narration: His right foot swelled until his slipper wouldn’t fit.\nNext beat narration: His Lola rubbed coconut oil over his skin, whispered prayers, and kept saying, ‘Say sorry before it follows you inside.’\n\nVisual target:\nClose-up of Carlo’s foot, visibly swollen, with the slipper crumpled beside it.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.366Z"
+    },
+    {
+      "id": "image-the-consequences-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-003",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 3 of 11 in this section.\nPrevious beat narration: His right foot swelled until his slipper wouldn’t fit.\nCurrent beat narration: His Lola rubbed coconut oil over his skin, whispered prayers, and kept saying, ‘Say sorry before it follows you inside.’\nNext beat narration: But Carlo refused. He said there was nothing to apologize to.\n\nVisual target:\nLola tenderly applying coconut oil to Carlo's foot, her expression filled with worry.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.513Z"
+    },
+    {
+      "id": "image-the-consequences-004",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-004",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 4 of 11 in this section.\nPrevious beat narration: His Lola rubbed coconut oil over his skin, whispered prayers, and kept saying, ‘Say sorry before it follows you inside.’\nCurrent beat narration: But Carlo refused. He said there was nothing to apologize to.\nNext beat narration: That was when the scratching started.\n\nVisual target:\nCarlo turning away defiantly, stubbornness etched on his face, shadows looming around him.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.217Z"
+    },
+    {
+      "id": "image-the-consequences-005",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-005",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 5 of 11 in this section.\nPrevious beat narration: But Carlo refused. He said there was nothing to apologize to.\nCurrent beat narration: That was when the scratching started.\nNext beat narration: At first, it came from under the bed.\n\nVisual target:\nThe candle’s flame flickering as ominous scratching sounds echo in the silence.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.212Z"
+    },
+    {
+      "id": "image-the-consequences-006",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-006",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 6 of 11 in this section.\nPrevious beat narration: That was when the scratching started.\nCurrent beat narration: At first, it came from under the bed.\nNext beat narration: Then from inside the wall.\n\nVisual target:\nThe camera panning to under the bed, darkness thickening the atmosphere.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.448Z"
+    },
+    {
+      "id": "image-the-consequences-007",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-007",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 7 of 11 in this section.\nPrevious beat narration: At first, it came from under the bed.\nCurrent beat narration: Then from inside the wall.\nNext beat narration: Then from inside Carlo’s pillow.\n\nVisual target:\nA close-up of the wall vibrating slightly, indicating movement behind it.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.448Z"
+    },
+    {
+      "id": "image-the-consequences-008",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-008",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 8 of 11 in this section.\nPrevious beat narration: Then from inside the wall.\nCurrent beat narration: Then from inside Carlo’s pillow.\nNext beat narration: His mother picked it up and screamed.\n\nVisual target:\nCarlo’s pillow shaking, dirt slowly seeping through the seams, adding to the sense of dread.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.220Z"
+    },
+    {
+      "id": "image-the-consequences-009",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-009",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 9 of 11 in this section.\nPrevious beat narration: Then from inside Carlo’s pillow.\nCurrent beat narration: His mother picked it up and screamed.\nNext beat narration: The pillowcase was filled with soil. Wet, black soil.\n\nVisual target:\nCarlo’s mother recoiling in horror as dirt spills from the pillow.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.537Z"
+    },
+    {
+      "id": "image-the-consequences-010",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-010",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 10 of 11 in this section.\nPrevious beat narration: His mother picked it up and screamed.\nCurrent beat narration: The pillowcase was filled with soil. Wet, black soil.\nNext beat narration: And buried inside it was Carlo’s missing slipper. The one he had lost beside the mound.\n\nVisual target:\nClose-up of the soil, rich and dark, contrasting with the innocence of the pillow.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.448Z"
+    },
+    {
+      "id": "image-the-consequences-011",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-011",
+      "path": "assets/images/generated/the-consequences-001.v1.576799c457.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-consequences-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 3 of 4: The Consequences.\nSection purpose: To heighten tension and build suspense about the impending threat..\nBeat 11 of 11 in this section.\nPrevious beat narration: The pillowcase was filled with soil. Wet, black soil.\nCurrent beat narration: And buried inside it was Carlo’s missing slipper. The one he had lost beside the mound.\nNext beat narration: none; this closes the section.\n\nVisual target:\nFocus on the slipper, half-buried in the wet soil, surreal against the background.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.448Z"
+    },
+    {
+      "id": "image-the-resolution-002",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-002",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-resolution-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 2 of 7 in this section.\nPrevious beat narration: Carlo finally cried and whispered: ‘Tabi-tabi po. Sorry po.’\nCurrent beat narration: For a moment, the room became still.\nNext beat narration: Then a tiny voice answered from under the bed: ‘Hindi ikaw ang kailangan naming kunin.’\n\nVisual target:\nA heavy silence enveloping the room, shadows appearing to dissipate slightly.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.166Z"
+    },
+    {
+      "id": "image-the-resolution-003",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-003",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-resolution-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 3 of 7 in this section.\nPrevious beat narration: For a moment, the room became still.\nCurrent beat narration: Then a tiny voice answered from under the bed: ‘Hindi ikaw ang kailangan naming kunin.’\nNext beat narration: Carlo’s baby sister was standing inside her crib. Smiling.\n\nVisual target:\nThe camera focuses on the corner under the bed, an apparition just out of sight.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.476Z"
+    },
+    {
+      "id": "image-the-resolution-004",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-004",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-resolution-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 4 of 7 in this section.\nPrevious beat narration: Then a tiny voice answered from under the bed: ‘Hindi ikaw ang kailangan naming kunin.’\nCurrent beat narration: Carlo’s baby sister was standing inside her crib. Smiling.\nNext beat narration: Her feet were covered in mud.\n\nVisual target:\nA shot of the baby sister in her crib, innocent with mud on her feet, contrasting with the tension.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.471Z"
+    },
+    {
+      "id": "image-the-resolution-005",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-005",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-resolution-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 5 of 7 in this section.\nPrevious beat narration: Carlo’s baby sister was standing inside her crib. Smiling.\nCurrent beat narration: Her feet were covered in mud.\nNext beat narration: And behind her, on the wall, written by tiny muddy fingers, were three words: ‘May utang pa.’\n\nVisual target:\nClose-up of the baby’s muddy feet, innocence tainted by the unsettling circumstances.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.511Z"
+    },
+    {
+      "id": "image-the-resolution-006",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-006",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-resolution-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 6 of 7 in this section.\nPrevious beat narration: Her feet were covered in mud.\nCurrent beat narration: And behind her, on the wall, written by tiny muddy fingers, were three words: ‘May utang pa.’\nNext beat narration: There is still a debt.\n\nVisual target:\nThe camera reveals the words written on the wall clearly, the mud glistening eerily in the candlelight.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.479Z"
+    },
+    {
+      "id": "image-the-resolution-007",
+      "type": "image",
+      "role": "primary_visual",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-007",
+      "path": "assets/images/generated/the-resolution-001.v1.873e9eaeed.png",
+      "source": {
+        "kind": "generated",
+        "provider": "openai-image",
+        "inputHash": "reused:image-the-resolution-001",
+        "prompt": "Project title: My Cousin Kicked a Nuno’s Mound. That Night, Something Followed Him Home..\nStory mode: short_story; target platform: local_only.\nSection 4 of 4: The Resolution.\nSection purpose: To deliver the climax of the story with a twist ending..\nBeat 7 of 7 in this section.\nPrevious beat narration: And behind her, on the wall, written by tiny muddy fingers, were three words: ‘May utang pa.’\nCurrent beat narration: There is still a debt.\nNext beat narration: none; this closes the section.\n\nVisual target:\nA slow fade to black with the words lingering for a moment before complete darkness.\n\nCreate a vertical 9:16 photorealistic cinematic still for a suspense story video.\nDepict the exact current beat, not a generic mood board and not a later event.\nPreserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.\nUse natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.\nAvoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.\nMake it look like a frame from an atmospheric indie thriller shot on a real camera."
+      },
+      "width": 1024,
+      "height": 1536,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:03.953Z",
+      "updatedAt": "2026-05-19T17:15:28.279Z"
+    },
+    {
+      "id": "voice-introduction-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "introduction",
+      "beatId": "introduction-001",
+      "path": "assets/audio/voice/introduction-001.ce73247f11.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "ce73247f11",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:50:54.662Z"
+        }
+      },
+      "durationSeconds": 9.68,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:06.985Z",
+      "updatedAt": "2026-05-19T17:15:28.624Z"
+    },
+    {
+      "id": "voice-introduction-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "introduction",
+      "beatId": "introduction-002",
+      "path": "assets/audio/voice/introduction-002.75077da94b.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "75077da94b",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:51:15.074Z"
+        }
+      },
+      "durationSeconds": 2.36,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:06.985Z",
+      "updatedAt": "2026-05-19T17:15:28.605Z"
+    },
+    {
+      "id": "voice-introduction-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "introduction",
+      "beatId": "introduction-003",
+      "path": "assets/audio/voice/introduction-003.31d52b8a59.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "31d52b8a59",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:51:33.724Z"
+        }
+      },
+      "durationSeconds": 5.32,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:06.985Z",
+      "updatedAt": "2026-05-19T17:15:28.638Z"
+    },
+    {
+      "id": "voice-introduction-004",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "introduction",
+      "beatId": "introduction-004",
+      "path": "assets/audio/voice/introduction-004.b9d75b2bcf.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "b9d75b2bcf",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:51:49.117Z"
+        }
+      },
+      "durationSeconds": 4.56,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:06.985Z",
+      "updatedAt": "2026-05-19T17:15:28.601Z"
+    },
+    {
+      "id": "voice-introduction-005",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "introduction",
+      "beatId": "introduction-005",
+      "path": "assets/audio/voice/introduction-005.1e1ee13159.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "1e1ee13159",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:52:02.587Z"
+        }
+      },
+      "durationSeconds": 3.52,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:48:06.985Z",
+      "updatedAt": "2026-05-19T17:15:28.627Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-001",
+      "path": "assets/audio/voice/the-curse-of-the-mound-001.a3282c5651.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "a3282c5651",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:52:21.202Z"
+        }
+      },
+      "durationSeconds": 4.96,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.654Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-002",
+      "path": "assets/audio/voice/the-curse-of-the-mound-002.5dc505cac1.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "5dc505cac1",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:52:43.262Z"
+        }
+      },
+      "durationSeconds": 6.4,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.595Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-003",
+      "path": "assets/audio/voice/the-curse-of-the-mound-003.1087ef6974.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "1087ef6974",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:53:05.841Z"
+        }
+      },
+      "durationSeconds": 6.68,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.620Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-004",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-004",
+      "path": "assets/audio/voice/the-curse-of-the-mound-004.9ea60282ce.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "9ea60282ce",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:53:26.983Z"
+        }
+      },
+      "durationSeconds": 6.44,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.634Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-005",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-005",
+      "path": "assets/audio/voice/the-curse-of-the-mound-005.f69e881f2d.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "f69e881f2d",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:53:44.800Z"
+        }
+      },
+      "durationSeconds": 4.88,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.609Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-006",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-006",
+      "path": "assets/audio/voice/the-curse-of-the-mound-006.0071e4e101.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "0071e4e101",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:53:56.923Z"
+        }
+      },
+      "durationSeconds": 2.56,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.609Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-007",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-007",
+      "path": "assets/audio/voice/the-curse-of-the-mound-007.1e9deeed7d.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "1e9deeed7d",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:54:11.940Z"
+        }
+      },
+      "durationSeconds": 3.92,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.624Z"
+    },
+    {
+      "id": "voice-the-curse-of-the-mound-008",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-curse-of-the-mound",
+      "beatId": "the-curse-of-the-mound-008",
+      "path": "assets/audio/voice/the-curse-of-the-mound-008.aff438c78a.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "aff438c78a",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:55:02.293Z"
+        }
+      },
+      "durationSeconds": 14.64,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:52:04.320Z",
+      "updatedAt": "2026-05-19T17:15:28.650Z"
+    },
+    {
+      "id": "voice-the-consequences-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-001",
+      "path": "assets/audio/voice/the-consequences-001.f9e27b60ab.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "f9e27b60ab",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:55:16.426Z"
+        }
+      },
+      "durationSeconds": 2.72,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.670Z"
+    },
+    {
+      "id": "voice-the-consequences-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-002",
+      "path": "assets/audio/voice/the-consequences-002.656931a20d.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "656931a20d",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:55:30.223Z"
+        }
+      },
+      "durationSeconds": 3.12,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.649Z"
+    },
+    {
+      "id": "voice-the-consequences-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-003",
+      "path": "assets/audio/voice/the-consequences-003.31d3f87344.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "31d3f87344",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:55:57.455Z"
+        }
+      },
+      "durationSeconds": 8.4,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.645Z"
+    },
+    {
+      "id": "voice-the-consequences-004",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-004",
+      "path": "assets/audio/voice/the-consequences-004.0ad0a54ded.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "0ad0a54ded",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:56:13.591Z"
+        }
+      },
+      "durationSeconds": 3.96,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.571Z"
+    },
+    {
+      "id": "voice-the-consequences-005",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-005",
+      "path": "assets/audio/voice/the-consequences-005.267290c898.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "267290c898",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:56:25.845Z"
+        }
+      },
+      "durationSeconds": 2.12,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.565Z"
+    },
+    {
+      "id": "voice-the-consequences-006",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-006",
+      "path": "assets/audio/voice/the-consequences-006.a5ae6151fc.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "a5ae6151fc",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:56:36.565Z"
+        }
+      },
+      "durationSeconds": 2.56,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.620Z"
+    },
+    {
+      "id": "voice-the-consequences-007",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-007",
+      "path": "assets/audio/voice/the-consequences-007.d5683e2dd4.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "d5683e2dd4",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:56:47.186Z"
+        }
+      },
+      "durationSeconds": 2.36,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.609Z"
+    },
+    {
+      "id": "voice-the-consequences-008",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-008",
+      "path": "assets/audio/voice/the-consequences-008.30f913153a.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "30f913153a",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:56:58.037Z"
+        }
+      },
+      "durationSeconds": 2.56,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.578Z"
+    },
+    {
+      "id": "voice-the-consequences-009",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-009",
+      "path": "assets/audio/voice/the-consequences-009.d9e26501fd.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "d9e26501fd",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:57:10.421Z"
+        }
+      },
+      "durationSeconds": 2.72,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.617Z"
+    },
+    {
+      "id": "voice-the-consequences-010",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-010",
+      "path": "assets/audio/voice/the-consequences-010.dbbf25088d.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "dbbf25088d",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:57:26.915Z"
+        }
+      },
+      "durationSeconds": 4,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.490Z"
+    },
+    {
+      "id": "voice-the-consequences-011",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-consequences",
+      "beatId": "the-consequences-011",
+      "path": "assets/audio/voice/the-consequences-011.20251e1cd3.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "20251e1cd3",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T16:59:00.834Z"
+        }
+      },
+      "durationSeconds": 5.68,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:55:04.051Z",
+      "updatedAt": "2026-05-19T17:15:28.612Z"
+    },
+    {
+      "id": "voice-the-resolution-001",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-001",
+      "path": "assets/audio/voice/the-resolution-001.ec689fa84c.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "ec689fa84c",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:13:31.062Z"
+        }
+      },
+      "durationSeconds": 4.64,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.644Z"
+    },
+    {
+      "id": "voice-the-resolution-002",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-002",
+      "path": "assets/audio/voice/the-resolution-002.874550686a.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "874550686a",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:13:41.773Z"
+        }
+      },
+      "durationSeconds": 2.44,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.629Z"
+    },
+    {
+      "id": "voice-the-resolution-003",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-003",
+      "path": "assets/audio/voice/the-resolution-003.65bc98371e.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "65bc98371e",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:14:02.666Z"
+        }
+      },
+      "durationSeconds": 6.84,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.634Z"
+    },
+    {
+      "id": "voice-the-resolution-004",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-004",
+      "path": "assets/audio/voice/the-resolution-004.00c92200e3.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "00c92200e3",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:14:30.884Z"
+        }
+      },
+      "durationSeconds": 6.04,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.568Z"
+    },
+    {
+      "id": "voice-the-resolution-005",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-005",
+      "path": "assets/audio/voice/the-resolution-005.56cb9b9839.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "56cb9b9839",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:14:42.149Z"
+        }
+      },
+      "durationSeconds": 2.12,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.621Z"
+    },
+    {
+      "id": "voice-the-resolution-006",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-006",
+      "path": "assets/audio/voice/the-resolution-006.6d1fe8a200.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "6d1fe8a200",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:15:06.992Z"
+        }
+      },
+      "durationSeconds": 7.76,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.614Z"
+    },
+    {
+      "id": "voice-the-resolution-007",
+      "type": "audio",
+      "role": "voiceover",
+      "sectionId": "the-resolution",
+      "beatId": "the-resolution-007",
+      "path": "assets/audio/voice/the-resolution-007.15fa0ef36f.wav",
+      "source": {
+        "kind": "generated",
+        "provider": "chatterbox",
+        "inputHash": "15fa0ef36f",
+        "audioProcessing": {
+          "loudnessTargetLufs": -16,
+          "truePeakDb": -3,
+          "compression": "light_voice",
+          "processedAt": "2026-05-19T17:15:17.541Z"
+        }
+      },
+      "durationSeconds": 1.64,
+      "status": "generated",
+      "createdAt": "2026-05-19T16:59:07.450Z",
+      "updatedAt": "2026-05-19T17:15:28.595Z"
+    }
+  ]
+}
