@@ -201,6 +201,10 @@ h3 {
   min-width: 180px;
 }
 
+.project-delete-confirm[hidden] {
+  display: none !important;
+}
+
 .project-delete-confirm label {
   display: flex;
   align-items: center;
