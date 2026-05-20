@@ -237,15 +237,15 @@ function saveUiState() {
 
 function restoreUiState(projectId) {
   storyInput.value = readStored(projectId, "story");
-  storyFeel.value = readStored(projectId, "feel", storyFeel.value);
-  storyPacing.value = readStored(projectId, "pacing", storyPacing.value);
-  storyVisualStyle.value = readStored(projectId, "visualStyle", storyVisualStyle.value);
+  storyFeel.value = readStored(projectId, "feel", "");
+  storyPacing.value = readStored(projectId, "pacing", "");
+  storyVisualStyle.value = readStored(projectId, "visualStyle", "");
   storySystemPrompt.value = readStored(projectId, "systemPrompt", DEFAULT_PLANNER_SYSTEM_PROMPT);
   storyUserPromptTemplate.value = readStored(projectId, "userPromptTemplate", DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
-  imageEnabled.checked = readStored(projectId, "imageEnabled", imageEnabled.checked ? "true" : "false") === "true";
-  imageMode.value = readStored(projectId, "imageMode", imageMode.value);
-  imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", imageBudget.value));
-  imageQuality.value = readStored(projectId, "imageQuality", imageQuality.value);
+  imageEnabled.checked = readStored(projectId, "imageEnabled", "true") === "true";
+  imageMode.value = readStored(projectId, "imageMode", "missing");
+  imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", "balanced"));
+  imageQuality.value = readStored(projectId, "imageQuality", "low");
   selectedBeatId = readStored(projectId, "selectedBeatId", "");
   voiceSettingsController.restorePreviewLines(projectId);
 }
@@ -980,6 +980,20 @@ function hideJobBanner() {
   jobBanner.classList.remove("job-banner-complete", "job-banner-failed");
 }
 
+function resetProjectScopedRuntimeState() {
+  currentDraftJob = null;
+  lastSeenDraftJobId = null;
+  hasUnsavedPlan = false;
+  needsPrepareDraft = false;
+  needsRender = false;
+  imageHistory = [];
+  selectedBeatId = "";
+  stopDraftJobPolling();
+  stopProgressPolling();
+  hideJobBanner();
+  storyFeedback.innerHTML = "";
+}
+
 const jobCenter = createJobCenterController({
   listEl: jobCenterList,
   fetchJobs: async (projectId) => {
@@ -1010,6 +1024,7 @@ function notifyDraftJobFinished(job) {
 function renderDraftJobState(job) {
   currentDraftJob = job || null;
   if (!job || job.kind !== "draft_job") {
+    hideJobBanner();
     renderBtn.textContent = defaultDraftButtonLabel();
     updateStoryButtons();
     return;
@@ -1247,25 +1262,12 @@ function applyPendingStoryState(pendingStory, pendingUiState, projectId) {
 }
 
 newProjectBtn.onclick = async () => {
-  const pendingStory = storyInput.value;
-  const pendingUiState = {
-    feel: storyFeel.value,
-    pacing: storyPacing.value,
-    visualStyle: storyVisualStyle.value,
-    systemPrompt: storySystemPrompt.value,
-    userPromptTemplate: storyUserPromptTemplate.value,
-    imageEnabled: imageEnabled.checked ? "true" : "false",
-    imageMode: imageMode.value,
-    imageBudget: normalizeImageCoverage(imageBudget.value),
-    imageQuality: imageQuality.value
-  };
-  const title = prompt("Project title?", projectTitleFromStory(pendingStory));
+  const title = prompt("Project title?", "Untitled Story");
   if (!title?.trim()) return;
   newProjectBtn.disabled = true;
   newProjectBtn.textContent = "Creating...";
   try {
-    const projectId = await createProjectFromTitle(title);
-    applyPendingStoryState(pendingStory, pendingUiState, projectId);
+    await createProjectFromTitle(title);
   } catch (error) {
     projectMeta.textContent = String(error);
   } finally {
@@ -1275,6 +1277,7 @@ newProjectBtn.onclick = async () => {
 };
 
 async function selectProject(projectId, element) {
+  resetProjectScopedRuntimeState();
   selectedProjectId = projectId;
   selectedProjectElement = element ?? selectedProjectElement;
   localStorage.setItem("lvstudio:selectedProjectId", projectId);
@@ -1285,9 +1288,6 @@ async function selectProject(projectId, element) {
   prepareDraftBtn.disabled = false;
   renderDraftBtn.disabled = false;
   generateImagesBtn.disabled = false;
-  hasUnsavedPlan = false;
-  needsPrepareDraft = false;
-  needsRender = false;
   updateStoryButtons();
   renderWorkflowState();
 

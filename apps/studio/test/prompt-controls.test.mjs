@@ -39,6 +39,18 @@ test("Make Draft preserves pasted story through implicit project creation", asyn
   assert.match(appJs, /writeStored\(selectedProjectId, "lastDraftStory", pendingStory\)/);
 });
 
+test("New Project starts with blank project-scoped UI state", async () => {
+  const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
+  assert.match(appJs, /const title = prompt\("Project title\?", "Untitled Story"\)/);
+  assert.match(appJs, /function resetProjectScopedRuntimeState\(\)/);
+  assert.match(appJs, /hideJobBanner\(\)/);
+  assert.match(appJs, /storyInput\.value = readStored\(projectId, "story"\)/);
+  assert.match(appJs, /storyFeel\.value = readStored\(projectId, "feel", ""\)/);
+  assert.match(appJs, /storyPacing\.value = readStored\(projectId, "pacing", ""\)/);
+  assert.match(appJs, /storyVisualStyle\.value = readStored\(projectId, "visualStyle", ""\)/);
+  assert.doesNotMatch(appJs, /const pendingStory = storyInput\.value;\n\s*const pendingUiState = \{/);
+});
+
 test("Studio app does not redeclare visual asset helpers", async () => {
   const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
   assert.equal((appJs.match(/function visualAssetForBeat\(/g) ?? []).length, 1);
