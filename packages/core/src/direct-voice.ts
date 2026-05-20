@@ -5,6 +5,10 @@ export type ApplyVoiceDirectionOptions = {
   force?: boolean;
 };
 
+function isLocked(lockedPaths: string[] | undefined, path: string): boolean {
+  return Array.isArray(lockedPaths) && lockedPaths.includes(path);
+}
+
 function uniqueStrings(values: string[]): string[] {
   return [...new Set(values.filter(Boolean).map((value) => value.trim()).filter(Boolean))];
 }
@@ -27,22 +31,38 @@ export function applyVoiceDirectionPlan(
 
         const shouldPreserveUserDirection =
           !options.force && beat.voiceDirection?.source === "user";
+        const beatLockedPaths = beat.directionMeta?.lockedPaths;
+        const lockVoiceDirection = !options.force && isLocked(beatLockedPaths, "voice");
+        const lockSfx = !options.force && isLocked(beatLockedPaths, "sfx");
+        const lockCaptionEmphasis = !options.force && isLocked(beatLockedPaths, "caption.emphasis");
         const voiceDirection = shouldPreserveUserDirection
           ? beat.voiceDirection
-          : next.voiceDirection;
+          : (lockVoiceDirection ? beat.voiceDirection : next.voiceDirection);
 
         return {
           ...beat,
           voiceDirection,
+          directionMeta: {
+            ...(beat.directionMeta || {}),
+            lockedPaths: beat.directionMeta?.lockedPaths ?? [],
+            sources: {
+              ...(beat.directionMeta?.sources || {}),
+              voice: voiceDirection?.source === "user" ? "user" : "llm",
+              sfx: lockSfx ? (beat.directionMeta?.sources?.sfx || "user") : "llm",
+              "caption.emphasis": lockCaptionEmphasis ? (beat.directionMeta?.sources?.["caption.emphasis"] || "user") : "llm"
+            }
+          },
           caption: {
             ...beat.caption,
-            emphasis: uniqueStrings([
-              ...(beat.caption?.emphasis ?? []),
-              ...(next.captionEmphasis ?? []),
-              ...(next.voiceDirection.emphasis ?? [])
-            ])
+            emphasis: lockCaptionEmphasis
+              ? (beat.caption?.emphasis ?? [])
+              : uniqueStrings([
+                  ...(beat.caption?.emphasis ?? []),
+                  ...(next.captionEmphasis ?? []),
+                  ...(next.voiceDirection.emphasis ?? [])
+                ])
           },
-          sfxCues: next.sfxCues.length > 0 ? next.sfxCues : beat.sfxCues
+          sfxCues: lockSfx ? (beat.sfxCues ?? []) : (next.sfxCues.length > 0 ? next.sfxCues : beat.sfxCues)
         };
       })
     }))

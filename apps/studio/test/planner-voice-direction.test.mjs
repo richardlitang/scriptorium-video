@@ -30,6 +30,10 @@ test("beat inspector exposes editable voice tuning controls", async () => {
   assert.match(moduleSource, /Section feel/);
   assert.match(moduleSource, /Section pacing/);
   assert.match(moduleSource, /Section visual style/);
+  assert.match(moduleSource, /Sources · creative:/);
+  assert.match(moduleSource, /Lock Voice Direction/);
+  assert.match(moduleSource, /Lock Caption Emphasis/);
+  assert.match(moduleSource, /Lock SFX Direction/);
   assert.match(moduleSource, /Apply Voice Tuning to Section/);
   assert.match(moduleSource, /Apply Voice Tuning to Selected Beats/);
 });

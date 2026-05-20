@@ -16,6 +16,8 @@ type CaptionTuning = {
   minWordsBeforeSentenceBreak?: number;
 };
 
+type SourceLabel = "default" | "llm" | "inherited" | "user";
+
 export type ResolvedBeatProductionDirection = {
   creative: {
     feel?: string;
@@ -33,6 +35,13 @@ export type ResolvedBeatProductionDirection = {
   motion: ReturnType<typeof MotionSchema.parse>;
   sfxCues: SoundCueIntent[];
   editorial?: ReturnType<typeof BeatEditorialSchema.parse>;
+  sources: {
+    voice: SourceLabel;
+    caption: SourceLabel;
+    motion: SourceLabel;
+    sfx: SourceLabel;
+    editorial: SourceLabel;
+  };
 };
 
 function firstDefined<T>(...values: (T | undefined)[]): T | undefined {
@@ -40,6 +49,24 @@ function firstDefined<T>(...values: (T | undefined)[]): T | undefined {
     if (value !== undefined) return value;
   }
   return undefined;
+}
+
+function hasValue(value: unknown): boolean {
+  return value !== undefined && value !== null;
+}
+
+function sourceByLayer(
+  beatValue: unknown,
+  sectionValue: unknown,
+  projectValue: unknown,
+  legacyValue: unknown,
+  explicit?: SourceLabel
+): SourceLabel {
+  if (explicit) return explicit;
+  if (hasValue(beatValue)) return "user";
+  if (hasValue(sectionValue) || hasValue(projectValue)) return "inherited";
+  if (hasValue(legacyValue)) return "llm";
+  return "default";
 }
 
 function resolveCaptionTuning(plan: VideoPlan, section: Section, beat: Beat): CaptionTuning {
@@ -143,6 +170,43 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
     },
     motion,
     sfxCues,
-    editorial: editorialSource ? BeatEditorialSchema.parse(editorialSource) : undefined
+    editorial: editorialSource ? BeatEditorialSchema.parse(editorialSource) : undefined,
+    sources: {
+      voice: sourceByLayer(
+        beat.direction?.voice,
+        section.direction?.voice,
+        plan.direction?.voice,
+        beat.voiceDirection,
+        beat.directionMeta?.sources?.voice as SourceLabel | undefined
+      ),
+      caption: sourceByLayer(
+        beat.direction?.caption,
+        section.direction?.caption,
+        plan.direction?.caption,
+        beat.caption,
+        beat.directionMeta?.sources?.caption as SourceLabel | undefined
+      ),
+      motion: sourceByLayer(
+        beat.direction?.motion,
+        section.direction?.motion,
+        plan.direction?.motion,
+        beat.motion,
+        beat.directionMeta?.sources?.motion as SourceLabel | undefined
+      ),
+      sfx: sourceByLayer(
+        beat.direction?.sfxCues,
+        section.direction?.sfxCues,
+        plan.direction?.sfxCues,
+        beat.sfxCues,
+        beat.directionMeta?.sources?.sfx as SourceLabel | undefined
+      ),
+      editorial: sourceByLayer(
+        beat.direction?.editorial,
+        section.direction?.editorial,
+        plan.direction?.editorial,
+        beat.editorial,
+        beat.directionMeta?.sources?.editorial as SourceLabel | undefined
+      )
+    }
   };
 }

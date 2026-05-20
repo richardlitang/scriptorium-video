@@ -199,6 +199,11 @@ export const ProductionDirectionSchema = z.object({
   editorial: BeatEditorialSchema.optional()
 }).strict();
 
+export const DirectionMetaSchema = z.object({
+  lockedPaths: z.array(z.string()).default([]),
+  sources: z.record(z.string(), z.enum(["default", "llm", "inherited", "user"])).default({})
+}).strict();
+
 export const BeatSchema = z.object({
   id: z.string(),
   order: z.number().int().positive(),
@@ -214,6 +219,7 @@ export const BeatSchema = z.object({
     style: z.string().default("default")
   }).strict().default({ emphasis: [], style: "default" }),
   direction: ProductionDirectionSchema.optional(),
+  directionMeta: DirectionMetaSchema.optional(),
   voiceDirection: VoiceDirectionSchema.optional(),
   sfxCues: z.array(SoundCueIntentSchema).default([]),
   editorial: BeatEditorialSchema.optional(),
@@ -227,6 +233,7 @@ export const SectionSchema = z.object({
   purpose: z.string().optional(),
   estimatedDurationSeconds: z.number().positive().optional(),
   direction: ProductionDirectionSchema.optional(),
+  directionMeta: DirectionMetaSchema.optional(),
   beats: z.array(BeatSchema).min(1)
 }).strict();
 
@@ -288,6 +295,7 @@ export const VideoPlanSchema = z.object({
   voice: VoiceSchema,
   visualBible: VisualBibleSchema.optional(),
   direction: ProductionDirectionSchema.optional(),
+  directionMeta: DirectionMetaSchema.optional(),
   sections: z.array(SectionSchema).min(1)
 }).strict();
 

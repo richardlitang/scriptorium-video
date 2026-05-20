@@ -16,6 +16,29 @@ export function createBeatWorkspaceController({
 }) {
   const selectedBeatIds = new Set();
 
+  function sourceLabel(plan, section, beat, field) {
+    const fromMeta = beat.directionMeta?.sources?.[field];
+    if (fromMeta) return fromMeta;
+    if (field === "voice") {
+      if (beat.direction?.voice) return "user";
+      if (section.direction?.voice || plan.direction?.voice) return "inherited";
+      if (beat.voiceDirection?.source) return beat.voiceDirection.source;
+      return "default";
+    }
+    if (field === "caption") {
+      if (beat.direction?.caption) return "user";
+      if (section.direction?.caption || plan.direction?.caption) return "inherited";
+      if (beat.caption) return "llm";
+      return "default";
+    }
+    if (field === "creative") {
+      if (beat.direction?.creative) return "user";
+      if (section.direction?.creative || plan.direction?.creative) return "inherited";
+      return "default";
+    }
+    return "default";
+  }
+
   function ensureSelectedWithinPlan(plan) {
     const validIds = new Set((plan.sections ?? []).flatMap((section) => (section.beats ?? []).map((beat) => beat.id)));
     for (const beatId of [...selectedBeatIds]) {
@@ -185,6 +208,10 @@ export function createBeatWorkspaceController({
     sectionInfo.className = "feedback-row feedback-info";
     sectionInfo.textContent = `${section.title} · ${beat.id} · ${beatDurationSeconds(beat.id, timeline).toFixed(1)}s`;
     inspectorEl.appendChild(sectionInfo);
+    const sourceInfo = document.createElement("div");
+    sourceInfo.className = "feedback-row";
+    sourceInfo.textContent = `Sources · creative: ${sourceLabel(plan, section, beat, "creative")} · voice: ${sourceLabel(plan, section, beat, "voice")} · caption: ${sourceLabel(plan, section, beat, "caption")}`;
+    inspectorEl.appendChild(sourceInfo);
 
     const sectionFeelField = document.createElement("label");
     sectionFeelField.className = "beat-inspector-field";
@@ -432,6 +459,29 @@ export function createBeatWorkspaceController({
 
     const actions = document.createElement("div");
     actions.className = "beat-inspector-actions";
+    const toggleDirectionLock = (path) => {
+      const locked = new Set(beat.directionMeta?.lockedPaths || []);
+      if (locked.has(path)) locked.delete(path);
+      else locked.add(path);
+      beat.directionMeta = {
+        ...(beat.directionMeta || {}),
+        lockedPaths: [...locked]
+      };
+      onPlanChanged(plan);
+      renderInspector({ projectId, plan, assets, timeline });
+    };
+    const voiceLockBtn = document.createElement("button");
+    voiceLockBtn.type = "button";
+    voiceLockBtn.textContent = (beat.directionMeta?.lockedPaths || []).includes("voice") ? "Unlock Voice Direction" : "Lock Voice Direction";
+    voiceLockBtn.onclick = () => toggleDirectionLock("voice");
+    const captionLockBtn = document.createElement("button");
+    captionLockBtn.type = "button";
+    captionLockBtn.textContent = (beat.directionMeta?.lockedPaths || []).includes("caption.emphasis") ? "Unlock Caption Emphasis" : "Lock Caption Emphasis";
+    captionLockBtn.onclick = () => toggleDirectionLock("caption.emphasis");
+    const sfxLockBtn = document.createElement("button");
+    sfxLockBtn.type = "button";
+    sfxLockBtn.textContent = (beat.directionMeta?.lockedPaths || []).includes("sfx") ? "Unlock SFX Direction" : "Lock SFX Direction";
+    sfxLockBtn.onclick = () => toggleDirectionLock("sfx");
     const applySectionBtn = document.createElement("button");
     applySectionBtn.type = "button";
     applySectionBtn.textContent = "Apply Voice Tuning to Section";
@@ -493,7 +543,7 @@ export function createBeatWorkspaceController({
         renderNowBtn.disabled = false;
       }
     };
-    actions.append(applySelectedBtn, applySectionBtn, regenerateBtn, renderNowBtn);
+    actions.append(voiceLockBtn, captionLockBtn, sfxLockBtn, applySelectedBtn, applySectionBtn, regenerateBtn, renderNowBtn);
 
     const assetsInfo = document.createElement("div");
     assetsInfo.className = "feedback-row";

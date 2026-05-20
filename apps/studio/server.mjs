@@ -836,6 +836,15 @@ function buildPlanFromAiDraft(currentPlan, draft) {
         }
       }
     },
+    directionMeta: {
+      ...(currentPlan.directionMeta || {}),
+      lockedPaths: currentPlan.directionMeta?.lockedPaths || [],
+      sources: {
+        ...(currentPlan.directionMeta?.sources || {}),
+        creative: "llm",
+        caption: "llm"
+      }
+    },
     overrides: {
       ...(currentPlan.overrides || {}),
       ...(draft.captionTuning ? {
@@ -857,6 +866,10 @@ function buildPlanFromAiDraft(currentPlan, draft) {
             pacing: String(section.pacing || "").trim() || undefined,
             visualStyle: String(section.visualStyle || "").trim() || undefined
           }
+        },
+        directionMeta: {
+          lockedPaths: [],
+          sources: { creative: "llm" }
         },
         estimatedDurationSeconds: section.beats.reduce(
           (total, beat) => total + (beat.estimatedDurationSeconds || estimateDurationSeconds(beat.narration)),
@@ -917,6 +930,16 @@ function buildPlanFromAiDraft(currentPlan, draft) {
               },
               sfxCues: normalizeSfxCues(beat),
               editorial: normalizeEditorial(beat)
+            },
+            directionMeta: {
+              lockedPaths: [],
+              sources: {
+                voice: "llm",
+                caption: "llm",
+                motion: "llm",
+                sfx: "llm",
+                editorial: "llm"
+              }
             },
             caption: { emphasis: beat.emphasis || [], style: beat.captionStyle || "default" },
             voiceDirection: normalizeVoiceDirection(beat),

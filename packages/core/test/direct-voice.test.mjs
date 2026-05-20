@@ -97,3 +97,34 @@ test("applyVoiceDirectionPlan preserves user direction unless force is true", ()
   const force = applyVoiceDirectionPlan(plan, output, { force: true });
   assert.equal(force.sections[0].beats[1].voiceDirection.profile, "reveal");
 });
+
+test("applyVoiceDirectionPlan respects directionMeta locks", () => {
+  const plan = samplePlan();
+  plan.sections[0].beats[0].directionMeta = {
+    lockedPaths: ["voice", "caption.emphasis", "sfx"],
+    sources: {}
+  };
+  const output = {
+    beats: [
+      {
+        beatId: "beat-1",
+        voiceDirection: {
+          profile: "reveal",
+          emphasis: ["new"],
+          pauseBeforeSeconds: 0.3,
+          pauseAfterSeconds: 0.4,
+          intensity: 0.8,
+          source: "llm"
+        },
+        captionEmphasis: ["new"],
+        sfxCues: [{ id: "cue-2", kind: "hit", placement: "beat_start", offsetSeconds: 0, levelDb: -18 }]
+      }
+    ]
+  };
+
+  const next = applyVoiceDirectionPlan(plan, output);
+  const beat = next.sections[0].beats[0];
+  assert.equal(beat.voiceDirection.profile, "neutral");
+  assert.deepEqual(beat.caption.emphasis, ["first"]);
+  assert.equal(beat.sfxCues.length, 0);
+});
