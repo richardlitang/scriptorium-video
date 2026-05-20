@@ -3,14 +3,17 @@ import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { test } from "node:test";
 
-test("Studio input panel exposes separated planner prompt controls", async () => {
+test("Studio input panel exposes creative controls and hides planner prompts behind advanced override", async () => {
   const html = await readFile(path.resolve("apps/studio/public/index.html"), "utf8");
   assert.match(html, /id="story-feel"/);
   assert.match(html, /id="story-pacing"/);
   assert.match(html, /id="story-visual-style"/);
+  assert.match(html, /AI planner prompt override/);
   assert.match(html, /id="story-system-prompt"/);
   assert.match(html, /id="story-user-prompt-template"/);
   assert.match(html, /id="reset-prompt-defaults-btn"/);
+  assert.doesNotMatch(html, /System Prompt \(generic, highest priority\)/);
+  assert.doesNotMatch(html, /User Prompt Template \(editable defaults/);
   assert.match(html, /Photo density/);
   assert.match(html, /value="balanced">Balanced key moments/);
 });

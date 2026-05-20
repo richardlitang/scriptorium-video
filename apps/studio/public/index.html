@@ -75,19 +75,6 @@
                 <input id="story-visual-style" type="text" value="stylized animated cinematic frames, explicitly non-photorealistic" />
               </label>
             </div>
-            <div class="prompt-controls">
-              <label>
-                System Prompt (generic, highest priority)
-                <textarea id="story-system-prompt" spellcheck="false"></textarea>
-              </label>
-              <label>
-                User Prompt Template (editable defaults; supports placeholders like {{story}}, {{feel}}, {{pacing}}, {{visualStyle}}, {{format}}, {{currentTitle}}, {{target}})
-                <textarea id="story-user-prompt-template" spellcheck="false"></textarea>
-              </label>
-              <div class="prompt-actions">
-                <button id="reset-prompt-defaults-btn" type="button" class="ghost-btn">Reset Prompt Defaults</button>
-              </div>
-            </div>
           </article>
 
           <aside class="director-card">
@@ -203,6 +190,21 @@
             <button id="prepare-draft-btn" disabled>Regenerate Audio</button>
             <button id="render-draft-btn" disabled>Render Draft Only</button>
           </div>
+          <details class="prompt-controls">
+            <summary>AI planner prompt override</summary>
+            <p class="advanced-note">Only edit these when debugging planner behavior. Normal projects should use Story, Feel, Pacing, and Visual Style above.</p>
+            <label>
+              Planner system instructions
+              <textarea id="story-system-prompt" spellcheck="false"></textarea>
+            </label>
+            <label>
+              Planner user template
+              <textarea id="story-user-prompt-template" spellcheck="false"></textarea>
+            </label>
+            <div class="prompt-actions">
+              <button id="reset-prompt-defaults-btn" type="button" class="ghost-btn">Reset Planner Defaults</button>
+            </div>
+          </details>
           <div class="debug-grid">
             <article class="panel panel-wide">
               <h3>Video Plan</h3>

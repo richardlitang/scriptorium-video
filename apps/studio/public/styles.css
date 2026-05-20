@@ -636,6 +636,12 @@ h3 {
   margin-top: 12px;
 }
 
+.prompt-controls summary {
+  cursor: pointer;
+  color: var(--amber);
+  font-weight: 700;
+}
+
 .prompt-controls label {
   display: grid;
   gap: 6px;
@@ -659,6 +665,12 @@ h3 {
 .prompt-actions {
   display: flex;
   justify-content: flex-end;
+}
+
+.advanced-note {
+  margin: 6px 0 10px;
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .compact-controls {
