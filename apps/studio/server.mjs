@@ -731,6 +731,7 @@ async function runTrackedForegroundJob(projectId, options, runner) {
 }
 
 async function runRetriedDraftStep(projectId, job, label, operation) {
+  const isProviderUnreachableError = (message) => /TTS server is unreachable/i.test(String(message || ""));
   let lastError;
   for (let attempt = 1; attempt <= job.maxAttempts; attempt += 1) {
     await writeDraftJobState(projectId, job, {
@@ -757,15 +758,17 @@ async function runRetriedDraftStep(projectId, job, label, operation) {
       return result;
     } catch (error) {
       lastError = error;
+      const message = error instanceof Error ? error.message : String(error);
       await appendRunTrace(projectId, job.id, "step.failed", {
         label,
         attempt,
-        message: error instanceof Error ? error.message : String(error)
+        message
       }).catch(() => {});
-      job.output.push(`${label} attempt ${attempt} failed:\n${error instanceof Error ? error.message : String(error)}`);
+      job.output.push(`${label} attempt ${attempt} failed:\n${message}`);
       await writeDraftJobState(projectId, job, {
-        error: error instanceof Error ? error.message : String(error)
+        error: message
       });
+      if (isProviderUnreachableError(message)) break;
       if (attempt < job.maxAttempts) await sleep(1000 * attempt);
     }
   }
@@ -809,6 +812,10 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
     transcriptionProvider,
     voiceSettings: summarizeVoiceSettingsForTrace(voiceSettings),
     totalBeats
+  }).catch(() => {});
+  const ttsPreflight = await preflightDraftTtsProviders(plan);
+  await appendRunTrace(projectId, job.id, "audio.tts_preflight.complete", {
+    providers: ttsPreflight
   }).catch(() => {});
 
   const uniqueProviders = [...new Set(beatRefs.map((ref) => ref.provider))];

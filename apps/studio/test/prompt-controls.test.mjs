@@ -169,6 +169,9 @@ test("studio preflights routed TTS providers before draft generation work", asyn
   assert.match(server, /Draft requires unavailable TTS provider\(s\):/);
   assert.match(server, /label: "Checking narration providers"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "tts_preflight\.complete"/);
+  assert.match(server, /appendRunTrace\(projectId, job\.id, "audio\.tts_preflight\.complete"/);
+  assert.match(server, /const isProviderUnreachableError = \(message\) => \/TTS server is unreachable\/i\.test/);
+  assert.match(server, /if \(isProviderUnreachableError\(message\)\) break;/);
 });
 
 test("studio defaults photo coverage to llm story-driven target selection", async () => {
