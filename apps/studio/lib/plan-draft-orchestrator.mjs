@@ -56,11 +56,11 @@ const PLAN_DRAFT_SCHEMA = {
       additionalProperties: false,
       required: ["targetMaxWords", "hardMaxWords", "targetMaxDurationSeconds", "hardMaxDurationSeconds", "minWordsBeforeSentenceBreak"],
       properties: {
-        targetMaxWords: { type: "number" },
-        hardMaxWords: { type: "number" },
-        targetMaxDurationSeconds: { type: "number" },
-        hardMaxDurationSeconds: { type: "number" },
-        minWordsBeforeSentenceBreak: { type: "number" }
+        targetMaxWords: { type: "number", minimum: 4, maximum: 30 },
+        hardMaxWords: { type: "number", minimum: 6, maximum: 40 },
+        targetMaxDurationSeconds: { type: "number", minimum: 1.5, maximum: 12 },
+        hardMaxDurationSeconds: { type: "number", minimum: 2, maximum: 14 },
+        minWordsBeforeSentenceBreak: { type: "number", minimum: 2, maximum: 20 }
       }
     },
     voice: {

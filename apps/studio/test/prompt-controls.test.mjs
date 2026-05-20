@@ -109,6 +109,7 @@ test("OpenAI planner schema satisfies strict required-property rules", async () 
   const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
   assert.match(draftOrchestrator, /required: \["title", "feel", "pacing", "visualStyle", "captionTuning", "voice", "visualBible", "sections", "warnings"\]/);
   assert.match(draftOrchestrator, /required: \["targetMaxWords", "hardMaxWords", "targetMaxDurationSeconds", "hardMaxDurationSeconds", "minWordsBeforeSentenceBreak"\]/);
+  assert.match(draftOrchestrator, /minWordsBeforeSentenceBreak: \{ type: "number", minimum: 2, maximum: 20 \}/);
   assert.match(draftOrchestrator, /required: \["title", "summary", "purpose", "feel", "pacing", "visualStyle", "beats"\]/);
   assert.match(draftOrchestrator, /required: \["narration", "visualPrompt", "estimatedDurationSeconds", "motion", "emphasis", "notes", "voiceProfile", "intensity", "pauseBeforeSeconds", "pauseAfterSeconds", "deliveryNote", "speedMultiplier", "pitchOffset", "voiceConfidence", "narrationLanguage", "ttsProvider", "visualConfidence", "captionStyle", "shotType", "cameraDistance", "lighting", "lens", "composition", "subjectContinuity", "negativePromptAdditions", "sfxCues", "visualEditCues", "silenceWindows", "endingPolicy"\]/);
   assert.match(draftOrchestrator, /required: \["id", "kind", "placement", "offsetSeconds", "levelDb", "pan", "proximity", "duckMusic"\]/);
@@ -147,6 +148,14 @@ test("studio draft endpoint rejects empty story with scaffold placeholder plan",
   assert.match(server, /function isScaffoldPlaceholderPlan\(plan\)/);
   assert.match(server, /replace this narration with your first beat\./);
   assert.match(server, /Make Draft needs story text or a saved plan with real narration/);
+});
+
+test("studio clamps planner caption tuning to video-plan schema bounds", async () => {
+  const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  assert.match(server, /const normalizeCaptionTuning = \(tuning = \{\}\) => \(\{/);
+  assert.match(server, /minWordsBeforeSentenceBreak: clampInteger\(tuning\.minWordsBeforeSentenceBreak, 3, 2, 20\)/);
+  assert.match(server, /const captionTuning = normalizeCaptionTuning\(draft\.captionTuning \|\| \{\}\)/);
+  assert.match(server, /tuning: captionTuning/);
 });
 
 test("studio uses an LLM orchestrator to map missing TTS routing metadata", async () => {

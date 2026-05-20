@@ -1231,6 +1231,14 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     if (!Number.isFinite(numeric)) return fallback;
     return Math.max(min, Math.min(max, numeric));
   };
+  const clampInteger = (value, fallback, min, max) => Math.round(clampNumber(value, fallback, min, max));
+  const normalizeCaptionTuning = (tuning = {}) => ({
+    targetMaxWords: clampInteger(tuning.targetMaxWords, 14, 4, 30),
+    hardMaxWords: clampInteger(tuning.hardMaxWords, 18, 6, 40),
+    targetMaxDurationSeconds: clampNumber(tuning.targetMaxDurationSeconds, 4.5, 1.5, 12),
+    hardMaxDurationSeconds: clampNumber(tuning.hardMaxDurationSeconds, 6, 2, 14),
+    minWordsBeforeSentenceBreak: clampInteger(tuning.minWordsBeforeSentenceBreak, 3, 2, 20)
+  });
   const normalizeVoiceDirection = (beatDraft) => {
     const confidence = clampNumber(beatDraft.voiceConfidence, 0.7, 0, 1);
     const conservative = confidence < 0.45;
@@ -1358,6 +1366,7 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     };
   };
   const visualBible = draft.visualBible || {};
+  const captionTuning = normalizeCaptionTuning(draft.captionTuning || {});
   const visualBibleSuffix = [
     visualBible.stylePreset ? `Style preset: ${visualBible.stylePreset}` : "",
     visualBible.lookAndFeel ? `Look and feel: ${visualBible.lookAndFeel}` : "",
@@ -1401,9 +1410,7 @@ function buildPlanFromAiDraft(currentPlan, draft) {
         visualStyle: String(draft.visualStyle || "").trim() || undefined
       },
       caption: {
-        tuning: {
-          ...(draft.captionTuning || {})
-        }
+        tuning: captionTuning
       }
     },
     directionMeta: {
@@ -1419,7 +1426,7 @@ function buildPlanFromAiDraft(currentPlan, draft) {
       ...(draft.captionTuning ? {
         captionTuning: {
           ...(currentPlan.overrides?.captionTuning || {}),
-          ...draft.captionTuning
+          ...captionTuning
         }
       } : {})
     },
