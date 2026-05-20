@@ -44,7 +44,53 @@ export const SoundCueIntentSchema = z.object({
   placement: z.enum(["beat_start", "beat_end", "key_point", "manual"]).default("manual"),
   offsetSeconds: z.number().min(-5).max(5).default(0),
   levelDb: z.number().min(-48).max(12).default(-16),
+  pan: z.number().min(-1).max(1).default(0),
+  proximity: z.enum(["distant", "room", "close", "close_mic"]).default("room"),
+  duckMusic: z.boolean().default(false),
   assetId: z.string().optional()
+}).strict();
+
+export const EditorialCueSchema = z.object({
+  id: z.string(),
+  type: z.enum([
+    "smash_cut",
+    "cut_to_black",
+    "hold_black",
+    "j_cut",
+    "l_cut",
+    "slow_pan",
+    "push_in",
+    "hard_cut",
+    "match_cut"
+  ]),
+  placement: z.enum(["beat_start", "beat_end", "key_point", "manual"]).default("manual"),
+  offsetSeconds: z.number().min(-5).max(5).default(0),
+  durationSeconds: z.number().min(0).max(8).default(0.4),
+  target: z.enum(["black", "current_visual", "next_visual"]).default("current_visual"),
+  intensity: z.number().min(0).max(1).default(0.5)
+}).strict();
+
+export const SilenceWindowSchema = z.object({
+  id: z.string(),
+  placement: z.enum(["beat_start", "beat_end", "before_reveal", "manual"]).default("manual"),
+  offsetSeconds: z.number().min(-5).max(5).default(0),
+  durationSeconds: z.number().min(0.1).max(5).default(0.8),
+  muteMusic: z.boolean().default(true),
+  muteSfx: z.boolean().default(true),
+  keepVoice: z.boolean().default(false)
+}).strict();
+
+export const EndingPolicySchema = z.object({
+  cutToBlack: z.boolean().default(false),
+  holdSeconds: z.number().min(0).max(4).default(0),
+  audioPolicy: z.enum(["hard_silence", "fade_out", "none"]).default("none"),
+  avoidOutro: z.boolean().default(false)
+}).strict();
+
+export const BeatEditorialSchema = z.object({
+  visualEditCues: z.array(EditorialCueSchema).default([]),
+  silenceWindows: z.array(SilenceWindowSchema).default([]),
+  endingPolicy: EndingPolicySchema.optional()
 }).strict();
 
 export const MediaIntentSchema = z.object({
@@ -128,6 +174,7 @@ export const BeatSchema = z.object({
   }).strict().default({ emphasis: [], style: "default" }),
   voiceDirection: VoiceDirectionSchema.optional(),
   sfxCues: z.array(SoundCueIntentSchema).default([]),
+  editorial: BeatEditorialSchema.optional(),
   emotion: z.string().optional(),
   notes: z.string().optional()
 }).strict();

@@ -86,6 +86,49 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
     }
   }
 
+  const segmentByBeatId = new Map(bundle.timeline.segments.map((segment) => [segment.beatId, segment]));
+  for (const section of loaded.videoPlan.sections) {
+    for (const beat of section.beats) {
+      const segment = segmentByBeatId.get(beat.id);
+      if (!segment) continue;
+
+      const visualCueCount = segment.visualEditCues?.length ?? 0;
+      if (visualCueCount > 3) {
+        checks.push({
+          id: "shared.editorial.visual_cue_density",
+          severity: "warning",
+          message: `Beat ${beat.id} has ${visualCueCount} visual edit cues; consider reducing for cleaner pacing.`,
+          path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.visualEditCues`
+        });
+      }
+
+      const silenceWindows = [...(segment.silenceWindows ?? [])].sort((a, b) => a.startSeconds - b.startSeconds);
+      let silenceTotal = 0;
+      for (let index = 0; index < silenceWindows.length; index += 1) {
+        const current = silenceWindows[index];
+        silenceTotal += Math.max(0, current.endSeconds - current.startSeconds);
+        const previous = silenceWindows[index - 1];
+        if (previous && current.startSeconds < previous.endSeconds) {
+          checks.push({
+            id: "shared.editorial.silence_overlap",
+            severity: "warning",
+            message: `Beat ${beat.id} has overlapping silence windows (${previous.id}, ${current.id}).`,
+            path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`
+          });
+          break;
+        }
+      }
+      if (segment.durationSeconds > 0 && silenceTotal / segment.durationSeconds > 0.4) {
+        checks.push({
+          id: "shared.editorial.silence_overuse",
+          severity: "warning",
+          message: `Beat ${beat.id} mutes audio for ${Math.round((silenceTotal / segment.durationSeconds) * 100)}% of its duration.`,
+          path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`
+        });
+      }
+    }
+  }
+
   const promptCounts = new Map();
   for (const section of loaded.videoPlan.sections) {
     for (const beat of section.beats) {
@@ -149,6 +192,14 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           message: `Beat ${segment.beatId} exceeds 6 seconds without guaranteed visual change.`
         });
       }
+    }
+    const finalSegment = bundle.timeline.segments[bundle.timeline.segments.length - 1];
+    if (finalSegment?.endingPolicy?.cutToBlack && (finalSegment.endingPolicy.holdSeconds ?? 0) < 0.6) {
+      checks.push({
+        id: "short_story.ending_black_hold",
+        severity: "warning",
+        message: "Final cut-to-black hold is very short (<0.6s); completion-view effect may be weak."
+      });
     }
     if (!loaded.captions || loaded.captions.captions.length === 0) {
       checks.push({

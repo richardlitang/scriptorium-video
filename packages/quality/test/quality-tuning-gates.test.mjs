@@ -58,7 +58,19 @@ test("quality checks include tuning-related warnings", async () => {
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
               voiceDirection: { profile: "neutral", emphasis: [], pauseBeforeSeconds: 0.8, pauseAfterSeconds: 0.8, intensity: 0.1, speedMultiplier: 1, pitchOffset: 0, source: "llm" },
-              sfxCues: []
+              sfxCues: [],
+              editorial: {
+                visualEditCues: [
+                  { id: "v1", type: "hard_cut", placement: "beat_start", offsetSeconds: 0, durationSeconds: 0.3, target: "current_visual", intensity: 0.6 },
+                  { id: "v2", type: "j_cut", placement: "manual", offsetSeconds: 0.4, durationSeconds: 0.3, target: "current_visual", intensity: 0.5 },
+                  { id: "v3", type: "l_cut", placement: "manual", offsetSeconds: 0.8, durationSeconds: 0.3, target: "next_visual", intensity: 0.5 },
+                  { id: "v4", type: "smash_cut", placement: "manual", offsetSeconds: 1.2, durationSeconds: 0.2, target: "current_visual", intensity: 0.8 }
+                ],
+                silenceWindows: [
+                  { id: "sw1", placement: "manual", offsetSeconds: 0.3, durationSeconds: 1.5, muteMusic: true, muteSfx: true, keepVoice: false },
+                  { id: "sw2", placement: "manual", offsetSeconds: 1.1, durationSeconds: 1.4, muteMusic: true, muteSfx: true, keepVoice: false }
+                ]
+              }
             },
             {
               id: "s1-002",
@@ -80,7 +92,15 @@ test("quality checks include tuning-related warnings", async () => {
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
               voiceDirection: { profile: "neutral", emphasis: [], pauseBeforeSeconds: 0, pauseAfterSeconds: 0, intensity: 0.2, speedMultiplier: 1, pitchOffset: 0, source: "llm" },
-              sfxCues: []
+              sfxCues: [],
+              editorial: {
+                endingPolicy: {
+                  cutToBlack: true,
+                  holdSeconds: 0.2,
+                  audioPolicy: "hard_silence",
+                  avoidOutro: true
+                }
+              }
             }
           ]
         }
@@ -119,6 +139,10 @@ test("quality checks include tuning-related warnings", async () => {
     assert.ok(ids.includes("shared.voice.pause_budget"));
     assert.ok(ids.includes("shared.voice.intensity_jump"));
     assert.ok(ids.includes("shared.visual.prompt_repetition"));
+    assert.ok(ids.includes("shared.editorial.visual_cue_density"));
+    assert.ok(ids.includes("shared.editorial.silence_overlap"));
+    assert.ok(ids.includes("shared.editorial.silence_overuse"));
+    assert.ok(ids.includes("short_story.ending_black_hold"));
   } finally {
     await rm(root, { recursive: true, force: true });
   }

@@ -19,6 +19,25 @@ function duckingFactorAt(timeSeconds: number, voiceRanges: Array<{ start: number
   return voiceRanges.some((range) => timeSeconds >= range.start && timeSeconds < range.end) ? 0.35 : 1;
 }
 
+function activeSilenceAt(
+  timeSeconds: number,
+  windows: Array<{ startSeconds: number; endSeconds: number; muteMusic: boolean; muteSfx: boolean; keepVoice: boolean }>
+) {
+  return windows.find((window) => timeSeconds >= window.startSeconds && timeSeconds < window.endSeconds);
+}
+
+function shouldCutToBlack(
+  timeSeconds: number,
+  cues: Array<{ type: string; startSeconds: number; durationSeconds: number; target: string }>
+): boolean {
+  return cues.some((cue) =>
+    (cue.type === "cut_to_black" || cue.type === "hold_black") &&
+    cue.target === "black" &&
+    timeSeconds >= cue.startSeconds &&
+    timeSeconds < cue.startSeconds + cue.durationSeconds
+  );
+}
+
 export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
   renderBundle,
   assetUrls
@@ -40,6 +59,9 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
   const voiceRanges = timeline.segments
     .filter((segment) => Boolean(segment.voiceAssetId))
     .map((segment) => ({ start: segment.startSeconds, end: segment.endSeconds }));
+  const silenceWindows = timeline.segments.flatMap((segment) => segment.silenceWindows ?? []);
+  const visualEditCues = timeline.segments.flatMap((segment) => segment.visualEditCues ?? []);
+  const cutToBlack = shouldCutToBlack(timeSeconds, visualEditCues);
 
   const sectionStarts = videoPlan.sections
     .map((section) => {
@@ -57,7 +79,11 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#020617" }}>
-      <MediaLayer asset={activeMedia} src={activeMediaUrl} motion={activeBeat?.motion} />
+      {cutToBlack ? (
+        <AbsoluteFill style={{ backgroundColor: "#000000" }} />
+      ) : (
+        <MediaLayer asset={activeMedia} src={activeMediaUrl} motion={activeBeat?.motion} />
+      )}
 
       {timeline.segments.map((segment) => {
         if (!segment.voiceAssetId) return null;
@@ -69,7 +95,15 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
             from={Math.round(segment.startSeconds * fps)}
             durationInFrames={Math.ceil(segment.durationSeconds * fps)}
           >
-            <Audio src={src} />
+            <Audio
+              src={src}
+              volume={(frameInSequence) => {
+                const voiceTime = segment.startSeconds + frameInSequence / fps;
+                const voiceSilence = activeSilenceAt(voiceTime, silenceWindows);
+                if (voiceSilence && !voiceSilence.keepVoice) return 0;
+                return 1;
+              }}
+            />
           </Sequence>
         );
       })}
@@ -88,6 +122,11 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
                 volume={(frameInSequence) => {
                   const cueTime = cue.startSeconds + frameInSequence / fps;
                   const baseVolume = dbToVolume(cue.levelDb);
+                  const cueSilence = activeSilenceAt(cueTime, silenceWindows);
+                  if (cueSilence) {
+                    if (cue.role === "music" && cueSilence.muteMusic) return 0;
+                    if (cue.role === "sfx" && cueSilence.muteSfx) return 0;
+                  }
                   return cue.role === "music"
                     ? baseVolume * duckingFactorAt(cueTime, voiceRanges)
                     : baseVolume;

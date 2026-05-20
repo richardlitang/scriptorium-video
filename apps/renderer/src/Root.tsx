@@ -80,6 +80,8 @@ const defaultProps: RemotionInputProps = {
           durationSeconds: 3,
           mediaAssetIds: [],
           audioCues: [],
+          visualEditCues: [],
+          silenceWindows: [],
           renderPolicy: {
             mediaPolicy: "loop_or_freeze",
             scaleMode: "cover"

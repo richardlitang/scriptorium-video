@@ -128,6 +128,16 @@ function differs(a: number | undefined, b: number | undefined): boolean {
   return Math.abs(a - b) > EPSILON;
 }
 
+function cueStartForPlacement(
+  placement: string,
+  segmentStart: number,
+  segmentEnd: number,
+  offsetSeconds: number
+): number {
+  if (placement === "beat_end") return Math.max(0, segmentEnd + offsetSeconds);
+  return Math.max(0, segmentStart + offsetSeconds);
+}
+
 export async function syncProject(projectId: string, rootDir = process.cwd()): Promise<SyncResult> {
   const paths = getProjectPaths(projectId, rootDir);
   const plan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
@@ -210,18 +220,42 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
             continue;
           }
           const rawStart =
-            cue.placement === "beat_end"
-              ? segmentEnd + cue.offsetSeconds
-              : segmentStart + cue.offsetSeconds;
+            cueStartForPlacement(cue.placement, segmentStart, segmentEnd, cue.offsetSeconds);
           const startSeconds = Math.max(0, rawStart);
           audioCues.push({
             assetId: cueAsset.id,
             role: cueAsset.role === "music" ? "music" : "sfx",
             startSeconds,
             durationSeconds: cueAsset.durationSeconds ?? 0,
-            levelDb: cue.levelDb
+            levelDb: cue.levelDb,
+            pan: cue.pan ?? 0,
+            proximity: cue.proximity ?? "room",
+            duckMusic: cue.duckMusic ?? false
           });
         }
+        const visualEditCues = (beat.editorial?.visualEditCues ?? []).map((cue) => {
+          const startSeconds = cueStartForPlacement(cue.placement, segmentStart, segmentEnd, cue.offsetSeconds);
+          return {
+            id: cue.id,
+            type: cue.type,
+            startSeconds,
+            durationSeconds: cue.durationSeconds,
+            target: cue.target,
+            intensity: cue.intensity
+          };
+        });
+        const silenceWindows = (beat.editorial?.silenceWindows ?? []).map((window) => {
+          const startSeconds = cueStartForPlacement(window.placement, segmentStart, segmentEnd, window.offsetSeconds);
+          const endSeconds = startSeconds + window.durationSeconds;
+          return {
+            id: window.id,
+            startSeconds,
+            endSeconds,
+            muteMusic: window.muteMusic,
+            muteSfx: window.muteSfx,
+            keepVoice: window.keepVoice
+          };
+        });
         const segment = {
           sectionId: section.id,
           beatId: beat.id,
@@ -231,6 +265,9 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
           voiceAssetId: voiceAsset?.id,
           mediaAssetIds: mediaAssets.map((asset) => asset.id),
           audioCues,
+          visualEditCues,
+          silenceWindows,
+          endingPolicy: beat.editorial?.endingPolicy,
           renderPolicy: {
             mediaPolicy: beat.timing.mediaPolicy,
             scaleMode: beat.media[0]?.scaleMode ?? "cover"

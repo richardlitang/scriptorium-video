@@ -14,9 +14,48 @@ export const TimelineSegmentSchema = z.object({
       role: z.enum(["sfx", "music"]),
       startSeconds: z.number().nonnegative(),
       durationSeconds: z.number().nonnegative(),
-      levelDb: z.number()
+      levelDb: z.number(),
+      pan: z.number().min(-1).max(1).default(0),
+      proximity: z.enum(["distant", "room", "close", "close_mic"]).default("room"),
+      duckMusic: z.boolean().default(false)
     }).strict()
   ).default([]),
+  visualEditCues: z.array(
+    z.object({
+      id: z.string(),
+      type: z.enum([
+        "smash_cut",
+        "cut_to_black",
+        "hold_black",
+        "j_cut",
+        "l_cut",
+        "slow_pan",
+        "push_in",
+        "hard_cut",
+        "match_cut"
+      ]),
+      startSeconds: z.number().nonnegative(),
+      durationSeconds: z.number().nonnegative(),
+      target: z.enum(["black", "current_visual", "next_visual"]),
+      intensity: z.number().min(0).max(1)
+    }).strict()
+  ).default([]),
+  silenceWindows: z.array(
+    z.object({
+      id: z.string(),
+      startSeconds: z.number().nonnegative(),
+      endSeconds: z.number().positive(),
+      muteMusic: z.boolean(),
+      muteSfx: z.boolean(),
+      keepVoice: z.boolean()
+    }).strict()
+  ).default([]),
+  endingPolicy: z.object({
+    cutToBlack: z.boolean().default(false),
+    holdSeconds: z.number().min(0).default(0),
+    audioPolicy: z.enum(["hard_silence", "fade_out", "none"]).default("none"),
+    avoidOutro: z.boolean().default(false)
+  }).strict().optional(),
   renderPolicy: z.object({
     mediaPolicy: z.enum([
       "cut_to_audio",

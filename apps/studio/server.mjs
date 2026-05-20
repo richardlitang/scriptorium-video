@@ -668,8 +668,57 @@ function buildPlanFromAiDraft(currentPlan, draft) {
         kind: String(cue.kind || "ambience"),
         placement: ["beat_start", "beat_end", "key_point", "manual"].includes(cue.placement) ? cue.placement : "manual",
         offsetSeconds: clampNumber(cue.offsetSeconds, 0, -5, 5),
-        levelDb: clampNumber(cue.levelDb, -16, -48, 12)
+        levelDb: clampNumber(cue.levelDb, -16, -48, 12),
+        pan: clampNumber(cue.pan, 0, -1, 1),
+        proximity: ["distant", "room", "close", "close_mic"].includes(cue.proximity) ? cue.proximity : "room",
+        duckMusic: cue.duckMusic === true
       }));
+  };
+  const normalizeEditorial = (beatDraft) => {
+    const visualEditCues = Array.isArray(beatDraft.visualEditCues)
+      ? beatDraft.visualEditCues.slice(0, 4).map((cue, index) => ({
+          id: String(cue.id || `edit-${index + 1}`),
+          type: [
+            "smash_cut",
+            "cut_to_black",
+            "hold_black",
+            "j_cut",
+            "l_cut",
+            "slow_pan",
+            "push_in",
+            "hard_cut",
+            "match_cut"
+          ].includes(cue.type) ? cue.type : "hard_cut",
+          placement: ["beat_start", "beat_end", "key_point", "manual"].includes(cue.placement) ? cue.placement : "manual",
+          offsetSeconds: clampNumber(cue.offsetSeconds, 0, -5, 5),
+          durationSeconds: clampNumber(cue.durationSeconds, 0.4, 0, 8),
+          target: ["black", "current_visual", "next_visual"].includes(cue.target) ? cue.target : "current_visual",
+          intensity: clampNumber(cue.intensity, 0.5, 0, 1)
+        }))
+      : [];
+    const silenceWindows = Array.isArray(beatDraft.silenceWindows)
+      ? beatDraft.silenceWindows.slice(0, 2).map((window, index) => ({
+          id: String(window.id || `silence-${index + 1}`),
+          placement: ["beat_start", "beat_end", "before_reveal", "manual"].includes(window.placement) ? window.placement : "manual",
+          offsetSeconds: clampNumber(window.offsetSeconds, 0, -5, 5),
+          durationSeconds: clampNumber(window.durationSeconds, 0.8, 0.1, 5),
+          muteMusic: window.muteMusic !== false,
+          muteSfx: window.muteSfx !== false,
+          keepVoice: window.keepVoice === true
+        }))
+      : [];
+    const endingPolicy = beatDraft.endingPolicy && typeof beatDraft.endingPolicy === "object"
+      ? {
+          cutToBlack: beatDraft.endingPolicy.cutToBlack === true,
+          holdSeconds: clampNumber(beatDraft.endingPolicy.holdSeconds, 0, 0, 4),
+          audioPolicy: ["hard_silence", "fade_out", "none"].includes(beatDraft.endingPolicy.audioPolicy)
+            ? beatDraft.endingPolicy.audioPolicy
+            : "none",
+          avoidOutro: beatDraft.endingPolicy.avoidOutro === true
+        }
+      : undefined;
+    if (visualEditCues.length === 0 && silenceWindows.length === 0 && !endingPolicy) return undefined;
+    return { visualEditCues, silenceWindows, endingPolicy };
   };
   const visualBible = draft.visualBible || {};
   const visualBibleSuffix = [
@@ -776,6 +825,7 @@ function buildPlanFromAiDraft(currentPlan, draft) {
             caption: { emphasis: beat.emphasis || [], style: beat.captionStyle || "default" },
             voiceDirection: normalizeVoiceDirection(beat),
             sfxCues: normalizeSfxCues(beat),
+            editorial: normalizeEditorial(beat),
             notes: [beat.notes || beat.visualPrompt || "", shotMetadata, visualBibleSuffix].filter(Boolean).join("\n\n")
           };
         })
@@ -815,6 +865,7 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
   "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
+  "- Add optional visualEditCues, silenceWindows, and endingPolicy for retention-focused editing only where appropriate.",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."
@@ -1027,8 +1078,56 @@ async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, v
                                 kind: { type: "string" },
                                 placement: { type: "string", enum: ["beat_start", "beat_end", "key_point", "manual"] },
                                 offsetSeconds: { type: "number" },
-                                levelDb: { type: "number" }
+                                levelDb: { type: "number" },
+                                pan: { type: "number" },
+                                proximity: { type: "string", enum: ["distant", "room", "close", "close_mic"] },
+                                duckMusic: { type: "boolean" }
                               }
+                            }
+                          },
+                          visualEditCues: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              additionalProperties: false,
+                              required: ["id", "type", "placement", "offsetSeconds", "durationSeconds", "target", "intensity"],
+                              properties: {
+                                id: { type: "string" },
+                                type: { type: "string", enum: ["smash_cut", "cut_to_black", "hold_black", "j_cut", "l_cut", "slow_pan", "push_in", "hard_cut", "match_cut"] },
+                                placement: { type: "string", enum: ["beat_start", "beat_end", "key_point", "manual"] },
+                                offsetSeconds: { type: "number" },
+                                durationSeconds: { type: "number" },
+                                target: { type: "string", enum: ["black", "current_visual", "next_visual"] },
+                                intensity: { type: "number" }
+                              }
+                            }
+                          },
+                          silenceWindows: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              additionalProperties: false,
+                              required: ["id", "placement", "offsetSeconds", "durationSeconds", "muteMusic", "muteSfx", "keepVoice"],
+                              properties: {
+                                id: { type: "string" },
+                                placement: { type: "string", enum: ["beat_start", "beat_end", "before_reveal", "manual"] },
+                                offsetSeconds: { type: "number" },
+                                durationSeconds: { type: "number" },
+                                muteMusic: { type: "boolean" },
+                                muteSfx: { type: "boolean" },
+                                keepVoice: { type: "boolean" }
+                              }
+                            }
+                          },
+                          endingPolicy: {
+                            type: "object",
+                            additionalProperties: false,
+                            required: ["cutToBlack", "holdSeconds", "audioPolicy", "avoidOutro"],
+                            properties: {
+                              cutToBlack: { type: "boolean" },
+                              holdSeconds: { type: "number" },
+                              audioPolicy: { type: "string", enum: ["hard_silence", "fade_out", "none"] },
+                              avoidOutro: { type: "boolean" }
                             }
                           }
                         }
