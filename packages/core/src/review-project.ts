@@ -1,7 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import { readJsonFile } from "./json.js";
 import { getProjectPaths } from "./paths.js";
+import type { Asset } from "./schemas/asset-manifest.schema.js";
 import { AssetManifestSchema } from "./schemas/asset-manifest.schema.js";
 import { CaptionsFileSchema } from "./schemas/captions.schema.js";
 import { TimelineSchema } from "./schemas/timeline.schema.js";
@@ -41,6 +42,19 @@ function countWords(text: string): number {
   return text.split(/\s+/).filter(Boolean).length;
 }
 
+function isVisualAsset(asset: Asset | undefined): asset is Asset {
+  return Boolean(asset && ["image", "video", "screen_recording"].includes(asset.type) && asset.role !== "voiceover");
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function reviewProject(projectId: string, rootDir = process.cwd()): Promise<ReviewResult> {
   const paths = getProjectPaths(projectId, rootDir);
   const [plan, manifest] = await Promise.all([
@@ -52,6 +66,7 @@ export async function reviewProject(projectId: string, rootDir = process.cwd()):
   const issues: ReviewIssue[] = [];
 
   const timelineByBeat = new Map((timeline?.segments ?? []).map((segment) => [segment.beatId, segment]));
+  const assetsById = new Map(manifest.assets.map((asset) => [asset.id, asset]));
   const captionsByBeat = new Map<string, Array<{ text: string }>>();
   for (const caption of captions?.captions ?? []) {
     if (!caption.beatId) continue;
@@ -60,16 +75,31 @@ export async function reviewProject(projectId: string, rootDir = process.cwd()):
 
   for (const section of plan.sections) {
     for (const beat of section.beats) {
-      const visual = manifest.assets.find((asset) => asset.beatId === beat.id && asset.role === "primary_visual");
+      const segment = timelineByBeat.get(beat.id);
+      const visualAssetId = segment?.mediaAssetIds?.[0];
+      const visual = visualAssetId
+        ? assetsById.get(visualAssetId)
+        : manifest.assets.find((asset) => asset.beatId === beat.id && asset.role === "primary_visual");
       const voice = manifest.assets.find((asset) => asset.beatId === beat.id && asset.role === "voiceover");
-      if (!visual) {
+      if (!isVisualAsset(visual)) {
         issues.push(makeIssue({
           severity: "critical",
           scope: "beat",
           code: "missing_primary_visual",
-          message: "Beat is missing a primary visual asset.",
+          message: "Beat has no renderable visual asset in the timeline.",
           sectionId: section.id,
-          beatId: beat.id
+          beatId: beat.id,
+          assetId: visualAssetId
+        }));
+      } else if (!(await fileExists(path.resolve(paths.projectDir, visual.path)))) {
+        issues.push(makeIssue({
+          severity: "critical",
+          scope: "asset",
+          code: "missing_visual_file",
+          message: `Timeline visual asset file is missing: ${visual.path}`,
+          sectionId: section.id,
+          beatId: beat.id,
+          assetId: visual.id
         }));
       }
       if (!voice) {
@@ -94,7 +124,6 @@ export async function reviewProject(projectId: string, rootDir = process.cwd()):
         }));
       }
 
-      const segment = timelineByBeat.get(beat.id);
       if (segment) {
         const min = beat.timing.preferredMinSeconds;
         const max = beat.timing.preferredMaxSeconds;

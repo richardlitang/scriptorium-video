@@ -21,6 +21,14 @@ export function voiceAssetForBeat(assets, beatId) {
   return assets.find((asset) => asset.role === "voiceover" && asset.beatId === beatId);
 }
 
+export function visualAssetForBeat(assets, timeline, beatId) {
+  const assetsById = new Map(assets.map((asset) => [asset.id, asset]));
+  const segment = timeline?.segments?.find((entry) => entry.beatId === beatId);
+  const timelineVisual = segment?.mediaAssetIds?.map((assetId) => assetsById.get(assetId)).find(Boolean);
+  if (timelineVisual) return timelineVisual;
+  return assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beatId);
+}
+
 export function createReviewController({ reviewListEl, reviewFilterEl, fetchJson, onSelectBeat }) {
   let currentReview = [];
 

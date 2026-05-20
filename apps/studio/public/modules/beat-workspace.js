@@ -1,4 +1,4 @@
-import { beatDurationSeconds, findBeat, pickSelectedBeat, voiceAssetForBeat } from "./workspace.js";
+import { beatDurationSeconds, findBeat, pickSelectedBeat, visualAssetForBeat, voiceAssetForBeat } from "./workspace.js";
 
 export function createBeatWorkspaceController({
   timelineEl,
@@ -140,14 +140,17 @@ export function createBeatWorkspaceController({
           card.appendChild(issues);
         }
 
-        const imageAsset = assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beat.id);
+        const imageAsset = visualAssetForBeat(assets, timeline, beat.id);
         const voiceAsset = assets.find((asset) => asset.role === "voiceover" && asset.beatId === beat.id);
         const imageLocked = imageAsset?.status === "locked_by_user";
         const voiceLocked = voiceAsset?.status === "locked_by_user";
         const statusRow = document.createElement("div");
         statusRow.className = "beat-status-row";
+        const imageText = imageAsset
+          ? imageAsset.beatId && imageAsset.beatId !== beat.id ? "reused image" : "image"
+          : "no image";
         const chips = [
-          { text: imageAsset ? "image" : "no image", className: imageAsset ? "ok" : "warn" },
+          { text: imageText, className: imageAsset ? "ok" : "warn" },
           { text: voiceAsset ? "audio" : "no audio", className: voiceAsset ? "ok" : "warn" },
           { text: imageLocked || voiceLocked ? "locked" : "open", className: imageLocked || voiceLocked ? "ok" : "warn" },
           { text: hasStaleRender ? "render stale" : "render current", className: hasStaleRender ? "bad" : "ok" }
@@ -202,7 +205,7 @@ export function createBeatWorkspaceController({
     }
     const { beat, section } = selected;
     const voiceAsset = voiceAssetForBeat(assets, beat.id);
-    const imageAsset = assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beat.id);
+    const imageAsset = visualAssetForBeat(assets, timeline, beat.id);
 
     const sectionInfo = document.createElement("div");
     sectionInfo.className = "feedback-row feedback-info";
@@ -547,7 +550,12 @@ export function createBeatWorkspaceController({
 
     const assetsInfo = document.createElement("div");
     assetsInfo.className = "feedback-row";
-    assetsInfo.textContent = `Image: ${imageAsset ? imageAsset.status : "missing"} · Audio: ${voiceAsset ? voiceAsset.status : "missing"}`;
+    const imageStatus = imageAsset
+      ? imageAsset.beatId && imageAsset.beatId !== beat.id
+        ? `${imageAsset.status} (reused from ${imageAsset.beatId})`
+        : imageAsset.status
+      : "missing";
+    assetsInfo.textContent = `Image: ${imageStatus} · Audio: ${voiceAsset ? voiceAsset.status : "missing"}`;
 
     inspectorEl.append(
       sectionInfo,

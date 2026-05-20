@@ -159,7 +159,7 @@ function openDeleteProjectDialog(project) {
 }
 
 const DEFAULT_PLANNER_SYSTEM_PROMPT =
-  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Keep voice direction engaged and language-appropriate. Return JSON only.";
+  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete visual descriptions, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. Do not introduce contradictory visual media, realism levels, or style directions. Keep voice direction engaged and language-appropriate. Return JSON only.";
 
 const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Story:",
@@ -177,6 +177,8 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Set section-level creative direction (feel, pacing, visual style) so sections can vary while staying coherent.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
   "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
+  "- If Feel, Pacing, or Visual style is blank, infer a concise story-appropriate value and keep it consistent.",
+  "- Enforce Visual style literally; do not add a visual medium, realism level, or style direction that conflicts with it.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- For every beat set narrationLanguage as a BCP-47-ish code such as en, fil, tgl, en+fil, or mixed.",
@@ -766,17 +768,27 @@ function renderMissingImageCard(beat) {
   return card;
 }
 
-function renderMediaPreview(projectId, plan, assets) {
+function visualAssetForBeat(assets, timeline, beatId) {
+  const assetsById = new Map(assets.map((asset) => [asset.id, asset]));
+  const segment = timeline?.segments?.find((entry) => entry.beatId === beatId);
+  const timelineVisual = segment?.mediaAssetIds?.map((assetId) => assetsById.get(assetId)).find(Boolean);
+  if (timelineVisual) return timelineVisual;
+  return assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beatId);
+}
+
+function renderMediaPreview(projectId, plan, assets, timeline) {
   mediaPreview.innerHTML = "";
-  const visualAssetsByBeat = new Map(
-    assets
-      .filter((asset) => asset.role !== "voiceover")
-      .map((asset) => [asset.beatId, asset])
-  );
   for (const section of plan.sections ?? []) {
     for (const beat of section.beats ?? []) {
-      const asset = visualAssetsByBeat.get(beat.id);
-      mediaPreview.appendChild(asset ? renderAssetCard(projectId, asset) : renderMissingImageCard(beat));
+      const asset = visualAssetForBeat(assets, timeline, beat.id);
+      const card = asset ? renderAssetCard(projectId, asset) : renderMissingImageCard(beat);
+      if (asset?.beatId && asset.beatId !== beat.id) {
+        const reuseNote = document.createElement("p");
+        reuseNote.className = "feedback-row feedback-info";
+        reuseNote.textContent = `Beat ${beat.id} reuses visual from ${asset.beatId}.`;
+        card.prepend(reuseNote);
+      }
+      mediaPreview.appendChild(card);
     }
   }
 }
@@ -1176,7 +1188,7 @@ async function refreshMediaPreview(projectId) {
     captions: details.data.captionCount
   });
   timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
-  renderMediaPreview(projectId, details.data.plan, assets.data.assets);
+  renderMediaPreview(projectId, details.data.plan, assets.data.assets, details.data.timeline);
   beatWorkspace.renderTimeline({
     projectId,
     plan: details.data.plan,
@@ -1290,7 +1302,7 @@ async function selectProject(projectId, element) {
   planEditor.value = fmt(details.data.plan);
   timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
   captionsOutput.textContent = fmt({ captionCount: details.data.captionCount });
-  renderMediaPreview(projectId, details.data.plan, assets.data.assets);
+  renderMediaPreview(projectId, details.data.plan, assets.data.assets, details.data.timeline);
   beatWorkspace.renderTimeline({
     projectId,
     plan: details.data.plan,

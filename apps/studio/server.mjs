@@ -572,9 +572,9 @@ async function runDraftJob(projectId, body) {
           const draft = await generatePlanDraftWithOpenAi({
             story,
             currentPlan: plan,
-            feel: body.feel ?? "eerie animated suspense with emotional intensity",
-            pacing: body.pacing ?? "measured slow-burn with sharp turns",
-            visualStyle: body.visualStyle ?? "stylized animated cinematic frames, explicitly non-photorealistic",
+            feel: body.feel ?? "",
+            pacing: body.pacing ?? "",
+            visualStyle: body.visualStyle ?? "",
             format: body.format ?? "short_story",
             systemPrompt: body.systemPrompt,
             userPromptTemplate: body.userPromptTemplate
@@ -706,20 +706,51 @@ function sectionBeatContext(section, sectionIndex, beat, beatIndex, plan) {
   ].filter(Boolean).join("\n");
 }
 
+function imageVisualDirection(plan, section) {
+  const projectCreative = plan.direction?.creative || {};
+  const sectionCreative = section.direction?.creative || {};
+  const visualBible = plan.visualBible || {};
+  return [
+    projectCreative.feel ? `Project feel: ${projectCreative.feel}` : "",
+    projectCreative.pacing ? `Project pacing: ${projectCreative.pacing}` : "",
+    projectCreative.visualStyle ? `Project visual style: ${projectCreative.visualStyle}` : "",
+    sectionCreative.feel ? `Section feel: ${sectionCreative.feel}` : "",
+    sectionCreative.pacing ? `Section pacing: ${sectionCreative.pacing}` : "",
+    sectionCreative.visualStyle ? `Section visual style: ${sectionCreative.visualStyle}` : "",
+    visualBible.stylePreset ? `Style preset: ${visualBible.stylePreset}` : "",
+    visualBible.lookAndFeel ? `Look and feel: ${visualBible.lookAndFeel}` : "",
+    Array.isArray(visualBible.palette) && visualBible.palette.length > 0
+      ? `Palette: ${visualBible.palette.join("; ")}`
+      : "",
+    visualBible.eraAndLocation ? `Era and location: ${visualBible.eraAndLocation}` : "",
+    Array.isArray(visualBible.characterAnchors) && visualBible.characterAnchors.length > 0
+      ? `Character anchors: ${visualBible.characterAnchors.join("; ")}`
+      : "",
+    Array.isArray(visualBible.continuityRules) && visualBible.continuityRules.length > 0
+      ? `Continuity rules: ${visualBible.continuityRules.join("; ")}`
+      : "",
+    visualBible.negativePrompt ? `Avoid: ${visualBible.negativePrompt}` : ""
+  ].filter(Boolean).join("\n");
+}
+
 function imagePromptForBeat(plan, section, beat, beatIndex) {
   const mediaPrompt = beat.media?.find((media) => media.role === "primary_visual" || media.role === "background")?.prompt;
+  const visualDirection = imageVisualDirection(plan, section);
   return [
     sectionBeatContext(section, plan.sections.indexOf(section), beat, beatIndex, plan),
     "",
     "Visual target:",
     mediaPrompt || beat.notes || beat.narration,
     "",
-    "Create a vertical 9:16 photorealistic cinematic still for a suspense story video.",
+    visualDirection ? "Visual direction:" : "",
+    visualDirection,
+    "",
+    "Create a vertical 9:16 image for the current beat.",
+    "Follow the visual direction exactly; do not add a visual medium, rendering style, camera format, or realism level that conflicts with it.",
     "Depict the exact current beat, not a generic mood board and not a later event.",
     "Preserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.",
-    "Use natural lens perspective, believable human anatomy, grounded lighting, subtle film grain, and environmental detail.",
-    "Avoid glossy AI fantasy style, plastic skin, over-smoothed faces, surreal distortions, extra fingers, fake text, UI, subtitles, watermarks, logos, split screens, and soundwave graphics.",
-    "Make it look like a frame from an atmospheric indie thriller shot on a real camera."
+    "Keep anatomy, geometry, lighting, and composition coherent for a vertical frame.",
+    "Avoid fake text, UI, subtitles, watermarks, logos, split screens, soundwave graphics, continuity errors, distorted hands or faces, and unintended extra objects or characters."
   ].join("\n");
 }
 
@@ -2357,9 +2388,9 @@ const server = createServer(async (req, res) => {
       const result = await generatePlanDraftWithOpenAi({
         story: body.story,
         currentPlan: details.plan,
-        feel: body.feel ?? "eerie animated suspense with emotional intensity",
-        pacing: body.pacing ?? "measured slow-burn with sharp turns",
-        visualStyle: body.visualStyle ?? "stylized animated cinematic frames, explicitly non-photorealistic",
+        feel: body.feel ?? "",
+        pacing: body.pacing ?? "",
+        visualStyle: body.visualStyle ?? "",
         format: body.format ?? "short_story",
         systemPrompt: body.systemPrompt,
         userPromptTemplate: body.userPromptTemplate

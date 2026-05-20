@@ -30,8 +30,34 @@ test("Studio app wires planner prompt controls into requests", async () => {
 test("planner prompt tells the model creative controls govern every beat", async () => {
   const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
   assert.match(draftOrchestrator, /Treat Feel, Pacing, and Visual style as creative direction for every beat/);
+  assert.match(draftOrchestrator, /Do not introduce contradictory visual media, realism levels, or style directions/);
   assert.match(draftOrchestrator, /Decide sparse editorial timing: visualEditCues, silenceWindows, and endingPolicy/);
   assert.match(draftOrchestrator, /target next_visual for early visual changes/);
+});
+
+test("code-owned visual prompts stay style-neutral and defer to UI direction", async () => {
+  const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
+  const appJs = await readFile(path.resolve("apps/studio/public/app.js"), "utf8");
+  const codePrompts = [server, draftOrchestrator, appJs].join("\n");
+  const realismToken = "photo" + "realistic";
+  const styleSpecificTokens = [
+    "stylized " + "animated",
+    "eerie " + "animated",
+    "slow" + "-burn",
+    "real " + "camera",
+    "atmospheric " + "indie thriller",
+    "glossy " + "AI fantasy"
+  ];
+
+  assert.doesNotMatch(codePrompts, new RegExp(realismToken));
+  for (const token of styleSpecificTokens) {
+    assert.doesNotMatch(codePrompts, new RegExp(token));
+  }
+  assert.match(server, /function imageVisualDirection\(plan, section\)/);
+  assert.match(server, /Project visual style: \$\{projectCreative\.visualStyle\}/);
+  assert.match(server, /Follow the visual direction exactly/);
+  assert.match(server, /visualStyle: body\.visualStyle \?\? ""/);
 });
 
 test("OpenAI planner schema satisfies strict required-property rules", async () => {

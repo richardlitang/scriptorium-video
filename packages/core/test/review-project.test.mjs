@@ -157,3 +157,105 @@ test("reviewProject reports deterministic issues from isolated fixture", async (
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("reviewProject accepts balanced coverage when timeline reuses a renderable visual", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-review-balanced-"));
+  const projectId = "fixture";
+  const projectDir = path.join(root, "content", "projects", projectId);
+  const generatedAt = "2026-05-19T00:00:00.000Z";
+  try {
+    await mkdir(path.join(projectDir, "assets", "images", "generated"), { recursive: true });
+    await writeFile(path.join(projectDir, "assets", "images", "generated", "intro-001.png"), "stub", "utf8");
+    await writeJson(path.join(projectDir, "video-plan.json"), {
+      schemaVersion: 1,
+      title: "Fixture",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      providers: { llm: "manual", tts: "chatterbox", transcription: "mock", media: "manual-media", renderer: "remotion" },
+      voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
+      sections: [
+        {
+          id: "s1",
+          title: "Section 1",
+          beats: [
+            {
+              id: "s1-001",
+              order: 1,
+              narration: "First beat.",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false },
+              media: [],
+              motion: { type: "none", intensity: 0 },
+              caption: { emphasis: [], style: "default" },
+              sfxCues: []
+            },
+            {
+              id: "s1-002",
+              order: 2,
+              narration: "Second beat.",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false },
+              media: [],
+              motion: { type: "none", intensity: 0 },
+              caption: { emphasis: [], style: "default" },
+              sfxCues: []
+            }
+          ]
+        }
+      ]
+    });
+    await writeJson(path.join(projectDir, "asset-manifest.json"), {
+      schemaVersion: 1,
+      assets: [
+        {
+          id: "image-s1-001",
+          type: "image",
+          role: "primary_visual",
+          sectionId: "s1",
+          beatId: "s1-001",
+          path: "assets/images/generated/intro-001.png",
+          source: { kind: "generated", provider: "openai-image", inputHash: "a" },
+          status: "generated",
+          createdAt: generatedAt,
+          updatedAt: generatedAt
+        }
+      ]
+    });
+    await writeJson(path.join(projectDir, "timeline.json"), {
+      schemaVersion: 1,
+      generatedAt,
+      sourcePlanHash: "plan-hash",
+      fps: 30,
+      width: 1080,
+      height: 1920,
+      durationSeconds: 4,
+      segments: [
+        {
+          sectionId: "s1",
+          beatId: "s1-001",
+          startSeconds: 0,
+          endSeconds: 2,
+          durationSeconds: 2,
+          mediaAssetIds: ["image-s1-001"],
+          audioCues: [],
+          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" }
+        },
+        {
+          sectionId: "s1",
+          beatId: "s1-002",
+          startSeconds: 2,
+          endSeconds: 4,
+          durationSeconds: 2,
+          mediaAssetIds: ["image-s1-001"],
+          audioCues: [],
+          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" }
+        }
+      ]
+    });
+
+    const result = await reviewProject(projectId, root);
+    assert.equal(result.issues.some((issue) => issue.code === "missing_primary_visual"), false);
+    assert.equal(result.issues.some((issue) => issue.code === "missing_visual_file"), false);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

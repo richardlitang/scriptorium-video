@@ -1,7 +1,7 @@
 import { runStructuredOutput } from "./openai-structured-output.mjs";
 
 export const DEFAULT_PLANNER_SYSTEM_PROMPT =
-  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete cinematic visuals, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. If Visual style requests animated/non-photorealistic output, do not produce photorealistic direction. Keep voice direction engaged and language-appropriate. Return JSON only.";
+  "Convert story prose into a concise video production plan. Preserve wording except light segmentation. Keep visual continuity (character age/look, setting, style) across beats. Use concrete visual descriptions, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. Do not introduce contradictory visual media, realism levels, or style directions. Keep voice direction engaged and language-appropriate. Return JSON only.";
 
 export const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "Story:",
@@ -19,7 +19,8 @@ export const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Set section-level creative direction (feel, pacing, visual style) so sections can vary while staying coherent.",
   "- Produce per-beat narration + image-generation-ready visual prompts.",
   "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
-  "- Enforce Visual style literally: if it says animated/stylized/non-photorealistic, keep every beat non-photorealistic.",
+  "- If Feel, Pacing, or Visual style is blank, infer a concise story-appropriate value and keep it consistent.",
+  "- Enforce Visual style literally; do not add a visual medium, realism level, or style direction that conflicts with it.",
   "- For every beat set voiceProfile, intensity, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
   "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
   "- For every beat set narrationLanguage as a BCP-47-ish code such as en, fil, tgl, en+fil, or mixed.",
