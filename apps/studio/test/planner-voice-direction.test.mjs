@@ -18,5 +18,6 @@ test("beat inspector exposes editable voice tuning controls", async () => {
   assert.match(moduleSource, /Pause before \(seconds\)/);
   assert.match(moduleSource, /Pause after \(seconds\)/);
   assert.match(moduleSource, /Delivery note/);
+  assert.match(moduleSource, /Caption style/);
+  assert.match(moduleSource, /Caption emphasis phrases/);
 });
-

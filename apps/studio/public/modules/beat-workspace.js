@@ -259,6 +259,40 @@ export function createBeatWorkspaceController({
     };
     deliveryNoteField.appendChild(deliveryNoteInput);
 
+    const captionStyleField = document.createElement("label");
+    captionStyleField.className = "beat-inspector-field";
+    captionStyleField.textContent = "Caption style";
+    const captionStyleInput = document.createElement("input");
+    captionStyleInput.type = "text";
+    captionStyleInput.value = beat.caption?.style || "default";
+    captionStyleInput.onchange = () => {
+      beat.caption = {
+        ...(beat.caption || {}),
+        style: captionStyleInput.value.trim() || "default"
+      };
+      onPlanChanged(plan);
+    };
+    captionStyleField.appendChild(captionStyleInput);
+
+    const captionEmphasisField = document.createElement("label");
+    captionEmphasisField.className = "beat-inspector-field";
+    captionEmphasisField.textContent = "Caption emphasis phrases (comma-separated)";
+    const captionEmphasisInput = document.createElement("textarea");
+    captionEmphasisInput.rows = 2;
+    captionEmphasisInput.value = Array.isArray(beat.caption?.emphasis) ? beat.caption.emphasis.join(", ") : "";
+    captionEmphasisInput.onchange = () => {
+      beat.caption = {
+        ...(beat.caption || {}),
+        emphasis: captionEmphasisInput.value
+          .split(",")
+          .map((entry) => entry.trim())
+          .filter(Boolean)
+          .slice(0, 16)
+      };
+      onPlanChanged(plan);
+    };
+    captionEmphasisField.appendChild(captionEmphasisInput);
+
     const actions = document.createElement("div");
     actions.className = "beat-inspector-actions";
     const regenerateBtn = document.createElement("button");
@@ -309,6 +343,8 @@ export function createBeatWorkspaceController({
       pauseBeforeField,
       pauseAfterField,
       deliveryNoteField,
+      captionStyleField,
+      captionEmphasisField,
       assetsInfo,
       actions
     );
