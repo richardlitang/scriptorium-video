@@ -4,19 +4,23 @@ import type { Asset } from "@lvstudio/core";
 type MediaLayerProps = {
   asset?: Asset;
   src?: string;
+  localFrame?: number;
+  spanDurationInFrames?: number;
   motion?: {
     type: "none" | "slow_zoom_in" | "slow_zoom_out" | "pan_left" | "pan_right";
     intensity: number;
   };
 };
 
-export const MediaLayer: React.FC<MediaLayerProps> = ({ asset, src, motion }) => {
-  const frame = useCurrentFrame();
+export const MediaLayer: React.FC<MediaLayerProps> = ({ asset, src, localFrame, spanDurationInFrames, motion }) => {
+  const compositionFrame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
+  const frame = localFrame ?? compositionFrame;
+  const motionDurationInFrames = Math.max(1, spanDurationInFrames ?? durationInFrames);
   const intensity = motion?.intensity ?? 0.08;
-  const zoomIn = interpolate(frame, [0, durationInFrames], [1, 1 + intensity]);
-  const zoomOut = interpolate(frame, [0, durationInFrames], [1 + intensity, 1]);
-  const pan = interpolate(frame, [0, durationInFrames], [-intensity * 120, intensity * 120]);
+  const zoomIn = interpolate(frame, [0, motionDurationInFrames], [1, 1 + intensity]);
+  const zoomOut = interpolate(frame, [0, motionDurationInFrames], [1 + intensity, 1]);
+  const pan = interpolate(frame, [0, motionDurationInFrames], [-intensity * 120, intensity * 120]);
 
   const transform =
     motion?.type === "slow_zoom_out"

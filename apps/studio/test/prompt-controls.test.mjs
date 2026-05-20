@@ -124,6 +124,9 @@ test("renderer applies planner visual edit cues to media selection and effects",
   for (const source of [verticalTemplate, documentaryTemplate]) {
     assert.match(source, /activeVisualCueAt\(timeSeconds, visualEditCues\)/);
     assert.match(source, /activeVisualCue\?\.target === "next_visual"/);
+    assert.match(source, /const visualSpans = timeline\.segments\.reduce/);
+    assert.match(source, /const localVisualFrame = Math\.max\(0, frame - spanFromFrame\)/);
+    assert.match(source, /spanDurationInFrames=\{spanDurationFrames\}/);
     assert.match(source, /visualCueStyle\(activeVisualCue, timeSeconds\)/);
   }
   assert.match(runtime, /export function activeVisualCueAt/);

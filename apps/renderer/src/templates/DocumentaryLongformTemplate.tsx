@@ -49,6 +49,42 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
     .map((segment) => ({ start: segment.startSeconds, end: segment.endSeconds }));
   const silenceWindows = timeline.segments.flatMap((segment) => segment.silenceWindows ?? []);
   const cutToBlack = shouldCutToBlack(timeSeconds, visualEditCues);
+  const visualSpans = timeline.segments.reduce<Array<{
+    mediaAssetId?: string;
+    fromSeconds: number;
+    toSeconds: number;
+    motion?: {
+      type: "none" | "slow_zoom_in" | "slow_zoom_out" | "pan_left" | "pan_right";
+      intensity: number;
+    };
+  }>>((acc, segment) => {
+    const beat = videoPlan.sections
+      .flatMap((section) => section.beats)
+      .find((entry) => entry.id === segment.beatId);
+    const mediaAssetId = segment.mediaAssetIds[0];
+    const last = acc[acc.length - 1];
+    if (last && last.mediaAssetId === mediaAssetId) {
+      last.toSeconds = segment.endSeconds;
+      return acc;
+    }
+    acc.push({
+      mediaAssetId,
+      fromSeconds: segment.startSeconds,
+      toSeconds: segment.endSeconds,
+      motion: beat?.motion
+    });
+    return acc;
+  }, []);
+  const activeVisualSpan = visualSpans.find((span) => timeSeconds >= span.fromSeconds && timeSeconds < span.toSeconds);
+  const spanMediaId = activeVisualSpan?.mediaAssetId ?? activeMediaId;
+  const spanMedia = assetManifest.assets.find((asset) => asset.id === spanMediaId) ?? activeMedia;
+  const spanMediaUrl = spanMediaId ? assetUrls[spanMediaId] : activeMediaUrl;
+  const spanFromFrame = Math.round((activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds) * fps);
+  const spanDurationFrames = Math.max(
+    1,
+    Math.round(((activeVisualSpan?.toSeconds ?? visualSegment.endSeconds) - (activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds)) * fps)
+  );
+  const localVisualFrame = Math.max(0, frame - spanFromFrame);
 
   const sectionStarts = videoPlan.sections
     .map((section) => {
@@ -70,7 +106,13 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
         <AbsoluteFill style={{ backgroundColor: "#000000" }} />
       ) : (
         <AbsoluteFill style={visualCueStyle(activeVisualCue, timeSeconds)}>
-          <MediaLayer asset={activeMedia} src={activeMediaUrl} motion={activeBeat?.motion} />
+          <MediaLayer
+            asset={spanMedia}
+            src={spanMediaUrl}
+            motion={activeVisualSpan?.motion ?? activeBeat?.motion}
+            localFrame={localVisualFrame}
+            spanDurationInFrames={spanDurationFrames}
+          />
         </AbsoluteFill>
       )}
 

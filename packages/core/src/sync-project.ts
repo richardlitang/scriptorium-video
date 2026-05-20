@@ -140,6 +140,55 @@ async function resolveCueAssetFromLibrary(
   return created;
 }
 
+async function resolveDefaultMusicBedAsset(
+  rootDir: string,
+  projectDir: string,
+  assets: Asset[]
+): Promise<Asset | undefined> {
+  const existing = assets.find((asset) => asset.id === "music-bed-default" && asset.role === "music");
+  if (existing) return existing;
+
+  const envPath = process.env.LVSTUDIO_DEFAULT_MUSIC_BED;
+  const candidates = [
+    envPath ? (path.isAbsolute(envPath) ? envPath : path.resolve(rootDir, envPath)) : "",
+    path.join(rootDir, "content", "music", "default.wav"),
+    path.join(rootDir, "content", "music", "default.mp3"),
+    path.join(rootDir, "content", "music", "default.m4a")
+  ].filter(Boolean);
+
+  const sourcePath = await (async () => {
+    for (const candidate of candidates) {
+      if (await fileExists(candidate)) return candidate;
+    }
+    return undefined;
+  })();
+  if (!sourcePath) return undefined;
+
+  const ext = path.extname(sourcePath).toLowerCase() || ".wav";
+  const relativePath = path.join("assets", "audio", "music", "library", `default${ext}`);
+  const absolutePath = path.resolve(projectDir, relativePath);
+  await mkdir(path.dirname(absolutePath), { recursive: true });
+  if (!(await fileExists(absolutePath))) {
+    await copyFile(sourcePath, absolutePath);
+  }
+  const created: Asset = {
+    id: "music-bed-default",
+    type: "audio",
+    role: "music",
+    path: relativePath,
+    source: {
+      kind: "manual",
+      provider: "music-library"
+    },
+    durationSeconds: 0,
+    status: "generated",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+  assets.push(created);
+  return created;
+}
+
 function durationForBeat(beat: Beat, voiceAsset: Asset | undefined, mediaAssets: Asset[]): number {
   if (beat.timing.mediaPolicy === "fit_audio_to_media") {
     const mediaDuration = mediaAssets.find((asset) => asset.durationSeconds)?.durationSeconds;
@@ -223,6 +272,15 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
 
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse({ ...manifest, assets }));
 
+  const shouldAutoMusicBed =
+    resolvedConfig.musicBehavior === "continuous_ducked" ||
+    resolvedConfig.musicBehavior === "section_based_ducked";
+  const autoMusicBed =
+    shouldAutoMusicBed && process.env.LVSTUDIO_ENABLE_AUTO_MUSIC_BED !== "0"
+      ? await resolveDefaultMusicBedAsset(rootDir, paths.projectDir, assets)
+      : undefined;
+  const autoMusicLevelDb = Number(process.env.LVSTUDIO_MUSIC_BED_LEVEL_DB ?? -24);
+
   let cursor = 0;
   const segments = [];
   for (const section of plan.sections) {
@@ -302,6 +360,21 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
             scaleMode: beat.media[0]?.scaleMode ?? "cover"
           }
         };
+        if (
+          autoMusicBed &&
+          !segment.audioCues.some((cue) => cue.role === "music")
+        ) {
+          segment.audioCues.push({
+            assetId: autoMusicBed.id,
+            role: "music",
+            startSeconds: segmentStart,
+            durationSeconds,
+            levelDb: Number.isFinite(autoMusicLevelDb) ? autoMusicLevelDb : -24,
+            pan: 0,
+            proximity: "room",
+            duckMusic: false
+          });
+        }
         cursor = segmentEnd;
         segments.push(segment);
     }

@@ -347,3 +347,97 @@ test("syncProject reuses nearest section visual when balanced coverage leaves a 
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("syncProject adds an automatic ducked music bed for short_story when a default track exists", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-sync-music-bed-"));
+  const projectId = "fixture";
+  const projectDir = path.join(root, "content", "projects", projectId);
+  try {
+    await mkdir(path.join(root, "modes"), { recursive: true });
+    await writeJson(path.join(root, "modes", "short-story.json"), {
+      id: "short_story",
+      defaults: {
+        musicBehavior: "continuous_ducked"
+      }
+    });
+    await mkdir(path.join(root, "content", "music"), { recursive: true });
+    await writeFile(path.join(root, "content", "music", "default.wav"), "stub", "utf8");
+    await mkdir(path.join(projectDir, "assets", "audio", "voice"), { recursive: true });
+    await writeFile(path.join(projectDir, "assets", "audio", "voice", "intro-001.wav"), "stub", "utf8");
+
+    await writeJson(path.join(projectDir, "video-plan.json"), {
+      schemaVersion: 1,
+      title: "Fixture",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      providers: {
+        llm: "manual",
+        tts: "chatterbox",
+        transcription: "mock",
+        media: "manual-media",
+        renderer: "remotion"
+      },
+      voice: {
+        provider: "chatterbox",
+        voiceId: "clone",
+        format: "wav",
+        options: {}
+      },
+      sections: [
+        {
+          id: "intro",
+          title: "Intro",
+          beats: [
+            {
+              id: "intro-001",
+              order: 1,
+              narration: "Night falls.",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false, estimatedDurationSeconds: 2 },
+              media: [],
+              motion: { type: "none", intensity: 0 },
+              caption: { emphasis: [], style: "default" },
+              voiceDirection: {
+                profile: "neutral",
+                emphasis: [],
+                pauseBeforeSeconds: 0,
+                pauseAfterSeconds: 0,
+                intensity: 0.5,
+                speedMultiplier: 1,
+                pitchOffset: 0,
+                source: "default"
+              },
+              sfxCues: []
+            }
+          ]
+        }
+      ]
+    });
+
+    await writeJson(path.join(projectDir, "asset-manifest.json"), {
+      schemaVersion: 1,
+      assets: [
+        {
+          id: "voice-intro-001",
+          type: "audio",
+          role: "voiceover",
+          sectionId: "intro",
+          beatId: "intro-001",
+          path: "assets/audio/voice/intro-001.wav",
+          source: { kind: "generated", provider: "chatterbox", inputHash: "x" },
+          durationSeconds: 2,
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ]
+    });
+
+    const result = await syncProject(projectId, root);
+    const manifest = JSON.parse(await readFile(path.join(projectDir, "asset-manifest.json"), "utf8"));
+    assert.ok(manifest.assets.some((asset) => asset.id === "music-bed-default" && asset.role === "music"));
+    assert.ok(result.timeline.segments[0].audioCues.some((cue) => cue.assetId === "music-bed-default" && cue.role === "music"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
