@@ -332,45 +332,138 @@ function slugify(value, fallback) {
   return slug || fallback;
 }
 
+function storyLines(rawScript) {
+  return String(rawScript || "").replaceAll("\r\n", "\n").replaceAll("\r", "\n").split("\n");
+}
+
+function compactWhitespace(value) {
+  return String(value || "").split(/\s+/).filter(Boolean).join(" ");
+}
+
+function stripWrappingQuotes(value) {
+  let output = String(value || "").trim();
+  const quoteChars = new Set(["\"", "'", "“", "”"]);
+  while (output && quoteChars.has(output[0])) output = output.slice(1).trimStart();
+  while (output && quoteChars.has(output[output.length - 1])) output = output.slice(0, -1).trimEnd();
+  return output;
+}
+
+function labelValueLine(line, label) {
+  const trimmed = String(line || "").trim();
+  const prefix = `${label}:`;
+  if (!trimmed.toLowerCase().startsWith(prefix.toLowerCase())) return "";
+  return trimmed.slice(prefix.length).trim();
+}
+
+function firstLabelValue(rawScript, label) {
+  for (const line of storyLines(rawScript)) {
+    const value = labelValueLine(line, label);
+    if (value) return value;
+  }
+  return "";
+}
+
+function parseStorySectionHeader(line) {
+  const trimmed = String(line || "").trim();
+  if (!trimmed.startsWith("[")) return null;
+  const closeIndex = trimmed.indexOf("]");
+  if (closeIndex <= 1) return null;
+  const timecode = trimmed.slice(1, closeIndex).trim();
+  const [minutes, seconds, extra] = timecode.split(":");
+  if (extra !== undefined || !minutes || !seconds) return null;
+  if (![minutes, seconds].every((part) => [...part].every((char) => char >= "0" && char <= "9"))) return null;
+  const title = trimmed.slice(closeIndex + 1).trim();
+  if (!title) return null;
+  return { timecode, title };
+}
+
+function removeBracketDirectives(value, replacement = " ") {
+  const source = String(value || "");
+  let output = "";
+  let depth = 0;
+  for (const char of source) {
+    if (char === "[") {
+      if (depth === 0) output += replacement;
+      depth += 1;
+      continue;
+    }
+    if (char === "]" && depth > 0) {
+      depth -= 1;
+      continue;
+    }
+    if (depth === 0) output += char;
+  }
+  return output;
+}
+
+function removeParentheticalDirective(value, labels) {
+  const source = String(value || "");
+  let output = "";
+  let index = 0;
+  while (index < source.length) {
+    if (source[index] !== "(") {
+      output += source[index];
+      index += 1;
+      continue;
+    }
+    const closeIndex = source.indexOf(")", index + 1);
+    if (closeIndex === -1) {
+      output += source[index];
+      index += 1;
+      continue;
+    }
+    const inner = source.slice(index + 1, closeIndex).trim().toLowerCase();
+    const isDirective = labels.some((label) => inner.startsWith(label));
+    if (isDirective) {
+      output += " ";
+      index = closeIndex + 1;
+      continue;
+    }
+    output += source.slice(index, closeIndex + 1);
+    index = closeIndex + 1;
+  }
+  return output;
+}
+
 function extractStoryTitle(rawScript, fallbackTitle) {
-  return rawScript.match(/^\s*TITLE:\s*(.+)$/im)?.[1].trim() || fallbackTitle;
+  return firstLabelValue(rawScript, "TITLE") || fallbackTitle;
 }
 
 function projectTitleFromStory(rawStory) {
-  const explicitTitle = rawStory.match(/^\s*TITLE:\s*(.+)$/im)?.[1].trim();
+  const explicitTitle = firstLabelValue(rawStory, "TITLE");
   if (explicitTitle) return explicitTitle;
-  const firstLine = rawStory
-    .split(/\r?\n/)
+  const firstLine = storyLines(rawStory)
     .map((line) => line.trim())
     .find(Boolean);
   if (!firstLine) return "Untitled Story";
-  return firstLine.replace(/^["'“”]+|["'“”]+$/g, "").slice(0, 80) || "Untitled Story";
+  return stripWrappingQuotes(firstLine).slice(0, 80) || "Untitled Story";
 }
 
 function extractThumbnailConcept(rawScript) {
-  const match = rawScript.match(/^THUMBNAIL CONCEPT:\s*([\s\S]*?)(?=\n\s*\[\d+:\d+\]|\n\s*$)/im);
-  return match?.[1].replace(/\s+/g, " ").trim();
+  const lines = storyLines(rawScript);
+  const startIndex = lines.findIndex((line) => labelValueLine(line, "THUMBNAIL CONCEPT"));
+  if (startIndex === -1) return undefined;
+  const firstLine = labelValueLine(lines[startIndex], "THUMBNAIL CONCEPT");
+  const body = [firstLine];
+  for (const line of lines.slice(startIndex + 1)) {
+    if (parseStorySectionHeader(line)) break;
+    if (labelValueLine(line, "TITLE")) break;
+    body.push(line.trim());
+  }
+  return compactWhitespace(body.join(" "));
 }
 
 function normalizeNarration(sectionBody) {
-  return sectionBody
-    .replace(/\[[\s\S]*?\]/g, " ")
-    .replace(/\((?:long\s+)?pause[^)]*\)/gi, " ")
-    .replace(/\(deliver[^)]*\)/gi, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return compactWhitespace(
+    removeParentheticalDirective(removeBracketDirectives(sectionBody), ["pause", "long pause", "deliver"])
+  );
 }
 
 function splitNarrationParagraphs(sectionBody) {
-  return sectionBody
-    .replace(/\[[\s\S]*?\]/g, "\n\n")
-    .split(/\n{2,}/)
+  return removeBracketDirectives(sectionBody, "\n\n")
+    .split("\n\n")
     .map((paragraph) =>
-      paragraph
-        .replace(/\((?:long\s+)?pause[^)]*\)/gi, " ")
-        .replace(/\(deliver[^)]*\)/gi, " ")
-        .replace(/\s+/g, " ")
-        .trim()
+      compactWhitespace(removeParentheticalDirective(paragraph, ["pause", "long pause", "deliver"]))
     )
     .filter(Boolean);
 }
@@ -381,22 +474,44 @@ function estimateDurationSeconds(text) {
 }
 
 function extractDirectives(sectionBody) {
-  return [...sectionBody.matchAll(/\[([A-Z][A-Z\s/]*):\s*([\s\S]*?)\]/g)]
-    .map((match) => `${match[1].trim()}: ${match[2].replace(/\s+/g, " ").trim()}`)
-    .join("\n");
+  const directives = [];
+  let index = 0;
+  const source = String(sectionBody || "");
+  while (index < source.length) {
+    const openIndex = source.indexOf("[", index);
+    if (openIndex === -1) break;
+    const closeIndex = source.indexOf("]", openIndex + 1);
+    if (closeIndex === -1) break;
+    const content = source.slice(openIndex + 1, closeIndex);
+    const separatorIndex = content.indexOf(":");
+    if (separatorIndex > 0) {
+      const label = content.slice(0, separatorIndex).trim();
+      const value = content.slice(separatorIndex + 1).trim();
+      const labelLooksDirective = label && [...label].every((char) =>
+        (char >= "A" && char <= "Z") || char === " " || char === "/" || char === "-"
+      );
+      if (labelLooksDirective && value) directives.push(`${label}: ${compactWhitespace(value)}`);
+    }
+    index = closeIndex + 1;
+  }
+  return directives.join("\n");
 }
 
 function splitStorySections(rawScript) {
-  const sectionMatches = [...rawScript.matchAll(/^\s*\[(\d+:\d+)\]\s+(.+)$/gm)];
-  return sectionMatches.map((match, index) => {
-    const start = match.index + match[0].length;
-    const end = sectionMatches[index + 1]?.index ?? rawScript.length;
-    return {
-      timecode: match[1],
-      title: match[2].trim(),
-      body: rawScript.slice(start, end).trim()
-    };
-  });
+  const sections = [];
+  for (const line of storyLines(rawScript)) {
+    const header = parseStorySectionHeader(line);
+    if (header) {
+      sections.push({ ...header, bodyLines: [] });
+      continue;
+    }
+    if (sections.length > 0) sections[sections.length - 1].bodyLines.push(line);
+  }
+  return sections.map((section) => ({
+    timecode: section.timecode,
+    title: section.title,
+    body: section.bodyLines.join("\n").trim()
+  }));
 }
 
 function defaultDraftButtonLabel() {
@@ -532,14 +647,17 @@ function applyDraftDefaults(plan) {
 function buildStoryFeedback(rawScript, plan) {
   const sections = splitStorySections(rawScript);
   const items = [];
-  if (!rawScript.match(/^\s*TITLE:\s*(.+)$/im)) {
+  if (!firstLabelValue(rawScript, "TITLE")) {
     items.push({ level: "warning", text: "Missing TITLE line; existing project title will be reused." });
   }
   if (!extractThumbnailConcept(rawScript)) {
     items.push({ level: "warning", text: "Missing THUMBNAIL CONCEPT; add one if this should drive cover art later." });
   }
   for (const section of sections) {
-    const hasVisual = /\[(BACKGROUND VISUAL|IMAGE|VISUAL|MEDIA|B-ROLL|BROLL):/i.test(section.body);
+    const visualDirectiveLabels = ["BACKGROUND VISUAL", "IMAGE", "VISUAL", "MEDIA", "B-ROLL", "BROLL"];
+    const hasVisual = extractDirectives(section.body)
+      .split("\n")
+      .some((directive) => visualDirectiveLabels.some((label) => directive.toUpperCase().startsWith(`${label}:`)));
     if (!hasVisual) {
       items.push({
         level: "warning",

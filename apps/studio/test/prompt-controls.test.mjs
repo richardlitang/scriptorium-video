@@ -107,7 +107,9 @@ test("code-owned visual prompts stay style-neutral and defer to UI direction", a
 
 test("OpenAI planner schema satisfies strict required-property rules", async () => {
   const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
-  assert.match(draftOrchestrator, /required: \["title", "feel", "pacing", "visualStyle", "captionTuning", "voice", "visualBible", "sections", "warnings"\]/);
+  assert.match(draftOrchestrator, /required: \["title", "feel", "pacing", "visualStyle", "captionTuning", "voice", "visualBible", "quality", "sections", "warnings"\]/);
+  assert.match(draftOrchestrator, /required: \["estimatedSourceCoverageRatio", "containsInventedChannelCta", "introHookPlacement", "orderingConfidence", "coverageNotes"\]/);
+  assert.match(draftOrchestrator, /introHookPlacement: \{ type: "string", enum: \["none", "opening", "middle", "late_or_ending"\] \}/);
   assert.match(draftOrchestrator, /required: \["targetMaxWords", "hardMaxWords", "targetMaxDurationSeconds", "hardMaxDurationSeconds", "minWordsBeforeSentenceBreak"\]/);
   assert.match(draftOrchestrator, /minWordsBeforeSentenceBreak: \{ type: "number", minimum: 2, maximum: 20 \}/);
   assert.match(draftOrchestrator, /required: \["title", "summary", "purpose", "feel", "pacing", "visualStyle", "beats"\]/);
@@ -212,6 +214,7 @@ test("studio draft jobs write structured operational traces", async () => {
   assert.match(server, /function summarizePlanForTrace\(plan, story = ""\)/);
   assert.match(server, /function summarizeTimelineForTrace\(timeline, manifest\)/);
   assert.match(server, /function summarizeVoiceSettingsForTrace\(settings\)/);
+  assert.match(server, /function normalizePlannerSelfReview\(value = \{\}\)/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "images\.targets_selected"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "render\.start"/);
   assert.match(server, /readRunTrace\(projectId, jobId\)/);

@@ -40,13 +40,14 @@ export const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Keep visualEditCues sparse: normally 0-2 per beat, up to 4 only for a major reveal or ending.",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
+  "- Fill quality from your own audit of the plan against the provided story: estimate source coverage, flag invented channel CTAs, and classify intro hook placement.",
   "- Surface warnings when uncertain or under-specified."
 ].join("\n");
 
 const PLAN_DRAFT_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["title", "feel", "pacing", "visualStyle", "captionTuning", "voice", "visualBible", "sections", "warnings"],
+  required: ["title", "feel", "pacing", "visualStyle", "captionTuning", "voice", "visualBible", "quality", "sections", "warnings"],
   properties: {
     title: { type: "string" },
     feel: { type: "string" },
@@ -87,6 +88,18 @@ const PLAN_DRAFT_SCHEMA = {
         characterAnchors: { type: "array", items: { type: "string" } },
         continuityRules: { type: "array", items: { type: "string" } },
         negativePrompt: { type: "string" }
+      }
+    },
+    quality: {
+      type: "object",
+      additionalProperties: false,
+      required: ["estimatedSourceCoverageRatio", "containsInventedChannelCta", "introHookPlacement", "orderingConfidence", "coverageNotes"],
+      properties: {
+        estimatedSourceCoverageRatio: { type: "number", minimum: 0, maximum: 1 },
+        containsInventedChannelCta: { type: "boolean" },
+        introHookPlacement: { type: "string", enum: ["none", "opening", "middle", "late_or_ending"] },
+        orderingConfidence: { type: "number", minimum: 0, maximum: 1 },
+        coverageNotes: { type: "string" }
       }
     },
     sections: {
@@ -279,8 +292,22 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
               sfxCues: []
             }]
           }],
+          quality: {
+            estimatedSourceCoverageRatio: 1,
+            containsInventedChannelCta: false,
+            introHookPlacement: "none",
+            orderingConfidence: 1,
+            coverageNotes: "Studio test mode."
+          },
           warnings: []
         }),
+        quality: {
+          estimatedSourceCoverageRatio: 1,
+          containsInventedChannelCta: false,
+          introHookPlacement: "none",
+          orderingConfidence: 1,
+          coverageNotes: "Studio test mode."
+        },
         warnings: [],
         model: "test-mode"
       };
@@ -319,6 +346,7 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
 
     return {
       plan: buildPlanFromAiDraft(currentPlan, draft),
+      quality: draft.quality,
       warnings: draft.warnings,
       model
     };

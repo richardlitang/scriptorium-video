@@ -1123,7 +1123,7 @@ async function runDraftJob(projectId, body) {
             userPromptTemplate: body.userPromptTemplate
           });
           plan = draft.plan;
-          let quality = planNarrationHealth(plan, story);
+          let quality = planNarrationHealth(plan, story, draft.quality);
           if (!plannerQualityIsAcceptable(quality)) {
             await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected", {
               model: draft.model,
@@ -1140,14 +1140,14 @@ async function runDraftJob(projectId, body) {
               userPromptTemplate: stricterPlannerUserPromptTemplate()
             });
             plan = draft.plan;
-            quality = planNarrationHealth(plan, story);
+            quality = planNarrationHealth(plan, story, draft.quality);
             if (!plannerQualityIsAcceptable(quality)) {
               await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected_final", {
                 model: draft.model,
                 quality
               }).catch(() => {});
               throw new Error(
-                `Planner output failed quality gates after retry. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, ctaBeats=${quality.ctaBeats?.length ?? 0}, introLineAtEnd=${quality.introLineAtEnd?.length ?? 0}.`
+                `Planner output failed quality gates after retry. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, coverage=${quality.plannerSelfReview.estimatedSourceCoverageRatio.toFixed(3)}, introHookPlacement=${quality.plannerSelfReview.introHookPlacement}, inventedCta=${quality.plannerSelfReview.containsInventedChannelCta}.`
               );
             }
           }
@@ -1516,26 +1516,30 @@ function llmGlobalTargets(allTargets) {
   return [...byId.values()].sort((a, b) => a.beat.order - b.beat.order);
 }
 
-function planNarrationHealth(plan, storyText = "") {
+function normalizePlannerSelfReview(value = {}) {
+  const introHookPlacement = ["none", "opening", "middle", "late_or_ending"].includes(value.introHookPlacement)
+    ? value.introHookPlacement
+    : "none";
+  return {
+    estimatedSourceCoverageRatio: clampNumber(value.estimatedSourceCoverageRatio, 1, 0, 1),
+    containsInventedChannelCta: value.containsInventedChannelCta === true,
+    introHookPlacement,
+    orderingConfidence: clampNumber(value.orderingConfidence, 1, 0, 1),
+    coverageNotes: String(value.coverageNotes || "")
+  };
+}
+
+function planNarrationHealth(plan, storyText = "", plannerSelfReview = {}) {
   const storyWords = countWords(storyText);
   const beats = plan.sections?.flatMap((section) => section.beats ?? []) ?? [];
   const narrationWords = beats.reduce((sum, beat) => sum + countWords(beat.narration), 0);
   const ratio = storyWords > 0 ? narrationWords / storyWords : 1;
-  const placeholderRegex = /\breplace this narration with your first beat\b/i;
-  const placeholderHits = beats.filter((beat) => placeholderRegex.test(String(beat.narration || ""))).length;
+  const normalizedPlannerReview = normalizePlannerSelfReview(plannerSelfReview);
+  const placeholderHits = beats.filter((beat) =>
+    String(beat.narration || "").toLowerCase().includes("replace this narration with your first beat")
+  ).length;
   const shortNarrationBeats = beats.filter((beat) => countWords(beat.narration) < 3).length;
   const changeDecisions = beats.filter((beat) => String(beat.imageChangeDecision || "").toLowerCase() === "change").length;
-  const lowerNarrations = beats.map((beat) => String(beat.narration || "").trim().toLowerCase());
-  const ctaRegex = /\b(like\s+button|subscribe|follow\s+for|hit\s+the\s+like)\b/i;
-  const introRegex = /\b(now[, ]+let[’']s get into today[’']s story)\b/i;
-  const ctaBeats = lowerNarrations
-    .map((text, index) => ({ text, index }))
-    .filter((entry) => ctaRegex.test(entry.text))
-    .map((entry) => entry.index);
-  const introLineAtEnd = lowerNarrations
-    .map((text, index) => ({ text, index }))
-    .filter((entry) => introRegex.test(entry.text) && entry.index >= Math.floor(beats.length * 0.6))
-    .map((entry) => entry.index);
   return {
     storyWords,
     narrationWords,
@@ -1544,8 +1548,7 @@ function planNarrationHealth(plan, storyText = "") {
     placeholderHits,
     shortNarrationBeats,
     changeDecisions,
-    ctaBeats,
-    introLineAtEnd
+    plannerSelfReview: normalizedPlannerReview
   };
 }
 
@@ -1553,8 +1556,10 @@ function plannerQualityIsAcceptable(metrics) {
   if (metrics.placeholderHits > 0) return false;
   if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) return false;
   if (metrics.storyWords >= 80 && metrics.ratio < 0.65) return false;
-  if ((metrics.ctaBeats?.length ?? 0) > 0) return false;
-  if ((metrics.introLineAtEnd?.length ?? 0) > 0) return false;
+  if (metrics.storyWords >= 80 && metrics.plannerSelfReview?.estimatedSourceCoverageRatio < 0.65) return false;
+  if (metrics.plannerSelfReview?.containsInventedChannelCta) return false;
+  if (metrics.plannerSelfReview?.introHookPlacement === "late_or_ending") return false;
+  if (metrics.plannerSelfReview?.orderingConfidence < 0.6) return false;
   return true;
 }
 
@@ -1568,7 +1573,9 @@ function stricterPlannerUserPromptTemplate() {
     "- Preserve at least ~65% of story word count when source story is 80+ words.",
     "- Mark imageChangeDecision=change on most major narrative turns and reveals; avoid long runs of hold unless intentionally static.",
     "- Do not inject channel CTA lines (like/subscribe/follow) unless they are explicitly present in source story.",
-    "- Never place intro hook lines like 'now let's get into today's story' near the ending."
+    "- Never place intro hook lines like 'now let's get into today's story' near the ending.",
+    "- Set quality.containsInventedChannelCta=true if narration includes any channel CTA that was not in the source.",
+    "- Set quality.introHookPlacement=late_or_ending if an intro hook appears after the opening."
   ].join("\n");
 }
 
