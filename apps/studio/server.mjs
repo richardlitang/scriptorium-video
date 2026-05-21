@@ -1643,8 +1643,6 @@ function plannerProgressTracer(projectId, job, prefix, strictness) {
     );
   };
 }
-  return true;
-}
 
 function stricterPlannerUserPromptTemplate() {
   return [
