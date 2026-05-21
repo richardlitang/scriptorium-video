@@ -9,7 +9,11 @@ import { createHash } from "node:crypto";
 import { imageReuseKey, narrationFromImagePrompt, selectCachedImage } from "./image-cache.mjs";
 import { defaultVoiceSettings, normalizeVoiceSettings, voiceSettingsEnv } from "./voice-settings.mjs";
 import { publicAssetForPath } from "./static-assets.mjs";
-import { createOpenAiPlanOrchestrator, planNeedsTtsRouting } from "./lib/openai-plan-orchestrator.mjs";
+import {
+  createOpenAiPlanOrchestrator,
+  planNeedsTtsRouting,
+  DEFAULT_PLANNER_USER_PROMPT_TEMPLATE
+} from "./lib/openai-plan-orchestrator.mjs";
 
 const execFileAsync = promisify(execFile);
 const __filename = fileURLToPath(import.meta.url);
@@ -1031,7 +1035,7 @@ async function runDraftJob(projectId, body) {
           }).catch(() => {});
         } else {
           planningSteps = 1;
-          const draft = await generatePlanDraftWithOpenAi({
+          let draft = await generatePlanDraftWithOpenAi({
             story,
             currentPlan: plan,
             feel: body.feel ?? "",
@@ -1042,10 +1046,30 @@ async function runDraftJob(projectId, body) {
             userPromptTemplate: body.userPromptTemplate
           });
           plan = draft.plan;
+          let quality = planNarrationHealth(plan, story);
+          if (!plannerQualityIsAcceptable(quality)) {
+            await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected", {
+              model: draft.model,
+              quality
+            }).catch(() => {});
+            draft = await generatePlanDraftWithOpenAi({
+              story,
+              currentPlan: details.plan,
+              feel: body.feel ?? "",
+              pacing: body.pacing ?? "",
+              visualStyle: body.visualStyle ?? "",
+              format: body.format ?? "short_story",
+              systemPrompt: body.systemPrompt,
+              userPromptTemplate: stricterPlannerUserPromptTemplate()
+            });
+            plan = draft.plan;
+            quality = planNarrationHealth(plan, story);
+          }
           await appendRunTrace(projectId, job.id, "planning.llm_plan", {
             model: draft.model,
             warnings: draft.warnings ?? [],
-            plan: summarizePlanForTrace(plan, story)
+            plan: summarizePlanForTrace(plan, story),
+            quality
           }).catch(() => {});
           job.output.push(`AI plan:\nGenerated ${plan.sections.length} section(s) using ${draft.model}.`);
           job.completed += 1;
@@ -1357,12 +1381,71 @@ function balancedSectionTargets(sectionTargets) {
 }
 
 function llmGlobalTargets(allTargets) {
-  const selected = allTargets.filter((target) => {
-    const role = target.beat.visual?.coverageRole;
-    return role === "anchor" || role === "key_moment";
-  });
-  if (selected.length > 0) return selected;
-  return allTargets.length > 0 ? [allTargets[0]] : [];
+  if (allTargets.length === 0) return [];
+  const ranked = allTargets
+    .map((target, index) => {
+      const role = target.beat.visual?.coverageRole;
+      const imageChangeDecision = String(target.beat.imageChangeDecision || "").toLowerCase();
+      const text = [
+        target.beat.narration,
+        target.beat.notes,
+        target.beat.media?.[0]?.prompt,
+        target.beat.voiceDirection?.deliveryNote
+      ].join(" ").toLowerCase();
+      const hook = /\b(reveal|turn|sudden|discover|realize|but then|finally|ending|knock|shadow|blood|scream)\b/.test(text);
+      const base = role === "anchor" ? 40 : role === "key_moment" ? 24 : 0;
+      const llmChangeBias = imageChangeDecision === "change" ? 22 : 0;
+      const edge = index === 0 || index === allTargets.length - 1 ? 16 : 0;
+      const intensity = Number(target.beat.voiceDirection?.intensity ?? 0) * 8;
+      return { target, index, score: base + llmChangeBias + edge + (hook ? 10 : 0) + intensity };
+    })
+    .sort((a, b) => b.score - a.score || a.index - b.index);
+  const selected = ranked.filter((entry) => {
+    const role = entry.target.beat.visual?.coverageRole;
+    const imageChangeDecision = String(entry.target.beat.imageChangeDecision || "").toLowerCase();
+    return role === "anchor" || role === "key_moment" || imageChangeDecision === "change";
+  }).map((entry) => entry.target);
+  const minTargetCount = Math.min(24, Math.max(4, Math.ceil(allTargets.length * 0.45)));
+  if (selected.length >= minTargetCount) return selected;
+  const byId = new Map(selected.map((target) => [target.beat.id, target]));
+  for (const entry of ranked) {
+    if (byId.has(entry.target.beat.id)) continue;
+    byId.set(entry.target.beat.id, entry.target);
+    if (byId.size >= minTargetCount) break;
+  }
+  if (byId.size === 0 && allTargets.length > 0) byId.set(allTargets[0].beat.id, allTargets[0]);
+  return [...byId.values()].sort((a, b) => a.beat.order - b.beat.order);
+}
+
+function planNarrationHealth(plan, storyText = "") {
+  const storyWords = countWords(storyText);
+  const beats = plan.sections?.flatMap((section) => section.beats ?? []) ?? [];
+  const narrationWords = beats.reduce((sum, beat) => sum + countWords(beat.narration), 0);
+  const ratio = storyWords > 0 ? narrationWords / storyWords : 1;
+  const placeholderRegex = /\breplace this narration with your first beat\b/i;
+  const placeholderHits = beats.filter((beat) => placeholderRegex.test(String(beat.narration || ""))).length;
+  const shortNarrationBeats = beats.filter((beat) => countWords(beat.narration) < 3).length;
+  const changeDecisions = beats.filter((beat) => String(beat.imageChangeDecision || "").toLowerCase() === "change").length;
+  return { storyWords, narrationWords, ratio, beatCount: beats.length, placeholderHits, shortNarrationBeats, changeDecisions };
+}
+
+function plannerQualityIsAcceptable(metrics) {
+  if (metrics.placeholderHits > 0) return false;
+  if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) return false;
+  if (metrics.storyWords >= 80 && metrics.ratio < 0.65) return false;
+  return true;
+}
+
+function stricterPlannerUserPromptTemplate() {
+  return [
+    DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
+    "",
+    "Hard quality gates:",
+    "- Never output placeholders, templates, TODO text, or instructions in narration.",
+    "- Keep narration semantically complete; do not aggressively summarize away key events.",
+    "- Preserve at least ~65% of story word count when source story is 80+ words.",
+    "- Mark imageChangeDecision=change on most major narrative turns and reveals; avoid long runs of hold unless intentionally static."
+  ].join("\n");
 }
 
 function selectImageTargets(plan, manifest, mode, coverage, options) {
