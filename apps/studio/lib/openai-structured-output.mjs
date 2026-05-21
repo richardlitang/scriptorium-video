@@ -52,7 +52,8 @@ export async function runStructuredOutput({
   errorLabel,
   timeoutMs = Number(process.env.OPENAI_REQUEST_TIMEOUT_MS ?? 90000),
   maxAttempts = Number(process.env.OPENAI_REQUEST_MAX_ATTEMPTS ?? 3),
-  fallbackModels = parseModelFallbacks(process.env.OPENAI_STRUCTURED_OUTPUT_FALLBACK_MODELS)
+  fallbackModels = parseModelFallbacks(process.env.OPENAI_STRUCTURED_OUTPUT_FALLBACK_MODELS),
+  onProgress
 }) {
   const buildPayload = (currentModel) => JSON.stringify({
     model: currentModel,
@@ -73,8 +74,32 @@ export async function runStructuredOutput({
     let lastError = null;
     for (let attempt = 1; attempt <= attempts; attempt += 1) {
       const controller = new AbortController();
+      const startedAt = Date.now();
       const timer = setTimeout(() => controller.abort(), Math.max(1000, timeoutMs));
+      let heartbeat = null;
       try {
+        await onProgress?.({
+          event: "request.start",
+          model: currentModel,
+          attempt,
+          attempts,
+          modelIndex: models.indexOf(currentModel) + 1,
+          modelCount: models.length,
+          elapsedMs: 0,
+          timeoutMs
+        });
+        heartbeat = setInterval(() => {
+          onProgress?.({
+            event: "request.heartbeat",
+            model: currentModel,
+            attempt,
+            attempts,
+            modelIndex: models.indexOf(currentModel) + 1,
+            modelCount: models.length,
+            elapsedMs: Date.now() - startedAt,
+            timeoutMs
+          });
+        }, 10000);
         const response = await fetchImpl(url, {
           method: "POST",
           headers: {
@@ -88,14 +113,44 @@ export async function runStructuredOutput({
           const body = await response.text().catch(() => "");
           throw new Error(`${errorLabel}: ${response.status} ${body.slice(0, 300)}`);
         }
-        return JSON.parse(extractResponseText(await response.json()));
+        const responseJson = await response.json();
+        await onProgress?.({
+          event: "request.response",
+          model: currentModel,
+          attempt,
+          attempts,
+          modelIndex: models.indexOf(currentModel) + 1,
+          modelCount: models.length,
+          elapsedMs: Date.now() - startedAt,
+          timeoutMs
+        });
+        const parsed = JSON.parse(extractResponseText(responseJson));
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+          Object.defineProperty(parsed, "__model", {
+            value: currentModel,
+            enumerable: false
+          });
+        }
+        return parsed;
       } catch (error) {
         lastError = error;
         const retriable = isRetriableOpenAiError(error, timeoutMs);
+        await onProgress?.({
+          event: retriable ? "request.retryable_error" : "request.error",
+          model: currentModel,
+          attempt,
+          attempts,
+          modelIndex: models.indexOf(currentModel) + 1,
+          modelCount: models.length,
+          elapsedMs: Date.now() - startedAt,
+          timeoutMs,
+          message: errorCause(error, timeoutMs)
+        });
         if (!retriable || attempt >= attempts) break;
         await sleep(300 * attempt);
       } finally {
         clearTimeout(timer);
+        if (heartbeat) clearInterval(heartbeat);
       }
     }
     const cause = errorCause(lastError, timeoutMs);

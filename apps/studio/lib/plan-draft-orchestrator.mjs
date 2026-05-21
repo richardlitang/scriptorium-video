@@ -239,7 +239,7 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
   if (typeof getOpenAiApiKey !== "function") throw new Error("createPlanDraftOrchestrator requires getOpenAiApiKey function.");
   if (typeof buildPlanFromAiDraft !== "function") throw new Error("createPlanDraftOrchestrator requires buildPlanFromAiDraft function.");
 
-  return async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, visualStyle, format, systemPrompt, userPromptTemplate }) {
+  return async function generatePlanDraftWithOpenAi({ story, currentPlan, feel, pacing, visualStyle, format, systemPrompt, userPromptTemplate, onProgress }) {
     if (studioTestMode) {
       return {
         plan: buildPlanFromAiDraft(currentPlan, {
@@ -352,14 +352,15 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
       errorLabel: "OpenAI planner request failed",
       timeoutMs,
       maxAttempts,
-      fallbackModels
+      fallbackModels,
+      onProgress
     });
 
     return {
       plan: buildPlanFromAiDraft(currentPlan, draft),
       quality: draft.quality,
       warnings: draft.warnings,
-      model
+      model: draft.__model ?? model
     };
   };
 }

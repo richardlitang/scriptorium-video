@@ -5,6 +5,17 @@ function formatJobTime(value) {
   return date.toLocaleTimeString();
 }
 
+function formatElapsed(startedAt, finishedAt) {
+  const start = Date.parse(startedAt || "");
+  const end = finishedAt ? Date.parse(finishedAt) : Date.now();
+  if (!Number.isFinite(start) || !Number.isFinite(end) || end < start) return "";
+  const seconds = Math.max(0, Math.round((end - start) / 1000));
+  if (seconds < 60) return `${seconds}s`;
+  const minutes = Math.floor(seconds / 60);
+  const remainder = seconds % 60;
+  return `${minutes}m ${String(remainder).padStart(2, "0")}s`;
+}
+
 export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRetry }) {
   let expandedJobIds = new Set();
   let pollTimer = null;
@@ -35,7 +46,8 @@ export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRet
       const strong = document.createElement("strong");
       strong.textContent = job.label || "Job";
       const small = document.createElement("small");
-      small.textContent = `${job.status} · ${formatJobTime(job.startedAt)}`;
+      const elapsed = formatElapsed(job.startedAt, job.finishedAt);
+      small.textContent = `${job.status} · ${formatJobTime(job.startedAt)}${elapsed ? ` · ${elapsed}` : ""}`;
       title.append(strong, small);
       top.appendChild(title);
       card.appendChild(top);
@@ -46,7 +58,8 @@ export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRet
         ? `Progress ${Math.min(job.total, job.completed)}/${job.total}`
         : "Progress n/a";
       const sectionText = job.currentSectionTitle ? ` · ${job.currentSectionTitle}` : "";
-      meta.textContent = `${progressText}${sectionText}`;
+      const updatedText = job.updatedAt ? ` · updated ${formatJobTime(job.updatedAt)}` : "";
+      meta.textContent = `${progressText}${sectionText}${updatedText}`;
       card.appendChild(meta);
 
       const actions = document.createElement("div");
@@ -125,6 +138,9 @@ export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRet
     if (!projectId) return [];
     try {
       const jobs = await fetchJobs(projectId);
+      for (const job of jobs) {
+        if (["queued", "running", "cancelling"].includes(job.status)) traceCache.delete(job.id);
+      }
       render(jobs);
       return jobs;
     } catch {
@@ -135,7 +151,7 @@ export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRet
 
   async function poll(projectId) {
     const jobs = await refresh(projectId);
-    if (!jobs.some((job) => ["queued", "running"].includes(job.status))) stopPolling();
+    if (!jobs.some((job) => ["queued", "running", "cancelling"].includes(job.status))) stopPolling();
   }
 
   function startPolling(projectId) {
@@ -143,7 +159,7 @@ export function createJobCenterController({ listEl, fetchJobs, fetchTrace, onRet
     poll(projectId).catch(() => {});
     pollTimer = setInterval(() => {
       poll(projectId).catch(() => {});
-    }, 2500);
+    }, 1000);
   }
 
   function stopPolling() {

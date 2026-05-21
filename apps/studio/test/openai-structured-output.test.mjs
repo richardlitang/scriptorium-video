@@ -17,6 +17,7 @@ test("parseModelFallbacks trims empty entries", () => {
 
 test("runStructuredOutput falls back to the next model after a timeout", async () => {
   const requestedModels = [];
+  const progressEvents = [];
   const result = await runStructuredOutput({
     fetchImpl: async (_url, options) => {
       const body = JSON.parse(options.body);
@@ -37,10 +38,17 @@ test("runStructuredOutput falls back to the next model after a timeout", async (
     schema: { type: "object", additionalProperties: false, required: ["ok", "model"], properties: { ok: { type: "boolean" }, model: { type: "string" } } },
     errorLabel: "OpenAI test failed",
     timeoutMs: 10,
-    maxAttempts: 1
+    maxAttempts: 1,
+    onProgress: (event) => progressEvents.push(event)
   });
 
   assert.deepEqual(requestedModels, ["gpt-5.1", "gpt-5-mini"]);
+  assert.deepEqual(progressEvents.map((event) => event.event), [
+    "request.start",
+    "request.retryable_error",
+    "request.start",
+    "request.response"
+  ]);
   assert.deepEqual(result, { ok: true, model: "gpt-5-mini" });
 });
 

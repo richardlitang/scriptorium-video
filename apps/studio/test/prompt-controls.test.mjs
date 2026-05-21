@@ -222,10 +222,15 @@ test("studio draft jobs write structured operational traces", async () => {
   assert.match(server, /function summarizeTimelineForTrace\(timeline, manifest\)/);
   assert.match(server, /function summarizeVoiceSettingsForTrace\(settings\)/);
   assert.match(server, /function normalizePlannerSelfReview\(value = \{\}\)/);
+  assert.match(server, /function plannerProgressTracer\(projectId, job, prefix, strictness\)/);
+  assert.match(server, /planning\.\$\{progress\.event\}/);
+  assert.match(server, /Planner output failed quality gates:/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "images\.targets_selected"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "render\.start"/);
   assert.match(server, /readRunTrace\(projectId, jobId\)/);
   assert.match(server, /pathname\.includes\("\/jobs\/"\) && pathname\.endsWith\("\/trace"\)/);
   assert.match(jobCenter, /View Trace/);
   assert.match(jobCenter, /fetchTrace\(job\)/);
+  assert.match(jobCenter, /setInterval\(\(\) => \{/);
+  assert.match(jobCenter, /}, 1000\)/);
 });

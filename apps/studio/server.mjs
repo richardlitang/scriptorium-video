@@ -457,6 +457,11 @@ async function appendRunTrace(projectId, jobId, event, data = {}) {
   await appendFile(filePath, `${JSON.stringify({ timestamp: new Date().toISOString(), event, ...data })}\n`, "utf8");
 }
 
+async function appendDraftTraceAndState(projectId, job, event, data = {}, patch = {}) {
+  await appendRunTrace(projectId, job.id, event, data).catch(() => {});
+  await writeDraftJobState(projectId, job, patch).catch(() => {});
+}
+
 async function readRunTrace(projectId, jobId) {
   const filePath = runTracePath(projectId, jobId);
   const relative = path.relative(runTracesDir, filePath);
@@ -718,6 +723,7 @@ function jobProgress(job, patch = {}) {
     error: job.error,
     tracePath: job.tracePath,
     output: job.output.join("\n\n").trim(),
+    updatedAt: job.updatedAt,
     ...patch
   };
 }
@@ -738,15 +744,16 @@ function beatJobProgress(job, patch = {}) {
     error: job.error,
     tracePath: job.tracePath,
     output: job.output.join("\n\n").trim(),
+    updatedAt: job.updatedAt,
     ...patch
   };
 }
 
 async function writeDraftJobState(projectId, job, patch = {}) {
-  Object.assign(job, patch);
+  Object.assign(job, patch, { updatedAt: new Date().toISOString() });
   await upsertRunJob(projectId, {
     ...jobProgress(job),
-    updatedAt: new Date().toISOString()
+    updatedAt: job.updatedAt
   });
 }
 
@@ -1126,15 +1133,23 @@ async function runDraftJob(projectId, body) {
             visualStyle: body.visualStyle ?? "",
             format: body.format ?? "long_documentary",
             systemPrompt: body.systemPrompt,
-            userPromptTemplate: body.userPromptTemplate
+            userPromptTemplate: body.userPromptTemplate,
+            onProgress: plannerProgressTracer(projectId, job, "Creating video plan from story", "standard")
           });
           plan = draft.plan;
           let quality = planNarrationHealth(plan, story, draft.quality);
           if (!plannerQualityIsAcceptable(quality)) {
+            const failures = plannerQualityFailures(quality);
             await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected", {
               model: draft.model,
-              quality
+              quality,
+              failures
             }).catch(() => {});
+            job.output.push(`Planner rejected (${draft.model}):\n${failures.join("\n")}`);
+            await writeDraftJobState(projectId, job, {
+              phase: "planning",
+              label: `Planner rejected ${draft.model}; retrying stricter plan`
+            });
             draft = await generatePlanDraftWithOpenAi({
               story,
               currentPlan: details.plan,
@@ -1143,18 +1158,19 @@ async function runDraftJob(projectId, body) {
               visualStyle: body.visualStyle ?? "",
               format: body.format ?? "long_documentary",
               systemPrompt: body.systemPrompt,
-              userPromptTemplate: stricterPlannerUserPromptTemplate()
+              userPromptTemplate: stricterPlannerUserPromptTemplate(),
+              onProgress: plannerProgressTracer(projectId, job, "Retrying stricter video plan", "strict")
             });
             plan = draft.plan;
             quality = planNarrationHealth(plan, story, draft.quality);
             if (!plannerQualityIsAcceptable(quality)) {
+              const finalFailures = plannerQualityFailures(quality);
               await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected_final", {
                 model: draft.model,
-                quality
+                quality,
+                failures: finalFailures
               }).catch(() => {});
-              throw new Error(
-                `Planner output failed quality gates after retry. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, coverage=${quality.plannerSelfReview.estimatedSourceCoverageRatio.toFixed(3)}, introHookPlacement=${quality.plannerSelfReview.introHookPlacement}, inventedCta=${quality.plannerSelfReview.containsInventedChannelCta}.`
-              );
+              throw new Error(plannerQualityFailureMessage(quality));
             }
           }
           await appendRunTrace(projectId, job.id, "planning.llm_plan", {
@@ -1559,13 +1575,74 @@ function planNarrationHealth(plan, storyText = "", plannerSelfReview = {}) {
 }
 
 function plannerQualityIsAcceptable(metrics) {
-  if (metrics.placeholderHits > 0) return false;
-  if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) return false;
-  if (metrics.storyWords >= 80 && metrics.ratio < 0.65) return false;
-  if (metrics.storyWords >= 80 && metrics.plannerSelfReview?.estimatedSourceCoverageRatio < 0.65) return false;
-  if (metrics.plannerSelfReview?.containsInventedChannelCta) return false;
-  if (metrics.plannerSelfReview?.introHookPlacement === "late_or_ending") return false;
-  if (metrics.plannerSelfReview?.orderingConfidence < 0.6) return false;
+  return plannerQualityFailures(metrics).length === 0;
+}
+
+function plannerQualityFailures(metrics) {
+  const failures = [];
+  if (metrics.placeholderHits > 0) failures.push(`${metrics.placeholderHits} placeholder narration beat(s)`);
+  if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) {
+    failures.push(`${metrics.shortNarrationBeats}/${metrics.beatCount} beats have fewer than 3 words`);
+  }
+  if (metrics.storyWords >= 80 && metrics.ratio < 0.65) {
+    failures.push(`narration retained ${(metrics.ratio * 100).toFixed(1)}% of source; required 65%`);
+  }
+  if (metrics.storyWords >= 80 && metrics.plannerSelfReview?.estimatedSourceCoverageRatio < 0.65) {
+    failures.push(`planner self-rated coverage ${(metrics.plannerSelfReview.estimatedSourceCoverageRatio * 100).toFixed(1)}%; required 65%`);
+  }
+  if (metrics.plannerSelfReview?.containsInventedChannelCta) failures.push("planner reported invented channel CTA");
+  if (metrics.plannerSelfReview?.introHookPlacement === "late_or_ending") failures.push("planner reported intro hook near the ending");
+  if (metrics.plannerSelfReview?.orderingConfidence < 0.6) {
+    failures.push(`planner ordering confidence ${(metrics.plannerSelfReview.orderingConfidence * 100).toFixed(1)}%; required 60%`);
+  }
+  return failures;
+}
+
+function plannerQualityFailureMessage(quality) {
+  const failures = plannerQualityFailures(quality);
+  if (failures.length === 0) return "Planner output passed quality gates.";
+  return `Planner output failed quality gates: ${failures.join("; ")}. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, coverage=${quality.plannerSelfReview.estimatedSourceCoverageRatio.toFixed(3)}, introHookPlacement=${quality.plannerSelfReview.introHookPlacement}, inventedCta=${quality.plannerSelfReview.containsInventedChannelCta}.`;
+}
+
+function plannerProgressLabel(prefix, progress = {}) {
+  const seconds = Math.max(0, Math.round(Number(progress.elapsedMs ?? 0) / 1000));
+  const attemptText = `attempt ${progress.attempt ?? 1}/${progress.attempts ?? 1}`;
+  const modelText = progress.model ? `${progress.model}` : "OpenAI";
+  if (progress.event === "request.response") return `${prefix}: response received from ${modelText}`;
+  if (progress.event === "request.retryable_error" || progress.event === "request.error") {
+    return `${prefix}: ${modelText} error after ${seconds}s`;
+  }
+  return `${prefix}: waiting on ${modelText} · ${attemptText} · ${seconds}s`;
+}
+
+function plannerProgressTracer(projectId, job, prefix, strictness) {
+  let lastHeartbeatSecond = -1;
+  return async (progress) => {
+    const elapsedSecond = Math.round(Number(progress.elapsedMs ?? 0) / 1000);
+    if (progress.event === "request.heartbeat" && elapsedSecond - lastHeartbeatSecond < 10) return;
+    if (progress.event === "request.heartbeat") lastHeartbeatSecond = elapsedSecond;
+    await appendDraftTraceAndState(
+      projectId,
+      job,
+      `planning.${progress.event}`,
+      {
+        strictness,
+        model: progress.model,
+        attempt: progress.attempt,
+        attempts: progress.attempts,
+        modelIndex: progress.modelIndex,
+        modelCount: progress.modelCount,
+        elapsedMs: progress.elapsedMs,
+        timeoutMs: progress.timeoutMs,
+        message: progress.message
+      },
+      {
+        phase: "planning",
+        label: plannerProgressLabel(prefix, progress)
+      }
+    );
+  };
+}
   return true;
 }
 
@@ -2627,6 +2704,7 @@ async function listDraftJobs(projectId) {
   const activeBeat = activeBeatJobs.get(projectId);
   const history = (await readQualityHistory(projectId))
     .filter(isJobHistory)
+    .filter((entry) => !["draft_job_failed", "draft_job_cancelled"].includes(entry.kind))
     .slice(0, 24)
     .map((entry) => ({
       id: `${entry.kind}-${sha256(`${entry.timestamp}-${entry.summary}`).slice(0, 8)}`,
@@ -2643,14 +2721,15 @@ async function listDraftJobs(projectId) {
     status: job.status,
     startedAt: job.startedAt,
     finishedAt: job.finishedAt,
-    label: job.label || job.kind,
-    output: job.output ?? "",
-    kind: `${job.kind}_runstate`,
-    error: job.error,
-    completed: job.completed,
-    total: job.total,
-    currentSectionTitle: job.currentSectionTitle ?? job.beatId,
-    tracePath: job.tracePath
+      label: job.label || job.kind,
+      output: job.output ?? "",
+      kind: `${job.kind}_runstate`,
+      error: job.error,
+      completed: job.completed,
+      total: job.total,
+      currentSectionTitle: job.currentSectionTitle ?? job.beatId,
+      tracePath: job.tracePath,
+      updatedAt: job.updatedAt
   }));
   const liveJobs = [];
   if (active) {
@@ -2667,7 +2746,8 @@ async function listDraftJobs(projectId) {
       completed: current.completed,
       total: current.total,
       currentSectionTitle: current.currentSectionTitle,
-      tracePath: current.tracePath
+      tracePath: current.tracePath,
+      updatedAt: current.updatedAt
     });
   }
   if (activeBeat) {
@@ -2684,7 +2764,8 @@ async function listDraftJobs(projectId) {
       completed: current.completed,
       total: current.total,
       currentSectionTitle: current.beatId,
-      tracePath: current.tracePath
+      tracePath: current.tracePath,
+      updatedAt: current.updatedAt
     });
   }
   const jobs = [
