@@ -1,4 +1,4 @@
-import { runStructuredOutput } from "./openai-structured-output.mjs";
+import { parseModelFallbacks, runStructuredOutput } from "./openai-structured-output.mjs";
 
 export const DEFAULT_PLANNER_SYSTEM_PROMPT =
   "Convert story prose into a concise video production plan with deliberate section and beat segmentation. Preserve wording except light segmentation. Treat sections as narrative arcs, setting/time shifts, or major topic turns. Treat beats as edit units: one visual moment plus one spoken thought. Keep visual continuity (character age/look, setting, style) across beats. Use concrete visual descriptions, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. Do not introduce contradictory visual media, realism levels, or style directions. Keep voice direction engaged and language-appropriate. Return JSON only.";
@@ -230,6 +230,11 @@ function fillPlannerTemplate(template, values) {
   return source.replace(/\{\{(\w+)\}\}/g, (_, key) => String(values[key] ?? ""));
 }
 
+function envNumber(name, fallback) {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) ? value : fallback;
+}
+
 export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey, buildPlanFromAiDraft, studioTestMode = false, openAiResponsesUrl }) {
   if (typeof getOpenAiApiKey !== "function") throw new Error("createPlanDraftOrchestrator requires getOpenAiApiKey function.");
   if (typeof buildPlanFromAiDraft !== "function") throw new Error("createPlanDraftOrchestrator requires buildPlanFromAiDraft function.");
@@ -315,6 +320,9 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
 
     const apiKey = await getOpenAiApiKey();
     const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-5.1";
+    const fallbackModels = parseModelFallbacks(process.env.OPENAI_PLANNER_FALLBACK_MODELS ?? "gpt-5-mini,gpt-4.1-mini,gpt-4o-mini");
+    const timeoutMs = envNumber("OPENAI_PLANNER_REQUEST_TIMEOUT_MS", envNumber("OPENAI_REQUEST_TIMEOUT_MS", 90000));
+    const maxAttempts = envNumber("OPENAI_PLANNER_REQUEST_MAX_ATTEMPTS", 1);
     const promptValues = {
       story,
       currentTitle: currentPlan.title,
@@ -341,7 +349,10 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
       ],
       schemaName: "video_plan_draft",
       schema: PLAN_DRAFT_SCHEMA,
-      errorLabel: "OpenAI planner request failed"
+      errorLabel: "OpenAI planner request failed",
+      timeoutMs,
+      maxAttempts,
+      fallbackModels
     });
 
     return {
