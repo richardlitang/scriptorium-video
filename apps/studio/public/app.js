@@ -194,8 +194,10 @@ const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
   "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
   "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
   "- Decide sparse editorial timing: visualEditCues, silenceWindows, and endingPolicy for retention-focused switches/effects only where appropriate.",
-  "- Use visualEditCues to mark exact visual switches and effects: target next_visual for early visual changes, current_visual for push_in/slow_pan/hard_cut/smash_cut, and black only for cut_to_black/hold_black.",
+  "- Do not let images spoil narration: do not reveal a visual clue, object, character, or ending image before the narration reaches that beat.",
+  "- Use visualEditCues for effects on the current beat only: current_visual for push_in/slow_pan/hard_cut/smash_cut, and black only for cut_to_black/hold_black.",
   "- Keep visualEditCues sparse: normally 0-2 per beat, up to 4 only for a major reveal or ending.",
+  "- Match narration tone to scene intent per beat. Use hushed restraint for dread, warmer delivery for setup, sharper emphasis for reveals, and avoid cheerful or generic narration on tense scenes.",
   "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
   "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
   "- Surface warnings when uncertain or under-specified."

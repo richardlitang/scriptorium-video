@@ -31,12 +31,9 @@ export const VerticalStoryTemplate: React.FC<RemotionInputProps> = ({
     timeline.segments.find(
       (segment) => timeSeconds >= segment.startSeconds && timeSeconds < segment.endSeconds
     ) ?? timeline.segments[0];
-  const activeSegmentIndex = Math.max(0, timeline.segments.findIndex((segment) => segment === activeSegment));
   const visualEditCues = timeline.segments.flatMap((segment) => segment.visualEditCues ?? []);
   const activeVisualCue = activeVisualCueAt(timeSeconds, visualEditCues);
-  const visualSegment = activeVisualCue?.target === "next_visual"
-    ? timeline.segments[activeSegmentIndex + 1] ?? activeSegment
-    : activeSegment;
+  const visualSegment = activeSegment;
   const activeBeat = videoPlan.sections
     .flatMap((section) => section.beats)
     .find((beat) => beat.id === visualSegment.beatId);

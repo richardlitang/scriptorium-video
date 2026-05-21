@@ -87,7 +87,8 @@ const defaultProps: RemotionInputProps = {
             scaleMode: "cover"
           }
         }
-      ]
+      ],
+      audioLayers: []
     },
     resolvedConfig: {
       fps: 30,

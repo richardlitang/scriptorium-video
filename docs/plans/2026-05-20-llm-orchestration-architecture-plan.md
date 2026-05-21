@@ -1030,6 +1030,40 @@ Rules:
 
 Do not start with parallelism or external queues. The contract and progress model need to be stable first.
 
+## New Improvement Backlog
+
+### Remove Renderer Spoilers And Debug-Like Overlays
+
+- Remove visible section/beat title overlays from production renders unless explicitly enabled as a title-card style.
+- Keep image changes aligned to the narration beat that introduces the visual information.
+- Do not allow `next_visual` cues to reveal the next beat before narration reaches it by default.
+- Add a future explicit option for intentional J-cut/L-cut visual foreshadowing, gated behind planner confidence and user setting.
+
+### Tighten Planner Editorial Semantics
+
+- Planner should avoid contradictory visual cues such as zero-duration black holds or black-hold cues targeting `current_visual`.
+- Planner should output current-beat effects by default and only use forward-looking cues when the user opted into visual foreshadowing.
+- Add deterministic cleanup in sync for invalid or no-op editorial cues.
+
+### Improve Narration Tone And Intonation
+
+- Beat-level voice direction should map to scene function: setup, dread, clue, reveal, aftermath, ending sting.
+- TTS direction should avoid generic “standard narration” when a beat needs hushed dread, grief, authority, or reveal emphasis.
+- Add a deterministic style-to-voice pass that clamps overly cheerful, flat, or mismatched delivery notes before TTS generation.
+- Consider a separate lightweight voice-director pass only when planner voice confidence is low.
+
+### Improve Planner Review UX
+
+- Treat ratio, self-rated coverage, CTA detection, and ordering confidence as warnings unless output is unusable.
+- Show accepted planner warnings and sample beats in Job Center instead of failing the draft.
+- Save accepted and rejected planner raw outputs for review/debugging without mutating generated project artifacts.
+
+### Reduce Unnecessary LLM Calls
+
+- Skip TTS routing LLM when all narration is clearly English and planner already selected `chatterbox` with high confidence.
+- Keep LLM TTS routing for mixed-language or uncertain beats.
+- Add trace output explaining when deterministic routing was used instead of an LLM call.
+
 ## Definition Of Done
 
 - New projects get a full AI director pass before generation.

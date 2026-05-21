@@ -62,7 +62,8 @@ test("planner prompt tells the model creative controls govern every beat", async
   assert.match(draftOrchestrator, /Treat Feel, Pacing, and Visual style as creative direction for every beat/);
   assert.match(draftOrchestrator, /Do not introduce contradictory visual media, realism levels, or style directions/);
   assert.match(draftOrchestrator, /Decide sparse editorial timing: visualEditCues, silenceWindows, and endingPolicy/);
-  assert.match(draftOrchestrator, /target next_visual for early visual changes/);
+  assert.match(draftOrchestrator, /Do not let images spoil narration/);
+  assert.match(draftOrchestrator, /Match narration tone to scene intent per beat/);
 });
 
 test("planner prompt defines section and beat segmentation rules", async () => {
@@ -125,16 +126,22 @@ test("renderer applies planner visual edit cues to media selection and effects",
 
   for (const source of [verticalTemplate, documentaryTemplate]) {
     assert.match(source, /activeVisualCueAt\(timeSeconds, visualEditCues\)/);
-    assert.match(source, /activeVisualCue\?\.target === "next_visual"/);
     assert.match(source, /const visualSpans = timeline\.segments\.reduce/);
     assert.match(source, /const localVisualFrame = Math\.max\(0, frame - spanFromFrame\)/);
     assert.match(source, /spanDurationInFrames=\{spanDurationFrames\}/);
     assert.match(source, /visualCueStyle\(activeVisualCue, timeSeconds\)/);
+    assert.doesNotMatch(source, /activeVisualCue\?\.target === "next_visual"/);
   }
   assert.match(runtime, /export function activeVisualCueAt/);
   assert.match(runtime, /cue\.target !== "black"/);
   assert.match(runtime, /cue\.type === "push_in"/);
   assert.match(runtime, /cue\.type === "smash_cut" \|\| cue\.type === "hard_cut" \|\| cue\.type === "match_cut"/);
+});
+
+test("longform renderer does not overlay section title cards", async () => {
+  const documentaryTemplate = await readFile(path.resolve("apps/renderer/src/templates/DocumentaryLongformTemplate.tsx"), "utf8");
+  assert.doesNotMatch(documentaryTemplate, /SectionTitleCard/);
+  assert.doesNotMatch(documentaryTemplate, /sectionStarts/);
 });
 
 test("studio draft jobs expose beat-level narration status and use planner TTS routing", async () => {

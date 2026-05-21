@@ -1812,7 +1812,7 @@ function buildPlanFromAiDraft(currentPlan, draft) {
           placement: ["beat_start", "beat_end", "key_point", "manual"].includes(cue.placement) ? cue.placement : "manual",
           offsetSeconds: clampNumber(cue.offsetSeconds, 0, -5, 5),
           durationSeconds: clampNumber(cue.durationSeconds, 0.4, 0, 8),
-          target: ["black", "current_visual", "next_visual"].includes(cue.target) ? cue.target : "current_visual",
+          target: cue.target === "black" ? "black" : "current_visual",
           intensity: clampNumber(cue.intensity, 0.5, 0, 1)
         }))
       : [];

@@ -2,7 +2,6 @@ import { AbsoluteFill, Audio, Sequence, useCurrentFrame, useVideoConfig } from "
 import type { RenderBundle } from "@lvstudio/core";
 import { CaptionLayer } from "../components/CaptionLayer";
 import { MediaLayer } from "../components/MediaLayer";
-import { SectionTitleCard } from "../components/SectionTitleCard";
 import { activeSilenceAt, activeVisualCueAt, shouldCutToBlack, visualCueStyle } from "./editorial-runtime";
 
 type RemotionInputProps = {
@@ -32,12 +31,9 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
     timeline.segments.find(
       (segment) => timeSeconds >= segment.startSeconds && timeSeconds < segment.endSeconds
     ) ?? timeline.segments[0];
-  const activeSegmentIndex = Math.max(0, timeline.segments.findIndex((segment) => segment === activeSegment));
   const visualEditCues = timeline.segments.flatMap((segment) => segment.visualEditCues ?? []);
   const activeVisualCue = activeVisualCueAt(timeSeconds, visualEditCues);
-  const visualSegment = activeVisualCue?.target === "next_visual"
-    ? timeline.segments[activeSegmentIndex + 1] ?? activeSegment
-    : activeSegment;
+  const visualSegment = activeSegment;
   const activeBeat = videoPlan.sections
     .flatMap((section) => section.beats)
     .find((beat) => beat.id === visualSegment.beatId);
@@ -85,20 +81,6 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
     Math.round(((activeVisualSpan?.toSeconds ?? visualSegment.endSeconds) - (activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds)) * fps)
   );
   const localVisualFrame = Math.max(0, frame - spanFromFrame);
-
-  const sectionStarts = videoPlan.sections
-    .map((section) => {
-      const firstBeatId = section.beats.sort((a, b) => a.order - b.order)[0]?.id;
-      const segment = timeline.segments.find((entry) => entry.beatId === firstBeatId);
-      if (!segment) return null;
-      return {
-        sectionId: section.id,
-        title: section.title,
-        from: Math.round(segment.startSeconds * fps),
-        durationInFrames: Math.max(30, Math.round(Math.min(2, segment.durationSeconds) * fps))
-      };
-    })
-    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry));
 
   return (
     <AbsoluteFill style={{ backgroundColor: "#020617" }}>
@@ -167,12 +149,6 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
           );
         })
       )}
-
-      {sectionStarts.map((entry) => (
-        <Sequence key={entry.sectionId} from={entry.from} durationInFrames={entry.durationInFrames}>
-          <SectionTitleCard title={entry.title} />
-        </Sequence>
-      ))}
 
       <CaptionLayer captions={captions} />
     </AbsoluteFill>
