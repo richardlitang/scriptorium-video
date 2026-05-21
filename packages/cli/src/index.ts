@@ -13,6 +13,7 @@ import {
 import { rendererProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
 import { createProject } from "./create-project.js";
+import { ingestAudioCli } from "./audio-ingest.js";
 import { exportProject } from "./export-project.js";
 import { generateCaptions } from "./captions.js";
 import { directVoice } from "./direct-voice.js";
@@ -138,6 +139,38 @@ program
       role: options.role as "primary_visual" | "broll" | "screen" | "overlay",
       section: options.section,
       copy: options.copy !== false
+    });
+  });
+
+program
+  .command("audio:ingest")
+  .argument("<project-id>")
+  .argument("<file-path>")
+  .requiredOption("--role <role>", "music or sfx")
+  .requiredOption("--provider <provider>", "source provider, e.g. epidemic, artlist, youtube_audio_library")
+  .requiredOption("--license-type <license-type>", "license descriptor, e.g. creator_subscription")
+  .option("--asset-id <asset-id>", "stable asset id override")
+  .option("--source-url <source-url>", "provider source URL")
+  .option("--creator <creator>", "creator/artist credit")
+  .option("--track-id <track-id>", "provider track id")
+  .option("--attribution-required", "mark attribution as required")
+  .option("--allowed-platforms <platforms>", "comma separated platforms", "youtube")
+  .option("--downloaded-at <iso-date>", "ISO timestamp for license capture")
+  .action(async (projectId, filePath, options) => {
+    await validateProject(projectId);
+    const role = options.role === "music" ? "music" : options.role === "sfx" ? "sfx" : null;
+    if (!role) throw new Error("--role must be either 'music' or 'sfx'.");
+    await ingestAudioCli(projectId, filePath, {
+      role,
+      assetId: options.assetId,
+      provider: options.provider,
+      licenseType: options.licenseType,
+      sourceUrl: options.sourceUrl,
+      creator: options.creator,
+      trackId: options.trackId,
+      attributionRequired: options.attributionRequired === true,
+      allowedPlatforms: options.allowedPlatforms,
+      downloadedAt: options.downloadedAt
     });
   });
 

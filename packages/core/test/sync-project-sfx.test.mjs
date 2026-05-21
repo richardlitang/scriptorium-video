@@ -249,6 +249,96 @@ test("syncProject maps editorial cues and sound cue mix controls into timeline",
   }
 });
 
+test("syncProject fails when a referenced audio cue lacks license metadata", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-sync-license-"));
+  const projectId = "fixture";
+  const projectDir = path.join(root, "content", "projects", projectId);
+  try {
+    await mkdir(path.join(projectDir, "assets", "audio", "voice"), { recursive: true });
+    await mkdir(path.join(projectDir, "assets", "audio", "sfx"), { recursive: true });
+    await writeFile(path.join(projectDir, "assets", "audio", "voice", "intro-001.wav"), "stub", "utf8");
+    await writeFile(path.join(projectDir, "assets", "audio", "sfx", "hit.wav"), "stub", "utf8");
+
+    await writeJson(path.join(projectDir, "video-plan.json"), {
+      schemaVersion: 1,
+      title: "Fixture",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      providers: {
+        llm: "manual",
+        tts: "chatterbox",
+        transcription: "mock",
+        media: "manual-media",
+        renderer: "remotion"
+      },
+      voice: {
+        provider: "chatterbox",
+        voiceId: "clone",
+        format: "wav",
+        options: {}
+      },
+      sections: [
+        {
+          id: "intro",
+          title: "Intro",
+          beats: [
+            {
+              id: "intro-001",
+              order: 1,
+              narration: "Hit.",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false },
+              media: [],
+              motion: { type: "none", intensity: 0 },
+              caption: { emphasis: [], style: "default" },
+              sfxCues: [{ id: "manual-hit", kind: "manual hit", placement: "beat_start", offsetSeconds: 0, levelDb: -12 }]
+            }
+          ]
+        }
+      ]
+    });
+
+    await writeJson(path.join(projectDir, "asset-manifest.json"), {
+      schemaVersion: 1,
+      assets: [
+        {
+          id: "voice-intro-001",
+          type: "audio",
+          role: "voiceover",
+          sectionId: "intro",
+          beatId: "intro-001",
+          path: "assets/audio/voice/intro-001.wav",
+          source: { kind: "generated", provider: "chatterbox", inputHash: "x" },
+          durationSeconds: 2,
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: "manual-hit",
+          type: "audio",
+          role: "sfx",
+          sectionId: "intro",
+          beatId: "intro-001",
+          path: "assets/audio/sfx/hit.wav",
+          source: { kind: "imported", provider: "manual" },
+          durationSeconds: 1,
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ]
+    });
+
+    await assert.rejects(
+      () => syncProject(projectId, root),
+      /missing required licensing metadata/
+    );
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
 test("syncProject reuses nearest section visual when balanced coverage leaves a beat without its own image", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-sync-balanced-visuals-"));
   const projectId = "fixture";

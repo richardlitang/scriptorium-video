@@ -7,6 +7,17 @@ export const AssetSourceSchema = z.object({
   inputHash: z.string().optional(),
   originalPath: z.string().optional(),
   prompt: z.string().optional(),
+  license: z.object({
+    source: z.string(),
+    licenseType: z.string(),
+    attributionRequired: z.boolean().default(false),
+    allowedPlatforms: z.array(z.string()).default(["youtube"]),
+    sourceUrl: z.string().optional(),
+    creator: z.string().optional(),
+    trackId: z.string().optional(),
+    downloadedAt: z.string().datetime()
+  }).optional(),
+  sha256: z.string().optional(),
   audioProcessing: z.object({
     loudnessTargetLufs: z.number(),
     truePeakDb: z.number(),

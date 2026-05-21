@@ -129,7 +129,15 @@ async function resolveCueAssetFromLibrary(
     path: relativePath,
     source: {
       kind: "manual",
-      provider: "sfx-library"
+      provider: "sfx-library",
+      sha256: await hashFile(absolutePath),
+      license: {
+        source: "local_library",
+        licenseType: "internal_catalog",
+        attributionRequired: false,
+        allowedPlatforms: ["youtube", "local_only"],
+        downloadedAt: new Date().toISOString()
+      }
     },
     durationSeconds: 0,
     status: "generated",
@@ -178,7 +186,15 @@ async function resolveDefaultMusicBedAsset(
     path: relativePath,
     source: {
       kind: "manual",
-      provider: "music-library"
+      provider: "music-library",
+      sha256: await hashFile(absolutePath),
+      license: {
+        source: "local_library",
+        licenseType: "internal_catalog",
+        attributionRequired: false,
+        allowedPlatforms: ["youtube", "local_only"],
+        downloadedAt: new Date().toISOString()
+      }
     },
     durationSeconds: 0,
     status: "generated",
@@ -212,6 +228,24 @@ function cueStartForPlacement(
 ): number {
   if (placement === "beat_end") return Math.max(0, segmentEnd + offsetSeconds);
   return Math.max(0, segmentStart + offsetSeconds);
+}
+
+function assertLicensedAudioAsset(asset: Asset): void {
+  const license = asset.source?.license;
+  const sha256 = asset.source?.sha256;
+  if (
+    !license ||
+    !license.source ||
+    !license.licenseType ||
+    !license.downloadedAt ||
+    !Array.isArray(license.allowedPlatforms) ||
+    license.allowedPlatforms.length === 0 ||
+    !sha256
+  ) {
+    throw new Error(
+      `Audio asset ${asset.id} (${asset.role}) is missing required licensing metadata. Use 'lvstudio audio:ingest' before sync/render.`
+    );
+  }
 }
 
 export async function syncProject(projectId: string, rootDir = process.cwd()): Promise<SyncResult> {
@@ -306,6 +340,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
             });
             continue;
           }
+          assertLicensedAudioAsset(cueAsset);
           const rawStart =
             cueStartForPlacement(cue.placement, segmentStart, segmentEnd, cue.offsetSeconds);
           const startSeconds = Math.max(0, rawStart);
@@ -364,6 +399,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
           autoMusicBed &&
           !segment.audioCues.some((cue) => cue.role === "music")
         ) {
+          assertLicensedAudioAsset(autoMusicBed);
           segment.audioCues.push({
             assetId: autoMusicBed.id,
             role: "music",
