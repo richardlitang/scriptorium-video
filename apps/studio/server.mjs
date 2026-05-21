@@ -1141,6 +1141,15 @@ async function runDraftJob(projectId, body) {
             });
             plan = draft.plan;
             quality = planNarrationHealth(plan, story);
+            if (!plannerQualityIsAcceptable(quality)) {
+              await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected_final", {
+                model: draft.model,
+                quality
+              }).catch(() => {});
+              throw new Error(
+                `Planner output failed quality gates after retry. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, ctaBeats=${quality.ctaBeats?.length ?? 0}, introLineAtEnd=${quality.introLineAtEnd?.length ?? 0}.`
+              );
+            }
           }
           await appendRunTrace(projectId, job.id, "planning.llm_plan", {
             model: draft.model,
@@ -1516,13 +1525,36 @@ function planNarrationHealth(plan, storyText = "") {
   const placeholderHits = beats.filter((beat) => placeholderRegex.test(String(beat.narration || ""))).length;
   const shortNarrationBeats = beats.filter((beat) => countWords(beat.narration) < 3).length;
   const changeDecisions = beats.filter((beat) => String(beat.imageChangeDecision || "").toLowerCase() === "change").length;
-  return { storyWords, narrationWords, ratio, beatCount: beats.length, placeholderHits, shortNarrationBeats, changeDecisions };
+  const lowerNarrations = beats.map((beat) => String(beat.narration || "").trim().toLowerCase());
+  const ctaRegex = /\b(like\s+button|subscribe|follow\s+for|hit\s+the\s+like)\b/i;
+  const introRegex = /\b(now[, ]+let[’']s get into today[’']s story)\b/i;
+  const ctaBeats = lowerNarrations
+    .map((text, index) => ({ text, index }))
+    .filter((entry) => ctaRegex.test(entry.text))
+    .map((entry) => entry.index);
+  const introLineAtEnd = lowerNarrations
+    .map((text, index) => ({ text, index }))
+    .filter((entry) => introRegex.test(entry.text) && entry.index >= Math.floor(beats.length * 0.6))
+    .map((entry) => entry.index);
+  return {
+    storyWords,
+    narrationWords,
+    ratio,
+    beatCount: beats.length,
+    placeholderHits,
+    shortNarrationBeats,
+    changeDecisions,
+    ctaBeats,
+    introLineAtEnd
+  };
 }
 
 function plannerQualityIsAcceptable(metrics) {
   if (metrics.placeholderHits > 0) return false;
   if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) return false;
   if (metrics.storyWords >= 80 && metrics.ratio < 0.65) return false;
+  if ((metrics.ctaBeats?.length ?? 0) > 0) return false;
+  if ((metrics.introLineAtEnd?.length ?? 0) > 0) return false;
   return true;
 }
 
@@ -1534,7 +1566,9 @@ function stricterPlannerUserPromptTemplate() {
     "- Never output placeholders, templates, TODO text, or instructions in narration.",
     "- Keep narration semantically complete; do not aggressively summarize away key events.",
     "- Preserve at least ~65% of story word count when source story is 80+ words.",
-    "- Mark imageChangeDecision=change on most major narrative turns and reveals; avoid long runs of hold unless intentionally static."
+    "- Mark imageChangeDecision=change on most major narrative turns and reveals; avoid long runs of hold unless intentionally static.",
+    "- Do not inject channel CTA lines (like/subscribe/follow) unless they are explicitly present in source story.",
+    "- Never place intro hook lines like 'now let's get into today's story' near the ending."
   ].join("\n");
 }
 

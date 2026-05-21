@@ -287,7 +287,7 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
     }
 
     const apiKey = await getOpenAiApiKey();
-    const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-4.1";
+    const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-5.1";
     const promptValues = {
       story,
       currentTitle: currentPlan.title,
