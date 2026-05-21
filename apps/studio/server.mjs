@@ -1041,7 +1041,7 @@ async function runDraftJob(projectId, body) {
             feel: body.feel ?? "",
             pacing: body.pacing ?? "",
             visualStyle: body.visualStyle ?? "",
-            format: body.format ?? "short_story",
+            format: body.format ?? "long_documentary",
             systemPrompt: body.systemPrompt,
             userPromptTemplate: body.userPromptTemplate
           });
@@ -1058,7 +1058,7 @@ async function runDraftJob(projectId, body) {
               feel: body.feel ?? "",
               pacing: body.pacing ?? "",
               visualStyle: body.visualStyle ?? "",
-              format: body.format ?? "short_story",
+              format: body.format ?? "long_documentary",
               systemPrompt: body.systemPrompt,
               userPromptTemplate: stricterPlannerUserPromptTemplate()
             });
@@ -1297,6 +1297,11 @@ function imageVisualDirection(plan, section) {
 function imagePromptForBeat(plan, section, beat, beatIndex) {
   const mediaPrompt = beat.media?.find((media) => media.role === "primary_visual" || media.role === "background")?.prompt;
   const visualDirection = imageVisualDirection(plan, section);
+  const isShorts = plan?.mode === "short_story";
+  const frameInstruction = isShorts ? "Create a vertical 9:16 image for the current beat." : "Create a landscape 16:9 image for the current beat.";
+  const frameCoherenceInstruction = isShorts
+    ? "Keep anatomy, geometry, lighting, and composition coherent for a vertical frame."
+    : "Keep anatomy, geometry, lighting, and composition coherent for a landscape frame.";
   return [
     sectionBeatContext(section, plan.sections.indexOf(section), beat, beatIndex, plan),
     "",
@@ -1306,11 +1311,11 @@ function imagePromptForBeat(plan, section, beat, beatIndex) {
     visualDirection ? "Visual direction:" : "",
     visualDirection,
     "",
-    "Create a vertical 9:16 image for the current beat.",
+    frameInstruction,
     "Follow the visual direction exactly; do not add a visual medium, rendering style, camera format, or realism level that conflicts with it.",
     "Depict the exact current beat, not a generic mood board and not a later event.",
     "Preserve continuity with the immediately previous and next beats, but do not introduce objects, characters, or reveals that have not happened yet.",
-    "Keep anatomy, geometry, lighting, and composition coherent for a vertical frame.",
+    frameCoherenceInstruction,
     "Avoid fake text, UI, subtitles, watermarks, logos, split screens, soundwave graphics, continuity errors, distorted hands or faces, and unintended extra objects or characters."
   ].join("\n");
 }
@@ -2698,7 +2703,7 @@ async function runLvstudioTestMode(args) {
   const now = new Date().toISOString();
 
   if (command === "create") {
-    const mode = args[3] || "short_story";
+    const mode = args[3] || "long_documentary";
     const plan = {
       schemaVersion: 1,
       title: projectId,
@@ -2740,7 +2745,17 @@ async function runLvstudioTestMode(args) {
         cursor += durationSeconds;
       }
     }
-    const timeline = { schemaVersion: 1, generatedAt: now, sourcePlanHash: sha256(JSON.stringify(plan)), fps: 30, width: 1080, height: 1920, durationSeconds: Math.max(1, cursor), segments };
+    const isShorts = plan.mode === "short_story";
+    const timeline = {
+      schemaVersion: 1,
+      generatedAt: now,
+      sourcePlanHash: sha256(JSON.stringify(plan)),
+      fps: 30,
+      width: isShorts ? 1080 : 1920,
+      height: isShorts ? 1920 : 1080,
+      durationSeconds: Math.max(1, cursor),
+      segments
+    };
     await writeFile(path.join(projectDir, "timeline.json"), `${JSON.stringify(timeline, null, 2)}\n`, "utf8");
     return { stdout: "synced", stderr: "" };
   }
@@ -2927,7 +2942,7 @@ const server = createServer(async (req, res) => {
       if (await stat(projectDir).catch(() => null)) {
         return sendJson(res, 409, { ok: false, message: `Project already exists: ${projectId}` });
       }
-      const mode = body.mode || "short_story";
+      const mode = body.mode || "long_documentary";
       const platform = body.platform || "local_only";
       await runLvstudio(["create", projectId, "--mode", mode, "--platform", platform]);
       const projectPath = path.join(projectDir, "project.json");
@@ -3053,7 +3068,7 @@ const server = createServer(async (req, res) => {
         feel: body.feel ?? "",
         pacing: body.pacing ?? "",
         visualStyle: body.visualStyle ?? "",
-        format: body.format ?? "short_story",
+        format: body.format ?? "long_documentary",
         systemPrompt: body.systemPrompt,
         userPromptTemplate: body.userPromptTemplate
       });

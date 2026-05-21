@@ -1169,7 +1169,7 @@ async function requestAiPlanFromStory() {
       visualStyle: storyDirection.visualStyle,
       systemPrompt: storySystemPrompt.value,
       userPromptTemplate: storyUserPromptTemplate.value,
-      format: "short_story"
+      format: "long_documentary"
     })
   });
   const { plan } = result.data;
@@ -1249,7 +1249,7 @@ async function createProjectFromTitle(title) {
   const result = await fetchJson("/api/projects", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ title: title.trim(), mode: "short_story", platform: "local_only" })
+    body: JSON.stringify({ title: title.trim(), mode: "long_documentary", platform: "local_only" })
   });
   selectedProjectId = null;
   localStorage.setItem("lvstudio:selectedProjectId", result.data.projectId);
@@ -1609,7 +1609,7 @@ aiPlanBtn.onclick = async () => {
         visualStyle: storyDirection.visualStyle,
         systemPrompt: storySystemPrompt.value,
         userPromptTemplate: storyUserPromptTemplate.value,
-        format: "short_story"
+        format: "long_documentary"
       })
     });
     const { plan } = result.data;
