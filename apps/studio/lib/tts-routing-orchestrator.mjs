@@ -42,7 +42,7 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
     if (studioTestMode) return { plan, model: "test-mode", warnings: [] };
 
     const apiKey = await getOpenAiApiKey();
-    const model = process.env.OPENAI_ORCHESTRATOR_MODEL ?? process.env.OPENAI_PLANNER_MODEL ?? "gpt-4o-mini";
+    const model = process.env.OPENAI_TTS_ROUTING_MODEL ?? process.env.OPENAI_ORCHESTRATOR_MODEL ?? "gpt-4o-mini";
     const beats = (plan.sections ?? []).flatMap((section) =>
       (section.beats ?? []).map((beat) => ({
         beatId: beat.id,

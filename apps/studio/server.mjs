@@ -795,6 +795,7 @@ async function runTrackedForegroundJob(projectId, options, runner) {
 }
 
 async function runRetriedDraftStep(projectId, job, label, operation) {
+  if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
   const isProviderUnreachableError = (message) => /TTS server is unreachable/i.test(String(message || ""));
   const maybeRecoverFromUnreachable = async (message) => {
     if (!isProviderUnreachableError(message)) return false;
@@ -810,6 +811,7 @@ async function runRetriedDraftStep(projectId, job, label, operation) {
   };
   let lastError;
   for (let attempt = 1; attempt <= job.maxAttempts; attempt += 1) {
+    if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
     await writeDraftJobState(projectId, job, {
       status: "running",
       label,
@@ -854,6 +856,81 @@ async function runRetriedDraftStep(projectId, job, label, operation) {
     }
   }
   throw lastError;
+}
+
+function isDraftJobRunning(job) {
+  return Boolean(job && ["queued", "running", "cancelling"].includes(job.status));
+}
+
+async function runLvstudioForDraft(job, args) {
+  if (STUDIO_TEST_MODE) {
+    if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
+    return runLvstudioTestMode(args);
+  }
+  if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
+  const command = ["pnpm", "lvstudio", ...args].join(" ");
+  const startedAt = Date.now();
+  const settings = await readVoiceSettings();
+  return await new Promise((resolve, reject) => {
+    const child = spawn("pnpm", ["lvstudio", ...args], {
+      cwd: rootDir,
+      env: { ...process.env, ...voiceSettingsEnv(settings) },
+      stdio: ["ignore", "pipe", "pipe"]
+    });
+    job.currentProcessPid = child.pid;
+    let stdout = "";
+    let stderr = "";
+    child.stdout?.on("data", (chunk) => {
+      stdout += String(chunk);
+    });
+    child.stderr?.on("data", (chunk) => {
+      stderr += String(chunk);
+    });
+    child.on("error", async (error) => {
+      job.currentProcessPid = undefined;
+      await appendCommandLog({
+        command,
+        ok: false,
+        durationMs: Date.now() - startedAt,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+        message: String(error?.message || error)
+      }).catch(() => {});
+      reject(new Error(String(error?.message || error)));
+    });
+    child.on("close", async (code, signal) => {
+      job.currentProcessPid = undefined;
+      const ok = code === 0;
+      const exitCode = code ?? (signal ? String(signal) : undefined);
+      if (ok) {
+        await appendCommandLog({
+          command,
+          ok: true,
+          durationMs: Date.now() - startedAt,
+          stdout: stdout.trim(),
+          stderr: stderr.trim()
+        }).catch(() => {});
+        resolve({ stdout, stderr });
+        return;
+      }
+      const output = [stdout.trim(), stderr.trim()].filter(Boolean).join("\n\n");
+      const message = [
+        `Command failed: ${command}`,
+        exitCode !== undefined ? `Exit code: ${exitCode}` : "",
+        output || "lvstudio command failed."
+      ].filter(Boolean).join("\n\n");
+      await appendCommandLog({
+        command,
+        ok: false,
+        exitCode,
+        durationMs: Date.now() - startedAt,
+        stdout: stdout.trim(),
+        stderr: stderr.trim(),
+        message
+      }).catch(() => {});
+      reject(new Error(message));
+    });
+  });
 }
 
 function ttsProviderForBeat(defaultProvider, beat) {
@@ -919,7 +996,7 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
       currentBeatTotal: totalBeats
     });
     await runRetriedDraftStep(projectId, job, `Narration: ${beatRefs.length} beat(s) · ${provider}`, () =>
-      runLvstudio(["generate:tts", projectId, "--provider", provider, "--force"])
+      runLvstudioForDraft(job, ["generate:tts", projectId, "--provider", provider, "--force"])
     );
     await appendRunTrace(projectId, job.id, "audio.batch.complete", {
       provider,
@@ -948,7 +1025,7 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
         currentBeatTotal: totalBeats
       });
       await runRetriedDraftStep(projectId, job, `Narration: ${section.title} · ${beat.id} · ${provider}`, () =>
-        runLvstudio(["generate:tts", projectId, "--provider", provider, "--force", "--only-beat", beat.id])
+        runLvstudioForDraft(job, ["generate:tts", projectId, "--provider", provider, "--force", "--only-beat", beat.id])
       );
       await appendRunTrace(projectId, job.id, "audio.beat.complete", {
         beatId: beat.id,
@@ -958,15 +1035,15 @@ async function generateDraftAudioBySection(projectId, job, plan, transcriptionPr
   }
 
   await writeDraftJobState(projectId, job, { phase: "sync" });
-  await runRetriedDraftStep(projectId, job, "Sync timeline", () => runLvstudio(["sync", projectId]));
+  await runRetriedDraftStep(projectId, job, "Sync timeline", () => runLvstudioForDraft(job, ["sync", projectId]));
   await appendRunTrace(projectId, job.id, "audio.sync.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
   await writeDraftJobState(projectId, job, { phase: "transcribe" });
   await runRetriedDraftStep(projectId, job, "Transcribe narration", () =>
-    runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider])
+    runLvstudioForDraft(job, ["transcribe", projectId, "--provider", transcriptionProvider])
   );
   await appendRunTrace(projectId, job.id, "transcription.complete", { transcriptionProvider }).catch(() => {});
   await writeDraftJobState(projectId, job, { phase: "captions" });
-  await runRetriedDraftStep(projectId, job, "Generate captions", () => runLvstudio(["captions", projectId]));
+  await runRetriedDraftStep(projectId, job, "Generate captions", () => runLvstudioForDraft(job, ["captions", projectId]));
   await appendRunTrace(projectId, job.id, "captions.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
 }
 
@@ -1124,7 +1201,7 @@ async function runDraftJob(projectId, body) {
       if (job.total < 1) job.total = 1;
 
       await writeDraftJobState(projectId, job, { phase: "save", label: "Saving plan and syncing timeline" });
-      await runRetriedDraftStep(projectId, job, "Initial sync", () => runLvstudio(["sync", projectId]));
+      await runRetriedDraftStep(projectId, job, "Initial sync", () => runLvstudioForDraft(job, ["sync", projectId]));
       await appendRunTrace(projectId, job.id, "sync.initial.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
 
       if (imageEnabledForJob) {
@@ -1176,7 +1253,13 @@ async function runDraftJob(projectId, body) {
       await generateDraftAudioBySection(projectId, job, plan, plan.providers.transcription);
 
       await writeDraftJobState(projectId, job, { phase: "check", label: "Running quality check" });
-      const checkResult = await runLvstudioReport(["check", projectId]);
+      const checkResult = await runLvstudioForDraft(job, ["check", projectId]).then((result) => ({
+        ok: true,
+        stdout: result.stdout
+      })).catch((error) => ({
+        ok: false,
+        stdout: error instanceof Error ? error.message : String(error)
+      }));
       await appendRunTrace(projectId, job.id, "quality_check.complete", {
         ok: checkResult.ok,
         stdout: checkResult.stdout.trim().slice(0, 12000)
@@ -1187,7 +1270,7 @@ async function runDraftJob(projectId, body) {
       await writeDraftJobState(projectId, job, { phase: "render", label: "Rendering draft video" });
       await appendRunTrace(projectId, job.id, "render.start", await readProjectTraceSnapshot(projectId)).catch(() => {});
       await runRetriedDraftStep(projectId, job, "Render draft", () =>
-        runLvstudio(["render", projectId, "--quality", "draft", "--force"])
+        runLvstudioForDraft(job, ["render", projectId, "--quality", "draft", "--force"])
       );
       await appendRunTrace(projectId, job.id, "render.complete", await readProjectTraceSnapshot(projectId)).catch(() => {});
 
@@ -1225,18 +1308,20 @@ async function runDraftJob(projectId, body) {
       activeDraftJobs.delete(projectId);
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
+      const cancelled = job.cancelRequested === true || /cancelled by user/i.test(message);
       await appendRunTrace(projectId, job.id, "draft_job.failed", {
         message,
         output: job.output.join("\n\n").slice(0, 12000)
       }).catch(() => {});
-      job.status = "failed";
-      job.error = message;
+      job.status = cancelled ? "failed" : "failed";
+      job.phase = cancelled ? "stopped" : job.phase;
+      job.error = cancelled ? "Draft job cancelled by user." : message;
       job.finishedAt = new Date().toISOString();
-      job.output.push(`Draft job failed:\n${message}`);
+      job.output.push(cancelled ? "Draft job cancelled by user." : `Draft job failed:\n${message}`);
       await appendQualityHistory(projectId, {
         timestamp: new Date().toISOString(),
-        kind: "draft_job_failed",
-        summary: "Background draft job failed.",
+        kind: cancelled ? "draft_job_cancelled" : "draft_job_failed",
+        summary: cancelled ? "Background draft job cancelled." : "Background draft job failed.",
         output: job.output.join("\n\n").trim()
       }).catch(() => {});
       await writeDraftJobState(projectId, job);
@@ -3244,7 +3329,7 @@ const server = createServer(async (req, res) => {
       if (!draftRunStateJob) {
         return sendJson(res, 200, { ok: true, data: null });
       }
-      const staleRunning = ["queued", "running"].includes(draftRunStateJob.status);
+      const staleRunning = ["queued", "running", "cancelling"].includes(draftRunStateJob.status);
       return sendJson(res, 200, {
         ok: true,
         data: staleRunning
@@ -3256,6 +3341,35 @@ const server = createServer(async (req, res) => {
               error: "Studio restarted before this background job finished. Start Make Draft again to resume from generated assets."
             }
           : draftRunStateJob
+      });
+    }
+
+    if (pathname.startsWith("/api/projects/") && pathname.endsWith("/draft-job/stop") && req.method === "POST") {
+      const projectId = pathname.split("/")[3];
+      if (!projectId) return sendJson(res, 400, { ok: false, message: "Missing project id." });
+      const activeJob = activeDraftJobs.get(projectId);
+      if (!activeJob || !isDraftJobRunning(activeJob)) {
+        return sendJson(res, 200, { ok: true, message: "No running draft job.", data: null });
+      }
+      activeJob.cancelRequested = true;
+      activeJob.status = "cancelling";
+      activeJob.phase = "stopping";
+      activeJob.label = "Stopping draft job...";
+      await appendRunTrace(projectId, activeJob.id, "draft_job.cancel_requested", {
+        pid: activeJob.currentProcessPid ?? null
+      }).catch(() => {});
+      await writeDraftJobState(projectId, activeJob);
+      if (activeJob.currentProcessPid) {
+        try {
+          process.kill(activeJob.currentProcessPid, "SIGTERM");
+        } catch {
+          // Process may have just exited.
+        }
+      }
+      return sendJson(res, 202, {
+        ok: true,
+        message: "Stopping draft job.",
+        data: jobProgress(activeJob)
       });
     }
 

@@ -473,7 +473,7 @@ function renderTtsHealthPill() {
 function updateStoryButtons() {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = storyInput.value.trim().length > 0;
-  const draftJobRunning = currentDraftJob && ["queued", "running"].includes(currentDraftJob.status);
+  const draftJobRunning = currentDraftJob && ["queued", "running", "cancelling"].includes(currentDraftJob.status);
   const ttsReady = ttsAvailability() === "ready" || ttsAvailability() === "ready_degraded";
   const ttsWarming = ttsAvailability() === "loading" || ttsAvailability() === "checking";
   convertStoryBtn.disabled = !hasSelectedProject || !hasStory;
@@ -489,6 +489,7 @@ function updateStoryButtons() {
   directVoiceBtn.disabled = !hasSelectedProject || !ttsReady;
   regenerateAudioBtn.disabled = !hasSelectedProject || !ttsReady;
   prepareDraftBtn.disabled = !hasSelectedProject || !ttsReady;
+  stopRunBtn.disabled = !draftJobRunning;
 }
 
 function syncStoryButtonsSoon() {
@@ -1037,9 +1038,18 @@ function renderDraftJobState(job) {
   if (job.status === "running" || job.status === "queued") {
     renderBtn.disabled = true;
     renderBtn.textContent = "Draft Running...";
-    stopRunBtn.disabled = true;
+    stopRunBtn.disabled = false;
     showJobBanner("Draft running", line || "Queued on this machine.");
     setRunStatus([line || "Draft job is running in the background."]);
+    updateStoryButtons();
+    return;
+  }
+  if (job.status === "cancelling") {
+    renderBtn.disabled = true;
+    renderBtn.textContent = "Stopping...";
+    stopRunBtn.disabled = true;
+    showJobBanner("Stopping draft", line || "Waiting for current step to stop.");
+    setRunStatus([line || "Stopping draft job..."]);
     updateStoryButtons();
     return;
   }
@@ -1462,14 +1472,22 @@ renderBtn.onclick = async () => {
   }
 };
 
-stopRunBtn.onclick = () => {
-  if (!activeRunController) {
-    renderStoryFeedback([{ level: "step", text: "Background draft jobs keep running on the server. Close the tab if you do not want to watch progress." }]);
-    return;
-  }
-  activeRunController.abort();
+stopRunBtn.onclick = async () => {
+  if (!selectedProjectId) return;
   stopRunBtn.disabled = true;
-  renderStoryFeedback([{ level: "step", text: "Stopping current operation. The server may finish the current provider call before it fully settles." }]);
+  try {
+    if (activeRunController) activeRunController.abort();
+    await fetchJson(`/api/projects/${selectedProjectId}/draft-job/stop`, {
+      method: "POST",
+      headers: { "content-type": "application/json" }
+    });
+    renderStoryFeedback([{ level: "step", text: "Stopping draft job. The current provider call may take a moment to terminate." }]);
+    pollDraftJob(selectedProjectId).catch(() => {});
+  } catch (error) {
+    renderStoryFeedback([{ level: "warning", text: `Stop failed: ${String(error)}` }]);
+  } finally {
+    updateStoryButtons();
+  }
 };
 
 generateImagesBtn.onclick = async () => {
