@@ -1138,17 +1138,26 @@ async function runDraftJob(projectId, body) {
           });
           plan = draft.plan;
           let quality = planNarrationHealth(plan, story, draft.quality);
-          if (!plannerQualityIsAcceptable(quality)) {
-            const failures = plannerQualityFailures(quality);
-            await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected", {
+          const warnings = plannerQualityWarnings(quality);
+          if (warnings.length > 0) {
+            await appendRunTrace(projectId, job.id, "planning.llm_plan_warnings", {
+              model: draft.model,
+              quality,
+              warnings
+            }).catch(() => {});
+            job.output.push(plannerQualityWarningSummary(quality));
+          }
+          if (!plannerQualityIsUsable(quality)) {
+            const failures = plannerBlockingFailures(quality);
+            await appendRunTrace(projectId, job.id, "planning.llm_plan_unusable", {
               model: draft.model,
               quality,
               failures
             }).catch(() => {});
-            job.output.push(`Planner rejected (${draft.model}):\n${failures.join("\n")}`);
+            job.output.push(`Planner unusable (${draft.model}):\n${failures.join("\n")}`);
             await writeDraftJobState(projectId, job, {
               phase: "planning",
-              label: `Planner rejected ${draft.model}; retrying stricter plan`
+              label: `Planner output unusable from ${draft.model}; retrying stricter plan`
             });
             draft = await generatePlanDraftWithOpenAi({
               story,
@@ -1163,14 +1172,23 @@ async function runDraftJob(projectId, body) {
             });
             plan = draft.plan;
             quality = planNarrationHealth(plan, story, draft.quality);
-            if (!plannerQualityIsAcceptable(quality)) {
-              const finalFailures = plannerQualityFailures(quality);
-              await appendRunTrace(projectId, job.id, "planning.llm_plan_rejected_final", {
+            const retryWarnings = plannerQualityWarnings(quality);
+            if (retryWarnings.length > 0) {
+              await appendRunTrace(projectId, job.id, "planning.llm_plan_warnings_retry", {
+                model: draft.model,
+                quality,
+                warnings: retryWarnings
+              }).catch(() => {});
+              job.output.push(plannerQualityWarningSummary(quality));
+            }
+            if (!plannerQualityIsUsable(quality)) {
+              const finalFailures = plannerBlockingFailures(quality);
+              await appendRunTrace(projectId, job.id, "planning.llm_plan_unusable_final", {
                 model: draft.model,
                 quality,
                 failures: finalFailures
               }).catch(() => {});
-              throw new Error(plannerQualityFailureMessage(quality));
+              throw new Error(plannerBlockingFailureMessage(quality));
             }
           }
           await appendRunTrace(projectId, job.id, "planning.llm_plan", {
@@ -1574,34 +1592,47 @@ function planNarrationHealth(plan, storyText = "", plannerSelfReview = {}) {
   };
 }
 
-function plannerQualityIsAcceptable(metrics) {
-  return plannerQualityFailures(metrics).length === 0;
+function plannerQualityIsUsable(metrics) {
+  return plannerBlockingFailures(metrics).length === 0;
 }
 
-function plannerQualityFailures(metrics) {
+function plannerBlockingFailures(metrics) {
   const failures = [];
   if (metrics.placeholderHits > 0) failures.push(`${metrics.placeholderHits} placeholder narration beat(s)`);
-  if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) {
-    failures.push(`${metrics.shortNarrationBeats}/${metrics.beatCount} beats have fewer than 3 words`);
-  }
-  if (metrics.storyWords >= 80 && metrics.ratio < 0.65) {
-    failures.push(`narration retained ${(metrics.ratio * 100).toFixed(1)}% of source; required 65%`);
-  }
-  if (metrics.storyWords >= 80 && metrics.plannerSelfReview?.estimatedSourceCoverageRatio < 0.65) {
-    failures.push(`planner self-rated coverage ${(metrics.plannerSelfReview.estimatedSourceCoverageRatio * 100).toFixed(1)}%; required 65%`);
-  }
-  if (metrics.plannerSelfReview?.containsInventedChannelCta) failures.push("planner reported invented channel CTA");
-  if (metrics.plannerSelfReview?.introHookPlacement === "late_or_ending") failures.push("planner reported intro hook near the ending");
-  if (metrics.plannerSelfReview?.orderingConfidence < 0.6) {
-    failures.push(`planner ordering confidence ${(metrics.plannerSelfReview.orderingConfidence * 100).toFixed(1)}%; required 60%`);
-  }
+  if (metrics.beatCount === 0) failures.push("planner returned no beats");
+  if (metrics.narrationWords === 0) failures.push("planner returned no narration");
   return failures;
 }
 
-function plannerQualityFailureMessage(quality) {
-  const failures = plannerQualityFailures(quality);
-  if (failures.length === 0) return "Planner output passed quality gates.";
-  return `Planner output failed quality gates: ${failures.join("; ")}. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, coverage=${quality.plannerSelfReview.estimatedSourceCoverageRatio.toFixed(3)}, introHookPlacement=${quality.plannerSelfReview.introHookPlacement}, inventedCta=${quality.plannerSelfReview.containsInventedChannelCta}.`;
+function plannerQualityWarnings(metrics) {
+  const warnings = [];
+  if (metrics.beatCount > 0 && metrics.shortNarrationBeats / metrics.beatCount > 0.2) {
+    warnings.push(`${metrics.shortNarrationBeats}/${metrics.beatCount} beats have fewer than 3 words`);
+  }
+  if (metrics.storyWords >= 80 && metrics.ratio < 0.65) {
+    warnings.push(`narration retained ${(metrics.ratio * 100).toFixed(1)}% of source`);
+  }
+  if (metrics.storyWords >= 80 && metrics.plannerSelfReview?.estimatedSourceCoverageRatio < 0.65) {
+    warnings.push(`planner self-rated coverage ${(metrics.plannerSelfReview.estimatedSourceCoverageRatio * 100).toFixed(1)}%`);
+  }
+  if (metrics.plannerSelfReview?.containsInventedChannelCta) warnings.push("planner reported invented channel CTA");
+  if (metrics.plannerSelfReview?.introHookPlacement === "late_or_ending") warnings.push("planner reported intro hook near the ending");
+  if (metrics.plannerSelfReview?.orderingConfidence < 0.6) {
+    warnings.push(`planner ordering confidence ${(metrics.plannerSelfReview.orderingConfidence * 100).toFixed(1)}%`);
+  }
+  return warnings;
+}
+
+function plannerBlockingFailureMessage(quality) {
+  const failures = plannerBlockingFailures(quality);
+  if (failures.length === 0) return "Planner output is usable.";
+  return `Planner output is unusable: ${failures.join("; ")}. ratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, coverage=${quality.plannerSelfReview.estimatedSourceCoverageRatio.toFixed(3)}, introHookPlacement=${quality.plannerSelfReview.introHookPlacement}, inventedCta=${quality.plannerSelfReview.containsInventedChannelCta}.`;
+}
+
+function plannerQualityWarningSummary(quality) {
+  const warnings = plannerQualityWarnings(quality);
+  if (warnings.length === 0) return "";
+  return `Planner review warnings:\n${warnings.join("\n")}\nratio=${quality.ratio.toFixed(3)}, beats=${quality.beatCount}, coverage=${quality.plannerSelfReview.estimatedSourceCoverageRatio.toFixed(3)}, introHookPlacement=${quality.plannerSelfReview.introHookPlacement}, inventedCta=${quality.plannerSelfReview.containsInventedChannelCta}`;
 }
 
 function plannerProgressLabel(prefix, progress = {}) {
@@ -1651,7 +1682,7 @@ function stricterPlannerUserPromptTemplate() {
     "Hard quality gates:",
     "- Never output placeholders, templates, TODO text, or instructions in narration.",
     "- Keep narration semantically complete; do not aggressively summarize away key events.",
-    "- Preserve at least ~65% of story word count when source story is 80+ words.",
+    "- Preserve the story events in order. Do not summarize away major turns, reveals, or consequences.",
     "- Mark imageChangeDecision=change on most major narrative turns and reveals; avoid long runs of hold unless intentionally static.",
     "- Do not inject channel CTA lines (like/subscribe/follow) unless they are explicitly present in source story.",
     "- Never place intro hook lines like 'now let's get into today's story' near the ending.",

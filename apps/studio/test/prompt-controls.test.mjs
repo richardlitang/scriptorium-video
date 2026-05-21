@@ -224,7 +224,10 @@ test("studio draft jobs write structured operational traces", async () => {
   assert.match(server, /function normalizePlannerSelfReview\(value = \{\}\)/);
   assert.match(server, /function plannerProgressTracer\(projectId, job, prefix, strictness\)/);
   assert.match(server, /planning\.\$\{progress\.event\}/);
-  assert.match(server, /Planner output failed quality gates:/);
+  assert.match(server, /function plannerQualityWarnings\(metrics\)/);
+  assert.match(server, /function plannerBlockingFailures\(metrics\)/);
+  assert.match(server, /Planner review warnings:/);
+  assert.doesNotMatch(server, /narration retained \$\{\(metrics\.ratio \* 100\)\.toFixed\(1\)\}% of source; required 65%/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "images\.targets_selected"/);
   assert.match(server, /appendRunTrace\(projectId, job\.id, "render\.start"/);
   assert.match(server, /readRunTrace\(projectId, jobId\)/);
