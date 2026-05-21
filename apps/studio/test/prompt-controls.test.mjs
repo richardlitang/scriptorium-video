@@ -157,10 +157,17 @@ test("studio draft endpoint rejects empty story with scaffold placeholder plan",
 
 test("studio clamps planner caption tuning to video-plan schema bounds", async () => {
   const server = await readFile(path.resolve("apps/studio/server.mjs"), "utf8");
+  assert.match(server, /function clampNumber\(value, fallback, min, max\)/);
   assert.match(server, /const normalizeCaptionTuning = \(tuning = \{\}\) => \(\{/);
   assert.match(server, /minWordsBeforeSentenceBreak: clampInteger\(tuning\.minWordsBeforeSentenceBreak, 3, 2, 20\)/);
   assert.match(server, /const captionTuning = normalizeCaptionTuning\(draft\.captionTuning \|\| \{\}\)/);
   assert.match(server, /tuning: captionTuning/);
+});
+
+test("studio planner defaults to GPT-5.4 mini with faster fallbacks", async () => {
+  const draftOrchestrator = await readFile(path.resolve("apps/studio/lib/plan-draft-orchestrator.mjs"), "utf8");
+  assert.match(draftOrchestrator, /process\.env\.OPENAI_PLANNER_MODEL \?\? "gpt-5\.4-mini"/);
+  assert.match(draftOrchestrator, /"gpt-5\.4-nano,gpt-5-mini,gpt-4\.1-mini,gpt-4o-mini"/);
 });
 
 test("studio preflights routed TTS providers before draft generation work", async () => {

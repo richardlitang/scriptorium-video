@@ -319,8 +319,8 @@ export function createPlanDraftOrchestrator({ fetchImpl = fetch, getOpenAiApiKey
     }
 
     const apiKey = await getOpenAiApiKey();
-    const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-5.1";
-    const fallbackModels = parseModelFallbacks(process.env.OPENAI_PLANNER_FALLBACK_MODELS ?? "gpt-5-mini,gpt-4.1-mini,gpt-4o-mini");
+    const model = process.env.OPENAI_PLANNER_MODEL ?? "gpt-5.4-mini";
+    const fallbackModels = parseModelFallbacks(process.env.OPENAI_PLANNER_FALLBACK_MODELS ?? "gpt-5.4-nano,gpt-5-mini,gpt-4.1-mini,gpt-4o-mini");
     const timeoutMs = envNumber("OPENAI_PLANNER_REQUEST_TIMEOUT_MS", envNumber("OPENAI_REQUEST_TIMEOUT_MS", 90000));
     const maxAttempts = envNumber("OPENAI_PLANNER_REQUEST_MAX_ATTEMPTS", 1);
     const promptValues = {

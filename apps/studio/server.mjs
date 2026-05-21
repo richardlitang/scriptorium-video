@@ -432,6 +432,12 @@ function countWords(value) {
   return String(value || "").split(/\s+/).filter(Boolean).length;
 }
 
+function clampNumber(value, fallback, min, max) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return fallback;
+  return Math.max(min, Math.min(max, numeric));
+}
+
 function redactPath(value) {
   if (!value) return "";
   return path.basename(String(value));
@@ -1633,11 +1639,6 @@ function buildPlanFromAiDraft(currentPlan, draft) {
     "urgent",
     "soft_close"
   ]);
-  const clampNumber = (value, fallback, min, max) => {
-    const numeric = Number(value);
-    if (!Number.isFinite(numeric)) return fallback;
-    return Math.max(min, Math.min(max, numeric));
-  };
   const clampInteger = (value, fallback, min, max) => Math.round(clampNumber(value, fallback, min, max));
   const normalizeCaptionTuning = (tuning = {}) => ({
     targetMaxWords: clampInteger(tuning.targetMaxWords, 14, 4, 30),
