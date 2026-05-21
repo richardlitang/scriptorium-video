@@ -1,9 +1,9 @@
 import path from "node:path";
-import { access, copyFile, mkdir } from "node:fs/promises";
+import { access, copyFile, mkdir, readFile } from "node:fs/promises";
 import { AssetManifestSchema, type Asset } from "./schemas/asset-manifest.schema.js";
 import { TimelineSchema, type Timeline } from "./schemas/timeline.schema.js";
 import { resolveConfig } from "./config-resolver.js";
-import { hashFile } from "./hash.js";
+import { hashFile, hashString } from "./hash.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
 import { probeMedia } from "./media-probe.js";
 import { getProjectPaths } from "./paths.js";
@@ -24,6 +24,8 @@ export type SyncResult = {
   issues: SyncIssue[];
   staleAssetIds: string[];
 };
+
+type CueMap = Record<string, string[]>;
 
 function findVoiceAsset(assets: Asset[], beatId: string): Asset | undefined {
   return assets.find((asset) => asset.beatId === beatId && asset.role === "voiceover");
@@ -70,6 +72,25 @@ function resolveCueAsset(assets: Asset[], beatId: string, cueId: string, assetId
   );
 }
 
+function resolveCueAssetFromMap(
+  cueMap: CueMap,
+  assets: Asset[],
+  beatId: string,
+  cueId: string,
+  cueKind: string
+): Asset | undefined {
+  const keys = [cueMapKey(cueId), cueMapKey(cueKind), cueMapKey(cueSlug(cueKind))].filter(Boolean);
+  for (const key of keys) {
+    const candidates = cueMap[key] ?? [];
+    const assetsForCue = candidates
+      .map((assetId) => assets.find((asset) => asset.id === assetId && (asset.role === "sfx" || asset.role === "music")))
+      .filter((asset) => Boolean(asset)) as Asset[];
+    const selected = pickDeterministic(assetsForCue, `${beatId}:${cueId}:${cueKind}:${key}`);
+    if (selected) return selected;
+  }
+  return undefined;
+}
+
 async function fileExists(filePath: string): Promise<boolean> {
   try {
     await access(filePath);
@@ -85,6 +106,35 @@ function cueSlug(kind: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60) || "cue";
+}
+
+function cueMapKey(value: string): string {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "_")
+    .replace(/^_+|_+$/g, "");
+}
+
+function pickDeterministic<T>(items: T[], seed: string): T | undefined {
+  if (items.length === 0) return undefined;
+  const digest = hashString(seed).slice(0, 8);
+  const index = Number.parseInt(digest, 16) % items.length;
+  return items[index];
+}
+
+async function loadCueMap(rootDir: string): Promise<CueMap> {
+  const filePath = path.resolve(rootDir, "content", "audio", "cue-map.json");
+  try {
+    const raw = await readFile(filePath, "utf8");
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (!parsed || typeof parsed !== "object") return {};
+    const entries = Object.entries(parsed).filter(([, value]) => Array.isArray(value));
+    return Object.fromEntries(
+      entries.map(([key, value]) => [cueMapKey(key), (value as unknown[]).map((entry) => String(entry))])
+    );
+  } catch {
+    return {};
+  }
 }
 
 async function resolveCueAssetFromLibrary(
@@ -314,6 +364,7 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
       ? await resolveDefaultMusicBedAsset(rootDir, paths.projectDir, assets)
       : undefined;
   const autoMusicLevelDb = Number(process.env.LVSTUDIO_MUSIC_BED_LEVEL_DB ?? -24);
+  const cueMap = await loadCueMap(rootDir);
 
   let cursor = 0;
   const segments = [];
@@ -329,6 +380,9 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
         const audioCues = [];
         for (const cue of resolvedDirection.sfxCues ?? []) {
           let cueAsset = resolveCueAsset(assets, beat.id, cue.id, cue.assetId);
+          if (!cueAsset && cue.kind) {
+            cueAsset = resolveCueAssetFromMap(cueMap, assets, beat.id, cue.id, cue.kind);
+          }
           if (!cueAsset && cue.kind) {
             cueAsset = await resolveCueAssetFromLibrary(projectId, rootDir, paths.projectDir, cue.kind, assets);
           }
@@ -424,7 +478,31 @@ export async function syncProject(projectId: string, rootDir = process.cwd()): P
     width: resolvedConfig.resolution.width,
     height: resolvedConfig.resolution.height,
     durationSeconds: cursor,
-    segments
+    segments,
+    audioLayers: segments.flatMap((segment) => {
+      const layers = [];
+      if (segment.voiceAssetId) {
+        layers.push({
+          type: "narration",
+          assetId: segment.voiceAssetId,
+          startSeconds: segment.startSeconds,
+          durationSeconds: segment.durationSeconds,
+          gainDb: 0,
+          duckUnderNarration: false
+        });
+      }
+      for (const cue of segment.audioCues) {
+        layers.push({
+          type: cue.role === "music" ? "music" : "sfx",
+          assetId: cue.assetId,
+          startSeconds: cue.startSeconds,
+          durationSeconds: cue.durationSeconds,
+          gainDb: cue.levelDb,
+          duckUnderNarration: cue.role === "music"
+        });
+      }
+      return layers;
+    })
   });
 
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse({ ...manifest, assets }));

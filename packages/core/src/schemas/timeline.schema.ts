@@ -75,7 +75,17 @@ export const TimelineSchema = z.object({
   width: z.number().int().positive(),
   height: z.number().int().positive(),
   durationSeconds: z.number().positive(),
-  segments: z.array(TimelineSegmentSchema).min(1)
+  segments: z.array(TimelineSegmentSchema).min(1),
+  audioLayers: z.array(
+    z.object({
+      type: z.enum(["narration", "music", "sfx"]),
+      assetId: z.string(),
+      startSeconds: z.number().nonnegative(),
+      durationSeconds: z.number().nonnegative(),
+      gainDb: z.number(),
+      duckUnderNarration: z.boolean().default(false)
+    }).strict()
+  ).default([])
 }).strict();
 
 export type Timeline = z.infer<typeof TimelineSchema>;

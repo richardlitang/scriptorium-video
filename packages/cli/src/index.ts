@@ -13,7 +13,7 @@ import {
 import { rendererProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
 import { createProject } from "./create-project.js";
-import { ingestAudioCli } from "./audio-ingest.js";
+import { enrichAudioCli, ingestAudioCli } from "./audio-ingest.js";
 import { exportProject } from "./export-project.js";
 import { generateCaptions } from "./captions.js";
 import { directVoice } from "./direct-voice.js";
@@ -147,8 +147,8 @@ program
   .argument("<project-id>")
   .argument("<file-path>")
   .requiredOption("--role <role>", "music or sfx")
-  .requiredOption("--provider <provider>", "source provider, e.g. epidemic, artlist, youtube_audio_library")
-  .requiredOption("--license-type <license-type>", "license descriptor, e.g. creator_subscription")
+  .option("--provider <provider>", "source provider, e.g. epidemic, artlist, youtube_audio_library")
+  .option("--license-type <license-type>", "license descriptor, e.g. creator_subscription")
   .option("--asset-id <asset-id>", "stable asset id override")
   .option("--source-url <source-url>", "provider source URL")
   .option("--creator <creator>", "creator/artist credit")
@@ -156,21 +156,46 @@ program
   .option("--attribution-required", "mark attribution as required")
   .option("--allowed-platforms <platforms>", "comma separated platforms", "youtube")
   .option("--downloaded-at <iso-date>", "ISO timestamp for license capture")
+  .option("--youtube-audio-library", "apply YouTube Audio Library source defaults")
   .action(async (projectId, filePath, options) => {
     await validateProject(projectId);
     const role = options.role === "music" ? "music" : options.role === "sfx" ? "sfx" : null;
     if (!role) throw new Error("--role must be either 'music' or 'sfx'.");
+    const youtubePreset = options.youtubeAudioLibrary === true;
+    if (!youtubePreset && !options.provider) throw new Error("--provider is required unless --youtube-audio-library is set.");
+    if (!youtubePreset && !options.licenseType) throw new Error("--license-type is required unless --youtube-audio-library is set.");
     await ingestAudioCli(projectId, filePath, {
       role,
       assetId: options.assetId,
-      provider: options.provider,
-      licenseType: options.licenseType,
-      sourceUrl: options.sourceUrl,
-      creator: options.creator,
+      provider: youtubePreset ? "youtube_audio_library" : options.provider,
+      licenseType: youtubePreset ? "youtube_audio_library_license" : options.licenseType,
+      sourceUrl: youtubePreset ? "https://studio.youtube.com/channel/UC/music" : options.sourceUrl,
+      creator: youtubePreset ? "YouTube Audio Library" : options.creator,
       trackId: options.trackId,
       attributionRequired: options.attributionRequired === true,
-      allowedPlatforms: options.allowedPlatforms,
+      allowedPlatforms: youtubePreset ? "youtube,local_only" : options.allowedPlatforms,
       downloadedAt: options.downloadedAt
+    });
+  });
+
+program
+  .command("audio:enrich")
+  .argument("<project-id>")
+  .option("--role <role>", "music or sfx")
+  .option("--provider <provider>", "default provider for missing metadata")
+  .option("--license-type <license-type>", "default license type for missing metadata")
+  .option("--allowed-platforms <platforms>", "comma separated platforms", "youtube")
+  .action(async (projectId, options) => {
+    await validateProject(projectId);
+    const role =
+      options.role === "music" ? "music" :
+      options.role === "sfx" ? "sfx" :
+      undefined;
+    await enrichAudioCli(projectId, {
+      role,
+      provider: options.provider,
+      licenseType: options.licenseType,
+      allowedPlatforms: options.allowedPlatforms
     });
   });
 

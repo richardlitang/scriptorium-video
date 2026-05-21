@@ -531,3 +531,105 @@ test("syncProject adds an automatic ducked music bed for short_story when a defa
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("syncProject resolves cues via cue-map.json with deterministic selection", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-sync-cuemap-"));
+  const projectId = "fixture";
+  const projectDir = path.join(root, "content", "projects", projectId);
+  try {
+    await mkdir(path.join(root, "content", "audio"), { recursive: true });
+    await writeJson(path.join(root, "content", "audio", "cue-map.json"), {
+      distant_wind: ["sfx-wind-a", "sfx-wind-b"]
+    });
+    await mkdir(path.join(projectDir, "assets", "audio", "voice"), { recursive: true });
+    await mkdir(path.join(projectDir, "assets", "audio", "sfx"), { recursive: true });
+    await writeFile(path.join(projectDir, "assets", "audio", "voice", "intro-001.wav"), "stub", "utf8");
+    await writeFile(path.join(projectDir, "assets", "audio", "sfx", "wind-a.wav"), "stub", "utf8");
+    await writeFile(path.join(projectDir, "assets", "audio", "sfx", "wind-b.wav"), "stub", "utf8");
+    const now = new Date().toISOString();
+
+    await writeJson(path.join(projectDir, "video-plan.json"), {
+      schemaVersion: 1,
+      title: "Fixture",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      providers: { llm: "manual", tts: "chatterbox", transcription: "mock", media: "manual-media", renderer: "remotion" },
+      voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
+      sections: [{
+        id: "intro",
+        title: "Intro",
+        beats: [{
+          id: "intro-001",
+          order: 1,
+          narration: "Wind.",
+          timing: { mediaPolicy: "loop_or_freeze", locked: false },
+          media: [],
+          motion: { type: "none", intensity: 0 },
+          caption: { emphasis: [], style: "default" },
+          sfxCues: [{ id: "cue-1", kind: "distant wind", placement: "beat_start", offsetSeconds: 0, levelDb: -18 }]
+        }]
+      }]
+    });
+
+    await writeJson(path.join(projectDir, "asset-manifest.json"), {
+      schemaVersion: 1,
+      assets: [
+        {
+          id: "voice-intro-001",
+          type: "audio",
+          role: "voiceover",
+          sectionId: "intro",
+          beatId: "intro-001",
+          path: "assets/audio/voice/intro-001.wav",
+          source: { kind: "generated", provider: "chatterbox", inputHash: "x" },
+          durationSeconds: 2,
+          status: "generated",
+          createdAt: now,
+          updatedAt: now
+        },
+        {
+          id: "sfx-wind-a",
+          type: "audio",
+          role: "sfx",
+          path: "assets/audio/sfx/wind-a.wav",
+          source: {
+            kind: "imported",
+            provider: "youtube_audio_library",
+            sha256: "abc",
+            license: { source: "youtube_audio_library", licenseType: "youtube_audio_library_license", attributionRequired: false, allowedPlatforms: ["youtube"], downloadedAt: now }
+          },
+          durationSeconds: 1,
+          status: "generated",
+          createdAt: now,
+          updatedAt: now
+        },
+        {
+          id: "sfx-wind-b",
+          type: "audio",
+          role: "sfx",
+          path: "assets/audio/sfx/wind-b.wav",
+          source: {
+            kind: "imported",
+            provider: "youtube_audio_library",
+            sha256: "def",
+            license: { source: "youtube_audio_library", licenseType: "youtube_audio_library_license", attributionRequired: false, allowedPlatforms: ["youtube"], downloadedAt: now }
+          },
+          durationSeconds: 1,
+          status: "generated",
+          createdAt: now,
+          updatedAt: now
+        }
+      ]
+    });
+
+    const run1 = await syncProject(projectId, root);
+    const run2 = await syncProject(projectId, root);
+    const picked1 = run1.timeline.segments[0].audioCues[0]?.assetId;
+    const picked2 = run2.timeline.segments[0].audioCues[0]?.assetId;
+    assert.ok(picked1 === "sfx-wind-a" || picked1 === "sfx-wind-b");
+    assert.equal(picked1, picked2);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

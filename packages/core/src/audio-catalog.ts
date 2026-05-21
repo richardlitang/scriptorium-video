@@ -19,6 +19,13 @@ export type IngestAudioOptions = {
   downloadedAt?: string;
 };
 
+export type EnrichAudioCatalogOptions = {
+  role?: "music" | "sfx";
+  provider?: string;
+  licenseType?: string;
+  allowedPlatforms?: string[];
+};
+
 function slugify(value: string): string {
   return String(value || "")
     .toLowerCase()
@@ -89,4 +96,55 @@ export async function ingestAudioToCatalog(
   manifest.assets.push(nextAsset);
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
   return { assetId, path: relativePath };
+}
+
+export async function enrichAudioCatalog(
+  projectId: string,
+  options: EnrichAudioCatalogOptions = {},
+  rootDir = process.cwd()
+): Promise<{ updated: number; skipped: number }> {
+  const paths = getProjectPaths(projectId, rootDir);
+  const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
+  let updated = 0;
+  let skipped = 0;
+  const now = new Date().toISOString();
+  const allowedPlatforms = (options.allowedPlatforms && options.allowedPlatforms.length > 0)
+    ? options.allowedPlatforms
+    : ["youtube"];
+
+  for (const asset of manifest.assets) {
+    if (asset.type !== "audio") {
+      skipped += 1;
+      continue;
+    }
+    if (options.role && asset.role !== options.role) {
+      skipped += 1;
+      continue;
+    }
+    const absolutePath = path.resolve(paths.projectDir, asset.path);
+    const probed = await probeMedia(absolutePath).catch(() => ({} as ProbeResult));
+    const sha256 = await hashFile(absolutePath).catch(() => undefined);
+    if (probed.durationSeconds !== undefined) asset.durationSeconds = probed.durationSeconds;
+    if (sha256) asset.source.sha256 = sha256;
+    if (!asset.source.license) {
+      asset.source.license = {
+        source: options.provider || asset.source.provider || "unknown",
+        licenseType: options.licenseType || "unknown",
+        attributionRequired: false,
+        allowedPlatforms,
+        downloadedAt: now
+      };
+    } else {
+      if (!asset.source.license.source) asset.source.license.source = options.provider || asset.source.provider || "unknown";
+      if (!asset.source.license.licenseType) asset.source.license.licenseType = options.licenseType || "unknown";
+      if (!asset.source.license.allowedPlatforms || asset.source.license.allowedPlatforms.length === 0) {
+        asset.source.license.allowedPlatforms = allowedPlatforms;
+      }
+      if (!asset.source.license.downloadedAt) asset.source.license.downloadedAt = now;
+    }
+    asset.updatedAt = now;
+    updated += 1;
+  }
+  await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
+  return { updated, skipped };
 }
