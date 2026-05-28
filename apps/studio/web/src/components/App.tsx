@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { ProjectSidebar } from "./ProjectSidebar";
+import { TtsHealthPill, TtsHealthDetail } from "./TtsHealthPill";
 
 const STORAGE_KEY = "lvstudio:selectedProjectId";
 
@@ -17,18 +18,31 @@ export function App() {
   }, [selectedProjectId]);
 
   return (
-    <div className="flex h-screen overflow-hidden">
-      <ProjectSidebar
-        selectedId={selectedProjectId}
-        onSelect={setSelectedProjectId}
-      />
-      <main className="flex-1 overflow-hidden flex flex-col">
-        {selectedProjectId ? (
-          <ProjectWorkspace projectId={selectedProjectId} />
-        ) : (
-          <EmptyState />
-        )}
-      </main>
+    <div className="flex h-screen overflow-hidden flex-col">
+      {/* Top bar */}
+      <header className="flex items-center justify-between px-4 py-2 border-b border-[var(--color-border)] bg-[var(--color-surface-raised)] shrink-0">
+        <span className="text-sm font-semibold tracking-tight text-[var(--color-text-muted)]">
+          Local Video Studio
+        </span>
+        <TtsHealthPill />
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-col border-r border-[var(--color-border)] overflow-hidden">
+          <ProjectSidebar
+            selectedId={selectedProjectId}
+            onSelect={setSelectedProjectId}
+          />
+          <TtsHealthDetail />
+        </div>
+        <main className="flex-1 overflow-hidden flex flex-col">
+          {selectedProjectId ? (
+            <ProjectWorkspace projectId={selectedProjectId} />
+          ) : (
+            <EmptyState />
+          )}
+        </main>
+      </div>
     </div>
   );
 }

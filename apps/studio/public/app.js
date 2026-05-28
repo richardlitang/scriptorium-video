@@ -1,12 +1,22 @@
 import { createJobCenterController } from "./modules/job-center.js";
 import { createBeatWorkspaceController } from "./modules/beat-workspace.js";
 import { createVoiceSettingsController } from "./modules/voice-settings-ui.js";
+import { imageCoverageLabel, normalizeImageCoverage } from "./modules/image-coverage.js";
+import { currentStoryDirectionFromControls, pendingUiStateFromControls } from "./modules/story-draft-state.js";
+import { buildDraftJobRequestBody, shouldApplyPendingStory } from "./modules/draft-job-request.js";
+import { buildStoredUiStateFromControls, restoreUiStateFromStorage } from "./modules/story-ui-state.js";
+import { readStored as readProjectStored, writeStored as writeProjectStored } from "./modules/project-storage.js";
+import { storyButtonState } from "./modules/tts-ui-state.js";
+import { draftJobUiModel, shouldNotifyDraftJobFinished } from "./modules/draft-job-ui-state.js";
+import { draftJobNotificationModel } from "./modules/draft-job-notification.js";
+import { currentVisualCoverageFromPlan } from "./modules/image-coverage-stats.js";
 import {
   createReviewController
 } from "./modules/workspace.js";
 
 const projectList = document.getElementById("project-list");
 const newProjectBtn = document.getElementById("new-project-btn");
+const deleteAllProjectsBtn = document.getElementById("delete-all-projects-btn");
 const projectTitle = document.getElementById("project-title");
 const projectMeta = document.getElementById("project-meta");
 const planEditor = document.getElementById("plan-editor");
@@ -15,9 +25,9 @@ const captionsOutput = document.getElementById("captions-output");
 const qualityOutput = document.getElementById("quality-output");
 const qualityHistoryOutput = document.getElementById("quality-history-output");
 const renderBtn = document.getElementById("render-btn");
+const draftNoImagesBtn = document.getElementById("draft-no-images-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
-const ttsHealthPill = document.getElementById("tts-health-pill");
-const ttsHealthDetail = document.getElementById("tts-health-detail");
+
 const jobBanner = document.getElementById("job-banner");
 const jobBannerTitle = document.getElementById("job-banner-title");
 const jobBannerDetail = document.getElementById("job-banner-detail");
@@ -97,13 +107,11 @@ let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let selectedBeatId = null;
 let selectedInspectorTab = "script";
-let ttsHealthState = {
-  provider: "chatterbox",
-  ok: false,
-  status: "checking",
-  sampleRate: null,
-  error: null
+let plannerDefaults = {
+  systemPrompt: "",
+  userPromptTemplate: ""
 };
+
 
 let deleteProjectDialogState = null;
 
@@ -113,25 +121,61 @@ function closeDeleteProjectDialog() {
   deleteProjectDialogState = null;
 }
 
-function openDeleteProjectDialog(project) {
-  closeDeleteProjectDialog();
+function createDeleteDialogOverlay({ heading, body, confirmLabel }) {
   const overlay = document.createElement("div");
   overlay.id = "project-delete-overlay";
   overlay.className = "project-delete-overlay";
-  overlay.innerHTML = `
-    <div class="project-delete-modal" role="dialog" aria-modal="true" aria-labelledby="project-delete-title">
-      <h3 id="project-delete-title">Delete Project</h3>
-      <p>Delete <strong>${project.title || project.id}</strong> (<code>${project.id}</code>) and all of its files?</p>
-      <label class="project-delete-check">
-        <input id="project-delete-check" type="checkbox" />
-        I understand this cannot be undone.
-      </label>
-      <div class="project-delete-actions">
-        <button type="button" id="project-delete-cancel" class="ghost-btn">Cancel</button>
-        <button type="button" id="project-delete-confirm" disabled>Delete Project</button>
-      </div>
-    </div>
-  `;
+
+  const modal = document.createElement("div");
+  modal.className = "project-delete-modal";
+  modal.setAttribute("role", "dialog");
+  modal.setAttribute("aria-modal", "true");
+  modal.setAttribute("aria-labelledby", "project-delete-title");
+
+  const title = document.createElement("h3");
+  title.id = "project-delete-title";
+  title.textContent = heading;
+
+  const paragraph = document.createElement("p");
+  paragraph.append(...body);
+
+  const label = document.createElement("label");
+  label.className = "project-delete-check";
+  const check = document.createElement("input");
+  check.id = "project-delete-check";
+  check.type = "checkbox";
+  label.append(check, document.createTextNode(" I understand this cannot be undone."));
+
+  const actions = document.createElement("div");
+  actions.className = "project-delete-actions";
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.id = "project-delete-cancel";
+  cancel.className = "ghost-btn";
+  cancel.textContent = "Cancel";
+  const confirm = document.createElement("button");
+  confirm.type = "button";
+  confirm.id = "project-delete-confirm";
+  confirm.disabled = true;
+  confirm.textContent = confirmLabel;
+  actions.append(cancel, confirm);
+
+  modal.append(title, paragraph, label, actions);
+  overlay.appendChild(modal);
+  return overlay;
+}
+
+function openDeleteProjectDialog(project) {
+  closeDeleteProjectDialog();
+  const strong = document.createElement("strong");
+  strong.textContent = project.title || project.id;
+  const code = document.createElement("code");
+  code.textContent = project.id;
+  const overlay = createDeleteDialogOverlay({
+    heading: "Delete Project",
+    body: ["Delete ", strong, " (", code, ") and all of its files?"],
+    confirmLabel: "Delete Project"
+  });
   document.body.appendChild(overlay);
   deleteProjectDialogState = { projectId: project.id };
   const check = overlay.querySelector("#project-delete-check");
@@ -158,113 +202,112 @@ function openDeleteProjectDialog(project) {
   };
 }
 
-const DEFAULT_PLANNER_SYSTEM_PROMPT =
-  "Convert story prose into a concise video production plan with deliberate section and beat segmentation. Preserve wording except light segmentation. Treat sections as narrative arcs, setting/time shifts, or major topic turns. Treat beats as edit units: one visual moment plus one spoken thought. Keep visual continuity (character age/look, setting, style) across beats. Use concrete visual descriptions, avoid generic abstractions, fake text, and continuity drift. Treat user-provided Feel, Pacing, and Visual style as hard constraints. Do not introduce contradictory visual media, realism levels, or style directions. Keep voice direction engaged and language-appropriate. Return JSON only.";
+function openDeleteAllProjectsDialog(projects) {
+  closeDeleteProjectDialog();
+  const projectCount = projects.length;
+  if (projectCount === 0) return;
+  const overlay = createDeleteDialogOverlay({
+    heading: "Delete All Projects",
+    body: [`Delete all ${projectCount} projects and their files?`],
+    confirmLabel: "Delete All Projects"
+  });
+  document.body.appendChild(overlay);
+  deleteProjectDialogState = { deleteAll: true };
+  const check = overlay.querySelector("#project-delete-check");
+  const confirmBtn = overlay.querySelector("#project-delete-confirm");
+  const cancelBtn = overlay.querySelector("#project-delete-cancel");
+  check.onchange = () => {
+    confirmBtn.disabled = !check.checked;
+  };
+  cancelBtn.onclick = () => closeDeleteProjectDialog();
+  overlay.onclick = (event) => {
+    if (event.target === overlay) closeDeleteProjectDialog();
+  };
+  confirmBtn.onclick = async () => {
+    if (!deleteProjectDialogState?.deleteAll) return;
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = "Deleting...";
+    await fetchJson("/api/projects", {
+      method: "DELETE",
+      body: JSON.stringify({ confirm: "DELETE ALL PROJECTS" })
+    });
+    selectedProjectId = null;
+    selectedProjectElement = null;
+    localStorage.removeItem("lvstudio:selectedProjectId");
+    closeDeleteProjectDialog();
+    await loadProjects();
+  };
+}
 
-const DEFAULT_PLANNER_USER_PROMPT_TEMPLATE = [
-  "Story:",
-  "{{story}}",
-  "",
-  "Current title: {{currentTitle}}",
-  "Feel: {{feel}}",
-  "Pacing: {{pacing}}",
-  "Visual style: {{visualStyle}}",
-  "Format: {{format}}",
-  "Target: {{target}}",
-  "",
-  "Output requirements:",
-  "- Segment the story intentionally before writing beat details.",
-  "- A section is a coherent narrative arc, setting/time shift, or major topic turn with a clear purpose.",
-  "- A beat is an edit unit: one visual moment plus one spoken thought, not a mechanical line or sentence split.",
-  "- For short/story videos, prefer beats around 2-6 seconds and roughly 6-20 spoken words; allow longer only for unusually dense context.",
-  "- Split beats at hooks, reversals, quote turns, discoveries, punchlines, and reveals where the edit or delivery should breathe.",
-  "- Use millisecond pause controls for delivery precision: pauseBeforeMs and pauseAfterMs per beat (0-1200).",
-  "- Do not create one-word beats unless that single word is intentionally the reveal or punchline.",
-  "- Build a reusable visual bible for consistency.",
-  "- Set section-level creative direction (feel, pacing, visual style) so sections can vary while staying coherent.",
-  "- Produce per-beat narration + image-generation-ready visual prompts.",
-  "- Treat Feel, Pacing, and Visual style as creative direction for every beat.",
-  "- If Feel, Pacing, or Visual style is blank, infer a concise story-appropriate value and keep it consistent.",
-  "- Enforce Visual style literally; do not add a visual medium, realism level, or style direction that conflicts with it.",
-  "- Decide image changes globally across the whole video, not per section quota. Mark each beat imageChangeDecision as change or hold.",
-  "- For every beat set voiceProfile, intensity, pauseBeforeMs, pauseAfterMs, pauseBeforeSeconds, pauseAfterSeconds, deliveryNote, and caption emphasis.",
-  "- Also set speedMultiplier and pitchOffset per beat for better delivery control.",
-  "- For every beat set narrationLanguage as a BCP-47-ish code such as en, fil, tgl, en+fil, or mixed.",
-  "- For every beat set ttsProvider for the majority spoken language of the whole beat: use chatterbox for mostly English narration, including English beats with short Tagalog quotes; use mms only when the beat narration itself is mostly Filipino/Tagalog; use openai only when neither local provider is appropriate.",
-  "- Include voiceConfidence and visualConfidence (0-1). Use conservative defaults when uncertain.",
-  "- Provide shot metadata (shotType, cameraDistance, lighting, lens, composition, subjectContinuity, negativePromptAdditions).",
-  "- Decide sparse editorial timing: visualEditCues, silenceWindows, and endingPolicy for retention-focused switches/effects only where appropriate.",
-  "- Do not let images spoil narration: do not reveal a visual clue, object, character, or ending image before the narration reaches that beat.",
-  "- Use visualEditCues for effects on the current beat only: current_visual for push_in/slow_pan/hard_cut/smash_cut, and black only for cut_to_black/hold_black.",
-  "- Keep visualEditCues sparse: normally 0-2 per beat, up to 4 only for a major reveal or ending.",
-  "- Match narration tone to scene intent per beat. Use hushed restraint for dread, warmer delivery for setup, sharper emphasis for reveals, and avoid cheerful or generic narration on tense scenes.",
-  "- Use pauses around hooks, reveals, and emotional turns. Keep them subtle unless needed.",
-  "- Add optional sfxCues only when they improve clarity; keep cues sparse and practical.",
-  "- Surface warnings when uncertain or under-specified."
-].join("\n");
+function plannerSystemPromptDefault() {
+  return plannerDefaults.systemPrompt || "";
+}
 
-storySystemPrompt.value = DEFAULT_PLANNER_SYSTEM_PROMPT;
-storyUserPromptTemplate.value = DEFAULT_PLANNER_USER_PROMPT_TEMPLATE;
+function plannerUserPromptTemplateDefault() {
+  return plannerDefaults.userPromptTemplate || "";
+}
 
-const storageKey = (projectId, key) => `lvstudio:${projectId}:${key}`;
+async function loadPlannerDefaults() {
+  const result = await fetchJson("/api/planner-defaults");
+  plannerDefaults = {
+    systemPrompt: String(result?.data?.systemPrompt || ""),
+    userPromptTemplate: String(result?.data?.userPromptTemplate || "")
+  };
+  storySystemPrompt.value = plannerSystemPromptDefault();
+  storyUserPromptTemplate.value = plannerUserPromptTemplateDefault();
+}
 
 function readStored(projectId, key, fallback = "") {
-  return localStorage.getItem(storageKey(projectId, key)) ?? fallback;
+  return readProjectStored(localStorage, projectId, key, fallback);
 }
 
 function writeStored(projectId, key, value) {
-  localStorage.setItem(storageKey(projectId, key), value);
+  writeProjectStored(localStorage, projectId, key, value);
 }
 
 function currentStoryDirection() {
-  return {
-    feel: storyFeel.value.trim(),
-    pacing: storyPacing.value.trim(),
-    visualStyle: storyVisualStyle.value.trim()
-  };
+  return currentStoryDirectionFromControls({ storyFeel, storyPacing, storyVisualStyle });
 }
 
 function saveUiState() {
   if (!selectedProjectId) return;
-  writeStored(selectedProjectId, "story", storyInput.value);
-  writeStored(selectedProjectId, "feel", storyFeel.value);
-  writeStored(selectedProjectId, "pacing", storyPacing.value);
-  writeStored(selectedProjectId, "visualStyle", storyVisualStyle.value);
-  writeStored(selectedProjectId, "systemPrompt", storySystemPrompt.value);
-  writeStored(selectedProjectId, "userPromptTemplate", storyUserPromptTemplate.value);
-  writeStored(selectedProjectId, "imageEnabled", imageEnabled.checked ? "true" : "false");
-  writeStored(selectedProjectId, "imageMode", imageMode.value);
-  writeStored(selectedProjectId, "imageBudget", imageBudget.value);
-  writeStored(selectedProjectId, "imageQuality", imageQuality.value);
+  const state = buildStoredUiStateFromControls({
+    storyInput,
+    storyFeel,
+    storyPacing,
+    storyVisualStyle,
+    storySystemPrompt,
+    storyUserPromptTemplate,
+    imageEnabled,
+    imageMode,
+    imageBudget,
+    imageQuality
+  });
+  for (const [key, value] of Object.entries(state)) {
+    writeStored(selectedProjectId, key, value);
+  }
 }
 
 function restoreUiState(projectId) {
-  storyInput.value = readStored(projectId, "story");
-  storyFeel.value = readStored(projectId, "feel", "");
-  storyPacing.value = readStored(projectId, "pacing", "");
-  storyVisualStyle.value = readStored(projectId, "visualStyle", "");
-  storySystemPrompt.value = readStored(projectId, "systemPrompt", DEFAULT_PLANNER_SYSTEM_PROMPT);
-  storyUserPromptTemplate.value = readStored(projectId, "userPromptTemplate", DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
-  imageEnabled.checked = readStored(projectId, "imageEnabled", "true") === "true";
-  imageMode.value = readStored(projectId, "imageMode", "missing");
-  imageBudget.value = normalizeImageCoverage(readStored(projectId, "imageBudget", "llm"));
-  imageQuality.value = readStored(projectId, "imageQuality", "low");
-  selectedBeatId = readStored(projectId, "selectedBeatId", "");
+  const state = restoreUiStateFromStorage({
+    projectId,
+    readStored,
+    plannerSystemPromptDefault,
+    plannerUserPromptTemplateDefault,
+    normalizeImageCoverage
+  });
+  storyInput.value = state.story;
+  storyFeel.value = state.feel;
+  storyPacing.value = state.pacing;
+  storyVisualStyle.value = state.visualStyle;
+  storySystemPrompt.value = state.systemPrompt;
+  storyUserPromptTemplate.value = state.userPromptTemplate;
+  imageEnabled.checked = state.imageEnabled;
+  imageMode.value = state.imageMode;
+  imageBudget.value = state.imageBudget;
+  imageQuality.value = state.imageQuality;
+  selectedBeatId = state.selectedBeatId;
   voiceSettingsController.restorePreviewLines(projectId);
-}
-
-function normalizeImageCoverage(value) {
-  if (value === "llm" || value === "story" || value === "global") return "llm";
-  if (value === "beat" || value === "999") return "beat";
-  if (value === "balanced" || value === "key") return "balanced";
-  return "llm";
-}
-
-function imageCoverageLabel(coverage) {
-  if (coverage === "llm") return "llm story-driven changes";
-  if (coverage === "beat") return "full beat-by-beat";
-  if (coverage === "balanced") return "balanced key moments";
-  return "llm story-driven changes";
 }
 
 function fmt(value) {
@@ -293,6 +336,8 @@ async function fetchJson(url, options) {
 async function loadProjects() {
   const data = await fetchJson("/api/projects");
   projectList.innerHTML = "";
+  deleteAllProjectsBtn.disabled = data.projects.length === 0;
+  deleteAllProjectsBtn.onclick = () => openDeleteAllProjectsDialog(data.projects);
   let firstProjectElement = null;
   const preferredProjectId = localStorage.getItem("lvstudio:selectedProjectId");
   let preferredProjectElement = null;
@@ -300,7 +345,11 @@ async function loadProjects() {
     const el = document.createElement("div");
     el.className = "project-item";
     const info = document.createElement("div");
-    info.innerHTML = `<strong>${project.title || project.id}</strong><br/><small>${project.id} · ${project.mode} · ${project.status}</small>`;
+    const name = document.createElement("strong");
+    name.textContent = project.title || project.id;
+    const meta = document.createElement("small");
+    meta.textContent = `${project.id} · ${project.mode} · ${project.status}`;
+    info.append(name, document.createElement("br"), meta);
     info.onclick = () => selectProject(project.id, el);
     const actions = document.createElement("div");
     actions.className = "project-item-actions";
@@ -520,93 +569,30 @@ function defaultDraftButtonLabel() {
   return selectedProjectId ? "Make Draft" : "Create Draft";
 }
 
-function ttsAvailability() {
-  const status = ttsHealthState?.status || "checking";
-  if (status === "ready" && ttsHealthState?.ok) return "ready";
-  if (status === "no_health_endpoint" && ttsHealthState?.ok) return "ready_degraded";
-  if (status === "loading") return "loading";
-  if (status === "failed") return "failed";
-  if (status === "unreachable") return "unreachable";
-  return "checking";
-}
 
-function renderTtsHealthPill() {
-  if (!ttsHealthPill) return;
-  const availability = ttsAvailability();
-  ttsHealthPill.className = "status-pill";
-  if (ttsHealthDetail) {
-    ttsHealthDetail.className = "tts-health-detail";
-  }
-  if (availability === "ready") {
-    ttsHealthPill.classList.add("ok");
-    const sampleRateLabel = ttsHealthState.sampleRate ? ` (${ttsHealthState.sampleRate}Hz)` : "";
-    ttsHealthPill.textContent = `TTS: ready${sampleRateLabel}`;
-    ttsHealthPill.title = "Chatterbox is ready for draft narration.";
-    if (ttsHealthDetail) {
-      ttsHealthDetail.classList.add("ok");
-      ttsHealthDetail.textContent = "Narration service is ready. You can run Make Draft, Regenerate Narration, or Direct Voice now.";
-    }
-    return;
-  }
-  if (availability === "ready_degraded") {
-    ttsHealthPill.classList.add("warn");
-    ttsHealthPill.textContent = "TTS: reachable (no /health)";
-    ttsHealthPill.title = "TTS endpoint is reachable but does not expose /health; Studio will proceed optimistically.";
-    if (ttsHealthDetail) {
-      ttsHealthDetail.classList.add("warn");
-      ttsHealthDetail.textContent = "TTS server is reachable, but it does not provide a health endpoint. Draft actions are enabled; if generation fails, verify the speech endpoint configuration.";
-    }
-    return;
-  }
-  if (availability === "loading") {
-    ttsHealthPill.classList.add("warn");
-    ttsHealthPill.textContent = "TTS: warming model...";
-    ttsHealthPill.title = "First run downloads/loads the TTS model. Draft actions are paused until ready.";
-    if (ttsHealthDetail) {
-      ttsHealthDetail.classList.add("warn");
-      ttsHealthDetail.textContent = "Model is loading/downloading in the background. This is expected on first run and may take a few minutes. Studio auto-rechecks every 8 seconds.";
-    }
-    return;
-  }
-  ttsHealthPill.classList.add("bad");
-  if (availability === "checking") {
-    ttsHealthPill.textContent = "TTS: checking...";
-    ttsHealthPill.title = "Checking Chatterbox status.";
-    if (ttsHealthDetail) {
-      ttsHealthDetail.classList.add("warn");
-      ttsHealthDetail.textContent = "Checking narration service availability. If this stays here for more than ~20 seconds, verify the Chatterbox server process is running.";
-    }
-  } else {
-    ttsHealthPill.textContent = "TTS: unavailable";
-    ttsHealthPill.title = ttsHealthState.error || "Chatterbox is unreachable or failed to load.";
-    if (ttsHealthDetail) {
-      ttsHealthDetail.classList.add("bad");
-      const reason = ttsHealthState.error ? `Reason: ${ttsHealthState.error}. ` : "";
-      ttsHealthDetail.textContent = `${reason}Start the Chatterbox server, keep this page open, and Studio will enable draft actions automatically once status becomes ready.`;
-    }
-  }
-}
+// ttsAvailability stubbed — TTS health is now owned by the React SPA (Slice 2)
+function ttsAvailability() { return "checking"; }
 
 function updateStoryButtons() {
-  const hasSelectedProject = Boolean(selectedProjectId);
-  const hasStory = storyInput.value.trim().length > 0;
-  const draftJobRunning = currentDraftJob && ["queued", "running", "cancelling"].includes(currentDraftJob.status);
-  const ttsReady = ttsAvailability() === "ready" || ttsAvailability() === "ready_degraded";
-  const ttsWarming = ttsAvailability() === "loading" || ttsAvailability() === "checking";
-  convertStoryBtn.disabled = !hasSelectedProject || !hasStory;
-  aiPlanBtn.disabled = !hasSelectedProject || !hasStory;
-  clearStoryBtn.disabled = !hasStory;
-  renderBtn.disabled = !hasStory || draftJobRunning || !ttsReady;
-  if (!draftJobRunning) {
-    if (!hasStory) renderBtn.textContent = "Paste Story First";
-    else if (!ttsReady) renderBtn.textContent = ttsWarming ? "TTS Warming..." : "TTS Unavailable";
-    else renderBtn.textContent = defaultDraftButtonLabel();
-  }
+  const state = storyButtonState({
+    selectedProjectId,
+    storyValue: storyInput.value,
+    currentDraftJobStatus: currentDraftJob?.status,
+    ttsAvailability: ttsAvailability(),
+    defaultDraftButtonLabel: defaultDraftButtonLabel()
+  });
+  convertStoryBtn.disabled = state.convertStoryDisabled;
+  aiPlanBtn.disabled = state.aiPlanDisabled;
+  clearStoryBtn.disabled = state.clearStoryDisabled;
+  renderBtn.disabled = state.renderDisabled;
+  draftNoImagesBtn.disabled = state.draftNoImagesDisabled;
+  if (state.renderButtonText) renderBtn.textContent = state.renderButtonText;
+  if (state.draftNoImagesText) draftNoImagesBtn.textContent = state.draftNoImagesText;
   voiceSettingsBtn.disabled = false;
-  directVoiceBtn.disabled = !hasSelectedProject || !ttsReady;
-  regenerateAudioBtn.disabled = !hasSelectedProject || !ttsReady;
-  prepareDraftBtn.disabled = !hasSelectedProject || !ttsReady;
-  stopRunBtn.disabled = !draftJobRunning;
+  directVoiceBtn.disabled = state.directVoiceDisabled;
+  regenerateAudioBtn.disabled = state.regenerateAudioDisabled;
+  prepareDraftBtn.disabled = state.prepareDraftDisabled;
+  stopRunBtn.disabled = state.stopRunDisabled;
 }
 
 function syncStoryButtonsSoon() {
@@ -758,11 +744,11 @@ function buildPlanFromStory(rawScript, currentPlan) {
                 type: "title_card",
                 role: "primary_visual",
                 prompt: notes || paragraph,
-                scaleMode: "cover",
+                scaleMode: "safe_cover",
                 placement: "background"
               }
             ],
-            motion: { type: "slow_zoom_in", intensity: 0.08 },
+            motion: { type: "slow_zoom_in", intensity: 0.12 },
             caption: { emphasis: [], style: "default" },
             notes
           };
@@ -845,8 +831,7 @@ function renderAssetCard(projectId, asset) {
             mode: "selected",
             assetId: asset.id,
             prompt: promptInput.value,
-            quality: imageQuality.value,
-            size: "1024x1536"
+            quality: imageQuality.value
           })
         });
         qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} image(s).\n${result.data.syncOutput ?? ""}`;
@@ -1135,56 +1120,31 @@ const jobCenter = createJobCenterController({
 });
 
 function notifyDraftJobFinished(job) {
-  const title = job.status === "failed" ? "Draft failed" : "Draft ready";
-  const body = job.status === "failed"
-    ? (job.error || "The background draft job failed.")
-    : "Your draft video finished rendering.";
+  const model = draftJobNotificationModel(job);
   if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-    new Notification(title, { body });
+    new Notification(model.title, { body: model.body });
   }
-  document.title = `${title} - Local Video Studio`;
+  document.title = model.documentTitle;
 }
 
 function renderDraftJobState(job) {
   currentDraftJob = job || null;
-  if (!job || job.kind !== "draft_job") {
+  const model = draftJobUiModel(job, draftJobProgressLine(job), defaultDraftButtonLabel());
+  if (model.hideBanner) {
     hideJobBanner();
-    renderBtn.textContent = defaultDraftButtonLabel();
+    if (model.renderButtonText) renderBtn.textContent = model.renderButtonText;
+    if (typeof model.renderButtonDisabled === "boolean") renderBtn.disabled = model.renderButtonDisabled;
+    if (typeof model.stopRunDisabled === "boolean") stopRunBtn.disabled = model.stopRunDisabled;
     updateStoryButtons();
     return;
   }
-
-  const line = draftJobProgressLine(job);
-  if (job.status === "running" || job.status === "queued") {
-    renderBtn.disabled = true;
-    renderBtn.textContent = "Draft Running...";
-    stopRunBtn.disabled = false;
-    showJobBanner("Draft running", line || "Queued on this machine.");
-    setRunStatus([line || "Draft job is running in the background."]);
-    updateStoryButtons();
-    return;
-  }
-  if (job.status === "cancelling") {
-    renderBtn.disabled = true;
-    renderBtn.textContent = "Stopping...";
-    stopRunBtn.disabled = true;
-    showJobBanner("Stopping draft", line || "Waiting for current step to stop.");
-    setRunStatus([line || "Stopping draft job..."]);
-    updateStoryButtons();
-    return;
-  }
-
-  renderBtn.textContent = defaultDraftButtonLabel();
-  stopRunBtn.disabled = true;
-  if (job.status === "completed") {
-    showJobBanner("Draft ready", "The background render finished. The preview below has been refreshed.", "completed");
-    if (lastSeenDraftJobId !== job.jobId) notifyDraftJobFinished(job);
-    lastSeenDraftJobId = job.jobId;
-  } else if (job.status === "failed") {
-    showJobBanner("Draft failed", job.error || "The background draft job failed.", "failed");
-    if (lastSeenDraftJobId !== job.jobId) notifyDraftJobFinished(job);
-    lastSeenDraftJobId = job.jobId;
-  }
+  if (model.renderButtonText) renderBtn.textContent = model.renderButtonText;
+  if (typeof model.renderButtonDisabled === "boolean") renderBtn.disabled = model.renderButtonDisabled;
+  if (typeof model.stopRunDisabled === "boolean") stopRunBtn.disabled = model.stopRunDisabled;
+  showJobBanner(model.bannerTitle, model.bannerDetail, model.bannerStatus);
+  if (Array.isArray(model.runStatusLines)) setRunStatus(model.runStatusLines);
+  if (shouldNotifyDraftJobFinished(lastSeenDraftJobId, job)) notifyDraftJobFinished(job);
+  if (job?.jobId) lastSeenDraftJobId = job.jobId;
   updateStoryButtons();
 }
 
@@ -1237,10 +1197,6 @@ function stopProgressPolling() {
   progressPollTimer = null;
 }
 
-function ownedVisualAssetForBeat(assets, beatId) {
-  return assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beatId);
-}
-
 async function currentVisualCoverage(projectId, coverage) {
   const [details, assetsResult] = await Promise.all([
     fetchJson(`/api/projects/${projectId}`),
@@ -1248,38 +1204,7 @@ async function currentVisualCoverage(projectId, coverage) {
   ]);
   const assets = assetsResult.data.assets ?? [];
   const plan = details.data.plan;
-  if (coverage === "beat") {
-    const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
-    const missing = beats.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
-    return { missing: missing.length, total: beats.length };
-  }
-  if (coverage === "balanced") {
-    const targets = (plan.sections ?? []).flatMap((section) => {
-      const beats = section.beats ?? [];
-      if (beats.length <= 2) return beats;
-      return [beats[0], beats[Math.floor(beats.length / 2)], beats[beats.length - 1]]
-        .filter((beat, index, all) => all.findIndex((entry) => entry?.id === beat?.id) === index);
-    });
-    const missing = targets.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
-    return { missing: missing.length, total: targets.length };
-  }
-
-  if (coverage === "llm") {
-    const beats = (plan.sections ?? []).flatMap((section) => section.beats ?? []);
-    const targets = beats.filter((beat, index) => {
-      const role = beat.visual?.coverageRole;
-      return role === "anchor" || role === "key_moment" || index === 0;
-    });
-    const uniqueTargets = targets.filter((beat, index, all) => all.findIndex((entry) => entry?.id === beat?.id) === index);
-    const missing = uniqueTargets.filter((beat) => !ownedVisualAssetForBeat(assets, beat.id));
-    return { missing: missing.length, total: uniqueTargets.length };
-  }
-
-  const sections = plan.sections ?? [];
-  const missing = sections.filter((section) =>
-    !(section.beats ?? []).some((beat) => ownedVisualAssetForBeat(assets, beat.id))
-  );
-  return { missing: missing.length, total: sections.length };
+  return currentVisualCoverageFromPlan(plan, assets, coverage);
 }
 
 function runSignal() {
@@ -1330,8 +1255,7 @@ async function generateImagesForCurrentPlan(progressSteps = ["Generating images.
     body: JSON.stringify({
       mode: imageMode.value,
       coverage: normalizeImageCoverage(imageBudget.value),
-      quality: imageQuality.value,
-      size: "1024x1536"
+      quality: imageQuality.value
     })
   });
   stopProgressPolling();
@@ -1388,7 +1312,7 @@ async function createProjectFromTitle(title) {
 }
 
 function applyPendingStoryState(pendingStory, pendingUiState, projectId) {
-  if (!pendingStory.trim() || !projectId || selectedProjectId !== projectId) return;
+  if (!shouldApplyPendingStory({ pendingStory, projectId, selectedProjectId })) return;
   storyInput.value = pendingStory;
   storyFeel.value = pendingUiState.feel;
   storyPacing.value = pendingUiState.pacing;
@@ -1421,6 +1345,7 @@ newProjectBtn.onclick = async () => {
 };
 
 async function selectProject(projectId, element) {
+  const previousProjectId = selectedProjectId;
   resetProjectScopedRuntimeState();
   selectedProjectId = projectId;
   selectedProjectElement = element ?? selectedProjectElement;
@@ -1445,7 +1370,7 @@ async function selectProject(projectId, element) {
     needsRender = true;
   }
   renderWorkflowState();
-  jobCenter.clearExpanded();
+  if (previousProjectId !== projectId) jobCenter.clearExpanded();
   projectTitle.textContent = `${details.data.plan.title} (${projectId})`;
   projectMeta.textContent = fmt({
     status: details.data.project.status,
@@ -1487,63 +1412,32 @@ async function selectProject(projectId, element) {
   updateStoryButtons();
 }
 
-async function refreshTtsHealth() {
-  try {
-    const result = await fetchJson("/api/tts/health");
-    ttsHealthState = result.data || ttsHealthState;
-  } catch (error) {
-    const errorText = String(error || "");
-    const looksLikeMissingHealthRoute =
-      /not found/i.test(errorText) ||
-      /404/.test(errorText) ||
-      /\/api\/tts\/health/.test(errorText);
-    if (looksLikeMissingHealthRoute) {
-      ttsHealthState = {
-        provider: "chatterbox",
-        ok: false,
-        status: "checking",
-        sampleRate: null,
-        error: null
-      };
-      return;
-    }
-    ttsHealthState = {
-      provider: "chatterbox",
-      ok: false,
-      status: "unreachable",
-      sampleRate: null,
-      error: String(error)
-    };
-  } finally {
-    renderTtsHealthPill();
-    updateStoryButtons();
-  }
-}
 
-renderBtn.onclick = async () => {
+async function queueDraftJob({ imageEnabledOverride, triggerButton = renderBtn } = {}) {
   const pendingStory = storyInput.value;
   const hasStory = pendingStory.trim().length > 0;
   if (!hasStory) return;
   if (!["ready", "ready_degraded"].includes(ttsAvailability())) {
     const msg = ttsAvailability() === "loading" || ttsAvailability() === "checking"
       ? "TTS model is still warming up. Wait for 'TTS: ready' then try Make Draft."
-      : `TTS is unavailable: ${ttsHealthState.error || "check Chatterbox server."}`;
+      : "TTS is unavailable: check Chatterbox server.";
     renderStoryFeedback([{ level: "warning", text: msg }]);
     return;
   }
-  const pendingUiState = {
-    feel: storyFeel.value,
-    pacing: storyPacing.value,
-    visualStyle: storyVisualStyle.value,
-    systemPrompt: storySystemPrompt.value,
-    userPromptTemplate: storyUserPromptTemplate.value,
-    imageEnabled: imageEnabled.checked ? "true" : "false",
-    imageMode: imageMode.value,
+  const runImageEnabled = imageEnabledOverride ?? imageEnabled.checked;
+  const pendingUiState = pendingUiStateFromControls({
+    storyFeel,
+    storyPacing,
+    storyVisualStyle,
+    storySystemPrompt,
+    storyUserPromptTemplate,
+    imageEnabled,
+    imageMode,
     imageBudget: normalizeImageCoverage(imageBudget.value),
-    imageQuality: imageQuality.value
-  };
-  renderBtn.disabled = true;
-  renderBtn.textContent = "Queueing...";
+    imageQuality
+  });
+  triggerButton.disabled = true;
+  triggerButton.textContent = "Queueing...";
   try {
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission().catch(() => {});
@@ -1555,22 +1449,21 @@ renderBtn.onclick = async () => {
     if (!selectedProjectId) throw new Error("Project was not selected after creation.");
     const plan = JSON.parse(planEditor.value);
     const storyDirection = currentStoryDirection();
+    const requestBody = buildDraftJobRequestBody({
+      story: pendingStory,
+      plan,
+      storyDirection,
+      systemPrompt: storySystemPrompt.value,
+      userPromptTemplate: storyUserPromptTemplate.value,
+      imageEnabled: runImageEnabled,
+      imageMode: imageMode.value,
+      imageCoverage: normalizeImageCoverage(imageBudget.value),
+      imageQuality: imageQuality.value
+    });
     const result = await fetchJson(`/api/projects/${selectedProjectId}/draft-job`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({
-        story: pendingStory,
-        plan,
-        feel: storyDirection.feel,
-        pacing: storyDirection.pacing,
-        visualStyle: storyDirection.visualStyle,
-        systemPrompt: storySystemPrompt.value,
-        userPromptTemplate: storyUserPromptTemplate.value,
-        imageEnabled: imageEnabled.checked,
-        imageMode: imageMode.value,
-        imageCoverage: normalizeImageCoverage(imageBudget.value),
-        imageQuality: imageQuality.value
-      })
+      body: JSON.stringify(requestBody)
     });
     hasUnsavedPlan = false;
     needsPrepareDraft = false;
@@ -1579,18 +1472,22 @@ renderBtn.onclick = async () => {
     renderDraftJobState(result.data);
     await jobCenter.refresh(selectedProjectId);
     startDraftJobPolling(selectedProjectId);
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDraft job queued. You can leave this tab; Studio will keep processing while the server is running.`;
+    const imageNote = runImageEnabled ? "" : " Images are skipped for this run.";
+    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDraft job queued.${imageNote} You can leave this tab; Studio will keep processing while the server is running.`;
   } catch (error) {
     const message = `Make Draft failed to queue: ${String(error)}`;
     qualityOutput.textContent = `${qualityOutput.textContent}\n\n${message}`;
     renderStoryFeedback([{ level: "warning", text: message }]);
-    renderBtn.disabled = false;
-    renderBtn.textContent = "Make Draft";
+    triggerButton.disabled = false;
+    triggerButton.textContent = triggerButton === draftNoImagesBtn ? "Draft Without Images" : "Make Draft";
   } finally {
     activeRunController = null;
     updateStoryButtons();
   }
 };
+
+renderBtn.onclick = () => queueDraftJob();
+draftNoImagesBtn.onclick = () => queueDraftJob({ imageEnabledOverride: false, triggerButton: draftNoImagesBtn });
 
 stopRunBtn.onclick = async () => {
   if (!selectedProjectId) return;
@@ -1821,8 +1718,8 @@ voiceSettingsBtn.onclick = async () => {
 };
 
 resetPromptDefaultsBtn.onclick = () => {
-  storySystemPrompt.value = DEFAULT_PLANNER_SYSTEM_PROMPT;
-  storyUserPromptTemplate.value = DEFAULT_PLANNER_USER_PROMPT_TEMPLATE;
+  storySystemPrompt.value = plannerSystemPromptDefault();
+  storyUserPromptTemplate.value = plannerUserPromptTemplateDefault();
   saveUiState();
 };
 voiceSettingsClose.onclick = () => {
@@ -1877,11 +1774,9 @@ voiceSettingsController.loadSettings().catch((error) => {
   voiceSettingsStatus.textContent = String(error);
 });
 
-refreshTtsHealth().catch(() => {});
-setInterval(() => {
-  refreshTtsHealth().catch(() => {});
-}, 8000);
 
-loadProjects().catch((error) => {
-  projectMeta.textContent = String(error);
-});
+loadPlannerDefaults()
+  .then(() => loadProjects())
+  .catch((error) => {
+    projectMeta.textContent = String(error);
+  });
