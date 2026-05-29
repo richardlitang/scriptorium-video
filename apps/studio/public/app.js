@@ -65,8 +65,7 @@ const voicePreviewAudio = document.getElementById("voice-preview-audio");
 const savePlanBtn = document.getElementById("save-plan-btn");
 const prepareDraftBtn = document.getElementById("prepare-draft-btn");
 const renderDraftBtn = document.getElementById("render-draft-btn");
-const generateImagesBtn = document.getElementById("generate-images-btn");
-const mediaPreview = document.getElementById("media-preview");
+
 const renderOutput = document.getElementById("render-output");
 const storyInput = document.getElementById("story-input");
 const convertStoryBtn = document.getElementById("convert-story-btn");
@@ -94,7 +93,7 @@ let selectedProjectElement = null;
 let hasUnsavedPlan = false;
 let needsPrepareDraft = false;
 let needsRender = false;
-let imageHistory = [];
+
 let currentProjectDetails = null;
 let activeRunController = null;
 
@@ -887,22 +886,7 @@ function visualAssetForBeat(assets, timeline, beatId) {
   return assets.find((asset) => asset.role === "primary_visual" && asset.beatId === beatId);
 }
 
-function renderMediaPreview(projectId, plan, assets, timeline) {
-  mediaPreview.innerHTML = "";
-  for (const section of plan.sections ?? []) {
-    for (const beat of section.beats ?? []) {
-      const asset = visualAssetForBeat(assets, timeline, beat.id);
-      const card = asset ? renderAssetCard(projectId, asset) : renderMissingImageCard(beat);
-      if (asset?.beatId && asset.beatId !== beat.id) {
-        const reuseNote = document.createElement("p");
-        reuseNote.className = "feedback-row feedback-info";
-        reuseNote.textContent = `Beat ${beat.id} reuses visual from ${asset.beatId}.`;
-        card.prepend(reuseNote);
-      }
-      mediaPreview.appendChild(card);
-    }
-  }
-}
+function renderMediaPreview() {} // Media preview now owned by React SPA (Slice 7)
 
 async function patchAssetStatus(projectId, assetId, status) {
   return fetchJson(`/api/projects/${projectId}/assets/${encodeURIComponent(assetId)}`, {
@@ -1129,58 +1113,7 @@ async function saveCurrentPlan(options = {}) {
   return result;
 }
 
-async function generateImagesForCurrentPlan(progressSteps = ["Generating images..."]) {
-  startProgressPolling(selectedProjectId, progressSteps);
-  const result = await fetchJson(`/api/projects/${selectedProjectId}/generate-images`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    ...runSignal(),
-    body: JSON.stringify({
-      mode: imageMode.value,
-      coverage: normalizeImageCoverage(imageBudget.value),
-      quality: imageQuality.value
-    })
-  });
-  stopProgressPolling();
-  const coverageLabel = imageCoverageLabel(result.data.coverage);
-  qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation:\nGenerated ${result.data.generated.length} new image(s), coverage ${coverageLabel}. Failed ${result.data.failed?.length ?? 0}.\n${result.data.syncOutput ?? ""}`;
-  await refreshMediaPreview(selectedProjectId);
-  return result;
-}
-
-async function refreshMediaPreview(projectId) {
-  if (!projectId) return;
-  const [details, assets, history] = await Promise.all([
-    fetchJson(`/api/projects/${projectId}`),
-    fetchJson(`/api/projects/${projectId}/assets`),
-    fetchJson(`/api/projects/${projectId}/image-history`)
-  ]);
-  currentProjectDetails = details.data;
-  imageHistory = history.data.entries;
-  projectMeta.textContent = fmt({
-    status: details.data.project.status,
-    mode: details.data.plan.mode,
-    targetPlatform: details.data.plan.targetPlatform,
-    assets: details.data.assetCount,
-    captions: details.data.captionCount
-  });
-  timelineOutput.textContent = fmt(details.data.timeline ?? { message: "timeline.json missing" });
-  renderMediaPreview(projectId, details.data.plan, assets.data.assets, details.data.timeline);
-  beatWorkspace.renderTimeline({
-    projectId,
-    plan: details.data.plan,
-    timeline: details.data.timeline,
-    assets: assets.data.assets,
-    runState: details.data.runState
-  });
-  beatWorkspace.renderInspector({
-    projectId,
-    plan: details.data.plan,
-    assets: assets.data.assets,
-    timeline: details.data.timeline
-  });
-  await reviewController.refresh(projectId).catch(() => {});
-}
+async function refreshMediaPreview() {} // Now owned by React SPA (Slice 7)
 
 async function createProjectFromTitle(title) {
   const result = await fetchJson("/api/projects", {
@@ -1390,29 +1323,6 @@ stopRunBtn.onclick = async () => {
   }
 };
 
-generateImagesBtn.onclick = async () => {
-  if (!selectedProjectId) return;
-  generateImagesBtn.disabled = true;
-  generateImagesBtn.textContent = "Generating Images...";
-  try {
-    if (hasUnsavedPlan) {
-      throw new Error("Save Plan before generating images so image prompts match the current plan.");
-    }
-    const result = await generateImagesForCurrentPlan(["Generating images..."]);
-    needsRender = true;
-    await selectProject(selectedProjectId, selectedProjectElement);
-    needsRender = true;
-    await refreshRenderOutput(selectedProjectId);
-    await refreshQualityHistory(selectedProjectId);
-    renderWorkflowState();
-  } catch (error) {
-    stopProgressPolling();
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nImage generation failed:\n${String(error)}`;
-  } finally {
-    generateImagesBtn.disabled = false;
-    generateImagesBtn.textContent = "Generate Images";
-  }
-};
 
 async function regenerateAudioForCurrentProject(triggerBtn) {
   if (!selectedProjectId) return;

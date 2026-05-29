@@ -167,6 +167,7 @@ export function ProjectWorkspace({ projectId }: Props) {
             captionCount={details?.captionCount ?? 0}
             runState={details?.runState ?? null}
             needsRender={flags.needsRender}
+            onLog={appendQualityLog}
           />
         </section>
       </div>

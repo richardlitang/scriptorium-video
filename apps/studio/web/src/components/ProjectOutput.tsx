@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQualityHistory, useRenders, type RunState } from "@/queries/project-details";
 import { JobCenter } from "./JobCenter";
+import { ImagesPanel } from "./ImagesPanel";
 
 interface Props {
   projectId: string;
@@ -9,11 +10,12 @@ interface Props {
   runState: RunState | null;
   needsRender: boolean;
   onRetry?: () => void;
+  onLog?: (msg: string) => void;
 }
 
-type OutputTab = "render" | "jobs" | "quality" | "timeline";
+type OutputTab = "render" | "images" | "jobs" | "quality" | "timeline";
 
-export function ProjectOutput({ projectId, timeline, captionCount, runState, needsRender, onRetry }: Props) {
+export function ProjectOutput({ projectId, timeline, captionCount, runState, needsRender, onRetry, onLog }: Props) {
   const [tab, setTab] = useState<OutputTab>("render");
   const { data: qualityHistory } = useQualityHistory(projectId);
   const { data: renders } = useRenders(projectId);
@@ -29,7 +31,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
     <div className="flex flex-col h-full">
       {/* Tab bar */}
       <div className="flex border-b border-[var(--color-border)] shrink-0">
-        {(["render", "jobs", "quality", "timeline"] as OutputTab[]).map((t) => (
+        {(["render", "images", "jobs", "quality", "timeline"] as OutputTab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -39,7 +41,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
                 : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             }`}
           >
-            {t === "render" ? "Render" : t === "jobs" ? "Jobs" : t === "quality" ? "Quality" : "Timeline"}
+            {t === "render" ? "Render" : t === "images" ? "Images" : t === "jobs" ? "Jobs" : t === "quality" ? "Quality" : "Timeline"}
           </button>
         ))}
         <div className="ml-auto px-3 py-2 text-xs text-[var(--color-text-muted)]">
@@ -49,6 +51,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
 
       <div className="flex-1 overflow-y-auto p-4">
         {tab === "render" && <RenderTab draftRender={draftRender} isCurrent={isCurrent} />}
+        {tab === "images" && <ImagesPanel projectId={projectId} onLog={onLog ?? (() => {})} />}
         {tab === "jobs" && <JobCenter projectId={projectId} onRetry={onRetry} />}
         {tab === "quality" && <QualityTab entries={qualityHistory ?? []} />}
         {tab === "timeline" && <TimelineTab timeline={timeline} />}
