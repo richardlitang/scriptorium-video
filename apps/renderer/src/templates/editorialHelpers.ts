@@ -1,8 +1,5 @@
 import type { CSSProperties } from "react";
-import type {
-  VisualEditCueType,
-  VisualEditCueTarget,
-} from "@lvstudio/core";
+import type { VisualEditCueType, VisualEditCueTarget } from "@lvstudio/core";
 
 // Re-export canonical types so consumers only need one import
 export type { VisualEditCueType, VisualEditCueTarget };

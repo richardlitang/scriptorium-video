@@ -46,7 +46,9 @@ export function applyVoiceDirectionPlan(
         const lockSfx = !options.force && isLocked(beatLockedPaths, "sfx");
         const lockCaptionEmphasis = !options.force && isLocked(beatLockedPaths, "caption.emphasis");
         const voiceDirection =
-          shouldPreserveUserDirection || lockVoiceDirection ? beat.voiceDirection : next.voiceDirection;
+          shouldPreserveUserDirection || lockVoiceDirection
+            ? beat.voiceDirection
+            : next.voiceDirection;
 
         return {
           ...beat,

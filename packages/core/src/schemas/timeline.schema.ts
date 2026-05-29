@@ -1,11 +1,34 @@
 import { z } from "zod";
 
 // ── Named enum schemas — import these to avoid redeclaring inline unions ──────
-export const ScaleModeSchema = z.enum(["safe_cover", "contain_blur", "cover", "contain", "stretch"]);
-export const SubjectPositionSchema = z.enum(["center", "upper_center", "lower_center", "left", "right"]);
+export const ScaleModeSchema = z.enum([
+  "safe_cover",
+  "contain_blur",
+  "cover",
+  "contain",
+  "stretch",
+]);
+export const SubjectPositionSchema = z.enum([
+  "center",
+  "upper_center",
+  "lower_center",
+  "left",
+  "right",
+]);
 export const CropRiskSchema = z.enum(["low", "medium", "high"]);
-export const MotionTypeSchema = z.enum(["none", "slow_zoom_in", "slow_zoom_out", "pan_left", "pan_right"]);
-export const MediaPolicySchema = z.enum(["cut_to_audio", "loop_or_freeze", "fit_audio_to_media", "manual"]);
+export const MotionTypeSchema = z.enum([
+  "none",
+  "slow_zoom_in",
+  "slow_zoom_out",
+  "pan_left",
+  "pan_right",
+]);
+export const MediaPolicySchema = z.enum([
+  "cut_to_audio",
+  "loop_or_freeze",
+  "fit_audio_to_media",
+  "manual",
+]);
 export const VisualEditCueTypeSchema = z.enum([
   "smash_cut",
   "cut_to_black",

@@ -1,5 +1,11 @@
 import { AbsoluteFill, Audio, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
-import type { RenderBundle, ScaleMode, SubjectPosition, CropRisk, MotionType } from "@lvstudio/core";
+import type {
+  RenderBundle,
+  ScaleMode,
+  SubjectPosition,
+  CropRisk,
+  MotionType,
+} from "@lvstudio/core";
 import { CaptionLayer } from "../components/CaptionLayer";
 import { MediaLayer } from "../components/MediaLayer";
 import {
