@@ -70,7 +70,7 @@ Prefer `lvstudio_*` MCP tools over ad-hoc shell for project operations (create/l
 
 ## Known debt — bias toward fixing, not extending
 
-- `apps/studio/public/app.js` (~1.8k lines) and `public/modules/beat-workspace.js` (~600) are the remaining god-files being strangled by the React migration (`docs/plans/2026-05-28-studio-frontend-react-migration.md`). Do not add new features here — new panels go in `web/src/`. See `apps/studio/AGENTS.md` for the active migration rules.
+- The Studio browser UI migration is **complete** — `public/app.js` and `public/modules/` have been deleted. The SPA lives in `apps/studio/web/` (React 19 + Vite + TypeScript + TanStack Query + Tailwind + Radix). See `apps/studio/AGENTS.md` for the frontend stack and `docs/plans/2026-05-28-studio-frontend-react-migration.md` for the full record.
 - The git history shows a long run of `fix(studio): ...` follow-up commits. Prefer one correct change behind a sensor over a fix-on-fix chain. If a class of regression keeps recurring, encode it as a `check:*` script.
 - Planner quality gates were recently downgraded to warnings. Treat that as known debt; do not silently weaken a gate further to make output pass — surface it.
 

@@ -19,6 +19,16 @@ interface Props {
 
 type OutputTab = "render" | "beats" | "images" | "jobs" | "quality" | "review" | "timeline";
 
+const TAB_LABELS: Record<OutputTab, string> = {
+  render: "Render",
+  beats: "Beats",
+  images: "Images",
+  jobs: "Jobs",
+  quality: "Quality",
+  review: "Review",
+  timeline: "Timeline",
+};
+
 export function ProjectOutput({ projectId, timeline, captionCount, runState, needsRender, onRetry, onLog, planJson, onPlanChange }: Props) {
   const [tab, setTab] = useState<OutputTab>("render");
   const { data: qualityHistory } = useQualityHistory(projectId);
@@ -45,7 +55,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
                 : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             }`}
           >
-            {t === "render" ? "Render" : t === "beats" ? "Beats" : t === "images" ? "Images" : t === "jobs" ? "Jobs" : t === "quality" ? "Quality" : t === "review" ? "Review" : "Timeline"}
+            {TAB_LABELS[t]}
           </button>
         ))}
         <div className="ml-auto px-3 py-2 text-xs text-[var(--color-text-muted)]">

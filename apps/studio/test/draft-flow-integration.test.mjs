@@ -98,16 +98,23 @@ test("studio draft flow works end-to-end in test mode", async () => {
     assert.equal(queued.data.kind, "draft_job");
 
     let status = queued.data.status;
+    let latest = queued.data;
     const pollDeadline = Date.now() + 20_000;
     while (status !== "completed" && Date.now() < pollDeadline) {
       await delay(200);
       const polled = await api(baseUrl, `/api/projects/${projectId}/draft-job`);
-      status = polled.data?.status || status;
+      latest = polled.data || latest;
+      status = latest?.status || status;
       if (status === "failed") {
-        throw new Error(`Draft job failed: ${polled.data?.error || "unknown error"}`);
+        throw new Error(`Draft job failed: ${latest?.error || "unknown error"}`);
       }
     }
     assert.equal(status, "completed");
+    const trace = await api(
+      baseUrl,
+      `/api/projects/${projectId}/jobs/${encodeURIComponent(latest.id)}/trace`
+    );
+    assert.ok((trace.data.entries || []).some((entry) => entry.event === "images.skipped"));
 
     const renders = await api(baseUrl, `/api/projects/${projectId}/renders`);
     assert.ok((renders.data.renders || []).some((entry) => entry.quality === "draft"));

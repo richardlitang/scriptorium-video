@@ -166,7 +166,7 @@ export function BeatWorkspace({ projectId, planJson, onPlanChange }: Props) {
                       {beat.narration.slice(0, 100)}
                     </p>
                     <div className="flex gap-0.5 flex-wrap">
-                      <Chip ok={!!imgAsset}>{imgAsset ? (imgAsset["beatId"] !== beat.id ? "reused" : "img") : "no img"}</Chip>
+                      <Chip ok={!!imgAsset}>{imageChipLabel(imgAsset, beat.id)}</Chip>
                       <Chip ok={!!audAsset}>{audAsset ? "audio" : "no audio"}</Chip>
                       <Chip ok={!hasStaleRender}>{hasStaleRender ? "stale" : "ok"}</Chip>
                     </div>
@@ -198,6 +198,17 @@ export function BeatWorkspace({ projectId, planJson, onPlanChange }: Props) {
       </div>
     </div>
   );
+}
+
+function imageChipLabel(imgAsset: Asset | undefined, beatId: string): string {
+  if (!imgAsset) return "no img";
+  return imgAsset["beatId"] !== beatId ? "reused" : "img";
+}
+
+function imageAssetStatus(imgAsset: Asset | undefined, beatId: string): string {
+  if (!imgAsset) return "missing";
+  if (imgAsset["beatId"] !== beatId) return `reused (${imgAsset["beatId"]})`;
+  return String(imgAsset["status"]);
 }
 
 function Chip({ ok, children }: { ok: boolean; children: React.ReactNode }) {
@@ -258,15 +269,21 @@ function BeatInspector({ beat, section, plan, assets, timeline, selectedBeatIds,
     });
   }
 
+  function voiceMs(msField: number | undefined, secField: number | undefined): number {
+    if (typeof msField === "number" && Number.isFinite(msField)) return msField;
+    return Math.round((secField ?? 0) * 1000);
+  }
+
   function applyVoiceTuningToBeats(targets: Beat[]) {
+    const vd = beat.voiceDirection;
     const tuning: VoiceDirection = {
-      profile: beat.voiceDirection?.profile ?? "neutral",
-      intensity: beat.voiceDirection?.intensity ?? 0.5,
-      pauseBeforeMs: typeof beat.voiceDirection?.pauseBeforeMs === "number" ? beat.voiceDirection.pauseBeforeMs : Math.round((beat.voiceDirection?.pauseBeforeSeconds ?? 0) * 1000),
-      pauseAfterMs: typeof beat.voiceDirection?.pauseAfterMs === "number" ? beat.voiceDirection.pauseAfterMs : Math.round((beat.voiceDirection?.pauseAfterSeconds ?? 0) * 1000),
-      deliveryNote: beat.voiceDirection?.deliveryNote,
-      speedMultiplier: beat.voiceDirection?.speedMultiplier ?? 1,
-      pitchOffset: beat.voiceDirection?.pitchOffset ?? 0,
+      profile: vd?.profile ?? "neutral",
+      intensity: vd?.intensity ?? 0.5,
+      pauseBeforeMs: voiceMs(vd?.pauseBeforeMs, vd?.pauseBeforeSeconds),
+      pauseAfterMs: voiceMs(vd?.pauseAfterMs, vd?.pauseAfterSeconds),
+      deliveryNote: vd?.deliveryNote,
+      speedMultiplier: vd?.speedMultiplier ?? 1,
+      pitchOffset: vd?.pitchOffset ?? 0,
       source: "user",
     };
     mutatePlan((p) => {
@@ -287,20 +304,37 @@ function BeatInspector({ beat, section, plan, assets, timeline, selectedBeatIds,
         {section.title} · {beat.id}{dur > 0 ? ` · ${dur.toFixed(1)}s` : ""}
       </div>
       <div className="text-xs text-[var(--color-text-muted)] opacity-70">
-        Image: {imageAsset ? (imageAsset["beatId"] !== beat.id ? `reused (${imageAsset["beatId"]})` : imageAsset["status"]) : "missing"} ·
-        Audio: {voiceAsset ? String(voiceAsset["status"]) : "missing"}
+        Image: {imageAssetStatus(imageAsset, beat.id)} · Audio: {voiceAsset ? String(voiceAsset["status"]) : "missing"}
       </div>
 
       {/* Section creative direction */}
       <InspectorSection label="Section direction">
         <Field label="Feel">
-          <input className={iCls} defaultValue={section.direction?.creative?.feel ?? ""} onBlur={(e) => withBeat((_, sec) => { sec.direction = { ...(sec.direction ?? {}), creative: { ...(sec.direction?.creative ?? {}), feel: e.target.value.trim() || undefined } }; })} />
+          <input
+            className={iCls}
+            defaultValue={section.direction?.creative?.feel ?? ""}
+            onBlur={(e) => withBeat((_, sec) => {
+              sec.direction = { ...(sec.direction ?? {}), creative: { ...(sec.direction?.creative ?? {}), feel: e.target.value.trim() || undefined } };
+            })}
+          />
         </Field>
         <Field label="Pacing">
-          <input className={iCls} defaultValue={section.direction?.creative?.pacing ?? ""} onBlur={(e) => withBeat((_, sec) => { sec.direction = { ...(sec.direction ?? {}), creative: { ...(sec.direction?.creative ?? {}), pacing: e.target.value.trim() || undefined } }; })} />
+          <input
+            className={iCls}
+            defaultValue={section.direction?.creative?.pacing ?? ""}
+            onBlur={(e) => withBeat((_, sec) => {
+              sec.direction = { ...(sec.direction ?? {}), creative: { ...(sec.direction?.creative ?? {}), pacing: e.target.value.trim() || undefined } };
+            })}
+          />
         </Field>
         <Field label="Visual style">
-          <input className={iCls} defaultValue={section.direction?.creative?.visualStyle ?? ""} onBlur={(e) => withBeat((_, sec) => { sec.direction = { ...(sec.direction ?? {}), creative: { ...(sec.direction?.creative ?? {}), visualStyle: e.target.value.trim() || undefined } }; })} />
+          <input
+            className={iCls}
+            defaultValue={section.direction?.creative?.visualStyle ?? ""}
+            onBlur={(e) => withBeat((_, sec) => {
+              sec.direction = { ...(sec.direction ?? {}), creative: { ...(sec.direction?.creative ?? {}), visualStyle: e.target.value.trim() || undefined } };
+            })}
+          />
         </Field>
       </InspectorSection>
 
@@ -317,52 +351,100 @@ function BeatInspector({ beat, section, plan, assets, timeline, selectedBeatIds,
       {/* Voice direction */}
       <InspectorSection label="Voice">
         <Field label="Profile">
-          <select className={iCls} defaultValue={vd.profile ?? "neutral"} onChange={(e) => withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), profile: e.target.value, source: "user" }; })}>
+          <select
+            className={iCls}
+            defaultValue={vd.profile ?? "neutral"}
+            onChange={(e) => withBeat((b) => {
+              b.voiceDirection = { ...(b.voiceDirection ?? {}), profile: e.target.value, source: "user" };
+            })}
+          >
             {VOICE_PROFILES.map((p) => <option key={p} value={p}>{p}</option>)}
           </select>
         </Field>
         <Field label={`Intensity (${Number(vd.intensity ?? 0.5).toFixed(2)})`}>
-          <input type="range" min="0" max="1" step="0.05" defaultValue={vd.intensity ?? 0.5} className="w-full accent-[var(--color-accent)]"
-            onChange={(e) => withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), intensity: Number(e.target.value), source: "user" }; })} />
+          <input
+            type="range" min="0" max="1" step="0.05"
+            defaultValue={vd.intensity ?? 0.5}
+            className="w-full accent-[var(--color-accent)]"
+            onChange={(e) => withBeat((b) => {
+              b.voiceDirection = { ...(b.voiceDirection ?? {}), intensity: Number(e.target.value), source: "user" };
+            })}
+          />
         </Field>
         <div className="grid grid-cols-2 gap-2">
           <Field label="Pause before (s)">
-            <input type="number" min="0" max="1.2" step="0.05" className={iCls}
+            <input
+              type="number" min="0" max="1.2" step="0.05" className={iCls}
               defaultValue={pauseMsToSeconds(vd.pauseBeforeMs, vd.pauseBeforeSeconds ?? 0)}
-              onBlur={(e) => { const v = Math.max(0, Math.min(1.2, Number(e.target.value) || 0)); withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), pauseBeforeMs: Math.round(v * 1000), source: "user" }; }); }} />
+              onBlur={(e) => {
+                const v = Math.max(0, Math.min(1.2, Number(e.target.value) || 0));
+                withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), pauseBeforeMs: Math.round(v * 1000), source: "user" }; });
+              }}
+            />
           </Field>
           <Field label="Pause after (s)">
-            <input type="number" min="0" max="1.2" step="0.05" className={iCls}
+            <input
+              type="number" min="0" max="1.2" step="0.05" className={iCls}
               defaultValue={pauseMsToSeconds(vd.pauseAfterMs, vd.pauseAfterSeconds ?? 0)}
-              onBlur={(e) => { const v = Math.max(0, Math.min(1.2, Number(e.target.value) || 0)); withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), pauseAfterMs: Math.round(v * 1000), source: "user" }; }); }} />
+              onBlur={(e) => {
+                const v = Math.max(0, Math.min(1.2, Number(e.target.value) || 0));
+                withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), pauseAfterMs: Math.round(v * 1000), source: "user" }; });
+              }}
+            />
           </Field>
           <Field label="Speed (0.6–1.5)">
-            <input type="number" min="0.6" max="1.5" step="0.05" className={iCls}
+            <input
+              type="number" min="0.6" max="1.5" step="0.05" className={iCls}
               defaultValue={vd.speedMultiplier ?? 1}
-              onBlur={(e) => { const v = Math.max(0.6, Math.min(1.5, Number(e.target.value) || 1)); withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), speedMultiplier: v, source: "user" }; }); }} />
+              onBlur={(e) => {
+                const v = Math.max(0.6, Math.min(1.5, Number(e.target.value) || 1));
+                withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), speedMultiplier: v, source: "user" }; });
+              }}
+            />
           </Field>
           <Field label="Pitch offset (−6–6)">
-            <input type="number" min="-6" max="6" step="0.25" className={iCls}
+            <input
+              type="number" min="-6" max="6" step="0.25" className={iCls}
               defaultValue={vd.pitchOffset ?? 0}
-              onBlur={(e) => { const v = Math.max(-6, Math.min(6, Number(e.target.value) || 0)); withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), pitchOffset: v, source: "user" }; }); }} />
+              onBlur={(e) => {
+                const v = Math.max(-6, Math.min(6, Number(e.target.value) || 0));
+                withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), pitchOffset: v, source: "user" }; });
+              }}
+            />
           </Field>
         </div>
         <Field label="Delivery note">
-          <textarea className={`${iCls} resize-none`} rows={2} defaultValue={vd.deliveryNote ?? ""}
-            onBlur={(e) => withBeat((b) => { b.voiceDirection = { ...(b.voiceDirection ?? {}), deliveryNote: e.target.value.trim() || undefined, source: "user" }; })} />
+          <textarea
+            className={`${iCls} resize-none`}
+            rows={2}
+            defaultValue={vd.deliveryNote ?? ""}
+            onBlur={(e) => withBeat((b) => {
+              b.voiceDirection = { ...(b.voiceDirection ?? {}), deliveryNote: e.target.value.trim() || undefined, source: "user" };
+            })}
+          />
         </Field>
       </InspectorSection>
 
       {/* Captions */}
       <InspectorSection label="Captions">
         <Field label="Style">
-          <input className={iCls} defaultValue={beat.caption?.style ?? "default"}
-            onBlur={(e) => withBeat((b) => { b.caption = { ...(b.caption ?? {}), style: e.target.value.trim() || "default" }; })} />
+          <input
+            className={iCls}
+            defaultValue={beat.caption?.style ?? "default"}
+            onBlur={(e) => withBeat((b) => {
+              b.caption = { ...(b.caption ?? {}), style: e.target.value.trim() || "default" };
+            })}
+          />
         </Field>
         <Field label="Emphasis phrases (comma-separated)">
-          <textarea className={`${iCls} resize-none`} rows={2}
+          <textarea
+            className={`${iCls} resize-none`}
+            rows={2}
             defaultValue={Array.isArray(beat.caption?.emphasis) ? beat.caption.emphasis.join(", ") : ""}
-            onBlur={(e) => withBeat((b) => { b.caption = { ...(b.caption ?? {}), emphasis: e.target.value.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 16) }; })} />
+            onBlur={(e) => withBeat((b) => {
+              b.caption = { ...(b.caption ?? {}), emphasis: e.target.value.split(",").map((s) => s.trim()).filter(Boolean).slice(0, 16) };
+            })}
+          />
         </Field>
       </InspectorSection>
 

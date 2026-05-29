@@ -20,11 +20,7 @@
 
 The browser UI is being migrated from `public/app.js` (vanilla DOM) to `web/` (React 19 + Vite + TypeScript + TanStack Query + Tailwind + Radix). See `docs/plans/2026-05-28-studio-frontend-react-migration.md` for the full strangler plan.
 
-**During migration (until `public/app.js` is gone):**
-- Do not add new features or broad coordination logic to `public/app.js`. New panels go in `web/src/`.
-- New UI state or behavior: `web/src/` for React components/queries; `public/modules/` only for pure logic that hasn't been ported yet.
-- `public/modules/*.js` pure view-models are converted to `.ts` slice-by-slice as each panel is ported. Do it in the same slice, not as a separate cleanup.
-- Stable HTML ids in `public/index.html` are still UI contracts until cutover (`studio-ui-contract.test.mjs`).
+**Migration complete** — `public/app.js`, `public/index.html`, `public/modules/`, and `public/styles.css` have been deleted. The SPA in `web/` is the only UI. `studio-ui-contract.test.mjs` now guards `web/index.html#root`.
 
 **React/Vite conventions:**
 - All new web code lives under `web/src/`. Components in `web/src/components/`, queries/mutations in `web/src/queries/`, typed API wrapper at `web/src/api/client.ts`.

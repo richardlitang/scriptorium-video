@@ -98,7 +98,7 @@ export function JobCenter({ projectId, onRetry }: Props) {
               </ActionBtn>
               {job.tracePath && (
                 <ActionBtn onClick={() => toggleTrace(job)} disabled={loadingTrace.has(job.id)}>
-                  {loadingTrace.has(job.id) ? "Loading…" : expandedTrace.has(job.id) ? "Hide Trace" : "View Trace"}
+                  {traceButtonLabel(loadingTrace.has(job.id), expandedTrace.has(job.id))}
                 </ActionBtn>
               )}
               {job.status === "failed" && onRetry && (
@@ -121,6 +121,11 @@ export function JobCenter({ projectId, onRetry }: Props) {
       })}
     </div>
   );
+}
+
+function traceButtonLabel(loading: boolean, expanded: boolean): string {
+  if (loading) return "Loading…";
+  return expanded ? "Hide Trace" : "View Trace";
 }
 
 function ActionBtn({ onClick, disabled, children, variant = "default" }: {

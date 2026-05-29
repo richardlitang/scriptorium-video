@@ -15,7 +15,13 @@ import { DEFAULT_PLANNER_SYSTEM_PROMPT } from "./planner-defaults.mjs";
 import { handleStudioApiRoute } from "./studio-routes.mjs";
 import { isOpenAiInsufficientQuotaError } from "./openai-structured-output.mjs";
 import { canonicalizePlanForPersistence } from "./canonicalize-plan.mjs";
-import { normalizeImageCoverage } from "../public/modules/image-coverage.js";
+// Inlined from former public/modules/image-coverage.js (deleted at cutover)
+function normalizeImageCoverage(value) {
+  if (value === "llm" || value === "story" || value === "global") return "llm";
+  if (value === "beat" || value === "999") return "beat";
+  if (value === "balanced" || value === "key") return "balanced";
+  return "llm";
+}
 import { createPlanDraftTransformer } from "./plan-draft-transformer.mjs";
 import { createSplitPlannerRuntime } from "./split-planner-runtime.mjs";
 import { createSplitPlanBuilder } from "./split-plan-builder.mjs";
