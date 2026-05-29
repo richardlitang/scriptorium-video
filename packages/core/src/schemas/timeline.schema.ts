@@ -1,5 +1,37 @@
 import { z } from "zod";
 
+// ── Named enum schemas — import these to avoid redeclaring inline unions ──────
+export const ScaleModeSchema = z.enum(["safe_cover", "contain_blur", "cover", "contain", "stretch"]);
+export const SubjectPositionSchema = z.enum(["center", "upper_center", "lower_center", "left", "right"]);
+export const CropRiskSchema = z.enum(["low", "medium", "high"]);
+export const MotionTypeSchema = z.enum(["none", "slow_zoom_in", "slow_zoom_out", "pan_left", "pan_right"]);
+export const MediaPolicySchema = z.enum(["cut_to_audio", "loop_or_freeze", "fit_audio_to_media", "manual"]);
+export const VisualEditCueTypeSchema = z.enum([
+  "smash_cut",
+  "cut_to_black",
+  "hold_black",
+  "j_cut",
+  "l_cut",
+  "slow_pan",
+  "push_in",
+  "hard_cut",
+  "match_cut",
+]);
+export const VisualEditCueTargetSchema = z.enum(["black", "current_visual", "next_visual"]);
+export const AudioPolicySchema = z.enum(["hard_silence", "fade_out", "none"]);
+export const AudioProximitySchema = z.enum(["distant", "room", "close", "close_mic"]);
+
+// Inferred types — use these everywhere instead of inline string unions
+export type ScaleMode = z.infer<typeof ScaleModeSchema>;
+export type SubjectPosition = z.infer<typeof SubjectPositionSchema>;
+export type CropRisk = z.infer<typeof CropRiskSchema>;
+export type MotionType = z.infer<typeof MotionTypeSchema>;
+export type MediaPolicy = z.infer<typeof MediaPolicySchema>;
+export type VisualEditCueType = z.infer<typeof VisualEditCueTypeSchema>;
+export type VisualEditCueTarget = z.infer<typeof VisualEditCueTargetSchema>;
+export type AudioPolicy = z.infer<typeof AudioPolicySchema>;
+export type AudioProximity = z.infer<typeof AudioProximitySchema>;
+
 export const TimelineSegmentSchema = z
   .object({
     sectionId: z.string(),
@@ -19,7 +51,7 @@ export const TimelineSegmentSchema = z
             durationSeconds: z.number().nonnegative(),
             levelDb: z.number(),
             pan: z.number().min(-1).max(1).default(0),
-            proximity: z.enum(["distant", "room", "close", "close_mic"]).default("room"),
+            proximity: AudioProximitySchema.default("room"),
             duckMusic: z.boolean().default(false),
           })
           .strict(),
@@ -30,20 +62,10 @@ export const TimelineSegmentSchema = z
         z
           .object({
             id: z.string(),
-            type: z.enum([
-              "smash_cut",
-              "cut_to_black",
-              "hold_black",
-              "j_cut",
-              "l_cut",
-              "slow_pan",
-              "push_in",
-              "hard_cut",
-              "match_cut",
-            ]),
+            type: VisualEditCueTypeSchema,
             startSeconds: z.number().nonnegative(),
             durationSeconds: z.number().nonnegative(),
-            target: z.enum(["black", "current_visual", "next_visual"]),
+            target: VisualEditCueTargetSchema,
             intensity: z.number().min(0).max(1),
           })
           .strict(),
@@ -67,21 +89,17 @@ export const TimelineSegmentSchema = z
       .object({
         cutToBlack: z.boolean().default(false),
         holdSeconds: z.number().min(0).default(0),
-        audioPolicy: z.enum(["hard_silence", "fade_out", "none"]).default("none"),
+        audioPolicy: AudioPolicySchema.default("none"),
         avoidOutro: z.boolean().default(false),
       })
       .strict()
       .optional(),
     renderPolicy: z
       .object({
-        mediaPolicy: z.enum(["cut_to_audio", "loop_or_freeze", "fit_audio_to_media", "manual"]),
-        scaleMode: z
-          .enum(["safe_cover", "contain_blur", "cover", "contain", "stretch"])
-          .default("safe_cover"),
-        subjectPosition: z
-          .enum(["center", "upper_center", "lower_center", "left", "right"])
-          .default("center"),
-        cropRisk: z.enum(["low", "medium", "high"]).default("medium"),
+        mediaPolicy: MediaPolicySchema,
+        scaleMode: ScaleModeSchema.default("safe_cover"),
+        subjectPosition: SubjectPositionSchema.default("center"),
+        cropRisk: CropRiskSchema.default("medium"),
       })
       .strict(),
   })

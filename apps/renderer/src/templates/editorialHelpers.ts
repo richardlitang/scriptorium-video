@@ -1,4 +1,11 @@
 import type { CSSProperties } from "react";
+import type {
+  VisualEditCueType,
+  VisualEditCueTarget,
+} from "@lvstudio/core";
+
+// Re-export canonical types so consumers only need one import
+export type { VisualEditCueType, VisualEditCueTarget };
 
 export type SilenceWindow = {
   startSeconds: number;
@@ -9,19 +16,10 @@ export type SilenceWindow = {
 };
 
 export type VisualEditCue = {
-  type:
-    | "smash_cut"
-    | "cut_to_black"
-    | "hold_black"
-    | "j_cut"
-    | "l_cut"
-    | "slow_pan"
-    | "push_in"
-    | "hard_cut"
-    | "match_cut";
+  type: VisualEditCueType;
   startSeconds: number;
   durationSeconds: number;
-  target: "black" | "current_visual" | "next_visual";
+  target: VisualEditCueTarget;
   intensity: number;
 };
 
@@ -90,9 +88,7 @@ export function visualCueStyle(cue: VisualEditCue | undefined, timeSeconds: numb
   }
 
   if (cue.type === "j_cut" || cue.type === "l_cut") {
-    return {
-      opacity: 0.92 + progress * 0.08,
-    };
+    return { opacity: 0.92 + progress * 0.08 };
   }
 
   return {};

@@ -1,10 +1,5 @@
 import { AbsoluteFill, Img, interpolate, useCurrentFrame, useVideoConfig, Video } from "remotion";
-import type { Asset } from "@lvstudio/core";
-
-type ScaleMode = "safe_cover" | "contain_blur" | "cover" | "contain" | "stretch";
-type SubjectPosition = "center" | "upper_center" | "lower_center" | "left" | "right";
-type CropRisk = "low" | "medium" | "high";
-type MotionType = "none" | "slow_zoom_in" | "slow_zoom_out" | "pan_left" | "pan_right";
+import type { Asset, ScaleMode, SubjectPosition, CropRisk, MotionType } from "@lvstudio/core";
 
 type MediaLayerProps = {
   asset?: Asset;

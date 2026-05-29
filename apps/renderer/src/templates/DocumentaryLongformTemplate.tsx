@@ -1,5 +1,5 @@
 import { AbsoluteFill, Audio, Sequence, useCurrentFrame, useVideoConfig } from "remotion";
-import type { RenderBundle } from "@lvstudio/core";
+import type { RenderBundle, ScaleMode, SubjectPosition, CropRisk, MotionType } from "@lvstudio/core";
 import { CaptionLayer } from "../components/CaptionLayer";
 import { MediaLayer } from "../components/MediaLayer";
 import {
@@ -7,7 +7,7 @@ import {
   activeVisualCueAt,
   shouldCutToBlack,
   visualCueStyle,
-} from "./editorial-runtime";
+} from "./editorialHelpers";
 
 type RemotionInputProps = {
   renderBundle: RenderBundle;
@@ -61,12 +61,12 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
       fromSeconds: number;
       toSeconds: number;
       renderPolicy: {
-        scaleMode: "safe_cover" | "contain_blur" | "cover" | "contain" | "stretch";
-        subjectPosition: "center" | "upper_center" | "lower_center" | "left" | "right";
-        cropRisk: "low" | "medium" | "high";
+        scaleMode: ScaleMode;
+        subjectPosition: SubjectPosition;
+        cropRisk: CropRisk;
       };
       motion?: {
-        type: "none" | "slow_zoom_in" | "slow_zoom_out" | "pan_left" | "pan_right";
+        type: MotionType;
         intensity: number;
       };
     }>

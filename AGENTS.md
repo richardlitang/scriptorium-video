@@ -12,9 +12,12 @@ This repo is already heavily decomposed (~70 modules in `apps/studio/lib/`, focu
 
 Correct behavior is enforced by runnable checks, not by this document. Prefer adding or tightening a sensor over adding more rules here.
 
-- `pnpm -s verify` runs the full gate: `tsc` builds, package `test` scripts, and the boundary checks below.
+- `pnpm -s verify` runs the full gate: `format:check`, `lint`, `tsc` builds, package `test` scripts, and the boundary checks below.
+- Style/lint (run individually): `pnpm format` (Prettier write), `pnpm format:check` (CI check), `pnpm lint` (ESLint, zero errors required), `pnpm lint:fix` (auto-fix).
 - Boundary checks (in `package.json`, run individually as `pnpm -s check:<name>`): `studio`, `renderer-boundary`, `test-dist-contract`, `pause-seconds-boundary`, `studio-server-bootstrap`, `planner-schema-boundary`, `video-plan-normalization`, `studio-env-boundary`, `core-env-boundary`, `focused-audit-doc`.
 - When an agent mistake repeats, add or tighten a `check:*` script or a test instead of writing another paragraph here.
+- **Zod types are canonical** — export named types from `packages/core/src/schemas` (`ScaleMode`, `SubjectPosition`, etc.) and import them everywhere. Do not redeclare inline string unions.
+- **Run `/compact`** when a conversation has been running through large implementation tasks (React migrations, multi-file refactors) and more substantial work remains. Do not wait for 100% context usage.
 
 Before claiming a code change is complete, run `pnpm -s verify` — unless the change is docs-only or the user set a narrower boundary. Never claim "passing" without showing the command output.
 

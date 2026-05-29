@@ -11,7 +11,11 @@ import {
   loadProject,
 } from "@lvstudio/core";
 
-export type { QualityFinding as QualityCheck, QualityReport as QualityResult } from "@lvstudio/core";
+import type { QualityFinding, QualityReport } from "@lvstudio/core";
+
+// Alias exports for consumers that already depend on the old names
+export type QualityCheck = QualityFinding;
+export type QualityResult = QualityReport;
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
