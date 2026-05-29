@@ -25,7 +25,9 @@ function remotionPort(): number | null {
 function remotionTimeout(): number {
   const timeout = Number(process.env.LVSTUDIO_REMOTION_TIMEOUT_MS ?? "120000");
   if (!Number.isInteger(timeout) || timeout < 7000) {
-    throw new Error(`Invalid LVSTUDIO_REMOTION_TIMEOUT_MS: ${process.env.LVSTUDIO_REMOTION_TIMEOUT_MS}`);
+    throw new Error(
+      `Invalid LVSTUDIO_REMOTION_TIMEOUT_MS: ${process.env.LVSTUDIO_REMOTION_TIMEOUT_MS}`,
+    );
   }
   return timeout;
 }
@@ -55,7 +57,7 @@ export function remotionAssetUrl(assetServerUrl: string, assetId: string): strin
 
 async function startAssetServer(
   projectDir: string,
-  assets: RenderRequest["renderBundle"]["assetManifest"]["assets"]
+  assets: RenderRequest["renderBundle"]["assetManifest"]["assets"],
 ): Promise<{ baseUrl: string; close: () => Promise<void> }> {
   const assetsById = new Map(assets.map((asset) => [asset.id, asset]));
   const server = createServer((req, res) => {
@@ -90,8 +92,8 @@ async function startAssetServer(
     baseUrl: `http://127.0.0.1:${address.port}`,
     close: () =>
       new Promise((resolve, reject) => {
-        server.close((error) => error ? reject(error) : resolve());
-      })
+        server.close((error) => (error ? reject(error) : resolve()));
+      }),
   };
 }
 
@@ -103,26 +105,29 @@ export class RemotionRenderer implements RendererProvider {
     supportsPartialRender: false,
     supportsAlpha: false,
     supportsAudioMixing: true,
-    supportedTemplates: ["vertical-story", "documentary-longform"]
+    supportedTemplates: ["vertical-story", "documentary-longform"],
   };
 
   async render(request: RenderRequest): Promise<RenderResult> {
-    const assetServer = await startAssetServer(request.projectDir, request.renderBundle.assetManifest.assets);
+    const assetServer = await startAssetServer(
+      request.projectDir,
+      request.renderBundle.assetManifest.assets,
+    );
     try {
       const assetEntries = request.renderBundle.assetManifest.assets.map((asset) => [
         asset.id,
-        remotionAssetUrl(assetServer.baseUrl, asset.id)
+        remotionAssetUrl(assetServer.baseUrl, asset.id),
       ]);
       const assetUrls = Object.fromEntries(assetEntries);
 
       const inputProps: RemotionInputProps = {
         renderBundle: request.renderBundle,
         quality: request.quality,
-        assetUrls
+        assetUrls,
       };
 
       const serveUrl = await bundle({
-        entryPoint: path.resolve(process.cwd(), "apps", "renderer", "src", "index.ts")
+        entryPoint: path.resolve(process.cwd(), "apps", "renderer", "src", "index.ts"),
       });
       const port = remotionPort();
       const timeoutInMilliseconds = remotionTimeout();
@@ -131,7 +136,7 @@ export class RemotionRenderer implements RendererProvider {
         id: request.renderBundle.resolvedConfig.templateId,
         inputProps,
         port,
-        timeoutInMilliseconds
+        timeoutInMilliseconds,
       });
 
       await renderMedia({
@@ -141,7 +146,8 @@ export class RemotionRenderer implements RendererProvider {
         outputLocation: request.outputPath,
         inputProps,
         port,
-        timeoutInMilliseconds
+        timeoutInMilliseconds,
+        onProgress: request.onProgress,
       });
 
       return {
@@ -150,7 +156,7 @@ export class RemotionRenderer implements RendererProvider {
         width: request.renderBundle.timeline.width,
         height: request.renderBundle.timeline.height,
         fps: request.renderBundle.timeline.fps,
-        providerId: this.id
+        providerId: this.id,
       };
     } finally {
       await assetServer.close();

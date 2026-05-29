@@ -27,12 +27,13 @@ export function publicAssetForPath(publicDir, pathname) {
 // for any route without a known static extension (React Router / hash navigation).
 export function spaAssetForPath(distDir, pathname) {
   const ext = path.extname(pathname).toLowerCase();
-  const servePathname = (ext && contentTypes.has(ext)) ? pathname : "/index.html";
+  const servePathname = ext && contentTypes.has(ext) ? pathname : "/index.html";
   const decodedPathname = decodeURIComponent(servePathname);
   const requestedPath = decodedPathname.replace(/^\/+/, "") || "index.html";
   const absolutePath = path.resolve(distDir, requestedPath);
   const relativePath = path.relative(distDir, absolutePath);
   if (relativePath.startsWith("..") || path.isAbsolute(relativePath)) return undefined;
-  const contentType = contentTypes.get(path.extname(absolutePath).toLowerCase()) ?? "text/html; charset=utf-8";
+  const contentType =
+    contentTypes.get(path.extname(absolutePath).toLowerCase()) ?? "text/html; charset=utf-8";
   return { filePath: absolutePath, contentType };
 }

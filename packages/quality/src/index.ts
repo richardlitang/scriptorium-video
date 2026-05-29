@@ -1,15 +1,17 @@
-import { access } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import {
   buildRenderBundle,
+  detectVoicePauseConflicts,
+  findLegacyVoicePauseSecondsUsages,
   QualityFindingSchema,
   QualityReportSchema,
+  findLegacyBeatFieldUsages,
   getProjectPaths,
-  loadProject
+  loadProject,
 } from "@lvstudio/core";
 
-export type QualityCheck = import("@lvstudio/core").QualityFinding;
-export type QualityResult = import("@lvstudio/core").QualityReport;
+export type { QualityFinding as QualityCheck, QualityReport as QualityResult } from "@lvstudio/core";
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -20,47 +22,164 @@ async function fileExists(filePath: string): Promise<boolean> {
   }
 }
 
-export async function runQualityChecks(projectId: string, rootDir = process.cwd()): Promise<QualityResult> {
+function containsNonSpokenDirective(text: string): boolean {
+  return /\[[^\]]*(?:background visual|sfx|cut to black|smash cut|low thud|slow pan|slow zoom)[^\]]*\]/i.test(
+    text,
+  );
+}
+
+function isNonSpokenDirectiveOnly(text: string): boolean {
+  const source = String(text ?? "").trim();
+  if (!source) return false;
+  const stripped = source
+    .replace(
+      /\[[^\]]*(?:background visual|sfx|cut to black|smash cut|low thud|slow pan|slow zoom)[^\]]*\]/gi,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    .trim();
+  return !stripped && /\[[^\]]+\]/.test(source);
+}
+
+function wordCount(text: string): number {
+  return String(text || "")
+    .split(/\s+/)
+    .filter(Boolean).length;
+}
+
+function pauseSecondsFromDirection(
+  direction:
+    | {
+        pauseBeforeMs?: number;
+        pauseAfterMs?: number;
+        pauseBeforeSeconds?: number;
+        pauseAfterSeconds?: number;
+      }
+    | undefined,
+): number {
+  if (!direction) return 0;
+  if (typeof direction.pauseBeforeMs === "number" || typeof direction.pauseAfterMs === "number") {
+    const beforeMs = typeof direction.pauseBeforeMs === "number" ? direction.pauseBeforeMs : 0;
+    const afterMs = typeof direction.pauseAfterMs === "number" ? direction.pauseAfterMs : 0;
+    return (beforeMs + afterMs) / 1000;
+  }
+  const beforeSeconds =
+    typeof direction.pauseBeforeSeconds === "number" ? direction.pauseBeforeSeconds : 0;
+  const afterSeconds =
+    typeof direction.pauseAfterSeconds === "number" ? direction.pauseAfterSeconds : 0;
+  return beforeSeconds + afterSeconds;
+}
+
+export async function runQualityChecks(
+  projectId: string,
+  rootDir = process.cwd(),
+): Promise<QualityResult> {
   const checks: QualityCheck[] = [];
   const loaded = await loadProject(projectId, rootDir);
   const paths = getProjectPaths(projectId, rootDir);
   const bundle = await buildRenderBundle({ projectId, rootDir });
+  const rawPlanData = JSON.parse(await readFile(paths.videoPlan, "utf8"));
+  const legacyUsage = findLegacyBeatFieldUsages(rawPlanData);
+  const legacyPauseSecondsUsage = findLegacyVoicePauseSecondsUsages(rawPlanData);
 
   checks.push({
     id: "shared.timeline.hash",
     severity: "info",
-    message: "timeline.json exists and matches source plan hash."
+    message: "timeline.json exists and matches source plan hash.",
   });
+  if (legacyUsage.total > 0) {
+    checks.push({
+      id: "shared.plan.legacy_beat_fields",
+      severity: "warning",
+      message: `video-plan.json contains ${legacyUsage.total} legacy beat field occurrence(s). Run 'lvstudio migrate:plan ${projectId}' to canonicalize.`,
+      data: {
+        total: legacyUsage.total,
+        byField: legacyUsage.byField,
+      },
+    });
+  }
+  if (legacyPauseSecondsUsage.total > 0) {
+    checks.push({
+      id: "shared.plan.legacy_pause_seconds_fields",
+      severity: "warning",
+      message: `video-plan.json contains ${legacyPauseSecondsUsage.total} legacy voice pause seconds field occurrence(s). Run 'lvstudio migrate:plan ${projectId}' to canonicalize.`,
+      data: {
+        total: legacyPauseSecondsUsage.total,
+        byField: legacyPauseSecondsUsage.byField,
+      },
+    });
+  }
+  for (const section of rawPlanData?.sections ?? []) {
+    for (const beat of section?.beats ?? []) {
+      const conflicts = detectVoicePauseConflicts(beat?.voiceDirection);
+      for (const conflict of conflicts) {
+        checks.push({
+          id: "shared.voice.pause_conflict",
+          severity: "warning",
+          message:
+            `Beat ${beat?.id ?? "unknown"} has conflicting ${conflict.field} values ` +
+            `(${conflict.msValue}ms vs ${conflict.secondsValue}s / ${conflict.secondsAsMs}ms).`,
+          path: `video-plan.sections.${section?.id ?? "unknown"}.beats.${beat?.id ?? "unknown"}.voiceDirection`,
+          beatId: beat?.id,
+          sectionId: section?.id,
+          data: {
+            field: conflict.field,
+            msValue: conflict.msValue,
+            secondsValue: conflict.secondsValue,
+            secondsAsMs: conflict.secondsAsMs,
+            deltaMs: conflict.deltaMs,
+          },
+        });
+      }
+    }
+  }
 
   for (const section of loaded.videoPlan.sections) {
     let previousIntensity: number | undefined;
     for (const beat of section.beats) {
       const segment = bundle.timeline.segments.find((entry) => entry.beatId === beat.id);
-      const voice = loaded.assetManifest.assets.find((asset) => asset.role === "voiceover" && asset.beatId === beat.id);
-      if (!voice) {
+      const voice = loaded.assetManifest.assets.find(
+        (asset) => asset.role === "voiceover" && asset.beatId === beat.id,
+      );
+      const directiveOnly = isNonSpokenDirectiveOnly(beat.narration);
+      if (containsNonSpokenDirective(beat.narration)) {
+        checks.push({
+          id: "shared.narration.production_directive",
+          severity: directiveOnly ? "warning" : "error",
+          message: directiveOnly
+            ? `Beat ${beat.id} is a standalone production direction; sync skips it so it does not pause narration.`
+            : `Beat ${beat.id} contains a bracketed production direction inside spoken narration.`,
+          path: `video-plan.sections.${section.id}.beats.${beat.id}.narration`,
+          beatId: beat.id,
+          sectionId: section.id,
+        });
+      }
+      if (!voice && !directiveOnly) {
         checks.push({
           id: "shared.beat.voice",
           severity: "error",
           message: `Beat ${beat.id} has no voiceover asset.`,
           path: `video-plan.sections.${section.id}.beats.${beat.id}`,
           beatId: beat.id,
-          sectionId: section.id
+          sectionId: section.id,
         });
       }
-      if (beat.media.length > 0 && (!segment || segment.mediaAssetIds.length === 0)) {
+      if (
+        beat.media.length > 0 &&
+        !directiveOnly &&
+        (!segment || segment.mediaAssetIds.length === 0)
+      ) {
         checks.push({
           id: "shared.beat.media",
           severity: "error",
           message: `Beat ${beat.id} references media intent but no resolved timeline media asset exists.`,
           path: `video-plan.sections.${section.id}.beats.${beat.id}`,
           beatId: beat.id,
-          sectionId: section.id
+          sectionId: section.id,
         });
       }
 
-      const pauses =
-        (beat.voiceDirection?.pauseBeforeSeconds ?? 0) +
-        (beat.voiceDirection?.pauseAfterSeconds ?? 0);
+      const pauses = pauseSecondsFromDirection(beat.voiceDirection);
       if (pauses > 1.4) {
         checks.push({
           id: "shared.voice.pause_budget",
@@ -69,12 +188,16 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           path: `video-plan.sections.${section.id}.beats.${beat.id}`,
           beatId: beat.id,
           sectionId: section.id,
-          data: { pausesSeconds: Number(pauses.toFixed(3)) }
+          data: { pausesSeconds: Number(pauses.toFixed(3)) },
         });
       }
 
       const intensity = beat.voiceDirection?.intensity;
-      if (previousIntensity !== undefined && intensity !== undefined && Math.abs(intensity - previousIntensity) > 0.45) {
+      if (
+        previousIntensity !== undefined &&
+        intensity !== undefined &&
+        Math.abs(intensity - previousIntensity) > 0.45
+      ) {
         checks.push({
           id: "shared.voice.intensity_jump",
           severity: "warning",
@@ -85,19 +208,42 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           data: {
             previousIntensity,
             currentIntensity: intensity,
-            delta: Math.abs(intensity - previousIntensity)
-          }
+            delta: Math.abs(intensity - previousIntensity),
+          },
         });
       }
       if (intensity !== undefined) previousIntensity = intensity;
     }
   }
 
-  const segmentByBeatId = new Map(bundle.timeline.segments.map((segment) => [segment.beatId, segment]));
+  const segmentByBeatId = new Map(
+    bundle.timeline.segments.map((segment) => [segment.beatId, segment]),
+  );
   for (const section of loaded.videoPlan.sections) {
     for (const beat of section.beats) {
       const segment = segmentByBeatId.get(beat.id);
       if (!segment) continue;
+      const spokenWords = wordCount(beat.narration);
+      const maxExpectedDuration = Math.max(8, spokenWords * 1.15 + 4);
+      if (
+        segment.voiceAssetId &&
+        spokenWords > 0 &&
+        segment.durationSeconds > maxExpectedDuration
+      ) {
+        checks.push({
+          id: "shared.voice.duration_outlier",
+          severity: "warning",
+          message: `Beat ${beat.id} voice duration (${segment.durationSeconds.toFixed(2)}s) is unusually long for ${spokenWords} spoken word(s).`,
+          path: `timeline.segments.${beat.id}.durationSeconds`,
+          beatId: beat.id,
+          sectionId: section.id,
+          data: {
+            durationSeconds: Number(segment.durationSeconds.toFixed(3)),
+            spokenWords,
+            maxExpectedDuration: Number(maxExpectedDuration.toFixed(3)),
+          },
+        });
+      }
 
       const visualCueCount = segment.visualEditCues?.length ?? 0;
       if (visualCueCount > 3) {
@@ -108,11 +254,13 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.visualEditCues`,
           beatId: beat.id,
           sectionId: section.id,
-          data: { visualCueCount }
+          data: { visualCueCount },
         });
       }
 
-      const silenceWindows = [...(segment.silenceWindows ?? [])].sort((a, b) => a.startSeconds - b.startSeconds);
+      const silenceWindows = [...(segment.silenceWindows ?? [])].sort(
+        (a, b) => a.startSeconds - b.startSeconds,
+      );
       let silenceTotal = 0;
       for (let index = 0; index < silenceWindows.length; index += 1) {
         const current = silenceWindows[index];
@@ -126,7 +274,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
             path: `video-plan.sections.${section.id}.beats.${beat.id}.editorial.silenceWindows`,
             beatId: beat.id,
             sectionId: section.id,
-            data: { previousWindowId: previous.id, currentWindowId: current.id }
+            data: { previousWindowId: previous.id, currentWindowId: current.id },
           });
           break;
         }
@@ -141,8 +289,8 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           sectionId: section.id,
           data: {
             silenceSeconds: Number(silenceTotal.toFixed(3)),
-            segmentDurationSeconds: Number(segment.durationSeconds.toFixed(3))
-          }
+            segmentDurationSeconds: Number(segment.durationSeconds.toFixed(3)),
+          },
         });
       }
     }
@@ -151,8 +299,14 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
   const promptCounts = new Map();
   for (const section of loaded.videoPlan.sections) {
     for (const beat of section.beats) {
-      const prompt = String(beat.media?.[0]?.prompt || beat.notes || "").replace(/\s+/g, " ").trim().toLowerCase();
-      const visualPrompt = String(beat.visual?.prompt || "").replace(/\s+/g, " ").trim().toLowerCase();
+      const prompt = String(beat.media?.[0]?.prompt || beat.notes || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
+      const visualPrompt = String(beat.visual?.prompt || "")
+        .replace(/\s+/g, " ")
+        .trim()
+        .toLowerCase();
       const promptText = visualPrompt || prompt;
       if (!promptText) continue;
       promptCounts.set(promptText, (promptCounts.get(promptText) || 0) + 1);
@@ -165,7 +319,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
         severity: "warning",
         message: `A visual prompt pattern repeats ${count} times; expect continuity drift or repetitive shots.`,
         path: prompt.slice(0, 120),
-        data: { repeatedCount: count }
+        data: { repeatedCount: count },
       });
     }
   }
@@ -178,7 +332,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
         id: "shared.asset.exists",
         severity: "error",
         message: `Asset file is missing: ${asset.path}`,
-        path: asset.path
+        path: asset.path,
       });
     }
   }
@@ -189,14 +343,14 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
       checks.push({
         id: "short_story.hook_within_3s",
         severity: "error",
-        message: "First beat starts after 3 seconds; hook timing violated."
+        message: "First beat starts after 3 seconds; hook timing violated.",
       });
     }
     if (first && first.durationSeconds > 4) {
       checks.push({
         id: "short_story.first_beat_duration",
         severity: "warning",
-        message: "First beat duration exceeds 4 seconds."
+        message: "First beat duration exceeds 4 seconds.",
       });
     }
     for (const segment of bundle.timeline.segments) {
@@ -207,7 +361,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           message: `Beat ${segment.beatId} exceeds 7 seconds.`,
           beatId: segment.beatId,
           sectionId: segment.sectionId,
-          data: { durationSeconds: segment.durationSeconds }
+          data: { durationSeconds: segment.durationSeconds },
         });
       }
       if (segment.durationSeconds > 6) {
@@ -217,39 +371,43 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           message: `Beat ${segment.beatId} exceeds 6 seconds without guaranteed visual change.`,
           beatId: segment.beatId,
           sectionId: segment.sectionId,
-          data: { durationSeconds: segment.durationSeconds }
+          data: { durationSeconds: segment.durationSeconds },
         });
       }
     }
     const finalSegment = bundle.timeline.segments[bundle.timeline.segments.length - 1];
-    if (finalSegment?.endingPolicy?.cutToBlack && (finalSegment.endingPolicy.holdSeconds ?? 0) < 0.6) {
+    if (
+      finalSegment?.endingPolicy?.cutToBlack &&
+      (finalSegment.endingPolicy.holdSeconds ?? 0) < 0.6
+    ) {
       checks.push({
         id: "short_story.ending_black_hold",
         severity: "warning",
-        message: "Final cut-to-black hold is very short (<0.6s); completion-view effect may be weak.",
+        message:
+          "Final cut-to-black hold is very short (<0.6s); completion-view effect may be weak.",
         beatId: finalSegment.beatId,
         sectionId: finalSegment.sectionId,
-        data: { holdSeconds: finalSegment.endingPolicy.holdSeconds ?? 0 }
+        data: { holdSeconds: finalSegment.endingPolicy.holdSeconds ?? 0 },
       });
     }
     if (!loaded.captions || loaded.captions.captions.length === 0) {
       checks.push({
         id: "short_story.captions_required",
         severity: "error",
-        message: "Captions are required for short_story mode."
+        message: "Captions are required for short_story mode.",
       });
     } else {
       for (const caption of loaded.captions.captions) {
         const words = caption.text.split(/\s+/).filter(Boolean).length;
         if (words > 7) {
           checks.push({
-          id: "short_story.caption_words",
-          severity: "error",
-          message: `Caption ${caption.id} exceeds 7 words.`,
-          data: { captionId: caption.id, words }
-        });
+            id: "short_story.caption_words",
+            severity: "error",
+            message: `Caption ${caption.id} exceeds 7 words.`,
+            data: { captionId: caption.id, words },
+          });
+        }
       }
-    }
     }
   }
 
@@ -258,7 +416,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
       checks.push({
         id: "long_documentary.section_count",
         severity: "error",
-        message: "Long documentary over 5 minutes must have at least 2 sections."
+        message: "Long documentary over 5 minutes must have at least 2 sections.",
       });
     }
     for (const section of bundle.videoPlan.sections) {
@@ -267,7 +425,7 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
           id: "long_documentary.section_purpose",
           severity: "warning",
           message: `Section ${section.id} is missing a purpose.`,
-          sectionId: section.id
+          sectionId: section.id,
         });
       }
     }
@@ -276,19 +434,22 @@ export async function runQualityChecks(projectId: string, rootDir = process.cwd(
       checks.push({
         id: "long_documentary.intro_promise_window",
         severity: "warning",
-        message: "Opening promise/question may start after 30 seconds."
+        message: "Opening promise/question may start after 30 seconds.",
       });
     }
   }
 
   const hasError = checks.some((check) => check.severity === "error");
   const hasWarning = checks.some((check) => check.severity === "warning");
+  let overallStatus: "fail" | "warn" | "pass" = "pass";
+  if (hasError) overallStatus = "fail";
+  else if (hasWarning) overallStatus = "warn";
   const result = {
-    status: hasError ? "fail" : hasWarning ? "warn" : "pass",
-    checks
+    status: overallStatus,
+    checks,
   };
   return QualityReportSchema.parse({
     ...result,
-    checks: result.checks.map((check) => QualityFindingSchema.parse(check))
+    checks: result.checks.map((check) => QualityFindingSchema.parse(check)),
   });
 }

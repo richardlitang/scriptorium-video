@@ -7,6 +7,7 @@ import { VideoPlanSchema } from "./schemas/video-plan.schema.js";
 import { getProjectPaths } from "./paths.js";
 import { hashFile } from "./hash.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
+import { normalizeVideoPlan } from "./normalize-video-plan.js";
 import { resolveBeatProductionDirection } from "./resolve-production-direction.js";
 
 type CaptionRules = {
@@ -24,7 +25,7 @@ function rulesForMode(mode: string): CaptionRules {
       hardMaxWords: 26,
       targetMaxDurationSeconds: 6,
       hardMaxDurationSeconds: 8,
-      minWordsBeforeSentenceBreak: 12
+      minWordsBeforeSentenceBreak: 12,
     };
   }
   return {
@@ -32,11 +33,16 @@ function rulesForMode(mode: string): CaptionRules {
     hardMaxWords: 22,
     targetMaxDurationSeconds: 5.5,
     hardMaxDurationSeconds: 7,
-    minWordsBeforeSentenceBreak: 10
+    minWordsBeforeSentenceBreak: 10,
   };
 }
 
-function clampNumber(value: number | undefined, fallback: number, min: number, max: number): number {
+function clampNumber(
+  value: number | undefined,
+  fallback: number,
+  min: number,
+  max: number,
+): number {
   if (value === undefined || !Number.isFinite(value)) return fallback;
   return Math.max(min, Math.min(max, value));
 }
@@ -60,14 +66,14 @@ function endsClause(word: string): boolean {
 
 function wordBeatId(word: TranscriptWord, timeline: Timeline): string | undefined {
   return timeline.segments.find(
-    (entry) => word.startSeconds >= entry.startSeconds && word.startSeconds < entry.endSeconds
+    (entry) => word.startSeconds >= entry.startSeconds && word.startSeconds < entry.endSeconds,
   )?.beatId;
 }
 
 export function groupCaptionWords(
   words: TranscriptWord[],
   timeline: Timeline,
-  rules: CaptionRules
+  rules: CaptionRules,
 ): TranscriptWord[][] {
   const groups: TranscriptWord[][] = [];
   let current: TranscriptWord[] = [];
@@ -105,15 +111,17 @@ export function groupCaptionWords(
 }
 
 export async function generateCaptionsForProject(
-  projectId: string
+  projectId: string,
 ): Promise<{ captionsPath: string; count: number }> {
   const paths = getProjectPaths(projectId);
-  const plan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
+  const plan = normalizeVideoPlan(await readJsonFile(paths.videoPlan, VideoPlanSchema));
   const timeline = await readJsonFile(paths.timeline, TimelineSchema);
   const transcriptPath = path.join(paths.captionsDir, "transcript.json");
   const transcript = await readJsonFile(transcriptPath, TranscriptFileSchema);
   const baseRules = rulesForMode(plan.mode);
-  const allBeats = plan.sections.flatMap((section) => section.beats.map((beat) => ({ section, beat })));
+  const allBeats = plan.sections.flatMap((section) =>
+    section.beats.map((beat) => ({ section, beat })),
+  );
   const projectTuning = plan.overrides?.captionTuning;
   const directionalTuning = allBeats.reduce<Record<string, number | undefined>>((acc, entry) => {
     const tuning = resolveBeatProductionDirection(plan, entry.section, entry.beat).caption.tuning;
@@ -123,35 +131,53 @@ export async function generateCaptionsForProject(
     return acc;
   }, {});
   const rules: CaptionRules = {
-    targetMaxWords: Math.round(clampNumber(directionalTuning.targetMaxWords ?? projectTuning?.targetMaxWords, baseRules.targetMaxWords, 4, 30)),
-    hardMaxWords: Math.round(clampNumber(directionalTuning.hardMaxWords ?? projectTuning?.hardMaxWords, baseRules.hardMaxWords, 6, 40)),
+    targetMaxWords: Math.round(
+      clampNumber(
+        directionalTuning.targetMaxWords ?? projectTuning?.targetMaxWords,
+        baseRules.targetMaxWords,
+        4,
+        30,
+      ),
+    ),
+    hardMaxWords: Math.round(
+      clampNumber(
+        directionalTuning.hardMaxWords ?? projectTuning?.hardMaxWords,
+        baseRules.hardMaxWords,
+        6,
+        40,
+      ),
+    ),
     targetMaxDurationSeconds: clampNumber(
       directionalTuning.targetMaxDurationSeconds ?? projectTuning?.targetMaxDurationSeconds,
       baseRules.targetMaxDurationSeconds,
       1.5,
-      12
+      12,
     ),
     hardMaxDurationSeconds: clampNumber(
       directionalTuning.hardMaxDurationSeconds ?? projectTuning?.hardMaxDurationSeconds,
       baseRules.hardMaxDurationSeconds,
       2,
-      14
+      14,
     ),
     minWordsBeforeSentenceBreak: Math.round(
       clampNumber(
         directionalTuning.minWordsBeforeSentenceBreak ?? projectTuning?.minWordsBeforeSentenceBreak,
         baseRules.minWordsBeforeSentenceBreak,
         2,
-        20
-      )
-    )
+        20,
+      ),
+    ),
   };
   const beatDirectionById = new Map(
-    allBeats.map(({ section, beat }) => [beat.id, resolveBeatProductionDirection(plan, section, beat)])
+    allBeats.map(({ section, beat }) => [
+      beat.id,
+      resolveBeatProductionDirection(plan, section, beat),
+    ]),
   );
   const emphasisWords = new Set(
-    [...beatDirectionById.values()]
-      .flatMap((direction) => direction.caption.emphasis.map((entry) => entry.toLowerCase()))
+    [...beatDirectionById.values()].flatMap((direction) =>
+      direction.caption.emphasis.map((entry) => entry.toLowerCase()),
+    ),
   );
 
   const captions: Array<{
@@ -173,7 +199,9 @@ export async function generateCaptionsForProject(
   const flush = (current: typeof transcript.words) => {
     const start = current[0].startSeconds;
     const end = current[current.length - 1].endSeconds;
-    const segment = timeline.segments.find((entry) => start >= entry.startSeconds && start < entry.endSeconds);
+    const segment = timeline.segments.find(
+      (entry) => start >= entry.startSeconds && start < entry.endSeconds,
+    );
     const beatDirection = segment?.beatId ? beatDirectionById.get(segment.beatId) : undefined;
     captions.push({
       id: `caption-${String(captions.length + 1).padStart(3, "0")}`,
@@ -184,8 +212,8 @@ export async function generateCaptionsForProject(
       style: beatDirection?.caption.style ?? "default",
       words: current.map((word) => ({
         ...word,
-        emphasis: emphasisWords.has(word.word.toLowerCase())
-      }))
+        emphasis: emphasisWords.has(word.word.toLowerCase()),
+      })),
     });
   };
 
@@ -201,10 +229,10 @@ export async function generateCaptionsForProject(
       source: {
         transcriptionProvider: transcript.source.provider,
         audioAssetIds: transcript.source.audioAssetIds,
-        sourceHash: await hashFile(transcriptPath)
+        sourceHash: await hashFile(transcriptPath),
       },
-      captions
-    })
+      captions,
+    }),
   );
   return { captionsPath: paths.captions, count: captions.length };
 }

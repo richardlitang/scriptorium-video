@@ -14,7 +14,7 @@ export type RendererCapabilities = {
 
 export type ResolvedRenderConfig = {
   fps: number;
-  aspectRatio: "9:16" | "16:9" | "1:1";
+  aspectRatio: "16:9" | "9:16" | "1:1";
   resolution: {
     width: number;
     height: number;
@@ -37,6 +37,7 @@ export type RenderRequest = {
   renderBundle: RenderBundle;
   outputPath: string;
   quality: "draft" | "final";
+  onProgress?: (progress: Record<string, unknown>) => void;
 };
 
 export type RenderResult = {

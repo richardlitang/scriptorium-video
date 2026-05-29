@@ -4,7 +4,7 @@
   "description": "Long-form narrated video with sections, chapters, slower pacing, and optional captions.",
   "defaults": {
     "targetDurationSeconds": 900,
-    "aspectRatio": "16:9",
+    "aspectRatio": "9:16",
     "resolution": {
       "width": 1920,
       "height": 1080

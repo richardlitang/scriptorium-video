@@ -1,5 +1,10 @@
 import { useState } from "react";
-import { useProjects, useCreateProject, useDeleteProject, useDeleteAllProjects } from "@/queries/projects";
+import {
+  useProjects,
+  useCreateProject,
+  useDeleteProject,
+  useDeleteAllProjects,
+} from "@/queries/projects";
 import type { Project } from "@/api/client";
 
 interface Props {
@@ -85,7 +90,9 @@ export function ProjectSidebar({ selectedId, onSelect }: Props) {
           <div className="px-4 py-6 text-xs text-[var(--color-text-muted)]">Loading…</div>
         )}
         {isError && (
-          <div className="px-4 py-6 text-xs text-[var(--color-error)]">Failed to load projects.</div>
+          <div className="px-4 py-6 text-xs text-[var(--color-error)]">
+            Failed to load projects.
+          </div>
         )}
         {projects?.length === 0 && !isLoading && (
           <div className="px-4 py-6 text-xs text-[var(--color-text-muted)]">No projects yet.</div>

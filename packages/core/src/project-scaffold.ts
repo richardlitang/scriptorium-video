@@ -11,7 +11,7 @@ export async function createProjectScaffold(
   projectId: string,
   mode: Mode,
   platform: Platform,
-  rootDir = process.cwd()
+  rootDir = process.cwd(),
 ): Promise<void> {
   const now = new Date().toISOString();
   const projectDir = path.resolve(rootDir, "content", "projects", projectId);
@@ -25,12 +25,12 @@ export async function createProjectScaffold(
       ? {
           templateId: "documentary-longform",
           exportProfile: "youtube-1080p",
-          targetDurationSeconds: 600
+          targetDurationSeconds: 600,
         }
       : {
           templateId: "vertical-story",
           exportProfile: "shorts-1080x1920",
-          targetDurationSeconds: 60
+          targetDurationSeconds: 60,
         };
 
   await writeJsonFile(path.join(projectDir, "project.json"), {
@@ -39,7 +39,7 @@ export async function createProjectScaffold(
     title: projectId,
     createdAt: now,
     updatedAt: now,
-    status: "draft"
+    status: "draft",
   });
 
   await writeJsonFile(path.join(projectDir, "video-plan.json"), {
@@ -51,20 +51,20 @@ export async function createProjectScaffold(
     templateId: modeDefaults.templateId,
     exportProfile: modeDefaults.exportProfile,
     overrides: {
-      targetDurationSeconds: modeDefaults.targetDurationSeconds
+      targetDurationSeconds: modeDefaults.targetDurationSeconds,
     },
     providers: {
       llm: "manual",
       tts: "manual",
       transcription: "manual",
       media: "manual-media",
-      renderer: "remotion"
+      renderer: "remotion",
     },
     voice: {
       provider: "manual",
       voiceId: "manual-voice",
       format: "wav",
-      options: {}
+      options: {},
     },
     sections: [
       {
@@ -78,7 +78,7 @@ export async function createProjectScaffold(
             narration: "Replace this narration with your first beat.",
             timing: {
               estimatedDurationSeconds: 4,
-              mediaPolicy: "loop_or_freeze"
+              mediaPolicy: "loop_or_freeze",
             },
             media: [
               {
@@ -87,17 +87,17 @@ export async function createProjectScaffold(
                 role: "primary_visual",
                 localPath: "assets/images/intro-001.svg",
                 scaleMode: "cover",
-                placement: "background"
-              }
-            ]
-          }
-        ]
-      }
-    ]
+                placement: "background",
+              },
+            ],
+          },
+        ],
+      },
+    ],
   });
 
   await writeJsonFile(path.join(projectDir, "asset-manifest.json"), {
     schemaVersion: 1,
-    assets: []
+    assets: [],
   });
 }

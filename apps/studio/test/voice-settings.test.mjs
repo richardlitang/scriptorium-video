@@ -9,7 +9,7 @@ test("voice settings normalize user input into bounded Chatterbox controls", () 
     exaggeration: "9",
     cfgWeight: "-1",
     temperature: "0.62",
-    seed: "42.9"
+    seed: "42.9",
   });
 
   assert.deepEqual(settings, {
@@ -23,7 +23,7 @@ test("voice settings normalize user input into bounded Chatterbox controls", () 
     exaggeration: 1.5,
     cfgWeight: 0,
     temperature: 0.62,
-    seed: "42"
+    seed: "42",
   });
 });
 
@@ -35,7 +35,7 @@ test("voice settings produce the environment used by CLI TTS jobs", () => {
       exaggeration: 0.7,
       cfgWeight: 0.3,
       temperature: 0.8,
-      seed: "123"
+      seed: "123",
     }),
     {
       CHATTERBOX_TTS_MODEL: "chatterbox",
@@ -43,8 +43,8 @@ test("voice settings produce the environment used by CLI TTS jobs", () => {
       CHATTERBOX_CFG_WEIGHT: "0.3",
       CHATTERBOX_TEMPERATURE: "0.8",
       CHATTERBOX_AUDIO_PROMPT_PATH: "/tmp/ref.wav",
-      CHATTERBOX_SEED: "123"
-    }
+      CHATTERBOX_SEED: "123",
+    },
   );
 });
 
@@ -54,7 +54,7 @@ test("voice settings derive advanced controls from semantic controls when advanc
     intensity: 0.9,
     stability: 0.7,
     pacing: 0.2,
-    variation: 0.8
+    variation: 0.8,
   });
 
   assert.equal(settings.exaggeration, 1.06);

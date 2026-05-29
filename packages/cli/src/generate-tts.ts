@@ -1,7 +1,4 @@
-import {
-  generateTTSForProject,
-  type GenerateTTSOptions
-} from "@lvstudio/core";
+import { generateTTSForProject, type GenerateTTSOptions } from "@lvstudio/core";
 import { type VideoPlan, VideoPlanSchema, getProjectPaths, readJsonFile } from "@lvstudio/core";
 import { checkChatterboxCapability, ttsProviders } from "@lvstudio/providers";
 
@@ -44,12 +41,17 @@ export function resolveLanguageRoutedProvider(plan: VideoPlan): string | undefin
   if (mapping[lang]) return mapping[lang];
   const base = lang.split(/[-_]/)[0];
   if (mapping[base]) return mapping[base];
-  if (lang.includes(",") || lang.includes("+") || lang.includes("/")) return mapping.code_switch ?? mapping.non_english;
+  if (lang.includes(",") || lang.includes("+") || lang.includes("/"))
+    return mapping.code_switch ?? mapping.non_english;
   if (base !== "en" && base !== "eng") return mapping.non_english;
   return mapping.default;
 }
 
-async function resolveProviderId(requestedProviderId: string, plan: VideoPlan, allowLanguageRouting: boolean): Promise<string> {
+async function resolveProviderId(
+  requestedProviderId: string,
+  plan: VideoPlan,
+  allowLanguageRouting: boolean,
+): Promise<string> {
   const languageRouted = allowLanguageRouting ? resolveLanguageRoutedProvider(plan) : undefined;
   const effectiveRequestedProvider = languageRouted || requestedProviderId;
   const mode = ttsMode();
@@ -63,7 +65,7 @@ async function resolveProviderId(requestedProviderId: string, plan: VideoPlan, a
   const fallback = fallbackProviderId();
   if (fallback) {
     console.warn(
-      `Chatterbox unavailable (${capability.status}: ${capability.message ?? capability.healthUrl}); using ${fallback}.`
+      `Chatterbox unavailable (${capability.status}: ${capability.message ?? capability.healthUrl}); using ${fallback}.`,
     );
     return fallback;
   }
@@ -71,16 +73,23 @@ async function resolveProviderId(requestedProviderId: string, plan: VideoPlan, a
   throw new Error(
     [
       `Chatterbox unavailable (${capability.status}: ${capability.message ?? capability.healthUrl}).`,
-      "Set LVSTUDIO_TTS_FALLBACK_PROVIDER=openai to allow API fallback, or run with LVSTUDIO_TTS_MODE=local after starting Chatterbox."
-    ].join(" ")
+      "Set LVSTUDIO_TTS_FALLBACK_PROVIDER=openai to allow API fallback, or run with LVSTUDIO_TTS_MODE=local after starting Chatterbox.",
+    ].join(" "),
   );
 }
 
-export async function generateTTS(projectId: string, options: CliGenerateTTSOptions): Promise<void> {
+export async function generateTTS(
+  projectId: string,
+  options: CliGenerateTTSOptions,
+): Promise<void> {
   const paths = getProjectPaths(projectId);
   const plan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
   const requestedProviderId = options.provider ?? plan.providers.tts;
-  const providerId = await resolveProviderId(requestedProviderId, plan, options.provider === undefined);
+  const providerId = await resolveProviderId(
+    requestedProviderId,
+    plan,
+    options.provider === undefined,
+  );
   const provider = ttsProviders[providerId];
   if (!provider) throw new Error(`Unknown TTS provider: ${providerId}`);
   const concurrency = options.concurrency === undefined ? undefined : Number(options.concurrency);
@@ -89,7 +98,7 @@ export async function generateTTS(projectId: string, options: CliGenerateTTSOpti
   }
   const result = await generateTTSForProject(projectId, provider, {
     ...(options as GenerateTTSOptions),
-    concurrency
+    concurrency,
   });
   for (const beatId of result.generated) {
     console.log(`Generated ${beatId}`);

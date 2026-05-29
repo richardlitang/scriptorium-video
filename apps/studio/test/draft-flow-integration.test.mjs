@@ -41,9 +41,9 @@ test("studio draft flow works end-to-end in test mode", async () => {
     env: {
       ...process.env,
       PORT: String(port),
-      LVSTUDIO_TEST_MODE: "1"
+      LVSTUDIO_TEST_MODE: "1",
     },
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "pipe", "pipe"],
   });
   server.stdout?.on("data", (chunk) => {
     logsRef.value += chunk.toString();
@@ -61,8 +61,8 @@ test("studio draft flow works end-to-end in test mode", async () => {
         id: projectId,
         title: "Integration Test",
         mode: "short_story",
-        platform: "local_only"
-      })
+        platform: "local_only",
+      }),
     });
     assert.equal(created.data.projectId, projectId);
 
@@ -74,8 +74,8 @@ test("studio draft flow works end-to-end in test mode", async () => {
         feel: "cinematic suspense",
         pacing: "measured",
         visualStyle: "dark cinematic realism",
-        format: "short_story"
-      })
+        format: "short_story",
+      }),
     });
     const beat = planned.data.plan.sections[0].beats[0];
     assert.equal(typeof beat.voiceDirection?.profile, "string");
@@ -83,7 +83,7 @@ test("studio draft flow works end-to-end in test mode", async () => {
     await api(baseUrl, `/api/projects/${projectId}/plan`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify(planned.data.plan)
+      body: JSON.stringify(planned.data.plan),
     });
 
     const queued = await api(baseUrl, `/api/projects/${projectId}/draft-job`, {
@@ -92,8 +92,8 @@ test("studio draft flow works end-to-end in test mode", async () => {
       body: JSON.stringify({
         plan: planned.data.plan,
         story: "",
-        imageEnabled: false
-      })
+        imageEnabled: false,
+      }),
     });
     assert.equal(queued.data.kind, "draft_job");
 
@@ -112,7 +112,7 @@ test("studio draft flow works end-to-end in test mode", async () => {
     assert.equal(status, "completed");
     const trace = await api(
       baseUrl,
-      `/api/projects/${projectId}/jobs/${encodeURIComponent(latest.id)}/trace`
+      `/api/projects/${projectId}/jobs/${encodeURIComponent(latest.id)}/trace`,
     );
     assert.ok((trace.data.entries || []).some((entry) => entry.event === "images.skipped"));
 
@@ -135,9 +135,9 @@ test("studio rejects scaffold placeholder draft without story", async () => {
     env: {
       ...process.env,
       PORT: String(port),
-      LVSTUDIO_TEST_MODE: "1"
+      LVSTUDIO_TEST_MODE: "1",
     },
-    stdio: ["ignore", "pipe", "pipe"]
+    stdio: ["ignore", "pipe", "pipe"],
   });
   server.stdout?.on("data", (chunk) => {
     logsRef.value += chunk.toString();
@@ -154,8 +154,8 @@ test("studio rejects scaffold placeholder draft without story", async () => {
         id: projectId,
         title: "Placeholder Guard",
         mode: "short_story",
-        platform: "local_only"
-      })
+        platform: "local_only",
+      }),
     });
 
     const response = await fetch(`${baseUrl}/api/projects/${projectId}/draft-job`, {
@@ -170,19 +170,23 @@ test("studio rejects scaffold placeholder draft without story", async () => {
           targetPlatform: "local_only",
           providers: { tts: "chatterbox", transcription: "mock" },
           voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
-          sections: [{
-            id: "intro",
-            title: "Intro",
-            beats: [{
-              id: "intro-001",
-              order: 1,
-              narration: "Replace this narration with your first beat.",
-              timing: { mediaPolicy: "loop_or_freeze", locked: false },
-              media: []
-            }]
-          }]
-        }
-      })
+          sections: [
+            {
+              id: "intro",
+              title: "Intro",
+              beats: [
+                {
+                  id: "intro-001",
+                  order: 1,
+                  narration: "Replace this narration with your first beat.",
+                  timing: { mediaPolicy: "loop_or_freeze", locked: false },
+                  media: [],
+                },
+              ],
+            },
+          ],
+        },
+      }),
     });
     const data = await response.json();
     assert.equal(response.status, 400);

@@ -1,15 +1,21 @@
 import { access } from "node:fs/promises";
 import path from "node:path";
-import { AssetManifestSchema, type Asset, type AssetManifest } from "./schemas/asset-manifest.schema.js";
+import {
+  AssetManifestSchema,
+  type Asset,
+  type AssetManifest,
+} from "./schemas/asset-manifest.schema.js";
 import { VideoPlanSchema, type VideoPlan } from "./schemas/video-plan.schema.js";
 import { getProjectPaths } from "./paths.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
 import { hashString } from "./hash.js";
 import { probeMedia } from "./media-probe.js";
+import { normalizeVideoPlan } from "./normalize-video-plan.js";
 import type { TTSProvider } from "./tts-provider.js";
 import { normalizeVoiceover, padVoiceover } from "./audio-processing.js";
 import { resolveVoiceDirection } from "./voice-direction.js";
 import type { Beat } from "./schemas/video-plan.schema.js";
+import { coreTtsConcurrency } from "./core-runtime-env.js";
 
 export type GenerateTTSOptions = {
   force?: boolean;
@@ -28,10 +34,17 @@ type BeatRef = {
 
 export function normalizeNarrationForTTS(text: string): string {
   const source = String(text ?? "");
-  return source.replace(
-    /\b([01]?\d|2[0-3]):([0-5]\d)\s*([AaPp])\.?[Mm]\.?\b/g,
-    (_, hour, minute, meridiem) => `${hour} ${minute} ${String(meridiem).toUpperCase()}M`
-  );
+  return source
+    .replace(
+      /\[[^\]]*(?:background visual|sfx|cut to black|smash cut|low thud|slow pan|slow zoom)[^\]]*\]/gi,
+      " ",
+    )
+    .replace(
+      /\b([01]?\d|2[0-3]):([0-5]\d)\s*([AaPp])\.?[Mm]\.?\b/g,
+      (_, hour, minute, meridiem) => `${hour} ${minute} ${String(meridiem).toUpperCase()}M`,
+    )
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function pickBeats(plan: VideoPlan, onlySection?: string, onlyBeat?: string): BeatRef[] {
@@ -44,8 +57,8 @@ function pickBeats(plan: VideoPlan, onlySection?: string, onlyBeat?: string): Be
           sectionId: section.id,
           beatId: beat.id,
           narration: beat.narration,
-          beat
-        }))
+          beat,
+        })),
     );
 }
 
@@ -59,7 +72,7 @@ function cacheKey(
   beatId: string,
   narration: string,
   delivery: Record<string, unknown>,
-  providerOptions: Record<string, unknown>
+  providerOptions: Record<string, unknown>,
 ): string {
   return hashString(
     JSON.stringify({
@@ -70,8 +83,8 @@ function cacheKey(
       format: plan.voice.format,
       options: plan.voice.options,
       delivery,
-      providerOptions
-    })
+      providerOptions,
+    }),
   ).slice(0, 10);
 }
 
@@ -85,15 +98,16 @@ async function fileExists(filePath: string): Promise<boolean> {
 }
 
 function ttsConcurrency(providerId: string, requested?: number): number {
-  const raw = requested ?? Number(process.env.LVSTUDIO_TTS_CONCURRENCY ?? "");
-  if (Number.isFinite(raw) && raw > 0) return Math.max(1, Math.floor(raw));
+  const raw = requested ?? coreTtsConcurrency();
+  if (typeof raw === "number" && Number.isFinite(raw) && raw > 0)
+    return Math.max(1, Math.floor(raw));
   return providerId === "chatterbox" ? 1 : 3;
 }
 
 async function runWithConcurrency<T>(
   items: T[],
   concurrency: number,
-  worker: (item: T) => Promise<void>
+  worker: (item: T) => Promise<void>,
 ): Promise<void> {
   let nextIndex = 0;
   const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
@@ -109,10 +123,10 @@ async function runWithConcurrency<T>(
 export async function generateTTSForProject(
   projectId: string,
   provider: TTSProvider,
-  options: GenerateTTSOptions = {}
+  options: GenerateTTSOptions = {},
 ): Promise<{ generated: string[]; skipped: string[] }> {
   const paths = getProjectPaths(projectId);
-  const plan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
+  const plan = normalizeVideoPlan(await readJsonFile(paths.videoPlan, VideoPlanSchema));
   const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const providerId = provider.id;
 
@@ -121,6 +135,7 @@ export async function generateTTSForProject(
   const generated: string[] = [];
   const skipped: string[] = [];
   const nextAssetsById = new Map(manifest.assets.map((asset) => [asset.id, asset]));
+  const removedAssetIds = new Set<string>();
   const concurrency = ttsConcurrency(providerId, options.concurrency);
 
   await runWithConcurrency(beats, concurrency, async (beat) => {
@@ -135,6 +150,14 @@ export async function generateTTSForProject(
     }
 
     const narrationForTTS = normalizeNarrationForTTS(beat.narration);
+    if (!narrationForTTS) {
+      if (existing) {
+        removedAssetIds.add(existing.id);
+        nextAssetsById.delete(existing.id);
+      }
+      skipped.push(`${beat.beatId}: no_spoken_narration`);
+      return;
+    }
     const resolved = resolveVoiceDirection(beat.beat, plan, providerId);
     const inputHash = cacheKey(
       plan,
@@ -142,13 +165,15 @@ export async function generateTTSForProject(
       beat.beatId,
       narrationForTTS,
       resolved.delivery,
-      resolved.providerOptions
+      resolved.providerOptions,
     );
     const ext = plan.voice.format;
     const fileBase = `${beat.beatId}.${inputHash}`;
     const fileName = options.noCache ? `${fileBase}.${Date.now()}.${ext}` : `${fileBase}.${ext}`;
     const relativePath =
-      providerId === "manual" && existing ? existing.path : path.join("assets", "audio", "voice", fileName);
+      providerId === "manual" && existing
+        ? existing.path
+        : path.join("assets", "audio", "voice", fileName);
     const absolutePath = path.resolve(paths.projectDir, relativePath);
     const cachedPath = existing ? path.resolve(paths.projectDir, existing.path) : absolutePath;
 
@@ -159,7 +184,12 @@ export async function generateTTSForProject(
       }
     }
 
-    if (!options.noCache && providerId !== "manual" && !existing && (await fileExists(absolutePath))) {
+    if (
+      !options.noCache &&
+      providerId !== "manual" &&
+      !existing &&
+      (await fileExists(absolutePath))
+    ) {
       const probed = await probeMedia(absolutePath);
       const recoveredAsset: Asset = {
         id: `voice-${beat.beatId}`,
@@ -171,12 +201,12 @@ export async function generateTTSForProject(
         source: {
           kind: "generated",
           provider: providerId,
-          inputHash
+          inputHash,
         },
         durationSeconds: probed.durationSeconds ?? 0,
         status: "generated",
         createdAt: now,
-        updatedAt: now
+        updatedAt: now,
       };
       nextAssetsById.set(recoveredAsset.id, recoveredAsset);
       skipped.push(`${beat.beatId}: recovered_cache_hit`);
@@ -190,12 +220,16 @@ export async function generateTTSForProject(
       format: plan.voice.format,
       options: {
         ...plan.voice.options,
-        ...(resolved.voiceOptions.speed !== undefined ? { speed: resolved.voiceOptions.speed } : {}),
-        ...(resolved.voiceOptions.pitch !== undefined ? { pitch: resolved.voiceOptions.pitch } : {}),
-        ...(resolved.voiceOptions.language ? { language: resolved.voiceOptions.language } : {})
+        ...(resolved.voiceOptions.speed !== undefined
+          ? { speed: resolved.voiceOptions.speed }
+          : {}),
+        ...(resolved.voiceOptions.pitch !== undefined
+          ? { pitch: resolved.voiceOptions.pitch }
+          : {}),
+        ...(resolved.voiceOptions.language ? { language: resolved.voiceOptions.language } : {}),
       },
       delivery: resolved.delivery,
-      providerOptions: resolved.providerOptions
+      providerOptions: resolved.providerOptions,
     });
 
     const processedAt = new Date().toISOString();
@@ -216,7 +250,7 @@ export async function generateTTSForProject(
       durationSeconds = probed.durationSeconds ?? result.durationSeconds;
       audioProcessing = {
         ...processing,
-        processedAt
+        processedAt,
       };
     }
 
@@ -231,12 +265,12 @@ export async function generateTTSForProject(
         kind: providerId === "manual" ? "manual" : "generated",
         provider: providerId,
         inputHash,
-        ...(audioProcessing ? { audioProcessing } : {})
+        ...(audioProcessing ? { audioProcessing } : {}),
       },
       durationSeconds,
       status: providerId === "manual" ? "locked_by_user" : "generated",
       createdAt: existing?.createdAt ?? now,
-      updatedAt: now
+      updatedAt: now,
     };
 
     nextAssetsById.set(nextAsset.id, nextAsset);
@@ -244,7 +278,7 @@ export async function generateTTSForProject(
   });
 
   manifest.assets = manifest.assets
-    .filter((asset) => !nextAssetsById.has(asset.id))
+    .filter((asset) => !removedAssetIds.has(asset.id) && !nextAssetsById.has(asset.id))
     .concat([...nextAssetsById.values()]);
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));
   return { generated, skipped };

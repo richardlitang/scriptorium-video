@@ -16,41 +16,148 @@ const TTS_ROUTING_SCHEMA = {
           narrationLanguage: { type: "string" },
           ttsProvider: { type: "string", enum: ["chatterbox", "mms", "openai"] },
           confidence: { type: "number" },
-          reason: { type: "string" }
-        }
-      }
+          reason: { type: "string" },
+        },
+      },
     },
-    warnings: { type: "array", items: { type: "string" } }
-  }
+    warnings: { type: "array", items: { type: "string" } },
+  },
 };
 
 export function planNeedsTtsRouting(plan) {
   return (plan.sections ?? []).some((section) =>
-    (section.beats ?? []).some((beat) =>
-      !beat.voiceDirection?.language ||
-      !beat.voiceDirection?.ttsProvider ||
-      beat.voiceDirection?.source === "llm" ||
-      beat.directionMeta?.sources?.ttsRouting === "llm"
-    )
+    (section.beats ?? []).some(
+      (beat) =>
+        !beat.voiceDirection?.language ||
+        !beat.voiceDirection?.ttsProvider ||
+        beat.voiceDirection?.source === "llm" ||
+        beat.directionMeta?.sources?.ttsRouting === "llm",
+    ),
   );
 }
 
-export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKey, studioTestMode = false, openAiResponsesUrl }) {
-  if (typeof getOpenAiApiKey !== "function") throw new Error("createTtsRoutingOrchestrator requires getOpenAiApiKey function.");
+function defaultTtsProvider(plan) {
+  const provider = String(plan.providers?.tts || plan.voice?.provider || "chatterbox")
+    .trim()
+    .toLowerCase();
+  return ["chatterbox", "mms", "openai"].includes(provider) ? provider : "chatterbox";
+}
+
+function inferNarrationLanguage(narration, fallback = "en") {
+  const text = String(narration || "").toLowerCase();
+  const tagalogMarkers = [
+    " ang ",
+    " ng ",
+    " mga ",
+    " sa ",
+    " ako ",
+    " ikaw ",
+    " siya ",
+    " kami ",
+    " tayo ",
+    " nila ",
+    " bakit ",
+    " hindi ",
+    " nandito ",
+    " lola ",
+    " kuya ",
+    " ate ",
+  ];
+  const markerHits = tagalogMarkers.filter((marker) => ` ${text} `.includes(marker)).length;
+  const wordCount = text.split(/\s+/).filter(Boolean).length;
+  if (markerHits >= 4 || (markerHits >= 2 && wordCount <= 10)) return "filipino";
+  const normalizedFallback = String(fallback || "")
+    .trim()
+    .toLowerCase();
+  return normalizedFallback && normalizedFallback !== "filipino" ? normalizedFallback : "en";
+}
+
+function routePlanTtsLocally(plan) {
+  const provider = defaultTtsProvider(plan);
+  const fallbackLanguage = plan.voice?.options?.language || "en";
+  const nextPlan = {
+    ...plan,
+    providers: {
+      ...(plan.providers || {}),
+      tts: provider,
+    },
+    voice: {
+      ...(plan.voice || {}),
+      provider,
+    },
+    sections: (plan.sections ?? []).map((section) => ({
+      ...section,
+      beats: (section.beats ?? []).map((beat) => {
+        if (
+          beat.voiceDirection?.source === "user" ||
+          beat.directionMeta?.sources?.ttsRouting === "user"
+        )
+          return beat;
+        const language =
+          beat.voiceDirection?.language && beat.voiceDirection?.source !== "llm"
+            ? beat.voiceDirection.language
+            : inferNarrationLanguage(beat.narration, fallbackLanguage);
+        return {
+          ...beat,
+          voiceDirection: {
+            ...(beat.voiceDirection || {}),
+            language,
+            ttsProvider: provider,
+            source: "default",
+          },
+          direction: {
+            ...(beat.direction || {}),
+            voice: {
+              ...(beat.direction?.voice || {}),
+              language,
+              ttsProvider: provider,
+              source: "default",
+            },
+          },
+          directionMeta: {
+            ...(beat.directionMeta || {}),
+            sources: {
+              ...(beat.directionMeta?.sources || {}),
+              ttsRouting: "default",
+            },
+          },
+        };
+      }),
+    })),
+  };
+  return { plan: nextPlan, model: "local-default", warnings: [] };
+}
+
+export function createTtsRoutingOrchestrator({
+  fetchImpl = fetch,
+  getOpenAiApiKey,
+  studioTestMode = false,
+  openAiResponsesUrl,
+  ttsRoutingConfig = { enabled: false, model: "gpt-4o-mini" },
+}) {
+  if (typeof getOpenAiApiKey !== "function")
+    throw new Error("createTtsRoutingOrchestrator requires getOpenAiApiKey function.");
 
   return async function routePlanTtsWithOpenAi(plan) {
     if (studioTestMode) return { plan, model: "test-mode", warnings: [] };
+    if (!ttsRoutingConfig.enabled) return routePlanTtsLocally(plan);
 
     const apiKey = await getOpenAiApiKey();
-    const model = process.env.OPENAI_TTS_ROUTING_MODEL ?? process.env.OPENAI_ORCHESTRATOR_MODEL ?? "gpt-4o-mini";
+    const model = ttsRoutingConfig.model || "gpt-4o-mini";
     const beats = (plan.sections ?? []).flatMap((section) =>
       (section.beats ?? []).map((beat) => ({
         beatId: beat.id,
         sectionTitle: section.title,
         narration: beat.narration,
-        currentLanguage: beat.voiceDirection?.language || beat.direction?.voice?.language || plan.voice?.options?.language,
-        currentTtsProvider: beat.voiceDirection?.ttsProvider || beat.direction?.voice?.ttsProvider || plan.providers?.tts
-      }))
+        currentLanguage:
+          beat.voiceDirection?.language ||
+          beat.direction?.voice?.language ||
+          plan.voice?.options?.language,
+        currentTtsProvider:
+          beat.voiceDirection?.ttsProvider ||
+          beat.direction?.voice?.ttsProvider ||
+          plan.providers?.tts,
+      })),
     );
 
     const routing = await runStructuredOutput({
@@ -69,8 +176,8 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
             "Use openai only when neither local provider is appropriate.",
             "Do not infer from character names alone; route based on the actual spoken narration text.",
             "English narration with Filipino names, places, or words like Lola is still English unless the spoken sentence itself is mostly Filipino/Tagalog.",
-            "Return JSON only."
-          ].join("\\n")
+            "Return JSON only.",
+          ].join("\\n"),
         },
         {
           role: "user",
@@ -79,13 +186,13 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
             defaultLanguage: plan.voice?.options?.language,
             defaultTtsProvider: plan.providers?.tts,
             availableProviders: ["chatterbox", "mms", "openai"],
-            beats
-          })
-        }
+            beats,
+          }),
+        },
       ],
       schemaName: "tts_routing_map",
       schema: TTS_ROUTING_SCHEMA,
-      errorLabel: "OpenAI TTS routing request failed"
+      errorLabel: "OpenAI TTS routing request failed",
     });
 
     const routes = new Map((routing.routes ?? []).map((route) => [route.beatId, route]));
@@ -96,16 +203,27 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
         beats: (section.beats ?? []).map((beat) => {
           const route = routes.get(beat.id);
           if (!route) return beat;
-          if (beat.voiceDirection?.source === "user" || beat.directionMeta?.sources?.ttsRouting === "user") return beat;
-          const language = String(route.narrationLanguage || "").trim().toLowerCase() || plan.voice?.options?.language || "en";
-          const ttsProvider = ["chatterbox", "mms", "openai"].includes(route.ttsProvider) ? route.ttsProvider : plan.providers?.tts;
+          if (
+            beat.voiceDirection?.source === "user" ||
+            beat.directionMeta?.sources?.ttsRouting === "user"
+          )
+            return beat;
+          const language =
+            String(route.narrationLanguage || "")
+              .trim()
+              .toLowerCase() ||
+            plan.voice?.options?.language ||
+            "en";
+          const ttsProvider = ["chatterbox", "mms", "openai"].includes(route.ttsProvider)
+            ? route.ttsProvider
+            : plan.providers?.tts;
           return {
             ...beat,
             voiceDirection: {
               ...(beat.voiceDirection || {}),
               language,
               ttsProvider,
-              source: "llm"
+              source: "llm",
             },
             direction: {
               ...(beat.direction || {}),
@@ -113,19 +231,19 @@ export function createTtsRoutingOrchestrator({ fetchImpl = fetch, getOpenAiApiKe
                 ...(beat.direction?.voice || {}),
                 language,
                 ttsProvider,
-                source: "llm"
-              }
+                source: "llm",
+              },
             },
             directionMeta: {
               ...(beat.directionMeta || {}),
               sources: {
                 ...(beat.directionMeta?.sources || {}),
-                ttsRouting: "llm"
-              }
-            }
+                ttsRouting: "llm",
+              },
+            },
           };
-        })
-      }))
+        }),
+      })),
     };
 
     return { plan: nextPlan, model, warnings: routing.warnings ?? [] };

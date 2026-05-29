@@ -1,8 +1,8 @@
+import { createPlanDraftOrchestrator } from "./plan-draft-orchestrator.mjs";
 import {
-  createPlanDraftOrchestrator,
   DEFAULT_PLANNER_SYSTEM_PROMPT,
-  DEFAULT_PLANNER_USER_PROMPT_TEMPLATE
-} from "./plan-draft-orchestrator.mjs";
+  DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
+} from "./planner-defaults.mjs";
 import { createTtsRoutingOrchestrator, planNeedsTtsRouting } from "./tts-routing-orchestrator.mjs";
 
 const DEFAULT_OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
@@ -14,7 +14,9 @@ export function createOpenAiPlanOrchestrator({
   getOpenAiApiKey,
   buildPlanFromAiDraft,
   studioTestMode = false,
-  openAiResponsesUrl = DEFAULT_OPENAI_RESPONSES_URL
+  openAiResponsesUrl = DEFAULT_OPENAI_RESPONSES_URL,
+  plannerRequestConfig,
+  ttsRoutingConfig,
 }) {
   return {
     generatePlanDraftWithOpenAi: createPlanDraftOrchestrator({
@@ -22,13 +24,15 @@ export function createOpenAiPlanOrchestrator({
       getOpenAiApiKey,
       buildPlanFromAiDraft,
       studioTestMode,
-      openAiResponsesUrl
+      openAiResponsesUrl,
+      plannerRequestConfig,
     }),
     routePlanTtsWithOpenAi: createTtsRoutingOrchestrator({
       fetchImpl,
       getOpenAiApiKey,
       studioTestMode,
-      openAiResponsesUrl
-    })
+      openAiResponsesUrl,
+      ttsRoutingConfig,
+    }),
   };
 }

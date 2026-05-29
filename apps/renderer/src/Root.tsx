@@ -17,51 +17,51 @@ const defaultProps: RemotionInputProps = {
       title: "Default",
       createdAt: new Date(0).toISOString(),
       updatedAt: new Date(0).toISOString(),
-      status: "draft"
+      status: "draft",
     },
     videoPlan: {
-    schemaVersion: 1,
-    title: "Default",
-    mode: "short_story",
-    targetPlatform: "local_only",
-    stylePackId: "default",
-    templateId: "vertical-story",
-    overrides: {},
-    providers: {
-      llm: "manual",
-      tts: "manual",
-      transcription: "manual",
-      media: "manual-media",
-      renderer: "remotion"
-    },
-    voice: {
-      provider: "manual",
-      voiceId: "manual",
-      format: "wav",
-      options: {}
-    },
-    sections: [
-      {
-        id: "intro",
-        title: "Intro",
-        beats: [
-          {
-            id: "intro-001",
-            order: 1,
-            narration: "Default narration",
-            timing: { mediaPolicy: "loop_or_freeze", locked: false },
-            media: [],
-            motion: { type: "slow_zoom_in", intensity: 0.1 },
-            caption: { emphasis: [], style: "default" },
-            sfxCues: []
-          }
-        ]
-      }
-    ]
+      schemaVersion: 1,
+      title: "Default",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      templateId: "vertical-story",
+      overrides: {},
+      providers: {
+        llm: "manual",
+        tts: "manual",
+        transcription: "manual",
+        media: "manual-media",
+        renderer: "remotion",
+      },
+      voice: {
+        provider: "manual",
+        voiceId: "manual",
+        format: "wav",
+        options: {},
+      },
+      sections: [
+        {
+          id: "intro",
+          title: "Intro",
+          beats: [
+            {
+              id: "intro-001",
+              order: 1,
+              narration: "Default narration",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false },
+              media: [],
+              motion: { type: "slow_zoom_in", intensity: 0.1 },
+              caption: { emphasis: [], style: "default" },
+              sfxCues: [],
+            },
+          ],
+        },
+      ],
     },
     assetManifest: {
       schemaVersion: 1,
-      assets: []
+      assets: [],
     },
     timeline: {
       schemaVersion: 1,
@@ -84,35 +84,37 @@ const defaultProps: RemotionInputProps = {
           silenceWindows: [],
           renderPolicy: {
             mediaPolicy: "loop_or_freeze",
-            scaleMode: "cover"
-          }
-        }
+            scaleMode: "safe_cover",
+            subjectPosition: "center",
+            cropRisk: "medium",
+          },
+        },
       ],
-      audioLayers: []
+      audioLayers: [],
     },
     resolvedConfig: {
       fps: 30,
       aspectRatio: "9:16",
       resolution: {
         width: 1080,
-        height: 1920
+        height: 1920,
       },
-      templateId: "vertical-story"
-    }
+      templateId: "vertical-story",
+    },
   },
   quality: "draft",
-  assetUrls: {}
+  assetUrls: {},
 };
 
 const calculateMetadata: CalculateMetadataFunction<RemotionInputProps> = ({ props }) => ({
   durationInFrames: Math.max(
     1,
-    Math.ceil(props.renderBundle.timeline.durationSeconds * props.renderBundle.timeline.fps)
+    Math.ceil(props.renderBundle.timeline.durationSeconds * props.renderBundle.timeline.fps),
   ),
   fps: props.renderBundle.timeline.fps,
   width: props.renderBundle.timeline.width,
   height: props.renderBundle.timeline.height,
-  props
+  props,
 });
 
 export const RemotionRoot: React.FC = () => {

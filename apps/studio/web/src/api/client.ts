@@ -162,14 +162,12 @@ export const api = {
       post<ProjectResponse>("/api/projects", body),
     delete: (id: string) => del<{ ok: true }>(`/api/projects/${encodeURIComponent(id)}`),
     deleteAll: () => del<{ ok: true }>("/api/projects"),
-    assets: (id: string) =>
-      get<AssetsResponse>(`/api/projects/${encodeURIComponent(id)}/assets`),
+    assets: (id: string) => get<AssetsResponse>(`/api/projects/${encodeURIComponent(id)}/assets`),
     asset: (id: string, assetId: string) =>
       get<{ ok: true; asset: Asset }>(
         `/api/projects/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}`,
       ),
-    jobs: (id: string) =>
-      get<JobsResponse>(`/api/projects/${encodeURIComponent(id)}/jobs`),
+    jobs: (id: string) => get<JobsResponse>(`/api/projects/${encodeURIComponent(id)}/jobs`),
     jobTrace: (id: string, jobId: string) =>
       get<JobTraceResponse>(
         `/api/projects/${encodeURIComponent(id)}/jobs/${encodeURIComponent(jobId)}/trace`,
@@ -180,8 +178,7 @@ export const api = {
       get<RendersResponse>(`/api/projects/${encodeURIComponent(id)}/renders`),
     imageHistory: (id: string) =>
       get<ImageHistoryResponse>(`/api/projects/${encodeURIComponent(id)}/image-history`),
-    plan: (id: string) =>
-      get<PlanResponse>(`/api/projects/${encodeURIComponent(id)}/plan`),
+    plan: (id: string) => get<PlanResponse>(`/api/projects/${encodeURIComponent(id)}/plan`),
     savePlan: (id: string, plan: string) =>
       put<{ ok: true }>(`/api/projects/${encodeURIComponent(id)}/plan`, { plan }),
     planFromStory: (id: string, body: unknown) =>
@@ -196,10 +193,7 @@ export const api = {
     stopDraftJob: (id: string) =>
       post<{ ok: true }>(`/api/projects/${encodeURIComponent(id)}/draft-job/stop`),
     generateImages: (id: string, body?: unknown) =>
-      post<{ ok: true }>(
-        `/api/projects/${encodeURIComponent(id)}/generate-images`,
-        body,
-      ),
+      post<{ ok: true }>(`/api/projects/${encodeURIComponent(id)}/generate-images`, body),
     directVoice: (id: string, body: unknown) =>
       post<{ ok: true }>(`/api/projects/${encodeURIComponent(id)}/direct-voice`, body),
     render: (id: string, params?: { quality?: string; force?: boolean }) => {
@@ -207,9 +201,7 @@ export const api = {
       if (params?.quality) qs.set("quality", params.quality);
       if (params?.force) qs.set("force", "true");
       const query = qs.toString() ? `?${qs.toString()}` : "";
-      return post<{ ok: true }>(
-        `/api/projects/${encodeURIComponent(id)}/render${query}`,
-      );
+      return post<{ ok: true }>(`/api/projects/${encodeURIComponent(id)}/render${query}`);
     },
   },
   tts: {

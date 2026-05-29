@@ -9,7 +9,16 @@ export type SilenceWindow = {
 };
 
 export type VisualEditCue = {
-  type: "smash_cut" | "cut_to_black" | "hold_black" | "j_cut" | "l_cut" | "slow_pan" | "push_in" | "hard_cut" | "match_cut";
+  type:
+    | "smash_cut"
+    | "cut_to_black"
+    | "hold_black"
+    | "j_cut"
+    | "l_cut"
+    | "slow_pan"
+    | "push_in"
+    | "hard_cut"
+    | "match_cut";
   startSeconds: number;
   durationSeconds: number;
   target: "black" | "current_visual" | "next_visual";
@@ -17,24 +26,31 @@ export type VisualEditCue = {
 };
 
 export function activeSilenceAt(timeSeconds: number, windows: SilenceWindow[]) {
-  return windows.find((window) => timeSeconds >= window.startSeconds && timeSeconds < window.endSeconds);
-}
-
-export function shouldCutToBlack(timeSeconds: number, cues: VisualEditCue[]): boolean {
-  return cues.some((cue) =>
-    (cue.type === "cut_to_black" || cue.type === "hold_black") &&
-    cue.target === "black" &&
-    timeSeconds >= cue.startSeconds &&
-    timeSeconds < cue.startSeconds + cue.durationSeconds
+  return windows.find(
+    (window) => timeSeconds >= window.startSeconds && timeSeconds < window.endSeconds,
   );
 }
 
-export function activeVisualCueAt(timeSeconds: number, cues: VisualEditCue[]): VisualEditCue | undefined {
-  return cues
-    .filter((cue) =>
-      cue.target !== "black" &&
+export function shouldCutToBlack(timeSeconds: number, cues: VisualEditCue[]): boolean {
+  return cues.some(
+    (cue) =>
+      (cue.type === "cut_to_black" || cue.type === "hold_black") &&
+      cue.target === "black" &&
       timeSeconds >= cue.startSeconds &&
-      timeSeconds < cue.startSeconds + Math.max(0.05, cue.durationSeconds)
+      timeSeconds < cue.startSeconds + cue.durationSeconds,
+  );
+}
+
+export function activeVisualCueAt(
+  timeSeconds: number,
+  cues: VisualEditCue[],
+): VisualEditCue | undefined {
+  return cues
+    .filter(
+      (cue) =>
+        cue.target !== "black" &&
+        timeSeconds >= cue.startSeconds &&
+        timeSeconds < cue.startSeconds + Math.max(0.05, cue.durationSeconds),
     )
     .sort((a, b) => {
       const aSwitch = a.target === "next_visual" ? 1 : 0;
@@ -52,7 +68,7 @@ export function visualCueStyle(cue: VisualEditCue | undefined, timeSeconds: numb
   if (cue.type === "push_in") {
     return {
       transform: `scale(${1 + impact * 0.08 * progress})`,
-      transformOrigin: "center"
+      transformOrigin: "center",
     };
   }
 
@@ -60,7 +76,7 @@ export function visualCueStyle(cue: VisualEditCue | undefined, timeSeconds: numb
     const offset = (progress - 0.5) * impact * 44;
     return {
       transform: `translateX(${offset}px) scale(${1 + impact * 0.025})`,
-      transformOrigin: "center"
+      transformOrigin: "center",
     };
   }
 
@@ -69,13 +85,13 @@ export function visualCueStyle(cue: VisualEditCue | undefined, timeSeconds: numb
     return {
       filter: `contrast(${1 + flash * 0.35}) brightness(${1 + flash * 0.28})`,
       transform: `scale(${1 + flash * 0.025})`,
-      transformOrigin: "center"
+      transformOrigin: "center",
     };
   }
 
   if (cue.type === "j_cut" || cue.type === "l_cut") {
     return {
-      opacity: 0.92 + progress * 0.08
+      opacity: 0.92 + progress * 0.08,
     };
   }
 

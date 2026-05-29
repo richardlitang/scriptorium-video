@@ -7,5 +7,8 @@
     "@lvstudio/core": "workspace:*",
     "@lvstudio/quality": "workspace:*",
     "@lvstudio/providers": "workspace:*"
+  },
+  "scripts": {
+    "test": "pnpm -s exec tsc -p tsconfig.json && node --test \"test/**/*.mjs\""
   }
 }

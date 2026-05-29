@@ -9,22 +9,24 @@ export class ManualTTSProvider implements TTSProvider {
       {
         id: "manual-voice",
         label: "Manual Voice",
-        language: "en"
-      }
+        language: "en",
+      },
     ];
   }
 
   async synthesize(request: TTSRequest): Promise<TTSResult> {
     const probed = await probeMedia(request.outputPath);
     if (!probed.durationSeconds || probed.durationSeconds <= 0) {
-      throw new Error(`Manual TTS requires an existing readable audio file at ${request.outputPath}`);
+      throw new Error(
+        `Manual TTS requires an existing readable audio file at ${request.outputPath}`,
+      );
     }
     return {
       audioPath: request.outputPath,
       durationSeconds: probed.durationSeconds,
       providerId: this.id,
       voiceId: request.voiceId,
-      inputHash: ""
+      inputHash: "",
     };
   }
 }

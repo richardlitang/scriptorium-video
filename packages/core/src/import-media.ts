@@ -21,14 +21,16 @@ function mediaTypeFromPath(filePath: string): "image" | "video" {
 export async function importMediaToProject(
   projectId: string,
   filePath: string,
-  options: ImportMediaOptions
+  options: ImportMediaOptions,
 ): Promise<{ assetId: string; relativePath: string }> {
   const paths = getProjectPaths(projectId);
   const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const type = mediaTypeFromPath(filePath);
   const sourceAbsolute = path.resolve(filePath);
   const assetsDir =
-    type === "video" ? path.join(paths.projectDir, "assets", "video") : path.join(paths.projectDir, "assets", "images");
+    type === "video"
+      ? path.join(paths.projectDir, "assets", "video")
+      : path.join(paths.projectDir, "assets", "images");
   await mkdir(assetsDir, { recursive: true });
 
   const fileName = path.basename(sourceAbsolute);
@@ -51,14 +53,14 @@ export async function importMediaToProject(
     path: relativePath,
     source: {
       kind: "imported",
-      originalPath: sourceAbsolute
+      originalPath: sourceAbsolute,
     },
     durationSeconds: probed.durationSeconds,
     width: probed.width,
     height: probed.height,
     status: "generated",
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   });
 
   await writeJsonFile(paths.assetManifest, AssetManifestSchema.parse(manifest));

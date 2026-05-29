@@ -17,8 +17,8 @@ export class MockTTSProvider implements TTSProvider {
         label: "Mock Neutral",
         language: "en",
         gender: "neutral",
-        supportsSpeed: true
-      }
+        supportsSpeed: true,
+      },
     ];
   }
 
@@ -35,7 +35,7 @@ export class MockTTSProvider implements TTSProvider {
       `sine=frequency=${frequency}:duration=${seconds.toFixed(3)}`,
       "-filter:a",
       "volume=0.12",
-      request.outputPath
+      request.outputPath,
     ]);
     const probed = await probeMedia(request.outputPath);
     return {
@@ -45,8 +45,8 @@ export class MockTTSProvider implements TTSProvider {
       voiceId: request.voiceId,
       inputHash: "",
       metadata: {
-        words
-      }
+        words,
+      },
     };
   }
 }

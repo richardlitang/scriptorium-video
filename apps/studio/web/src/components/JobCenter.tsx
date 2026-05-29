@@ -48,7 +48,11 @@ export function JobCenter({ projectId, onRetry }: Props) {
   async function toggleTrace(job: Job) {
     const id = job.id;
     if (expandedTrace.has(id)) {
-      setExpandedTrace((prev) => { const n = new Set(prev); n.delete(id); return n; });
+      setExpandedTrace((prev) => {
+        const n = new Set(prev);
+        n.delete(id);
+        return n;
+      });
       return;
     }
     setExpandedTrace((prev) => new Set(prev).add(id));
@@ -58,15 +62,22 @@ export function JobCenter({ projectId, onRetry }: Props) {
         const data = await fetchJobTrace(projectId, job);
         setTraceCache((prev) => new Map(prev).set(id, data));
       } catch (err) {
-        setTraceCache((prev) => new Map(prev).set(id, { raw: `Trace unavailable:\n${String(err)}` }));
+        setTraceCache((prev) =>
+          new Map(prev).set(id, { raw: `Trace unavailable:\n${String(err)}` }),
+        );
       } finally {
-        setLoadingTrace((prev) => { const n = new Set(prev); n.delete(id); return n; });
+        setLoadingTrace((prev) => {
+          const n = new Set(prev);
+          n.delete(id);
+          return n;
+        });
       }
     }
   }
 
   if (isLoading) return <div className="p-4 text-xs text-[var(--color-text-muted)]">Loading…</div>;
-  if (!jobs?.length) return <div className="p-4 text-xs text-[var(--color-text-muted)]">No jobs yet.</div>;
+  if (!jobs?.length)
+    return <div className="p-4 text-xs text-[var(--color-text-muted)]">No jobs yet.</div>;
 
   return (
     <div className="flex flex-col gap-2 p-3">
@@ -79,14 +90,18 @@ export function JobCenter({ projectId, onRetry }: Props) {
             : null;
 
         return (
-          <article key={job.id} className={`border border-[var(--color-border)] border-l-4 ${color} rounded bg-[var(--color-surface-raised)]`}>
+          <article
+            key={job.id}
+            className={`border border-[var(--color-border)] border-l-4 ${color} rounded bg-[var(--color-surface-raised)]`}
+          >
             <div className="px-3 py-2">
               <div className="flex items-baseline justify-between gap-2">
                 <span className="text-xs font-semibold">{job.label ?? "Job"}</span>
                 <span className={`text-xs shrink-0 ${color.split(" ")[1]}`}>{job.status}</span>
               </div>
               <div className="text-xs text-[var(--color-text-muted)] mt-0.5">
-                {formatJobTime(job.startedAt)}{elapsed ? ` · ${elapsed}` : ""}
+                {formatJobTime(job.startedAt)}
+                {elapsed ? ` · ${elapsed}` : ""}
                 {progress && ` · ${progress}`}
                 {job.currentSectionTitle && ` · ${job.currentSectionTitle}`}
               </div>
@@ -102,7 +117,9 @@ export function JobCenter({ projectId, onRetry }: Props) {
                 </ActionBtn>
               )}
               {job.status === "failed" && onRetry && (
-                <ActionBtn onClick={onRetry} variant="danger">Retry</ActionBtn>
+                <ActionBtn onClick={onRetry} variant="danger">
+                  Retry
+                </ActionBtn>
               )}
             </div>
 
@@ -128,8 +145,16 @@ function traceButtonLabel(loading: boolean, expanded: boolean): string {
   return expanded ? "Hide Trace" : "View Trace";
 }
 
-function ActionBtn({ onClick, disabled, children, variant = "default" }: {
-  onClick: () => void; disabled?: boolean; children: React.ReactNode; variant?: "default" | "danger";
+function ActionBtn({
+  onClick,
+  disabled,
+  children,
+  variant = "default",
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  children: React.ReactNode;
+  variant?: "default" | "danger";
 }) {
   return (
     <button

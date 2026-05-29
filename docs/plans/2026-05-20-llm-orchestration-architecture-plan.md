@@ -137,18 +137,18 @@ git status --short
 Add a structured visual intent schema without removing existing `media` fields:
 
 ```ts
-export const VisualIntentSchema = z.object({
-  prompt: z.string().optional(),
-  priority: z.number().int().min(1).max(5).default(3),
-  needsUniqueImage: z.boolean().default(false),
-  reusePolicy: z.union([
-    z.literal("none"),
-    z.literal("allow-reuse"),
-    z.string().min(1)
-  ]).default("allow-reuse"),
-  coverageRole: z.enum(["anchor", "key_moment", "supporting", "none"]).default("supporting"),
-  source: z.enum(["user", "llm", "default"]).default("default")
-}).strict();
+export const VisualIntentSchema = z
+  .object({
+    prompt: z.string().optional(),
+    priority: z.number().int().min(1).max(5).default(3),
+    needsUniqueImage: z.boolean().default(false),
+    reusePolicy: z
+      .union([z.literal("none"), z.literal("allow-reuse"), z.string().min(1)])
+      .default("allow-reuse"),
+    coverageRole: z.enum(["anchor", "key_moment", "supporting", "none"]).default("supporting"),
+    source: z.enum(["user", "llm", "default"]).default("default"),
+  })
+  .strict();
 ```
 
 Add optional `visual: VisualIntentSchema` to `BeatSchema` and `ProductionDirectionSchema` if direction-level override is useful.
@@ -184,8 +184,10 @@ orchestration: z.object({
   version: z.literal(1).default(1),
   model: z.string().optional(),
   orchestratedAt: z.string().datetime().optional(),
-  warnings: z.array(z.string()).default([])
-}).strict().optional()
+  warnings: z.array(z.string()).default([]),
+})
+  .strict()
+  .optional();
 ```
 
 Keep it optional so legacy plans parse.
@@ -214,15 +216,17 @@ node --test packages/core/test/*.test.mjs
 Create a shared schema for deterministic quality findings so the repair LLM receives stable input:
 
 ```ts
-QualityFindingSchema = z.object({
-  id: z.string(),
-  severity: z.enum(["info", "warning", "error"]),
-  message: z.string(),
-  path: z.string().optional(),
-  beatId: z.string().optional(),
-  sectionId: z.string().optional(),
-  data: z.record(z.string(), z.unknown()).optional()
-}).strict()
+QualityFindingSchema = z
+  .object({
+    id: z.string(),
+    severity: z.enum(["info", "warning", "error"]),
+    message: z.string(),
+    path: z.string().optional(),
+    beatId: z.string().optional(),
+    sectionId: z.string().optional(),
+    data: z.record(z.string(), z.unknown()).optional(),
+  })
+  .strict();
 ```
 
 Update `runQualityChecks` to populate `beatId`, `sectionId`, and structured `data` where possible.
@@ -460,8 +464,8 @@ Define canonical stages:
   "rendering",
   "completed",
   "failed",
-  "stopped"
-]
+  "stopped",
+];
 ```
 
 Each job state update should include:
@@ -578,14 +582,20 @@ Manual:
 Define a small patch format instead of allowing arbitrary full-plan rewrites:
 
 ```ts
-PlanPatchSchema = z.object({
-  operations: z.array(z.object({
-    op: z.enum(["replace", "merge", "splitBeat", "deleteBeat"]),
-    path: z.string(),
-    value: z.unknown().optional(),
-    reason: z.string()
-  })).max(20)
-}).strict()
+PlanPatchSchema = z
+  .object({
+    operations: z
+      .array(
+        z.object({
+          op: z.enum(["replace", "merge", "splitBeat", "deleteBeat"]),
+          path: z.string(),
+          value: z.unknown().optional(),
+          reason: z.string(),
+        }),
+      )
+      .max(20),
+  })
+  .strict();
 ```
 
 Prefer patching beats/sections over replacing entire project plans.
@@ -726,11 +736,13 @@ Manual:
 Add optional spans:
 
 ```ts
-emphasisSpans: z.array(z.object({
-  startWordIndex: z.number().int().nonnegative(),
-  endWordIndex: z.number().int().positive(),
-  phrase: z.string()
-})).default([])
+emphasisSpans: z.array(
+  z.object({
+    startWordIndex: z.number().int().nonnegative(),
+    endWordIndex: z.number().int().positive(),
+    phrase: z.string(),
+  }),
+).default([]);
 ```
 
 Renderer should apply an emphasis class/style to words in span.

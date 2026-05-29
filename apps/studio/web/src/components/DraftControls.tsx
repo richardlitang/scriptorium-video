@@ -43,14 +43,10 @@ export function DraftControls({
   const [imageEnabled, setImageEnabled] = useState(
     () => readStored(projectId, "imageEnabled", "true") === "true",
   );
-  const [imageMode, setImageMode] = useState(
-    () => readStored(projectId, "imageMode", "missing"),
-  );
-  const [imageBudget, setImageBudget] = useState(
-    () => readStored(projectId, "imageBudget", "llm"),
-  );
-  const [imageQuality, setImageQuality] = useState(
-    () => readStored(projectId, "imageQuality", "low"),
+  const [imageMode, setImageMode] = useState(() => readStored(projectId, "imageMode", "missing"));
+  const [imageBudget, setImageBudget] = useState(() => readStored(projectId, "imageBudget", "llm"));
+  const [imageQuality, setImageQuality] = useState(() =>
+    readStored(projectId, "imageQuality", "low"),
   );
 
   const progressLine = draftJobProgressLine(job);
@@ -101,7 +97,7 @@ export function DraftControls({
       });
       writeStored(projectId, "lastDraftStory", story);
       // Force the draft-job query to start polling immediately
-      qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
+      void qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
       onDraftQueued();
     } catch (err) {
       onError(`Make Draft failed: ${String(err)}`);
@@ -145,7 +141,10 @@ export function DraftControls({
             <SelectField
               label="Mode"
               value={imageMode}
-              onChange={(v) => { setImageMode(v); writeStored(projectId, "imageMode", v); }}
+              onChange={(v) => {
+                setImageMode(v);
+                writeStored(projectId, "imageMode", v);
+              }}
               options={[
                 { value: "missing", label: "Only missing" },
                 { value: "all", label: "Refresh all" },
@@ -154,7 +153,10 @@ export function DraftControls({
             <SelectField
               label="Density"
               value={imageBudget}
-              onChange={(v) => { setImageBudget(v); writeStored(projectId, "imageBudget", v); }}
+              onChange={(v) => {
+                setImageBudget(v);
+                writeStored(projectId, "imageBudget", v);
+              }}
               options={[
                 { value: "llm", label: "LLM-driven" },
                 { value: "balanced", label: "Balanced" },
@@ -164,7 +166,10 @@ export function DraftControls({
             <SelectField
               label="Quality"
               value={imageQuality}
-              onChange={(v) => { setImageQuality(v); writeStored(projectId, "imageQuality", v); }}
+              onChange={(v) => {
+                setImageQuality(v);
+                writeStored(projectId, "imageQuality", v);
+              }}
               options={[
                 { value: "low", label: "Draft" },
                 { value: "medium", label: "Medium" },
@@ -242,7 +247,9 @@ function SelectField({
         className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded px-1 py-1 text-xs text-[var(--color-text)] focus:outline-none focus:border-[var(--color-accent)]"
       >
         {options.map((o) => (
-          <option key={o.value} value={o.value}>{o.label}</option>
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
         ))}
       </select>
     </div>

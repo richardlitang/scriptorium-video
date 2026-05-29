@@ -15,15 +15,15 @@ function basePlan() {
       tts: "chatterbox",
       transcription: "mock",
       media: "manual-media",
-      renderer: "remotion"
+      renderer: "remotion",
     },
     voice: {
       provider: "chatterbox",
       voiceId: "clone",
       format: "wav",
       options: {
-        speed: 0.92
-      }
+        speed: 0.92,
+      },
     },
     sections: [
       {
@@ -38,11 +38,11 @@ function basePlan() {
             media: [],
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { style: "default", emphasis: [] },
-            sfxCues: []
-          }
-        ]
-      }
-    ]
+            sfxCues: [],
+          },
+        ],
+      },
+    ],
   };
 }
 
@@ -51,23 +51,23 @@ test("resolveBeatProductionDirection applies project -> section -> beat preceden
   plan.direction = {
     voice: { intensity: 0.35, profile: "neutral", source: "default" },
     caption: { style: "project-style", emphasis: ["project"] },
-    creative: { feel: "project feel", pacing: "project pacing", visualStyle: "project visual" }
+    creative: { feel: "project feel", pacing: "project pacing", visualStyle: "project visual" },
   };
   plan.sections[0].direction = {
     voice: { intensity: 0.55, profile: "reflective", source: "llm" },
     caption: { style: "section-style", emphasis: ["section"] },
-    creative: { pacing: "section pacing" }
+    creative: { pacing: "section pacing" },
   };
   plan.sections[0].beats[0].direction = {
     voice: { intensity: 0.9, speedMultiplier: 1.2, source: "user" },
     caption: { emphasis: ["beat"] },
-    creative: { visualStyle: "beat visual" }
+    creative: { visualStyle: "beat visual" },
   };
 
   const resolved = resolveBeatProductionDirection(
     plan,
     plan.sections[0],
-    plan.sections[0].beats[0]
+    plan.sections[0].beats[0],
   );
 
   assert.equal(resolved.voiceDirection.intensity, 0.9);
@@ -88,8 +88,8 @@ test("resolveBeatProductionDirection resolves visual intent with beat precedence
       priority: 2,
       needsUniqueImage: false,
       reusePolicy: "allow-reuse",
-      source: "llm"
-    }
+      source: "llm",
+    },
   };
   plan.sections[0].direction = {
     visual: {
@@ -97,21 +97,21 @@ test("resolveBeatProductionDirection resolves visual intent with beat precedence
       priority: 4,
       needsUniqueImage: true,
       reusePolicy: "none",
-      source: "llm"
-    }
+      source: "llm",
+    },
   };
   plan.sections[0].beats[0].visual = {
     coverageRole: "anchor",
     priority: 5,
     needsUniqueImage: true,
     reusePolicy: "none",
-    source: "user"
+    source: "user",
   };
 
   const resolved = resolveBeatProductionDirection(
     plan,
     plan.sections[0],
-    plan.sections[0].beats[0]
+    plan.sections[0].beats[0],
   );
 
   assert.equal(resolved.visual?.coverageRole, "anchor");
@@ -130,11 +130,11 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
     intensity: 0.6,
     speedMultiplier: 1.1,
     pitchOffset: 0.2,
-    source: "llm"
+    source: "llm",
   };
   plan.sections[0].beats[0].caption = {
     style: "legacy-style",
-    emphasis: ["legacy-caption"]
+    emphasis: ["legacy-caption"],
   };
   plan.sections[0].beats[0].sfxCues = [
     {
@@ -142,14 +142,14 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
       kind: "knock",
       placement: "beat_start",
       offsetSeconds: 0,
-      levelDb: -16
-    }
+      levelDb: -16,
+    },
   ];
 
   const resolved = resolveBeatProductionDirection(
     plan,
     plan.sections[0],
-    plan.sections[0].beats[0]
+    plan.sections[0].beats[0],
   );
 
   assert.equal(resolved.voiceDirection.profile, "key_point");
@@ -160,13 +160,48 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
   assert.equal(resolved.sfxCues[0].kind, "knock");
 });
 
+test("resolveBeatProductionDirection canonicalizes voice pauses to millisecond precision", () => {
+  const plan = basePlan();
+  plan.direction = {
+    voice: {
+      pauseBeforeSeconds: 0.333,
+      pauseAfterMs: 640,
+      pauseAfterSeconds: 0.1,
+      source: "llm",
+    },
+  };
+
+  const resolved = resolveBeatProductionDirection(
+    plan,
+    plan.sections[0],
+    plan.sections[0].beats[0],
+  );
+
+  assert.equal(resolved.voiceDirection.pauseBeforeMs, 333);
+  assert.equal(resolved.voiceDirection.pauseAfterMs, 640);
+  assert.equal(resolved.voiceDirection.pauseBeforeSeconds, undefined);
+  assert.equal(resolved.voiceDirection.pauseAfterSeconds, undefined);
+});
+
+test("VideoPlan schema accepts 16:9 aspect ratio overrides", () => {
+  const plan = basePlan();
+  plan.overrides = {
+    aspectRatio: "16:9",
+    resolution: { width: 1920, height: 1080 },
+  };
+
+  const parsed = VideoPlanSchema.parse(plan);
+
+  assert.equal(parsed.overrides.aspectRatio, "16:9");
+});
+
 test("VideoPlan schema accepts orchestration metadata", () => {
   const plan = basePlan();
   plan.orchestration = {
     version: 1,
     model: "gpt-5.4",
     orchestratedAt: "2026-05-20T12:00:00.000Z",
-    warnings: ["minor continuity uncertainty"]
+    warnings: ["minor continuity uncertainty"],
   };
   const parsed = VideoPlanSchema.parse(plan);
   assert.equal(parsed.orchestration?.version, 1);

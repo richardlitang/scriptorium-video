@@ -4,7 +4,11 @@ import { probeMedia } from "@lvstudio/core";
 export class MockTranscriptionProvider implements TranscriptionProvider {
   id = "mock";
 
-  async transcribe(request: { audioPath: string; language?: string; wordTimestamps: boolean }): Promise<TranscriptResult> {
+  async transcribe(request: {
+    audioPath: string;
+    language?: string;
+    wordTimestamps: boolean;
+  }): Promise<TranscriptResult> {
     const probed = await probeMedia(request.audioPath);
     const duration = probed.durationSeconds ?? 3;
     const text = "mock transcript";
@@ -14,8 +18,8 @@ export class MockTranscriptionProvider implements TranscriptionProvider {
         {
           startSeconds: 0,
           endSeconds: duration,
-          text
-        }
+          text,
+        },
       ],
       words: request.wordTimestamps
         ? [
@@ -23,11 +27,11 @@ export class MockTranscriptionProvider implements TranscriptionProvider {
               startSeconds: 0,
               endSeconds: duration,
               word: "mock",
-              confidence: 1
-            }
+              confidence: 1,
+            },
           ]
         : undefined,
-      providerId: this.id
+      providerId: this.id,
     };
   }
 }

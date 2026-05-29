@@ -13,7 +13,11 @@ export type AudioIngestCliOptions = {
   downloadedAt?: string;
 };
 
-export async function ingestAudioCli(projectId: string, filePath: string, options: AudioIngestCliOptions): Promise<void> {
+export async function ingestAudioCli(
+  projectId: string,
+  filePath: string,
+  options: AudioIngestCliOptions,
+): Promise<void> {
   const platforms = String(options.allowedPlatforms || "")
     .split(",")
     .map((entry) => entry.trim())
@@ -28,7 +32,7 @@ export async function ingestAudioCli(projectId: string, filePath: string, option
     trackId: options.trackId,
     attributionRequired: options.attributionRequired === true,
     allowedPlatforms: platforms,
-    downloadedAt: options.downloadedAt
+    downloadedAt: options.downloadedAt,
   });
   console.log(`Ingested ${result.assetId} -> ${result.path}`);
 }
@@ -40,7 +44,7 @@ export async function enrichAudioCli(
     provider?: string;
     licenseType?: string;
     allowedPlatforms?: string;
-  }
+  },
 ): Promise<void> {
   const platforms = String(options.allowedPlatforms || "")
     .split(",")
@@ -50,7 +54,7 @@ export async function enrichAudioCli(
     role: options.role,
     provider: options.provider,
     licenseType: options.licenseType,
-    allowedPlatforms: platforms
+    allowedPlatforms: platforms,
   });
   console.log(`Enriched audio catalog: updated ${result.updated}, skipped ${result.skipped}.`);
 }

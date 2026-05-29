@@ -2,7 +2,7 @@
   "id": "youtube",
   "label": "YouTube",
   "defaults": {
-    "aspectRatio": "16:9",
+    "aspectRatio": "9:16",
     "resolution": {
       "width": 1920,
       "height": 1080

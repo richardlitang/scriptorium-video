@@ -3,14 +3,16 @@ import path from "node:path";
 import { z } from "zod";
 import type { VideoPlan } from "./schemas/video-plan.schema.js";
 
-const ConfigFileSchema = z.object({
-  id: z.string(),
-  defaults: z.record(z.string(), z.unknown()).default({})
-}).passthrough();
+const ConfigFileSchema = z
+  .object({
+    id: z.string(),
+    defaults: z.record(z.string(), z.unknown()).default({}),
+  })
+  .passthrough();
 
 export type ResolvedConfig = {
   fps: number;
-  aspectRatio: "9:16" | "16:9" | "1:1";
+  aspectRatio: "16:9" | "9:16" | "1:1";
   resolution: {
     width: number;
     height: number;
@@ -28,9 +30,9 @@ const baseDefaults: ResolvedConfig = {
   aspectRatio: "9:16",
   resolution: {
     width: 1080,
-    height: 1920
+    height: 1920,
   },
-  templateId: "vertical-story"
+  templateId: "vertical-story",
 };
 
 async function readDefaults(rootDir: string, folder: string, id: string | undefined) {
@@ -46,7 +48,10 @@ async function readDefaults(rootDir: string, folder: string, id: string | undefi
   }
 }
 
-export async function resolveConfig(plan: VideoPlan, rootDir = process.cwd()): Promise<ResolvedConfig> {
+export async function resolveConfig(
+  plan: VideoPlan,
+  rootDir = process.cwd(),
+): Promise<ResolvedConfig> {
   const modeDefaults = await readDefaults(rootDir, "modes", plan.mode);
   const platformDefaults = await readDefaults(rootDir, "platforms", plan.targetPlatform);
   const styleDefaults = await readDefaults(rootDir, "stylepacks", plan.stylePackId);
@@ -55,7 +60,7 @@ export async function resolveConfig(plan: VideoPlan, rootDir = process.cwd()): P
     ...modeDefaults,
     ...platformDefaults,
     ...styleDefaults,
-    ...plan.overrides
+    ...plan.overrides,
   } as ResolvedConfig;
 
   return {
@@ -63,6 +68,6 @@ export async function resolveConfig(plan: VideoPlan, rootDir = process.cwd()): P
     templateId: plan.templateId ?? merged.templateId,
     fps: plan.overrides.fps ?? merged.fps,
     resolution: plan.overrides.resolution ?? merged.resolution,
-    aspectRatio: plan.overrides.aspectRatio ?? merged.aspectRatio
+    aspectRatio: plan.overrides.aspectRatio ?? merged.aspectRatio,
   };
 }

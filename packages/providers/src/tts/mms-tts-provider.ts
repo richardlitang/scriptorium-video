@@ -12,8 +12,8 @@ const voices: TTSVoice[] = [
     language: "multi",
     gender: "neutral",
     supportsSpeed: false,
-    supportsEmotion: false
-  }
+    supportsEmotion: false,
+  },
 ];
 
 function mmsUrl(): string {
@@ -26,7 +26,7 @@ function buildPayload(request: TTSRequest): Record<string, unknown> {
     language: request.options?.language || process.env.MMS_TTS_LANGUAGE || "tgl",
     voice: request.voiceId || "default",
     input: request.text,
-    response_format: request.format
+    response_format: request.format,
   };
 }
 
@@ -35,7 +35,7 @@ function startupHint(url: string): string {
     `MMS TTS server is unreachable at ${url}.`,
     "Start it before making a draft:",
     "MMS_MODEL=facebook/mms-tts-tgl /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/mms_tts_server.py",
-    "Or set MMS_TTS_URL to a reachable MMS-compatible speech endpoint."
+    "Or set MMS_TTS_URL to a reachable MMS-compatible speech endpoint.",
   ].join(" ");
 }
 
@@ -57,7 +57,7 @@ export class MMSTTSProvider implements TTSProvider {
       response = await fetch(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
     } catch (error) {
       throw new Error(startupHint(url), { cause: error });
@@ -80,8 +80,8 @@ export class MMSTTSProvider implements TTSProvider {
       metadata: {
         model: payload.model,
         language: payload.language,
-        bytes: bytes.length
-      }
+        bytes: bytes.length,
+      },
     };
   }
 }

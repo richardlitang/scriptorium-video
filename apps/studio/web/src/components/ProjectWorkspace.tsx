@@ -38,8 +38,8 @@ export function ProjectWorkspace({ projectId }: Props) {
   const [pacing, setPacing] = useState(() => readStored(projectId, "pacing", ""));
   const [visualStyle, setVisualStyle] = useState(() => readStored(projectId, "visualStyle", ""));
   const [systemPrompt, setSystemPrompt] = useState(() => readStored(projectId, "systemPrompt"));
-  const [userPromptTemplate, setUserPromptTemplate] = useState(
-    () => readStored(projectId, "userPromptTemplate"),
+  const [userPromptTemplate, setUserPromptTemplate] = useState(() =>
+    readStored(projectId, "userPromptTemplate"),
   );
 
   // Reset all per-project state when project changes
@@ -69,10 +69,10 @@ export function ProjectWorkspace({ projectId }: Props) {
   function markPlanSaved() {
     setFlags({ hasUnsavedPlan: false, needsPrepareDraft: true, needsRender: true });
     appendQualityLog("Plan saved.");
-    qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
-    qc.invalidateQueries({ queryKey: projectKeys.qualityHistory(projectId) });
-    qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
-    qc.invalidateQueries({ queryKey: plannerKeys.plan(projectId) });
+    void qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+    void qc.invalidateQueries({ queryKey: projectKeys.qualityHistory(projectId) });
+    void qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
+    void qc.invalidateQueries({ queryKey: plannerKeys.plan(projectId) });
   }
 
   function appendQualityLog(msg: string) {
@@ -91,8 +91,8 @@ export function ProjectWorkspace({ projectId }: Props) {
 
   const handleJobFinished = useCallback(() => {
     setFlags((prev) => ({ ...prev, needsRender: true }));
-    qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
-    qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
+    void qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+    void qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
   }, [projectId, qc]);
 
   if (isLoading && !planJson) {

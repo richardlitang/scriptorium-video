@@ -18,5 +18,8 @@
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     }
+  },
+  "scripts": {
+    "test": "pnpm -s exec tsc -p tsconfig.json && node --test \"test/**/*.mjs\""
   }
 }

@@ -36,8 +36,8 @@ audioProcessing: z.object({
   loudnessTargetLufs: z.number(),
   truePeakDb: z.number(),
   compression: z.string(),
-  processedAt: z.string().datetime()
-}).optional()
+  processedAt: z.string().datetime(),
+}).optional();
 ```
 
 Keep existing assets valid by making the field optional.
@@ -72,7 +72,7 @@ export type VoiceProcessingOptions = {
 
 export async function normalizeVoiceover(
   audioPath: string,
-  options: VoiceProcessingOptions = {}
+  options: VoiceProcessingOptions = {},
 ): Promise<{ loudnessTargetLufs: number; truePeakDb: number; compression: string }> {
   // Run ffmpeg against a temporary output path, then replace original on success.
 }
@@ -188,18 +188,20 @@ export const VoiceProfileSchema = z.enum([
   "tense",
   "reveal",
   "urgent",
-  "soft_close"
+  "soft_close",
 ]);
 
-export const VoiceDirectionSchema = z.object({
-  profile: VoiceProfileSchema.default("neutral"),
-  deliveryNote: z.string().optional(),
-  emphasis: z.array(z.string()).default([]),
-  pauseBeforeSeconds: z.number().min(0).max(1.2).default(0),
-  pauseAfterSeconds: z.number().min(0).max(1.2).default(0),
-  intensity: z.number().min(0).max(1).default(0.5),
-  source: z.enum(["user", "llm", "default"]).default("default")
-}).strict();
+export const VoiceDirectionSchema = z
+  .object({
+    profile: VoiceProfileSchema.default("neutral"),
+    deliveryNote: z.string().optional(),
+    emphasis: z.array(z.string()).default([]),
+    pauseBeforeSeconds: z.number().min(0).max(1.2).default(0),
+    pauseAfterSeconds: z.number().min(0).max(1.2).default(0),
+    intensity: z.number().min(0).max(1).default(0.5),
+    source: z.enum(["user", "llm", "default"]).default("default"),
+  })
+  .strict();
 ```
 
 Add `voiceDirection: VoiceDirectionSchema.optional()` to `BeatSchema`.
@@ -403,7 +405,7 @@ pnpm -s build
 Create a pure function:
 
 ```ts
-export function applyVoiceDirectionPlan(videoPlan, directionOutput, options)
+export function applyVoiceDirectionPlan(videoPlan, directionOutput, options);
 ```
 
 Behavior:

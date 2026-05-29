@@ -2,6 +2,10 @@
 
 `apps/studio` owns the local HTTP server, browser UI, job orchestration, and Studio-specific adapters.
 
+## Tooling Baseline
+
+- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new Studio workspace/bootstrap work.
+
 ## Server Boundaries
 
 - `server.mjs` is a composition/startup file. Do not add new business logic to it.
@@ -23,6 +27,7 @@ The browser UI is being migrated from `public/app.js` (vanilla DOM) to `web/` (R
 **Migration complete** — `public/app.js`, `public/index.html`, `public/modules/`, and `public/styles.css` have been deleted. The SPA in `web/` is the only UI. `studio-ui-contract.test.mjs` now guards `web/index.html#root`.
 
 **React/Vite conventions:**
+
 - All new web code lives under `web/src/`. Components in `web/src/components/`, queries/mutations in `web/src/queries/`, typed API wrapper at `web/src/api/client.ts`.
 - Use TanStack Query for all server state (polls, mutations, invalidations). No `setInterval` or direct `fetch` in components.
 - Use Radix primitives (Dialog, Select, Slider, etc.) for accessible interactive controls.

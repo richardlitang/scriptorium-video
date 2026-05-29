@@ -9,7 +9,7 @@ export async function createProject(
   projectId: string,
   mode: Mode,
   platform: Platform,
-  rootDir = process.cwd()
+  rootDir = process.cwd(),
 ): Promise<void> {
   await createProjectScaffold(projectId, mode, platform, rootDir);
 }

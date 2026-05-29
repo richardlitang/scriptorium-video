@@ -7,7 +7,11 @@ type SectionTitleCardProps = {
 export const SectionTitleCard: React.FC<SectionTitleCardProps> = ({ title }) => {
   const frame = useCurrentFrame();
   const { durationInFrames } = useVideoConfig();
-  const opacity = interpolate(frame, [0, 10, durationInFrames - 10, durationInFrames], [0, 1, 1, 0]);
+  const opacity = interpolate(
+    frame,
+    [0, 10, durationInFrames - 10, durationInFrames],
+    [0, 1, 1, 0],
+  );
 
   return (
     <AbsoluteFill
@@ -15,7 +19,7 @@ export const SectionTitleCard: React.FC<SectionTitleCardProps> = ({ title }) => 
         justifyContent: "center",
         alignItems: "center",
         background: "linear-gradient(180deg, rgba(2,6,23,0.9), rgba(30,41,59,0.78))",
-        opacity
+        opacity,
       }}
     >
       <div
@@ -26,7 +30,7 @@ export const SectionTitleCard: React.FC<SectionTitleCardProps> = ({ title }) => 
           fontWeight: 700,
           textAlign: "center",
           padding: "0 120px",
-          lineHeight: 1.1
+          lineHeight: 1.1,
         }}
       >
         {title}

@@ -13,6 +13,7 @@ The UI is workflow- and server-state-heavy (jobs, polling, draft states queued/r
 ## Key accelerator: reuse the pure view-models
 
 These modules are already extracted with passing tests — import into React unchanged, convert to TS in the slice that touches them:
+
 - `public/modules/story-ui-state.js`
 - `public/modules/story-draft-state.js`
 - `public/modules/tts-ui-state.js`
@@ -30,6 +31,7 @@ The migration replaces DOM wiring, not this logic.
 From `fetch` calls in `app.js` (helper `fetchJson` at `app.js:324`):
 
 **Queries:**
+
 - `GET /api/projects`
 - `GET /api/projects/:id`
 - `GET /api/projects/:id/assets`
@@ -44,6 +46,7 @@ From `fetch` calls in `app.js` (helper `fetchJson` at `app.js:324`):
 **Polled query:** `GET /api/projects/:id/draft-job` (2.5s interval, `app.js:1191`) → `refetchInterval` in TanStack Query
 
 **Mutations:**
+
 - `POST /api/projects/:id/plan-from-story`
 - `PUT /api/projects/:id/plan`
 - `POST /api/projects/:id/generate-images`
@@ -75,17 +78,17 @@ From `fetch` calls in `app.js` (helper `fetchJson` at `app.js:324`):
 
 Each slice: build the React panel → reach parity → delete that section from `app.js`. Convert consumed pure module(s) to `.ts` in the same slice.
 
-| Slice | Panel | Reused modules |
-|-------|-------|----------------|
-| 2 | TTS health pill (polled `refetchInterval`) | `tts-ui-state` |
-| 3 | Story → plan composer (story input + controls + `plan-from-story`) | `story-ui-state`, `story-draft-state` |
-| 4 | Plan editor + save + quality/timeline/captions output | — |
-| 5 | Draft job: prepare/render-draft/stop + job banner + poll | `draft-job-ui-state`, `draft-job-notification`, `draft-job-request` |
-| 6 | Job center + traces | `job-center.js` |
-| 7 | Images: generate, coverage, image-history, media preview | `image-coverage*` |
-| 8 | Beat workspace | `beat-workspace.js` (607 lines, largest) |
-| 9 | Voice settings dialog (Radix Dialog) | `voice-settings-ui.js` |
-| 10 | Review list + remaining controls | — |
+| Slice | Panel                                                              | Reused modules                                                      |
+| ----- | ------------------------------------------------------------------ | ------------------------------------------------------------------- |
+| 2     | TTS health pill (polled `refetchInterval`)                         | `tts-ui-state`                                                      |
+| 3     | Story → plan composer (story input + controls + `plan-from-story`) | `story-ui-state`, `story-draft-state`                               |
+| 4     | Plan editor + save + quality/timeline/captions output              | —                                                                   |
+| 5     | Draft job: prepare/render-draft/stop + job banner + poll           | `draft-job-ui-state`, `draft-job-notification`, `draft-job-request` |
+| 6     | Job center + traces                                                | `job-center.js`                                                     |
+| 7     | Images: generate, coverage, image-history, media preview           | `image-coverage*`                                                   |
+| 8     | Beat workspace                                                     | `beat-workspace.js` (607 lines, largest)                            |
+| 9     | Voice settings dialog (Radix Dialog)                               | `voice-settings-ui.js`                                              |
+| 10    | Review list + remaining controls                                   | —                                                                   |
 
 ### Cutover
 

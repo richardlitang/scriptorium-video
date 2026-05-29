@@ -242,7 +242,7 @@ export type RendererCapabilities = {
 
 export type ResolvedRenderConfig = {
   fps: number;
-  aspectRatio: "9:16" | "16:9" | "1:1";
+  aspectRatio: "9:16" | "9:16" | "1:1";
   resolution: {
     width: number;
     height: number;
@@ -315,7 +315,7 @@ export async function buildRenderBundle(input: {
     assetManifest: loaded.assetManifest,
     timeline: loaded.timeline,
     captions: loaded.captions,
-    resolvedConfig: await resolveConfig(loaded.videoPlan, rootDir)
+    resolvedConfig: await resolveConfig(loaded.videoPlan, rootDir),
   };
 }
 ```
@@ -381,31 +381,31 @@ export class RemotionRenderer implements RendererProvider {
     supportsPartialRender: false,
     supportsAlpha: false,
     supportsAudioMixing: true,
-    supportedTemplates: ["vertical-story"]
+    supportedTemplates: ["vertical-story"],
   };
 
   async render(request: RenderRequest): Promise<RenderResult> {
     const assetUrls = Object.fromEntries(
       request.renderBundle.assetManifest.assets.map((asset) => [
         asset.id,
-        pathToFileURL(path.resolve(request.projectDir, asset.path)).href
-      ])
+        pathToFileURL(path.resolve(request.projectDir, asset.path)).href,
+      ]),
     );
 
     const inputProps: RemotionInputProps = {
       renderBundle: request.renderBundle,
       quality: request.quality,
-      assetUrls
+      assetUrls,
     };
 
     const serveUrl = await bundle({
-      entryPoint: path.resolve(process.cwd(), "apps", "renderer", "src", "index.ts")
+      entryPoint: path.resolve(process.cwd(), "apps", "renderer", "src", "index.ts"),
     });
 
     const composition = await selectComposition({
       serveUrl,
       id: request.renderBundle.resolvedConfig.templateId,
-      inputProps
+      inputProps,
     });
 
     await renderMedia({
@@ -413,7 +413,7 @@ export class RemotionRenderer implements RendererProvider {
       composition,
       codec: "h264",
       outputLocation: request.outputPath,
-      inputProps
+      inputProps,
     });
 
     return {
@@ -422,7 +422,7 @@ export class RemotionRenderer implements RendererProvider {
       width: request.renderBundle.timeline.width,
       height: request.renderBundle.timeline.height,
       fps: request.renderBundle.timeline.fps,
-      providerId: this.id
+      providerId: this.id,
     };
   }
 }
@@ -435,7 +435,7 @@ import type { RendererProvider } from "@lvstudio/core";
 import { RemotionRenderer } from "./remotion/remotion-renderer.js";
 
 export const rendererProviders: Record<string, RendererProvider> = {
-  remotion: new RemotionRenderer()
+  remotion: new RemotionRenderer(),
 };
 ```
 

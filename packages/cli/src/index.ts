@@ -1,14 +1,15 @@
 import { Command } from "commander";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readdir } from "node:fs/promises";
 import path from "node:path";
 import {
   buildRenderBundle,
   writeJsonFile,
   getProjectPaths,
+  migrateVideoPlan,
   resolveConfig,
   syncProject,
   validateProject,
-  reviewProject
+  reviewProject,
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
@@ -24,10 +25,26 @@ import { transcribeProjectCli } from "./transcribe.js";
 
 const program = new Command();
 
-program
-  .name("lvstudio")
-  .description("Local-first video production CLI")
-  .version("0.1.0");
+const RENDER_PROGRESS_PREFIX = "__LVSTUDIO_RENDER_PROGRESS__";
+
+async function listLocalProjectIds() {
+  const projectsRoot = path.resolve(process.cwd(), "content", "projects");
+  let entries;
+  try {
+    entries = await readdir(projectsRoot, { withFileTypes: true });
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      return [];
+    }
+    throw error;
+  }
+  return entries
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort((a, b) => a.localeCompare(b));
+}
+
+program.name("lvstudio").description("Local-first video production CLI").version("0.1.0");
 
 program
   .command("create")
@@ -69,13 +86,58 @@ program
   });
 
 program
+  .command("migrate:plan")
+  .argument("[project-id]")
+  .option("--all", "migrate every local project under content/projects")
+  .option("--dry-run", "report whether canonical migration would change the plan")
+  .action(async (projectId, options) => {
+    if (options.all === true && projectId) {
+      throw new Error("Pass either --all or <project-id>, not both.");
+    }
+
+    let projectIds: string[];
+    if (options.all === true) {
+      projectIds = await listLocalProjectIds();
+    } else {
+      projectIds = projectId ? [projectId] : [];
+    }
+
+    if (projectIds.length === 0) {
+      throw new Error("Provide <project-id> or pass --all.");
+    }
+
+    let changedCount = 0;
+    for (const id of projectIds) {
+      await validateProject(id);
+      const result = await migrateVideoPlan(id, {
+        write: options.dryRun !== true,
+      });
+      if (!result.changed) {
+        console.log(`Plan already canonical for ${id}.`);
+        continue;
+      }
+      changedCount += 1;
+      if (options.dryRun === true) {
+        console.log(`Plan migration needed for ${id}: ${result.path}`);
+        continue;
+      }
+      console.log(`Migrated plan for ${id}: ${result.path}`);
+    }
+
+    if (options.all === true) {
+      const mode = options.dryRun === true ? "Dry-run" : "Migrated";
+      console.log(`${mode} ${projectIds.length} projects; ${changedCount} changed.`);
+    }
+  });
+
+program
   .command("sync")
   .argument("<project-id>")
   .action(async (projectId) => {
     const result = await syncProject(projectId);
     const timeline = result.timeline;
     console.log(
-      `Synced ${projectId}: ${timeline.segments.length} segments, ${timeline.durationSeconds.toFixed(2)}s.`
+      `Synced ${projectId}: ${timeline.segments.length} segments, ${timeline.durationSeconds.toFixed(2)}s.`,
     );
     if (result.staleAssetIds.length > 0) {
       console.log(`Stale assets: ${result.staleAssetIds.join(", ")}`);
@@ -99,7 +161,7 @@ program
     await directVoice(projectId, {
       provider: options.provider,
       fromFile: options.fromFile,
-      force: options.force === true
+      force: options.force === true,
     });
   });
 
@@ -120,7 +182,7 @@ program
       noCache: options.noCache === true || options.cache === false,
       onlySection: options.onlySection,
       onlyBeat: options.onlyBeat,
-      concurrency: options.concurrency
+      concurrency: options.concurrency,
     });
   });
 
@@ -138,7 +200,7 @@ program
       beat: options.beat,
       role: options.role as "primary_visual" | "broll" | "screen" | "overlay",
       section: options.section,
-      copy: options.copy !== false
+      copy: options.copy !== false,
     });
   });
 
@@ -159,11 +221,15 @@ program
   .option("--youtube-audio-library", "apply YouTube Audio Library source defaults")
   .action(async (projectId, filePath, options) => {
     await validateProject(projectId);
-    const role = options.role === "music" ? "music" : options.role === "sfx" ? "sfx" : null;
-    if (!role) throw new Error("--role must be either 'music' or 'sfx'.");
+    const roleInput = options.role as string | undefined;
+    if (roleInput !== "music" && roleInput !== "sfx")
+      throw new Error("--role must be either 'music' or 'sfx'.");
+    const role = roleInput;
     const youtubePreset = options.youtubeAudioLibrary === true;
-    if (!youtubePreset && !options.provider) throw new Error("--provider is required unless --youtube-audio-library is set.");
-    if (!youtubePreset && !options.licenseType) throw new Error("--license-type is required unless --youtube-audio-library is set.");
+    if (!youtubePreset && !options.provider)
+      throw new Error("--provider is required unless --youtube-audio-library is set.");
+    if (!youtubePreset && !options.licenseType)
+      throw new Error("--license-type is required unless --youtube-audio-library is set.");
     await ingestAudioCli(projectId, filePath, {
       role,
       assetId: options.assetId,
@@ -174,7 +240,7 @@ program
       trackId: options.trackId,
       attributionRequired: options.attributionRequired === true,
       allowedPlatforms: youtubePreset ? "youtube,local_only" : options.allowedPlatforms,
-      downloadedAt: options.downloadedAt
+      downloadedAt: options.downloadedAt,
     });
   });
 
@@ -187,15 +253,13 @@ program
   .option("--allowed-platforms <platforms>", "comma separated platforms", "youtube")
   .action(async (projectId, options) => {
     await validateProject(projectId);
-    const role =
-      options.role === "music" ? "music" :
-      options.role === "sfx" ? "sfx" :
-      undefined;
+    const roleRaw = options.role as string | undefined;
+    const role = roleRaw === "music" || roleRaw === "sfx" ? roleRaw : undefined;
     await enrichAudioCli(projectId, {
       role,
       provider: options.provider,
       licenseType: options.licenseType,
-      allowedPlatforms: options.allowedPlatforms
+      allowedPlatforms: options.allowedPlatforms,
     });
   });
 
@@ -232,7 +296,7 @@ program
     const qualityResult = await runQualityChecks(projectId);
     if (qualityResult.status === "fail" && options.force !== true) {
       throw new Error(
-        `Render blocked by quality checks. Run 'lvstudio check ${projectId}' for details or pass --force.`
+        `Render blocked by quality checks. Run 'lvstudio check ${projectId}' for details or pass --force.`,
       );
     }
     const providerId = options.provider ?? bundle.videoPlan.providers.renderer;
@@ -248,7 +312,10 @@ program
       projectDir: projectPaths.projectDir,
       renderBundle: bundle,
       outputPath,
-      quality
+      quality,
+      onProgress: (progress) => {
+        console.log(`${RENDER_PROGRESS_PREFIX}${JSON.stringify(progress)}`);
+      },
     });
     console.log(`Rendered ${result.outputPath}`);
   });

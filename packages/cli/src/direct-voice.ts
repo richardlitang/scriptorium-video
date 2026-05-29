@@ -1,13 +1,13 @@
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import {
   applyVoiceDirectionPlan,
   getProjectPaths,
+  resolveOpenAiApiKey,
   readJsonFile,
   type VideoPlan,
   VideoPlanSchema,
   VoiceDirectorOutputSchema,
-  writeJsonFile
+  writeJsonFile,
 } from "@lvstudio/core";
 
 const OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
@@ -25,8 +25,8 @@ type VoiceDirectorResponse = {
       profile: string;
       deliveryNote?: string;
       emphasis?: string[];
-      pauseBeforeSeconds?: number;
-      pauseAfterSeconds?: number;
+      pauseBeforeMs?: number;
+      pauseAfterMs?: number;
       intensity?: number;
       source?: "llm";
     };
@@ -42,34 +42,8 @@ type VoiceDirectorResponse = {
   }>;
 };
 
-async function readEnvFile(filePath: string): Promise<Record<string, string>> {
-  const raw = await readFile(filePath, "utf8").catch(() => "");
-  return Object.fromEntries(
-    raw
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter((line) => line && !line.startsWith("#") && line.includes("="))
-      .map((line) => {
-        const index = line.indexOf("=");
-        return [line.slice(0, index).trim(), line.slice(index + 1).trim().replace(/^['"]|['"]$/g, "")];
-      })
-  );
-}
-
 async function getOpenAiApiKey(): Promise<string> {
-  if (process.env.OPENAI_API_KEY) return process.env.OPENAI_API_KEY;
-  const rootDir = process.cwd();
-  const envPaths = [
-    process.env.LVSTUDIO_OPENAI_ENV_FILE,
-    path.resolve(rootDir, ".env.local"),
-    path.resolve(rootDir, "..", "support", ".env.local")
-  ].filter(Boolean) as string[];
-
-  for (const envPath of envPaths) {
-    const values = await readEnvFile(envPath);
-    if (values.OPENAI_API_KEY) return values.OPENAI_API_KEY;
-  }
-  throw new Error("Missing OPENAI_API_KEY. Set it in env, LVSTUDIO_OPENAI_ENV_FILE, or ../support/.env.local.");
+  return resolveOpenAiApiKey();
 }
 
 function buildVoicePrompt(plan: VideoPlan): string {
@@ -79,8 +53,8 @@ function buildVoicePrompt(plan: VideoPlan): string {
       sectionId: section.id,
       sectionTitle: section.title,
       narration: beat.narration,
-      currentCaptionEmphasis: beat.caption?.emphasis ?? []
-    }))
+      currentCaptionEmphasis: beat.caption?.emphasis ?? [],
+    })),
   );
 
   return [
@@ -88,11 +62,11 @@ function buildVoicePrompt(plan: VideoPlan): string {
     "Choose one profile per beat from:",
     "neutral, warm_open, clear_explainer, authoritative, energetic, key_point, reflective, tense, reveal, urgent, soft_close.",
     "Return concise delivery notes and practical pause timing.",
-    "Use pauseBeforeSeconds and pauseAfterSeconds in range 0..1.2.",
+    "Use pauseBeforeMs and pauseAfterMs in range 0..1200.",
     "Do not output provider-specific values like temperature, cfg_weight, or exaggeration.",
     "",
     "Beats:",
-    JSON.stringify(beats, null, 2)
+    JSON.stringify(beats, null, 2),
   ].join("\n");
 }
 
@@ -118,15 +92,15 @@ async function generateVoiceDirectionWithOpenAI(plan: VideoPlan): Promise<VoiceD
     method: "POST",
     headers: {
       authorization: `Bearer ${apiKey}`,
-      "content-type": "application/json"
+      "content-type": "application/json",
     },
     body: JSON.stringify({
       model,
       input: [
         {
           role: "user",
-          content: [{ type: "input_text", text: prompt }]
-        }
+          content: [{ type: "input_text", text: prompt }],
+        },
       ],
       text: {
         format: {
@@ -150,16 +124,16 @@ async function generateVoiceDirectionWithOpenAI(plan: VideoPlan): Promise<VoiceD
                         profile: { type: "string" },
                         deliveryNote: { type: "string" },
                         emphasis: { type: "array", items: { type: "string" } },
-                        pauseBeforeSeconds: { type: "number" },
-                        pauseAfterSeconds: { type: "number" },
+                        pauseBeforeMs: { type: "number" },
+                        pauseAfterMs: { type: "number" },
                         intensity: { type: "number" },
-                        source: { type: "string" }
+                        source: { type: "string" },
                       },
-                      required: ["profile"]
+                      required: ["profile"],
                     },
                     captionEmphasis: {
                       type: "array",
-                      items: { type: "string" }
+                      items: { type: "string" },
                     },
                     sfxCues: {
                       type: "array",
@@ -172,21 +146,21 @@ async function generateVoiceDirectionWithOpenAI(plan: VideoPlan): Promise<VoiceD
                           placement: { type: "string" },
                           offsetSeconds: { type: "number" },
                           levelDb: { type: "number" },
-                          assetId: { type: "string" }
+                          assetId: { type: "string" },
                         },
-                        required: ["id", "kind", "placement", "offsetSeconds", "levelDb"]
-                      }
-                    }
+                        required: ["id", "kind", "placement", "offsetSeconds", "levelDb"],
+                      },
+                    },
                   },
-                  required: ["beatId", "voiceDirection"]
-                }
-              }
+                  required: ["beatId", "voiceDirection"],
+                },
+              },
             },
-            required: ["beats"]
-          }
-        }
-      }
-    })
+            required: ["beats"],
+          },
+        },
+      },
+    }),
   });
 
   if (!response.ok) {
@@ -203,13 +177,16 @@ async function generateVoiceDirectionWithOpenAI(plan: VideoPlan): Promise<VoiceD
       ...beat,
       voiceDirection: {
         ...beat.voiceDirection,
-        source: "llm"
-      }
-    }))
+        source: "llm",
+      },
+    })),
   };
 }
 
-export async function directVoice(projectId: string, options: DirectVoiceOptions = {}): Promise<void> {
+export async function directVoice(
+  projectId: string,
+  options: DirectVoiceOptions = {},
+): Promise<void> {
   const paths = getProjectPaths(projectId);
   const plan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
 

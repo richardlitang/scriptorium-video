@@ -16,7 +16,9 @@ export function usePlannerDefaults() {
     queryKey: plannerKeys.defaults,
     queryFn: async (): Promise<PlannerDefaults> => {
       const result = await api.planner.defaults();
-      const data = (result as unknown as { data?: { systemPrompt?: string; userPromptTemplate?: string } }).data ?? {};
+      const data =
+        (result as unknown as { data?: { systemPrompt?: string; userPromptTemplate?: string } })
+          .data ?? {};
       return {
         systemPrompt: String(data.systemPrompt ?? ""),
         userPromptTemplate: String(data.userPromptTemplate ?? ""),
@@ -50,7 +52,7 @@ export function usePlanFromStory(projectId: string | null) {
       format: string;
     }) => api.projects.planFromStory(projectId!, body),
     onSuccess: () => {
-      if (projectId) qc.invalidateQueries({ queryKey: plannerKeys.plan(projectId) });
+      if (projectId) void qc.invalidateQueries({ queryKey: plannerKeys.plan(projectId) });
     },
   });
 }
@@ -60,7 +62,7 @@ export function useSavePlan(projectId: string | null) {
   return useMutation({
     mutationFn: (plan: string) => api.projects.savePlan(projectId!, plan),
     onSuccess: () => {
-      if (projectId) qc.invalidateQueries({ queryKey: plannerKeys.plan(projectId) });
+      if (projectId) void qc.invalidateQueries({ queryKey: plannerKeys.plan(projectId) });
     },
   });
 }

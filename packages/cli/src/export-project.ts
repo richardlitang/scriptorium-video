@@ -33,7 +33,7 @@ export async function exportProject(projectId: string): Promise<void> {
     `# ${plan.title}`,
     "",
     "## Chapters",
-    ...chapters.map((chapter) => `- ${chapter}`)
+    ...chapters.map((chapter) => `- ${chapter}`),
   ].join("\n");
 
   await writeFile(path.join(exportsDir, "chapters.txt"), `${chapters.join("\n")}\n`, "utf8");

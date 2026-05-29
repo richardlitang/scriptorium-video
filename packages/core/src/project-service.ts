@@ -5,6 +5,7 @@ import { ProjectSchema, type Project } from "./schemas/project.schema.js";
 import { TimelineSchema, type Timeline } from "./schemas/timeline.schema.js";
 import { VideoPlanSchema, type VideoPlan } from "./schemas/video-plan.schema.js";
 import { readJsonFile } from "./json.js";
+import { normalizeVideoPlan } from "./normalize-video-plan.js";
 import { getProjectPaths } from "./paths.js";
 
 export type LoadedProject = {
@@ -24,10 +25,13 @@ async function exists(filePath: string): Promise<boolean> {
   }
 }
 
-export async function loadProject(projectId: string, rootDir = process.cwd()): Promise<LoadedProject> {
+export async function loadProject(
+  projectId: string,
+  rootDir = process.cwd(),
+): Promise<LoadedProject> {
   const paths = getProjectPaths(projectId, rootDir);
   const project = await readJsonFile(paths.projectJson, ProjectSchema);
-  const videoPlan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
+  const videoPlan = normalizeVideoPlan(await readJsonFile(paths.videoPlan, VideoPlanSchema));
   const assetManifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const timeline = (await exists(paths.timeline))
     ? await readJsonFile(paths.timeline, TimelineSchema)
@@ -41,10 +45,13 @@ export async function loadProject(projectId: string, rootDir = process.cwd()): P
     videoPlan,
     assetManifest,
     timeline,
-    captions
+    captions,
   };
 }
 
-export async function validateProject(projectId: string, rootDir = process.cwd()): Promise<LoadedProject> {
+export async function validateProject(
+  projectId: string,
+  rootDir = process.cwd(),
+): Promise<LoadedProject> {
   return loadProject(projectId, rootDir);
 }

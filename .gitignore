@@ -6,5 +6,13 @@ dist/
 .studio-data/
 content/projects/*/renders/*.mp4
 content/projects/*/renders/*.webm
+content/projects/**/assets/audio/voice/**
+content/projects/**/assets/images/generated/**
+content/projects/**/captions/**
+content/projects/**/renders/**
+content/projects/**/timeline.json
+content/projects/**/asset-manifest.json
+content/projects/**/video-plan.json
+content/projects/**/project.json
 __pycache__/
 *.pyc

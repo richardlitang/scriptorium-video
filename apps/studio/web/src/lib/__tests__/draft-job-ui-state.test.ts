@@ -63,7 +63,11 @@ describe("draftJobUiModel", () => {
   });
 
   it("shows failed banner with error", () => {
-    const m = draftJobUiModel(base({ status: "failed", error: "Out of memory" }), undefined, "Make Draft");
+    const m = draftJobUiModel(
+      base({ status: "failed", error: "Out of memory" }),
+      undefined,
+      "Make Draft",
+    );
     expect(m.bannerStatus).toBe("failed");
     expect(m.bannerDetail).toContain("Out of memory");
   });
@@ -71,14 +75,20 @@ describe("draftJobUiModel", () => {
 
 describe("shouldNotifyDraftJobFinished", () => {
   it("returns false for active job", () => {
-    expect(shouldNotifyDraftJobFinished(null, base({ status: "running", jobId: "j1" }))).toBe(false);
+    expect(shouldNotifyDraftJobFinished(null, base({ status: "running", jobId: "j1" }))).toBe(
+      false,
+    );
   });
 
   it("returns true for new completed job", () => {
-    expect(shouldNotifyDraftJobFinished(null, base({ status: "completed", jobId: "j1" }))).toBe(true);
+    expect(shouldNotifyDraftJobFinished(null, base({ status: "completed", jobId: "j1" }))).toBe(
+      true,
+    );
   });
 
   it("returns false for already-seen completed job", () => {
-    expect(shouldNotifyDraftJobFinished("j1", base({ status: "completed", jobId: "j1" }))).toBe(false);
+    expect(shouldNotifyDraftJobFinished("j1", base({ status: "completed", jobId: "j1" }))).toBe(
+      false,
+    );
   });
 });

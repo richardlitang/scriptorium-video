@@ -29,18 +29,19 @@ export async function probeMedia(filePath: string): Promise<ProbeResult> {
     "json",
     "-show_format",
     "-show_streams",
-    filePath
+    filePath,
   ]);
   const parsed = JSON.parse(stdout) as {
     format?: { duration?: string };
     streams?: Array<{ codec_type?: string; width?: number; height?: number; duration?: string }>;
   };
   const videoStream = parsed.streams?.find((stream) => stream.codec_type === "video");
-  const duration = parsed.format?.duration ?? parsed.streams?.find((stream) => stream.duration)?.duration;
+  const duration =
+    parsed.format?.duration ?? parsed.streams?.find((stream) => stream.duration)?.duration;
 
   return {
     durationSeconds: rounded(safeNumber(duration)),
     width: videoStream?.width && videoStream.width > 0 ? videoStream.width : undefined,
-    height: videoStream?.height && videoStream.height > 0 ? videoStream.height : undefined
+    height: videoStream?.height && videoStream.height > 0 ? videoStream.height : undefined,
   };
 }

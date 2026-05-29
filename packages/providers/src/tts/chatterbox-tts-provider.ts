@@ -11,15 +11,15 @@ const voices: TTSVoice[] = [
     label: "Chatterbox Default",
     language: "en",
     gender: "neutral",
-    supportsEmotion: true
+    supportsEmotion: true,
   },
   {
     id: "clone",
     label: "Chatterbox Voice Clone",
     language: "en",
     gender: "neutral",
-    supportsEmotion: true
-  }
+    supportsEmotion: true,
+  },
 ];
 
 function envNumber(name: string): number | undefined {
@@ -55,11 +55,13 @@ function chatterboxStartupHint(url: string): string {
     `Chatterbox TTS server is unreachable at ${url}.`,
     "Start it before making a draft:",
     "CHATTERBOX_MODEL_CACHE=/private/tmp/lvstudio-hf /private/tmp/lvstudio-chatterbox-venv/bin/python scripts/chatterbox_tts_server.py",
-    "Or set CHATTERBOX_TTS_URL to a reachable Chatterbox-compatible speech endpoint."
+    "Or set CHATTERBOX_TTS_URL to a reachable Chatterbox-compatible speech endpoint.",
   ].join(" ");
 }
 
-export async function checkChatterboxCapability(fetchImpl: typeof fetch = fetch): Promise<ChatterboxCapability> {
+export async function checkChatterboxCapability(
+  fetchImpl: typeof fetch = fetch,
+): Promise<ChatterboxCapability> {
   const speechUrl = chatterboxUrl();
   const healthUrl = chatterboxHealthUrl(speechUrl);
   try {
@@ -70,7 +72,7 @@ export async function checkChatterboxCapability(fetchImpl: typeof fetch = fetch)
         status: "failed",
         speechUrl,
         healthUrl,
-        message: `Chatterbox health check failed: ${response.status}`
+        message: `Chatterbox health check failed: ${response.status}`,
       };
     }
     const body = (await response.json().catch(() => ({}))) as {
@@ -87,7 +89,7 @@ export async function checkChatterboxCapability(fetchImpl: typeof fetch = fetch)
       status,
       speechUrl,
       healthUrl,
-      message: body.error || `Chatterbox is ${status}.`
+      message: body.error || `Chatterbox is ${status}.`,
     };
   } catch (error) {
     return {
@@ -95,7 +97,7 @@ export async function checkChatterboxCapability(fetchImpl: typeof fetch = fetch)
       status: "unreachable",
       speechUrl,
       healthUrl,
-      message: error instanceof Error ? error.message : String(error)
+      message: error instanceof Error ? error.message : String(error),
     };
   }
 }
@@ -122,16 +124,18 @@ export function buildPayload(request: TTSRequest): Record<string, unknown> {
     model: process.env.CHATTERBOX_TTS_MODEL ?? "chatterbox",
     voice: request.voiceId || process.env.CHATTERBOX_TTS_VOICE_ID || "default",
     input: request.text,
-    response_format: request.format
+    response_format: request.format,
   };
 
   if (request.options?.speed !== undefined) payload.speed = request.options.speed;
   if (request.options?.language) payload.language = request.options.language;
 
-  const audioPromptPath = providerString(request, "audio_prompt_path") ?? process.env.CHATTERBOX_AUDIO_PROMPT_PATH;
+  const audioPromptPath =
+    providerString(request, "audio_prompt_path") ?? process.env.CHATTERBOX_AUDIO_PROMPT_PATH;
   if (audioPromptPath) payload.audio_prompt_path = audioPromptPath;
 
-  const exaggeration = providerNumber(request, "exaggeration") ?? envNumber("CHATTERBOX_EXAGGERATION");
+  const exaggeration =
+    providerNumber(request, "exaggeration") ?? envNumber("CHATTERBOX_EXAGGERATION");
   if (exaggeration !== undefined) payload.exaggeration = exaggeration;
 
   const cfgWeight = providerNumber(request, "cfg_weight") ?? envNumber("CHATTERBOX_CFG_WEIGHT");
@@ -173,12 +177,14 @@ export class ChatterboxTTSProvider implements TTSProvider {
 
   async synthesize(request: TTSRequest): Promise<TTSResult> {
     if (!["mp3", "wav"].includes(request.format)) {
-      throw new Error(`Chatterbox TTS provider supports mp3 and wav output, got ${request.format}.`);
+      throw new Error(
+        `Chatterbox TTS provider supports mp3 and wav output, got ${request.format}.`,
+      );
     }
 
     const url = chatterboxUrl();
     const headers: Record<string, string> = {
-      "content-type": "application/json"
+      "content-type": "application/json",
     };
     if (process.env.CHATTERBOX_TTS_API_KEY) {
       headers.authorization = `Bearer ${process.env.CHATTERBOX_TTS_API_KEY}`;
@@ -190,7 +196,7 @@ export class ChatterboxTTSProvider implements TTSProvider {
       response = await fetch(url, {
         method: "POST",
         headers,
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
     } catch (error) {
       throw new Error(chatterboxStartupHint(url), { cause: error });
@@ -220,8 +226,8 @@ export class ChatterboxTTSProvider implements TTSProvider {
         exaggeration: payload.exaggeration,
         cfgWeight: payload.cfg_weight,
         temperature: payload.temperature,
-        bytes: bytes.length
-      }
+        bytes: bytes.length,
+      },
     };
   }
 }

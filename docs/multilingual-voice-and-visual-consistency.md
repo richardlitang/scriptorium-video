@@ -58,6 +58,9 @@ Plans can now include a `visualBible` object:
 - `palette`
 - `eraAndLocation`
 - `characterAnchors`
+- `characters` (structured identity anchors)
+- `locations` (structured setting anchors)
+- `objects` (structured prop anchors)
 - `continuityRules`
 - `negativePrompt`
 

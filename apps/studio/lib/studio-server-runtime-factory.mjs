@@ -1,15 +1,28 @@
 import { execFile, spawn } from "node:child_process";
 import { createReadStream } from "node:fs";
-import { readFile, readdir, writeFile, mkdir, appendFile, unlink, stat, rm } from "node:fs/promises";
+import {
+  readFile,
+  readdir,
+  writeFile,
+  mkdir,
+  appendFile,
+  unlink,
+  stat,
+  rm,
+} from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
 import { imageReuseKey } from "../image-cache.mjs";
-import { defaultVoiceSettings, normalizeVoiceSettings, voiceSettingsEnv } from "../voice-settings.mjs";
+import {
+  defaultVoiceSettings,
+  normalizeVoiceSettings,
+  voiceSettingsEnv,
+} from "../voice-settings.mjs";
 import { publicAssetForPath as defaultPublicAssetForPath } from "../static-assets.mjs";
 import {
   createOpenAiPlanOrchestrator,
   planNeedsTtsRouting,
-  DEFAULT_PLANNER_USER_PROMPT_TEMPLATE
+  DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
 } from "./openai-plan-orchestrator.mjs";
 import { DEFAULT_PLANNER_SYSTEM_PROMPT } from "./planner-defaults.mjs";
 import { handleStudioApiRoute } from "./studio-routes.mjs";
@@ -35,14 +48,14 @@ import {
   plannerBlockingFailures,
   plannerQualityIsUsable,
   plannerQualityWarningSummary,
-  plannerQualityWarnings
+  plannerQualityWarnings,
 } from "./planner-quality.mjs";
 import {
   summarizeManifestForTrace,
   summarizePlanForTrace,
   summarizeStoryInput,
   summarizeTimelineForTrace,
-  summarizeVoiceSettingsForTrace
+  summarizeVoiceSettingsForTrace,
 } from "./trace-summaries.mjs";
 import { imageDescriptionFromPrompt, imageTagsFromPrompt } from "./image-library-metadata.mjs";
 import { createRunTraceStore } from "./run-trace-store.mjs";
@@ -55,7 +68,7 @@ import {
   isScaffoldPlaceholderPlan,
   parsePlanFromStoryInput,
   plannerSplitDecision,
-  splitStoryIntoLockedUnits
+  splitStoryIntoLockedUnits,
 } from "./draft-plan-input.mjs";
 import { createProjectMutationQueue } from "./project-mutation-queue.mjs";
 import { createStudioRuntimeConfig } from "./studio-runtime-config.mjs";
@@ -78,7 +91,7 @@ import {
   safeVoiceReferenceFileName,
   sha256,
   sleep,
-  slugify
+  slugify,
 } from "./studio-runtime-helpers.mjs";
 import { createStudioRuntimeWiring } from "./studio-runtime-wiring.mjs";
 import { createVoiceSettingsStore } from "./voice-settings-store.mjs";
@@ -94,18 +107,24 @@ import { createLvstudioDraftRunner } from "./lvstudio-draft-runner.mjs";
 import { createStudioRuntime } from "./studio-runtime.mjs";
 import {
   buildStudioRuntimeContextDependencies,
-  buildStudioRuntimeHttpDependencies
+  buildStudioRuntimeHttpDependencies,
 } from "./studio-runtime-dependencies.mjs";
 import {
   assertLockedNarrationPreserved,
   fallbackMetadataForLockedSection,
-  mergeSectionMetadataPlan
+  mergeSectionMetadataPlan,
 } from "./split-plan-metadata.mjs";
 
 const execFileAsync = promisify(execFile);
 const RENDER_PROGRESS_PREFIX = "__LVSTUDIO_RENDER_PROGRESS__";
 
-export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPath: publicAssetForPathOverride, fetchImpl = fetch, processEnv = process.env }) {
+export function createStudioServerRuntime({
+  rootDir,
+  publicDir,
+  publicAssetForPath: publicAssetForPathOverride,
+  fetchImpl = fetch,
+  processEnv = process.env,
+}) {
   const publicAssetForPath = publicAssetForPathOverride ?? defaultPublicAssetForPath;
   const projectsDir = path.join(rootDir, "content", "projects");
   const qualityHistoryDir = path.join(rootDir, ".studio-data", "quality-history");
@@ -118,7 +137,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
   const splitPlannerConfig = {
     enabled: runtimeConfig.splitPlannerEnabled,
     minWords: runtimeConfig.splitPlannerMinWords,
-    minUnits: runtimeConfig.splitPlannerMinUnits
+    minUnits: runtimeConfig.splitPlannerMinUnits,
   };
   const runProjectMutation = createProjectMutationQueue();
   const activeDraftJobs = new Map();
@@ -132,7 +151,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     env: processEnv,
     chatterboxSpeechUrl: runtimeConfig.chatterboxSpeechUrl,
     chatterboxHealthUrl: runtimeConfig.chatterboxHealthUrl,
-    studioTestMode: STUDIO_TEST_MODE
+    studioTestMode: STUDIO_TEST_MODE,
   });
   const { ensureChatterboxReady, resetStartState } = createChatterboxRuntime({
     readTtsHealth,
@@ -143,18 +162,23 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     autoStartEnabled: runtimeConfig.chatterboxAutoStartEnabled,
     startCommand: runtimeConfig.chatterboxStartCommand,
     startTimeoutMs: runtimeConfig.chatterboxStartTimeoutMs,
-    studioTestMode: STUDIO_TEST_MODE
+    studioTestMode: STUDIO_TEST_MODE,
   });
   const port = runtimeConfig.port;
-  const { runStatePath, readRunState, writeRunState, upsertRunJob, updateRunProgress } = createRunStateStore(rootDir);
+  const { runStatePath, readRunState, writeRunState, upsertRunJob, updateRunProgress } =
+    createRunStateStore(rootDir);
   const { runTraceDisplayPath, appendRunTrace, readRunTrace } = createRunTraceStore(rootDir);
-  const { buildPlanFromAiDraft } = createPlanDraftTransformer({ slugify, estimateDurationSeconds, clampNumber });
+  const { buildPlanFromAiDraft } = createPlanDraftTransformer({
+    slugify,
+    estimateDurationSeconds,
+    clampNumber,
+  });
   const { buildLockedPlanFromStory } = createSplitPlanBuilder({
     splitStoryIntoLockedUnits,
     splitPlannerBeatsPerSection: runtimeConfig.splitPlannerBeatsPerSection,
     splitPlannerMaxSections: runtimeConfig.splitPlannerMaxSections,
     slugify,
-    estimateDurationSeconds
+    estimateDurationSeconds,
   });
 
   async function getOpenAiApiKey() {
@@ -168,13 +192,13 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     studioTestMode: STUDIO_TEST_MODE,
     openAiResponsesUrl: runtimeConfig.openAiResponsesUrl,
     plannerRequestConfig: runtimeConfig.plannerRequestConfig,
-    ttsRoutingConfig: runtimeConfig.ttsRoutingConfig
+    ttsRoutingConfig: runtimeConfig.ttsRoutingConfig,
   });
   const generateImageWithOpenAi = createOpenAiImageClient({
     fetchImpl,
     getOpenAiApiKey,
     openAiImagesUrl: runtimeConfig.openAiImagesUrl,
-    openAiImageModel: runtimeConfig.openAiImageModel
+    openAiImageModel: runtimeConfig.openAiImageModel,
   });
 
   const {
@@ -184,7 +208,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     restoreOptionalFile,
     readProjectTraceSnapshot,
     writeDraftJobState,
-    appendDraftTraceAndState
+    appendDraftTraceAndState,
   } = createStudioRuntimeWiring({
     fetchImpl,
     mmsHealthUrl: MMS_HEALTH_URL,
@@ -197,7 +221,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     summarizeManifestForTrace,
     summarizeTimelineForTrace,
     appendRunTrace,
-    upsertRunJob
+    upsertRunJob,
   });
 
   const { readVoiceSettings, writeVoiceSettings } = createVoiceSettingsStore({
@@ -205,7 +229,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     normalizeVoiceSettings,
     defaultVoiceSettings,
     voiceSettingsPath,
-    pathImpl: path
+    pathImpl: path,
   });
 
   const imageCacheStore = createImageCacheStore({
@@ -224,16 +248,17 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     stat,
     appendFile,
     mkdir,
-    writeFile
+    writeFile,
   });
   const {
     readImageHistory,
     appendImageHistory,
     findReusableImage,
     appendImageCacheEntry,
-    storeImageInLibrary
+    storeImageInLibrary,
   } = imageCacheStore;
-  const appendQualityHistory = (projectId, entry) => studioOpsRuntime.appendQualityHistory(projectId, entry);
+  const appendQualityHistory = (projectId, entry) =>
+    studioOpsRuntime.appendQualityHistory(projectId, entry);
   const appendCommandLog = (entry) => studioOpsRuntime.appendCommandLog(entry);
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
   const runLvstudioReport = (args) => studioOpsRuntime.runLvstudioReport(args);
@@ -244,7 +269,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     safeReadJson,
     readRunState,
     readFile,
-    sha256
+    sha256,
   });
 
   const imageGenerationRunner = createImageGenerationRunner({
@@ -270,14 +295,14 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     appendImageHistory,
     appendImageCacheEntry,
     runLvstudio,
-    appendQualityHistory
+    appendQualityHistory,
   });
   const selectImageTargets = imageGenerationRunner.selectImageTargets;
   const generateProjectImages = (projectId, options = {}) =>
     imageGenerationRunner.generateProjectImages(projectId, {
       imageConcurrency: runtimeConfig.imageConcurrency,
       openAiImageModel: runtimeConfig.openAiImageModel,
-      ...options
+      ...options,
     });
   const runBeatRegenerateJob = createBeatRegenerateRunner({
     activeBeatJobs,
@@ -287,14 +312,14 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     runLvstudio,
     generateProjectImages,
     defaultImageSizeForPlan,
-    appendQualityHistory
+    appendQualityHistory,
   });
 
   const runRetriedDraftStep = createDraftStepRetrier({
     ensureChatterboxReady,
     appendRunTrace,
     writeDraftJobState,
-    sleep
+    sleep,
   });
   const runLvstudioTestMode = createStudioTestModeOps({
     path,
@@ -302,7 +327,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     writeFile,
     safeReadJson,
     projectsDir,
-    sha256
+    sha256,
   });
   const runLvstudioForDraft = createLvstudioDraftRunner({
     spawn,
@@ -314,7 +339,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     updateRunProgress,
     renderProgressPrefix: RENDER_PROGRESS_PREFIX,
     runLvstudioTestModeFn: () => runLvstudioTestMode,
-    studioTestMode: STUDIO_TEST_MODE
+    studioTestMode: STUDIO_TEST_MODE,
   });
   const generateDraftAudioBySection = createDraftAudioRunner({
     readVoiceSettings,
@@ -326,14 +351,14 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     writeDraftJobState,
     runRetriedDraftStep,
     runLvstudioForDraft,
-    readProjectTraceSnapshot
+    readProjectTraceSnapshot,
   });
 
   const {
     plannerProgressTracer,
     stricterPlannerUserPromptTemplate,
     splitPlannerEnabled,
-    generateSplitPlanDraftWithOpenAi
+    generateSplitPlanDraftWithOpenAi,
   } = createSplitPlannerRuntime({
     plannerSplitDecision,
     splitPlannerConfig,
@@ -349,7 +374,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     fallbackMetadataForLockedSection,
     mergeSectionMetadataPlan,
     planNarrationHealth,
-    assertLockedNarrationPreserved
+    assertLockedNarrationPreserved,
   });
 
   const runDraftJob = createDraftJobRunner({
@@ -404,7 +429,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     upsertRunJob,
     jobProgress,
     writeRunState,
-    readRunState
+    readRunState,
   });
 
   const projectOps = createProjectOps({
@@ -426,7 +451,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     activeBeatJobs,
     jobProgress,
     beatJobProgress,
-    sha256
+    sha256,
   });
   const {
     deleteProjectAsset,
@@ -435,7 +460,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     listDraftJobs,
     listProjects,
     projectDeleteBlocker,
-    deleteProject
+    deleteProject,
   } = projectOps;
   const { safeProjectPath, sendVideoFile, getRenderDetails } = createProjectMediaOps({
     path,
@@ -443,24 +468,26 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     stat,
     createReadStream,
     projectsDir,
-    sendJson
+    sendJson,
   });
   const { runTrackedForegroundJob } = createForegroundJobs({ upsertRunJob });
 
-  studioOpsRuntime.setRuntime(createStudioOps({
-    path,
-    mkdir,
-    appendFile,
-    execFileAsync,
-    readVoiceSettings,
-    voiceSettingsEnv,
-    runLvstudioTestMode,
-    studioTestMode: STUDIO_TEST_MODE,
-    rootDir,
-    processEnv,
-    qualityHistoryDir,
-    commandLogPath
-  }));
+  studioOpsRuntime.setRuntime(
+    createStudioOps({
+      path,
+      mkdir,
+      appendFile,
+      execFileAsync,
+      readVoiceSettings,
+      voiceSettingsEnv,
+      runLvstudioTestMode,
+      studioTestMode: STUDIO_TEST_MODE,
+      rootDir,
+      processEnv,
+      qualityHistoryDir,
+      commandLogPath,
+    }),
+  );
 
   const { handleStudioHttpRequest } = createStudioRuntime({
     contextDependencies: buildStudioRuntimeContextDependencies({
@@ -520,7 +547,7 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
       process,
       isScaffoldPlaceholderPlan,
       runDraftJob,
-      runLvstudioReport
+      runLvstudioReport,
     }),
     httpDependencies: buildStudioRuntimeHttpDependencies({
       port,
@@ -529,8 +556,8 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
       sendJson,
       handleStudioApiRoute,
       publicAssetForPath,
-      isSafeProjectId
-    })
+      isSafeProjectId,
+    }),
   });
 
   return {
@@ -539,6 +566,6 @@ export function createStudioServerRuntime({ rootDir, publicDir, publicAssetForPa
     dispose() {
       clearPreviewCache();
       resetStartState();
-    }
+    },
   };
 }

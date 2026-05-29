@@ -35,10 +35,6 @@ export function TtsHealthDetail() {
   if (vm.pillClass === "ok") return null;
 
   return (
-    <p
-      className={`text-xs mt-1 px-3 pb-2 ${DETAIL_COLORS[vm.detailClass]}`}
-    >
-      {vm.detailText}
-    </p>
+    <p className={`text-xs mt-1 px-3 pb-2 ${DETAIL_COLORS[vm.detailClass]}`}>{vm.detailText}</p>
   );
 }

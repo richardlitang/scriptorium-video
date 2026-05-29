@@ -1,18 +1,25 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { isOpenAiInsufficientQuotaError, parseModelFallbacks, runStructuredOutput } from "../lib/openai-structured-output.mjs";
+import {
+  isOpenAiInsufficientQuotaError,
+  parseModelFallbacks,
+  runStructuredOutput,
+} from "../lib/openai-structured-output.mjs";
 
 function jsonResponse(data, ok = true, status = 200) {
   return {
     ok,
     status,
     text: async () => JSON.stringify(data),
-    json: async () => data
+    json: async () => data,
   };
 }
 
 test("parseModelFallbacks trims empty entries", () => {
-  assert.deepEqual(parseModelFallbacks(" gpt-5-mini, ,gpt-4.1-mini "), ["gpt-5-mini", "gpt-4.1-mini"]);
+  assert.deepEqual(parseModelFallbacks(" gpt-5-mini, ,gpt-4.1-mini "), [
+    "gpt-5-mini",
+    "gpt-4.1-mini",
+  ]);
 });
 
 test("runStructuredOutput falls back to the next model after a timeout", async () => {
@@ -35,20 +42,23 @@ test("runStructuredOutput falls back to the next model after a timeout", async (
     fallbackModels: ["gpt-5-mini", "gpt-4o-mini"],
     input: [{ role: "user", content: "test" }],
     schemaName: "test_schema",
-    schema: { type: "object", additionalProperties: false, required: ["ok", "model"], properties: { ok: { type: "boolean" }, model: { type: "string" } } },
+    schema: {
+      type: "object",
+      additionalProperties: false,
+      required: ["ok", "model"],
+      properties: { ok: { type: "boolean" }, model: { type: "string" } },
+    },
     errorLabel: "OpenAI test failed",
     timeoutMs: 10,
     maxAttempts: 1,
-    onProgress: (event) => progressEvents.push(event)
+    onProgress: (event) => progressEvents.push(event),
   });
 
   assert.deepEqual(requestedModels, ["gpt-5.1", "gpt-5-mini"]);
-  assert.deepEqual(progressEvents.map((event) => event.event), [
-    "request.start",
-    "request.retryable_error",
-    "request.start",
-    "request.response"
-  ]);
+  assert.deepEqual(
+    progressEvents.map((event) => event.event),
+    ["request.start", "request.retryable_error", "request.start", "request.response"],
+  );
   assert.equal(progressEvents[0].inputChars, 8);
   assert.equal(progressEvents[0].approxInputTokens, 2);
   assert.equal(typeof progressEvents[0].payloadChars, "number");
@@ -73,12 +83,17 @@ test("runStructuredOutput does not fall back after a non-retriable schema error"
       fallbackModels: ["gpt-5-mini"],
       input: [{ role: "user", content: "test" }],
       schemaName: "test_schema",
-      schema: { type: "object", additionalProperties: false, required: ["ok"], properties: { ok: { type: "boolean" } } },
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["ok"],
+        properties: { ok: { type: "boolean" } },
+      },
       errorLabel: "OpenAI test failed",
       timeoutMs: 10,
-      maxAttempts: 1
+      maxAttempts: 1,
     }),
-    /OpenAI test failed: gpt-5\.1: OpenAI test failed: 400/
+    /OpenAI test failed: gpt-5\.1: OpenAI test failed: 400/,
   );
 
   assert.deepEqual(requestedModels, ["gpt-5.1"]);
@@ -92,13 +107,18 @@ test("runStructuredOutput stops immediately on insufficient quota", async () => 
       fetchImpl: async (_url, options) => {
         const body = JSON.parse(options.body);
         requestedModels.push(body.model);
-        return jsonResponse({
-          error: {
-            message: "You exceeded your current quota, please check your plan and billing details.",
-            type: "insufficient_quota",
-            code: "insufficient_quota"
-          }
-        }, false, 429);
+        return jsonResponse(
+          {
+            error: {
+              message:
+                "You exceeded your current quota, please check your plan and billing details.",
+              type: "insufficient_quota",
+              code: "insufficient_quota",
+            },
+          },
+          false,
+          429,
+        );
       },
       url: "https://api.openai.com/v1/responses",
       apiKey: "test-key",
@@ -106,20 +126,25 @@ test("runStructuredOutput stops immediately on insufficient quota", async () => 
       fallbackModels: ["gpt-5-mini", "gpt-4.1-mini"],
       input: [{ role: "user", content: "test" }],
       schemaName: "test_schema",
-      schema: { type: "object", additionalProperties: false, required: ["ok"], properties: { ok: { type: "boolean" } } },
+      schema: {
+        type: "object",
+        additionalProperties: false,
+        required: ["ok"],
+        properties: { ok: { type: "boolean" } },
+      },
       errorLabel: "OpenAI test failed",
       timeoutMs: 10,
       maxAttempts: 3,
-      onProgress: (event) => progressEvents.push(event)
+      onProgress: (event) => progressEvents.push(event),
     }),
-    /insufficient_quota/
+    /insufficient_quota/,
   );
 
   assert.deepEqual(requestedModels, ["gpt-5.4-mini"]);
-  assert.deepEqual(progressEvents.map((event) => event.event), [
-    "request.start",
-    "request.error"
-  ]);
+  assert.deepEqual(
+    progressEvents.map((event) => event.event),
+    ["request.start", "request.error"],
+  );
 });
 
 test("isOpenAiInsufficientQuotaError detects quota exhaustion messages", () => {

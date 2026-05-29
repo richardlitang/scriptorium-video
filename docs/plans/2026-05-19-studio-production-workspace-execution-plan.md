@@ -497,4 +497,3 @@ node --test apps/studio/test/voice-settings.test.mjs packages/core/test/audio-pr
 ## Recommended First Build
 
 Start with Slice 1 and Slice 2 in separate commits. They create the workspace skeleton and reduce wait anxiety without changing core generation behavior.
-

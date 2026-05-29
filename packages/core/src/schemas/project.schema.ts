@@ -7,16 +7,18 @@ export const ProjectStatusSchema = z.enum([
   "synced",
   "ready_to_render",
   "rendered",
-  "failed"
+  "failed",
 ]);
 
-export const ProjectSchema = z.object({
-  schemaVersion: z.literal(1),
-  id: z.string().min(1),
-  title: z.string().min(1),
-  createdAt: z.string().datetime(),
-  updatedAt: z.string().datetime(),
-  status: ProjectStatusSchema.default("draft")
-}).strict();
+export const ProjectSchema = z
+  .object({
+    schemaVersion: z.literal(1),
+    id: z.string().min(1),
+    title: z.string().min(1),
+    createdAt: z.string().datetime(),
+    updatedAt: z.string().datetime(),
+    status: ProjectStatusSchema.default("draft"),
+  })
+  .strict();
 
 export type Project = z.infer<typeof ProjectSchema>;

@@ -10,7 +10,7 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({ captions }) => {
   const { fps } = useVideoConfig();
   const timeSeconds = frame / fps;
   const activeCaption = captions?.captions.find(
-    (caption) => timeSeconds >= caption.startSeconds && timeSeconds < caption.endSeconds
+    (caption) => timeSeconds >= caption.startSeconds && timeSeconds < caption.endSeconds,
   );
 
   if (!activeCaption) return null;
@@ -21,7 +21,7 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({ captions }) => {
         justifyContent: "flex-end",
         alignItems: "center",
         padding: "0 78px 180px",
-        pointerEvents: "none"
+        pointerEvents: "none",
       }}
     >
       <div
@@ -33,7 +33,7 @@ export const CaptionLayer: React.FC<CaptionLayerProps> = ({ captions }) => {
           lineHeight: 1.08,
           textAlign: "center",
           textShadow: "0 4px 18px rgba(0,0,0,0.8)",
-          maxWidth: "100%"
+          maxWidth: "100%",
         }}
       >
         {activeCaption.text}

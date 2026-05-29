@@ -1,4 +1,10 @@
-import { getProjectPaths, loadProject, readJsonFile, TimelineSchema, hashFile } from "@lvstudio/core";
+import {
+  getProjectPaths,
+  loadProject,
+  readJsonFile,
+  TimelineSchema,
+  hashFile,
+} from "@lvstudio/core";
 
 export async function projectStatus(projectId: string): Promise<void> {
   const paths = getProjectPaths(projectId);
@@ -9,9 +15,14 @@ export async function projectStatus(projectId: string): Promise<void> {
     timelineHashStatus = loaded.timeline.sourcePlanHash === currentHash ? "matches" : "stale";
   }
 
-  const timeline = loaded.timeline ?? (await readJsonFile(paths.timeline, TimelineSchema).catch(() => undefined));
-  const voiceAssets = loaded.assetManifest.assets.filter((asset) => asset.role === "voiceover").length;
-  const mediaAssets = loaded.assetManifest.assets.filter((asset) => asset.role !== "voiceover").length;
+  const timeline =
+    loaded.timeline ?? (await readJsonFile(paths.timeline, TimelineSchema).catch(() => undefined));
+  const voiceAssets = loaded.assetManifest.assets.filter(
+    (asset) => asset.role === "voiceover",
+  ).length;
+  const mediaAssets = loaded.assetManifest.assets.filter(
+    (asset) => asset.role !== "voiceover",
+  ).length;
 
   console.log(
     JSON.stringify(
@@ -27,24 +38,24 @@ export async function projectStatus(projectId: string): Promise<void> {
         assets: {
           total: loaded.assetManifest.assets.length,
           voice: voiceAssets,
-          media: mediaAssets
+          media: mediaAssets,
         },
         timeline: timeline
           ? {
               segments: timeline.segments.length,
               durationSeconds: timeline.durationSeconds,
-              sourcePlanHash: timelineHashStatus
+              sourcePlanHash: timelineHashStatus,
             }
           : {
-              missing: true
+              missing: true,
             },
         captions: {
           present: Boolean(loaded.captions),
-          count: loaded.captions?.captions.length ?? 0
-        }
+          count: loaded.captions?.captions.length ?? 0,
+        },
       },
       null,
-      2
-    )
+      2,
+    ),
   );
 }

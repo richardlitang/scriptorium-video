@@ -24,7 +24,7 @@ export function tempAudioPath(audioPath: string): string {
 
 export async function normalizeVoiceover(
   audioPath: string,
-  options: VoiceProcessingOptions = {}
+  options: VoiceProcessingOptions = {},
 ): Promise<VoiceProcessingResult> {
   const loudnessTargetLufs = options.loudnessTargetLufs ?? -16;
   const truePeakDb = options.truePeakDb ?? -3;
@@ -41,7 +41,7 @@ export async function normalizeVoiceover(
       audioPath,
       "-af",
       `loudnorm=I=${loudnessTargetLufs}:TP=${truePeakDb}:LRA=${lra},acompressor=threshold=-18dB:ratio=2.5:attack=8:release=120`,
-      tempPath
+      tempPath,
     ]);
     await rename(tempPath, audioPath);
   } catch (error) {
@@ -53,14 +53,14 @@ export async function normalizeVoiceover(
   return {
     loudnessTargetLufs,
     truePeakDb,
-    compression
+    compression,
   };
 }
 
 export async function padVoiceover(
   audioPath: string,
   beforeSeconds: number,
-  afterSeconds: number
+  afterSeconds: number,
 ): Promise<void> {
   const before = Math.max(0, beforeSeconds);
   const after = Math.max(0, afterSeconds);
@@ -76,7 +76,7 @@ export async function padVoiceover(
       audioPath,
       "-af",
       `adelay=${Math.round(before * 1000)}:all=1,apad=pad_dur=${after.toFixed(3)}`,
-      tempPath
+      tempPath,
     ]);
     await rename(tempPath, audioPath);
   } catch (error) {

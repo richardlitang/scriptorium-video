@@ -6,8 +6,8 @@ import { ProjectWorkspace } from "./ProjectWorkspace";
 const STORAGE_KEY = "lvstudio:selectedProjectId";
 
 export function App() {
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(
-    () => localStorage.getItem(STORAGE_KEY),
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(() =>
+    localStorage.getItem(STORAGE_KEY),
   );
 
   useEffect(() => {
@@ -30,18 +30,11 @@ export function App() {
 
       <div className="flex flex-1 overflow-hidden">
         <div className="flex flex-col border-r border-[var(--color-border)] overflow-hidden">
-          <ProjectSidebar
-            selectedId={selectedProjectId}
-            onSelect={setSelectedProjectId}
-          />
+          <ProjectSidebar selectedId={selectedProjectId} onSelect={setSelectedProjectId} />
           <TtsHealthDetail />
         </div>
         <main className="flex-1 overflow-hidden flex flex-col">
-          {selectedProjectId ? (
-            <ProjectWorkspace projectId={selectedProjectId} />
-          ) : (
-            <EmptyState />
-          )}
+          {selectedProjectId ? <ProjectWorkspace projectId={selectedProjectId} /> : <EmptyState />}
         </main>
       </div>
     </div>

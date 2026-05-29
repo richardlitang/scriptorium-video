@@ -28,15 +28,11 @@ export function ttsAvailabilityFromHealth(
   return "checking";
 }
 
-export function ttsPillViewModel(
-  ttsHealthState: Partial<TtsHealthState> = {},
-): TtsPillViewModel {
+export function ttsPillViewModel(ttsHealthState: Partial<TtsHealthState> = {}): TtsPillViewModel {
   const availability = ttsAvailabilityFromHealth(ttsHealthState);
 
   if (availability === "ready") {
-    const sampleRateLabel = ttsHealthState.sampleRate
-      ? ` (${ttsHealthState.sampleRate}Hz)`
-      : "";
+    const sampleRateLabel = ttsHealthState.sampleRate ? ` (${ttsHealthState.sampleRate}Hz)` : "";
     return {
       pillClass: "ok",
       pillText: `TTS: ready${sampleRateLabel}`,
@@ -63,8 +59,7 @@ export function ttsPillViewModel(
     return {
       pillClass: "warn",
       pillText: "TTS: warming model...",
-      pillTitle:
-        "First run downloads/loads the TTS model. Draft actions are paused until ready.",
+      pillTitle: "First run downloads/loads the TTS model. Draft actions are paused until ready.",
       detailClass: "warn",
       detailText:
         "Model is loading/downloading in the background. This is expected on first run and may take a few minutes. Studio auto-rechecks every 8 seconds.",
@@ -123,11 +118,15 @@ export function storyButtonState({
 }: StoryButtonStateInput): StoryButtonState {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = String(storyValue ?? "").trim().length > 0;
-  const draftJobRunning = ["queued", "running", "cancelling"].includes(
-    currentDraftJobStatus ?? "",
-  );
+  const draftJobRunning = ["queued", "running", "cancelling"].includes(currentDraftJobStatus ?? "");
   const ttsReady = ttsAvailability === "ready" || ttsAvailability === "ready_degraded";
   const ttsWarming = ttsAvailability === "loading" || ttsAvailability === "checking";
+
+  function idleDraftLabel(): string {
+    if (!hasStory) return "Paste Story First";
+    if (!ttsReady) return ttsWarming ? "TTS Warming..." : "TTS Unavailable";
+    return defaultDraftButtonLabel;
+  }
 
   return {
     convertStoryDisabled: !hasSelectedProject || !hasStory,
@@ -135,15 +134,7 @@ export function storyButtonState({
     clearStoryDisabled: !hasStory,
     renderDisabled: !hasStory || draftJobRunning || !ttsReady,
     draftNoImagesDisabled: !hasStory || draftJobRunning || !ttsReady,
-    renderButtonText: !draftJobRunning
-      ? !hasStory
-        ? "Paste Story First"
-        : !ttsReady
-          ? ttsWarming
-            ? "TTS Warming..."
-            : "TTS Unavailable"
-          : defaultDraftButtonLabel
-      : null,
+    renderButtonText: draftJobRunning ? null : idleDraftLabel(),
     draftNoImagesText: !draftJobRunning ? "Draft Without Images" : null,
     directVoiceDisabled: !hasSelectedProject || !ttsReady,
     regenerateAudioDisabled: !hasSelectedProject || !ttsReady,

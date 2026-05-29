@@ -18,16 +18,27 @@ Correct behavior is enforced by runnable checks, not by this document. Prefer ad
 
 Before claiming a code change is complete, run `pnpm -s verify` — unless the change is docs-only or the user set a narrower boundary. Never claim "passing" without showing the command output.
 
+## Bootstrap Quality Tooling (Mandatory)
+
+For any new repo/workspace/bootstrap in this project, set up linting and formatting at the start, not later.
+
+- Required baseline:
+  - One linter (`eslint` or `biome` or equivalent) with a repo script (`lint`).
+  - One formatter (`prettier` or `biome format` or equivalent) with a repo script (`format`) and a check script (`format:check`).
+  - CI must run lint + format check + tests/build (`pnpm -s verify` or equivalent composite gate).
+- Prefer the smallest toolchain that matches the stack (e.g., Biome as single tool if it covers lint + format needs).
+- Do not defer lint/format setup as “follow-up tech debt” on greenfield work.
+
 ## Package & app boundaries
 
-| Workspace | Owns | Must not |
-|---|---|---|
-| `packages/core` | domain model, Zod schemas, validation, project paths/ops, sync/build bundle | import Remotion; own provider/server/UI logic |
-| `packages/providers` | concrete provider adapters (TTS, image, etc.) | own workflow decisions |
-| `packages/quality` | read-only audits and reports | mutate projects |
-| `packages/cli` | command parsing and wiring | import Remotion; hold workflow logic |
-| `apps/studio` | local HTTP server, browser UI, job orchestration, Studio adapters | put business logic in `server.mjs` or `public/app.js` |
-| `apps/renderer` | Remotion compositions, render-time presentation | own workflow/provider/server logic; read arbitrary project files (consume render bundles) |
+| Workspace            | Owns                                                                        | Must not                                                                                  |
+| -------------------- | --------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| `packages/core`      | domain model, Zod schemas, validation, project paths/ops, sync/build bundle | import Remotion; own provider/server/UI logic                                             |
+| `packages/providers` | concrete provider adapters (TTS, image, etc.)                               | own workflow decisions                                                                    |
+| `packages/quality`   | read-only audits and reports                                                | mutate projects                                                                           |
+| `packages/cli`       | command parsing and wiring                                                  | import Remotion; hold workflow logic                                                      |
+| `apps/studio`        | local HTTP server, browser UI, job orchestration, Studio adapters           | put business logic in `server.mjs` or `public/app.js`                                     |
+| `apps/renderer`      | Remotion compositions, render-time presentation                             | own workflow/provider/server logic; read arbitrary project files (consume render bundles) |
 
 The Remotion boundary and the studio server/env boundaries are enforced by `check:*` scripts — do not work around a failing boundary check, fix the placement.
 

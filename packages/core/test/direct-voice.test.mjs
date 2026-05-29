@@ -9,7 +9,13 @@ function samplePlan() {
     mode: "short_story",
     targetPlatform: "local_only",
     stylePackId: "default",
-    providers: { llm: "manual", tts: "chatterbox", transcription: "mock", media: "manual-media", renderer: "remotion" },
+    providers: {
+      llm: "manual",
+      tts: "chatterbox",
+      transcription: "mock",
+      media: "manual-media",
+      renderer: "remotion",
+    },
     voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
     sections: [
       {
@@ -25,7 +31,14 @@ function samplePlan() {
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { emphasis: ["first"], style: "default" },
             sfxCues: [],
-            voiceDirection: { profile: "neutral", emphasis: [], pauseBeforeSeconds: 0, pauseAfterSeconds: 0, intensity: 0.5, source: "default" }
+            voiceDirection: {
+              profile: "neutral",
+              emphasis: [],
+              pauseBeforeSeconds: 0,
+              pauseAfterSeconds: 0,
+              intensity: 0.5,
+              source: "default",
+            },
           },
           {
             id: "beat-2",
@@ -36,11 +49,18 @@ function samplePlan() {
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { emphasis: [], style: "default" },
             sfxCues: [],
-            voiceDirection: { profile: "authoritative", emphasis: [], pauseBeforeSeconds: 0, pauseAfterSeconds: 0, intensity: 0.5, source: "user" }
-          }
-        ]
-      }
-    ]
+            voiceDirection: {
+              profile: "authoritative",
+              emphasis: [],
+              pauseBeforeSeconds: 0,
+              pauseAfterSeconds: 0,
+              intensity: 0.5,
+              source: "user",
+            },
+          },
+        ],
+      },
+    ],
   };
 }
 
@@ -57,12 +77,20 @@ test("applyVoiceDirectionPlan applies direction and merges emphasis", () => {
           pauseBeforeSeconds: 0.2,
           pauseAfterSeconds: 0.4,
           intensity: 0.7,
-          source: "llm"
+          source: "llm",
         },
         captionEmphasis: ["save", "hours"],
-        sfxCues: [{ id: "cue-1", kind: "soft_impact", placement: "key_point", offsetSeconds: 0, levelDb: -16 }]
-      }
-    ]
+        sfxCues: [
+          {
+            id: "cue-1",
+            kind: "soft_impact",
+            placement: "key_point",
+            offsetSeconds: 0,
+            levelDb: -16,
+          },
+        ],
+      },
+    ],
   });
 
   const beat = next.sections[0].beats[0];
@@ -83,12 +111,12 @@ test("applyVoiceDirectionPlan preserves user direction unless force is true", ()
           pauseBeforeSeconds: 0.2,
           pauseAfterSeconds: 0.3,
           intensity: 0.8,
-          source: "llm"
+          source: "llm",
         },
         captionEmphasis: [],
-        sfxCues: []
-      }
-    ]
+        sfxCues: [],
+      },
+    ],
   };
 
   const noForce = applyVoiceDirectionPlan(plan, output);
@@ -102,7 +130,7 @@ test("applyVoiceDirectionPlan respects directionMeta locks", () => {
   const plan = samplePlan();
   plan.sections[0].beats[0].directionMeta = {
     lockedPaths: ["voice", "caption.emphasis", "sfx"],
-    sources: {}
+    sources: {},
   };
   const output = {
     beats: [
@@ -114,12 +142,14 @@ test("applyVoiceDirectionPlan respects directionMeta locks", () => {
           pauseBeforeSeconds: 0.3,
           pauseAfterSeconds: 0.4,
           intensity: 0.8,
-          source: "llm"
+          source: "llm",
         },
         captionEmphasis: ["new"],
-        sfxCues: [{ id: "cue-2", kind: "hit", placement: "beat_start", offsetSeconds: 0, levelDb: -18 }]
-      }
-    ]
+        sfxCues: [
+          { id: "cue-2", kind: "hit", placement: "beat_start", offsetSeconds: 0, levelDb: -18 },
+        ],
+      },
+    ],
   };
 
   const next = applyVoiceDirectionPlan(plan, output);

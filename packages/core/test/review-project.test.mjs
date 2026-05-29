@@ -28,13 +28,13 @@ async function createFixtureRoot() {
       tts: "chatterbox",
       transcription: "mock",
       media: "manual-media",
-      renderer: "remotion"
+      renderer: "remotion",
     },
     voice: {
       provider: "chatterbox",
       voiceId: "clone",
       format: "wav",
-      options: {}
+      options: {},
     },
     sections: [
       {
@@ -45,20 +45,28 @@ async function createFixtureRoot() {
             id: "s1-001",
             order: 1,
             narration: "Short line.",
+            voiceDirection: {
+              profile: "neutral",
+              emphasis: [],
+              intensity: 0.5,
+              pauseBeforeMs: 240,
+              pauseBeforeSeconds: 0,
+              source: "llm",
+            },
             timing: {
               preferredMinSeconds: 4,
               preferredMaxSeconds: 6,
               mediaPolicy: "loop_or_freeze",
-              locked: false
+              locked: false,
             },
             media: [],
             motion: { type: "none", intensity: 0 },
             caption: { emphasis: [], style: "default" },
-            sfxCues: []
-          }
-        ]
-      }
-    ]
+            sfxCues: [],
+          },
+        ],
+      },
+    ],
   });
 
   await writeJson(path.join(projectDir, "asset-manifest.json"), {
@@ -75,9 +83,9 @@ async function createFixtureRoot() {
         durationSeconds: 7.2,
         status: "stale",
         createdAt: generatedAt,
-        updatedAt: generatedAt
-      }
-    ]
+        updatedAt: generatedAt,
+      },
+    ],
   });
 
   await writeJson(path.join(projectDir, "timeline.json"), {
@@ -97,9 +105,9 @@ async function createFixtureRoot() {
         durationSeconds: 7.2,
         mediaAssetIds: [],
         audioCues: [],
-        renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" }
-      }
-    ]
+        renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" },
+      },
+    ],
   });
 
   await writeJson(path.join(projectDir, "captions", "captions.json"), {
@@ -114,7 +122,7 @@ async function createFixtureRoot() {
         endSeconds: 1.1,
         text: "No.",
         style: "default",
-        words: []
+        words: [],
       },
       {
         id: "c2",
@@ -123,15 +131,15 @@ async function createFixtureRoot() {
         endSeconds: 3.4,
         text: "This is a deliberately long caption line that exceeds vertical readability limits by design.",
         style: "default",
-        words: []
-      }
-    ]
+        words: [],
+      },
+    ],
   });
 
   await writeJson(path.join(runStateDir, `${projectId}.json`), {
     status: "idle",
     lastRenderPlanHash: "different-plan-hash",
-    lastRenderTimelineHash: "different-timeline-hash"
+    lastRenderTimelineHash: "different-timeline-hash",
   });
 
   return { root, projectId };
@@ -150,8 +158,11 @@ test("reviewProject reports deterministic issues from isolated fixture", async (
     assert.ok(result.issues.some((issue) => issue.code === "caption_line_too_long"));
     assert.ok(result.issues.some((issue) => issue.code === "asset_stale"));
     assert.ok(result.issues.some((issue) => issue.code === "render_stale"));
+    assert.ok(result.issues.some((issue) => issue.code === "legacy_beat_fields_present"));
+    assert.ok(result.issues.some((issue) => issue.code === "legacy_voice_pause_seconds_present"));
+    assert.ok(result.issues.some((issue) => issue.code === "voice_pause_conflict"));
     assert.equal(result.summary.critical, 1);
-    assert.ok(result.summary.warning >= 6);
+    assert.ok(result.summary.warning >= 7);
     assert.ok(typeof result.summary.suggestion === "number");
   } finally {
     await rm(root, { recursive: true, force: true });
@@ -165,14 +176,24 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
   const generatedAt = "2026-05-19T00:00:00.000Z";
   try {
     await mkdir(path.join(projectDir, "assets", "images", "generated"), { recursive: true });
-    await writeFile(path.join(projectDir, "assets", "images", "generated", "intro-001.png"), "stub", "utf8");
+    await writeFile(
+      path.join(projectDir, "assets", "images", "generated", "intro-001.png"),
+      "stub",
+      "utf8",
+    );
     await writeJson(path.join(projectDir, "video-plan.json"), {
       schemaVersion: 1,
       title: "Fixture",
       mode: "short_story",
       targetPlatform: "local_only",
       stylePackId: "default",
-      providers: { llm: "manual", tts: "chatterbox", transcription: "mock", media: "manual-media", renderer: "remotion" },
+      providers: {
+        llm: "manual",
+        tts: "chatterbox",
+        transcription: "mock",
+        media: "manual-media",
+        renderer: "remotion",
+      },
       voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
       sections: [
         {
@@ -187,7 +208,7 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
               media: [],
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
-              sfxCues: []
+              sfxCues: [],
             },
             {
               id: "s1-002",
@@ -197,11 +218,11 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
               media: [],
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
-              sfxCues: []
-            }
-          ]
-        }
-      ]
+              sfxCues: [],
+            },
+          ],
+        },
+      ],
     });
     await writeJson(path.join(projectDir, "asset-manifest.json"), {
       schemaVersion: 1,
@@ -216,9 +237,9 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
           source: { kind: "generated", provider: "openai-image", inputHash: "a" },
           status: "generated",
           createdAt: generatedAt,
-          updatedAt: generatedAt
-        }
-      ]
+          updatedAt: generatedAt,
+        },
+      ],
     });
     await writeJson(path.join(projectDir, "timeline.json"), {
       schemaVersion: 1,
@@ -237,7 +258,7 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
           durationSeconds: 2,
           mediaAssetIds: ["image-s1-001"],
           audioCues: [],
-          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" }
+          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" },
         },
         {
           sectionId: "s1",
@@ -247,14 +268,20 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
           durationSeconds: 2,
           mediaAssetIds: ["image-s1-001"],
           audioCues: [],
-          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" }
-        }
-      ]
+          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" },
+        },
+      ],
     });
 
     const result = await reviewProject(projectId, root);
-    assert.equal(result.issues.some((issue) => issue.code === "missing_primary_visual"), false);
-    assert.equal(result.issues.some((issue) => issue.code === "missing_visual_file"), false);
+    assert.equal(
+      result.issues.some((issue) => issue.code === "missing_primary_visual"),
+      false,
+    );
+    assert.equal(
+      result.issues.some((issue) => issue.code === "missing_visual_file"),
+      false,
+    );
   } finally {
     await rm(root, { recursive: true, force: true });
   }

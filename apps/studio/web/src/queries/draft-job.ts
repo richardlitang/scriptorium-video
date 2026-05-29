@@ -25,8 +25,8 @@ export function useDraftJob(projectId: string | null) {
     // When job finishes, refresh project details + renders
     select: (data) => {
       if (data && !isJobActive(data.status)) {
-        qc.invalidateQueries({ queryKey: projectKeys.detail(projectId!) });
-        qc.invalidateQueries({ queryKey: projectKeys.renders(projectId!) });
+        void qc.invalidateQueries({ queryKey: projectKeys.detail(projectId!) });
+        void qc.invalidateQueries({ queryKey: projectKeys.renders(projectId!) });
       }
       return data;
     },
@@ -53,7 +53,7 @@ export function useStartDraftJob(projectId: string | null) {
     mutationFn: (body: DraftJobRequestBody) => api.projects.startDraftJob(projectId!, body),
     onSuccess: () => {
       if (projectId) {
-        qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
+        void qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
       }
     },
   });
@@ -65,7 +65,7 @@ export function useStopDraftJob(projectId: string | null) {
     mutationFn: () => api.projects.stopDraftJob(projectId!),
     onSuccess: () => {
       if (projectId) {
-        qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
+        void qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
       }
     },
   });

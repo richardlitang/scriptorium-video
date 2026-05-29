@@ -182,24 +182,24 @@ Example LLM output for a narrative or documentary turn:
 Add a provider-neutral resolver in core, for example:
 
 ```ts
-resolveVoiceProfile(profile, globalVoiceSettings)
+resolveVoiceProfile(profile, globalVoiceSettings);
 ```
 
 For Chatterbox, profile mapping could start as:
 
-| Profile | Exaggeration | CFG Weight | Temperature | Intent |
-| --- | ---: | ---: | ---: | --- |
-| `neutral` | 0.45 | 0.45 | 0.60 | default narration |
-| `warm_open` | 0.48 | 0.42 | 0.65 | approachable introduction |
-| `clear_explainer` | 0.42 | 0.48 | 0.58 | steady instructional clarity |
-| `authoritative` | 0.50 | 0.44 | 0.62 | grounded documentary or analysis |
-| `energetic` | 0.68 | 0.38 | 0.78 | upbeat social/product pacing |
-| `key_point` | 0.56 | 0.40 | 0.68 | emphasize a claim, result, or turn |
-| `reflective` | 0.46 | 0.36 | 0.64 | slower, thoughtful delivery |
-| `tense` | 0.65 | 0.32 | 0.78 | tighter, more urgent |
-| `reveal` | 0.62 | 0.30 | 0.72 | slower, heavier reveal |
-| `urgent` | 0.72 | 0.36 | 0.82 | high energy or time pressure |
-| `soft_close` | 0.44 | 0.40 | 0.60 | calm ending or call to action |
+| Profile           | Exaggeration | CFG Weight | Temperature | Intent                             |
+| ----------------- | -----------: | ---------: | ----------: | ---------------------------------- |
+| `neutral`         |         0.45 |       0.45 |        0.60 | default narration                  |
+| `warm_open`       |         0.48 |       0.42 |        0.65 | approachable introduction          |
+| `clear_explainer` |         0.42 |       0.48 |        0.58 | steady instructional clarity       |
+| `authoritative`   |         0.50 |       0.44 |        0.62 | grounded documentary or analysis   |
+| `energetic`       |         0.68 |       0.38 |        0.78 | upbeat social/product pacing       |
+| `key_point`       |         0.56 |       0.40 |        0.68 | emphasize a claim, result, or turn |
+| `reflective`      |         0.46 |       0.36 |        0.64 | slower, thoughtful delivery        |
+| `tense`           |         0.65 |       0.32 |        0.78 | tighter, more urgent               |
+| `reveal`          |         0.62 |       0.30 |        0.72 | slower, heavier reveal             |
+| `urgent`          |         0.72 |       0.36 |        0.82 | high energy or time pressure       |
+| `soft_close`      |         0.44 |       0.40 |        0.60 | calm ending or call to action      |
 
 `generate-tts.ts` should pass resolved beat-level options to the provider. The cache key must include the resolved profile settings, pauses, and delivery text so regenerating audio is deterministic.
 

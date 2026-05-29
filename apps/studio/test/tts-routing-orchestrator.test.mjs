@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createTtsRoutingOrchestrator, planNeedsTtsRouting } from "../lib/tts-routing-orchestrator.mjs";
+import {
+  createTtsRoutingOrchestrator,
+  planNeedsTtsRouting,
+} from "../lib/tts-routing-orchestrator.mjs";
 
 function planWithBeat(beat) {
   return {
@@ -11,9 +14,9 @@ function planWithBeat(beat) {
       {
         id: "intro",
         title: "Intro",
-        beats: [beat]
-      }
-    ]
+        beats: [beat],
+      },
+    ],
   };
 }
 
@@ -24,8 +27,8 @@ test("planNeedsTtsRouting audits llm-sourced routes even when provider fields ex
     voiceDirection: {
       language: "filipino",
       ttsProvider: "mms",
-      source: "llm"
-    }
+      source: "llm",
+    },
   });
 
   assert.equal(planNeedsTtsRouting(plan), true);
@@ -38,11 +41,11 @@ test("TTS routing preserves user-authored provider overrides", async () => {
     voiceDirection: {
       language: "en",
       ttsProvider: "chatterbox",
-      source: "user"
+      source: "user",
     },
     directionMeta: {
-      sources: { ttsRouting: "user" }
-    }
+      sources: { ttsRouting: "user" },
+    },
   });
   const routePlanTtsWithOpenAi = createTtsRoutingOrchestrator({
     getOpenAiApiKey: async () => "test-key",
@@ -57,13 +60,13 @@ test("TTS routing preserves user-authored provider overrides", async () => {
               narrationLanguage: "filipino",
               ttsProvider: "mms",
               confidence: 0.9,
-              reason: "bad mock route"
-            }
+              reason: "bad mock route",
+            },
           ],
-          warnings: []
-        })
-      })
-    })
+          warnings: [],
+        }),
+      }),
+    }),
   });
 
   const routed = await routePlanTtsWithOpenAi(plan);
@@ -78,7 +81,7 @@ test("TTS routing defaults to local configured provider without OpenAI", async (
   const plan = planWithBeat({
     id: "intro-001",
     narration: "My Lola heard the floor creak.",
-    voiceDirection: {}
+    voiceDirection: {},
   });
   let fetchCalled = false;
   const routePlanTtsWithOpenAi = createTtsRoutingOrchestrator({
@@ -88,7 +91,7 @@ test("TTS routing defaults to local configured provider without OpenAI", async (
     fetchImpl: async () => {
       fetchCalled = true;
       throw new Error("should not fetch");
-    }
+    },
   });
 
   const routed = await routePlanTtsWithOpenAi(plan);
@@ -106,7 +109,7 @@ test("TTS routing uses injected OpenAI routing config when enabled", async () =>
   const plan = planWithBeat({
     id: "intro-001",
     narration: "This is mostly English narration.",
-    voiceDirection: {}
+    voiceDirection: {},
   });
   let requestBody = null;
   const routePlanTtsWithOpenAi = createTtsRoutingOrchestrator({
@@ -125,14 +128,14 @@ test("TTS routing uses injected OpenAI routing config when enabled", async () =>
                 narrationLanguage: "en",
                 ttsProvider: "chatterbox",
                 confidence: 0.95,
-                reason: "English narration"
-              }
+                reason: "English narration",
+              },
             ],
-            warnings: []
-          })
-        })
+            warnings: [],
+          }),
+        }),
       };
-    }
+    },
   });
 
   const routed = await routePlanTtsWithOpenAi(plan);

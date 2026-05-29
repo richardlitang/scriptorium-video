@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { buildPayload, checkChatterboxCapability, ChatterboxTTSProvider } from "../dist/tts/chatterbox-tts-provider.js";
+import {
+  buildPayload,
+  checkChatterboxCapability,
+  ChatterboxTTSProvider,
+} from "../dist/tts/chatterbox-tts-provider.js";
 
 test("Chatterbox TTS reports an actionable setup error when the server is unreachable", async () => {
   const originalUrl = process.env.CHATTERBOX_TTS_URL;
@@ -14,14 +18,14 @@ test("Chatterbox TTS reports an actionable setup error when the server is unreac
           voiceId: "clone",
           outputPath: "/tmp/lvstudio-unreachable-chatterbox.wav",
           format: "wav",
-          options: {}
+          options: {},
         }),
       (error) => {
         assert.match(error.message, /Chatterbox TTS server is unreachable/);
         assert.match(error.message, /scripts\/chatterbox_tts_server\.py/);
         assert.doesNotMatch(error.message, /fetch failed/);
         return true;
-      }
+      },
     );
   } finally {
     if (originalUrl === undefined) delete process.env.CHATTERBOX_TTS_URL;
@@ -54,7 +58,9 @@ test("checkChatterboxCapability reports failed model health", async () => {
 
   try {
     const capability = await checkChatterboxCapability(async () => {
-      return new Response(JSON.stringify({ ok: false, status: "failed", error: "model missing" }), { status: 200 });
+      return new Response(JSON.stringify({ ok: false, status: "failed", error: "model missing" }), {
+        status: 200,
+      });
     });
 
     assert.equal(capability.available, false);
@@ -72,7 +78,7 @@ test("buildPayload prefers providerOptions over environment values", () => {
     cfgWeight: process.env.CHATTERBOX_CFG_WEIGHT,
     temperature: process.env.CHATTERBOX_TEMPERATURE,
     seed: process.env.CHATTERBOX_SEED,
-    prompt: process.env.CHATTERBOX_AUDIO_PROMPT_PATH
+    prompt: process.env.CHATTERBOX_AUDIO_PROMPT_PATH,
   };
   try {
     process.env.CHATTERBOX_EXAGGERATION = "0.1";
@@ -92,8 +98,8 @@ test("buildPayload prefers providerOptions over environment values", () => {
         cfg_weight: 0.4,
         temperature: 0.7,
         seed: 42,
-        audio_prompt_path: "/tmp/request.wav"
-      }
+        audio_prompt_path: "/tmp/request.wav",
+      },
     });
 
     assert.equal(payload.exaggeration, 0.6);
@@ -121,7 +127,7 @@ test("buildPayload falls back to environment values when providerOptions are abs
     cfgWeight: process.env.CHATTERBOX_CFG_WEIGHT,
     temperature: process.env.CHATTERBOX_TEMPERATURE,
     seed: process.env.CHATTERBOX_SEED,
-    prompt: process.env.CHATTERBOX_AUDIO_PROMPT_PATH
+    prompt: process.env.CHATTERBOX_AUDIO_PROMPT_PATH,
   };
   try {
     process.env.CHATTERBOX_EXAGGERATION = "0.11";
@@ -135,7 +141,7 @@ test("buildPayload falls back to environment values when providerOptions are abs
       voiceId: "clone",
       outputPath: "/tmp/out.wav",
       format: "wav",
-      options: {}
+      options: {},
     });
 
     assert.equal(payload.exaggeration, 0.11);

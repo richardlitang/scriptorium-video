@@ -127,15 +127,23 @@ export function StoryComposer({
         userPromptTemplate,
         format: "long_documentary",
       });
-      const data = (result as unknown as { data?: { plan?: unknown; model?: string; warnings?: string[] } }).data;
+      const data = (
+        result as unknown as { data?: { plan?: unknown; model?: string; warnings?: string[] } }
+      ).data;
       if (data?.plan) {
         onPlanChange(JSON.stringify(data.plan, null, 2));
         const sections = (data.plan as { sections?: { beats?: unknown[] }[] }).sections ?? [];
         const beatCount = sections.reduce((t, s) => t + (s.beats?.length ?? 0), 0);
         setFeedback([
-          { level: "info", text: `AI generated ${sections.length} section(s) and ${beatCount} beat(s) using ${data.model ?? "AI"}.` },
+          {
+            level: "info",
+            text: `AI generated ${sections.length} section(s) and ${beatCount} beat(s) using ${data.model ?? "AI"}.`,
+          },
           ...(data.warnings ?? []).map((w): FeedbackItem => ({ level: "warning", text: w })),
-          { level: "step", text: "Next: Save Plan, optionally Generate Images, then Regenerate Audio, then Render Draft." },
+          {
+            level: "step",
+            text: "Next: Save Plan, optionally Generate Images, then Regenerate Audio, then Render Draft.",
+          },
         ]);
       }
     } catch (err) {
@@ -158,7 +166,9 @@ export function StoryComposer({
             setStory(e.target.value);
             persist({ story: e.target.value });
           }}
-          placeholder={"TITLE: My Story\n\n[0:00] THE HOOK\nYour narration here...\n[0:30] THE RISE\n..."}
+          placeholder={
+            "TITLE: My Story\n\n[0:00] THE HOOK\nYour narration here...\n[0:30] THE RISE\n..."
+          }
           rows={12}
           className="w-full bg-[var(--color-surface-overlay)] border border-[var(--color-border)] rounded px-3 py-2 text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-muted)] resize-y focus:outline-none focus:border-[var(--color-accent)] font-mono"
         />
@@ -167,13 +177,34 @@ export function StoryComposer({
       {/* Direction controls */}
       <div className="grid grid-cols-1 gap-2">
         <Field label="Feel">
-          <input value={feel} onChange={(e) => { setFeel(e.target.value); persist({ feel: e.target.value }); }} className={inputCls} />
+          <input
+            value={feel}
+            onChange={(e) => {
+              setFeel(e.target.value);
+              persist({ feel: e.target.value });
+            }}
+            className={inputCls}
+          />
         </Field>
         <Field label="Pacing">
-          <input value={pacing} onChange={(e) => { setPacing(e.target.value); persist({ pacing: e.target.value }); }} className={inputCls} />
+          <input
+            value={pacing}
+            onChange={(e) => {
+              setPacing(e.target.value);
+              persist({ pacing: e.target.value });
+            }}
+            className={inputCls}
+          />
         </Field>
         <Field label="Visual Style">
-          <input value={visualStyle} onChange={(e) => { setVisualStyle(e.target.value); persist({ visualStyle: e.target.value }); }} className={inputCls} />
+          <input
+            value={visualStyle}
+            onChange={(e) => {
+              setVisualStyle(e.target.value);
+              persist({ visualStyle: e.target.value });
+            }}
+            className={inputCls}
+          />
         </Field>
       </div>
 
@@ -188,10 +219,26 @@ export function StoryComposer({
         {showAdvanced && (
           <div className="mt-2 flex flex-col gap-2">
             <Field label="System Prompt">
-              <textarea value={systemPrompt} onChange={(e) => { setSystemPrompt(e.target.value); persist({ systemPrompt: e.target.value }); }} rows={4} className={`${inputCls} resize-y`} />
+              <textarea
+                value={systemPrompt}
+                onChange={(e) => {
+                  setSystemPrompt(e.target.value);
+                  persist({ systemPrompt: e.target.value });
+                }}
+                rows={4}
+                className={`${inputCls} resize-y`}
+              />
             </Field>
             <Field label="User Prompt Template">
-              <textarea value={userPromptTemplate} onChange={(e) => { setUserPromptTemplate(e.target.value); persist({ userPromptTemplate: e.target.value }); }} rows={4} className={`${inputCls} resize-y`} />
+              <textarea
+                value={userPromptTemplate}
+                onChange={(e) => {
+                  setUserPromptTemplate(e.target.value);
+                  persist({ userPromptTemplate: e.target.value });
+                }}
+                rows={4}
+                className={`${inputCls} resize-y`}
+              />
             </Field>
             <button
               onClick={() => {
@@ -227,7 +274,10 @@ export function StoryComposer({
           {planFromStory.isPending ? "Generating…" : "Generate Plan with AI"}
         </button>
         <button
-          onClick={() => { setStory(""); persist({ story: "" }); }}
+          onClick={() => {
+            setStory("");
+            persist({ story: "" });
+          }}
           disabled={!hasStory}
           className={btnCls("ghost")}
         >
@@ -244,9 +294,12 @@ const inputCls =
   "w-full bg-[var(--color-surface-overlay)] border border-[var(--color-border)] rounded px-2 py-1 text-sm text-[var(--color-text)] focus:outline-none focus:border-[var(--color-accent)]";
 
 function btnCls(variant: "primary" | "accent" | "ghost") {
-  const base = "px-3 py-1.5 text-xs rounded font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
-  if (variant === "accent") return `${base} bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]`;
-  if (variant === "primary") return `${base} bg-[var(--color-surface-overlay)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]`;
+  const base =
+    "px-3 py-1.5 text-xs rounded font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
+  if (variant === "accent")
+    return `${base} bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]`;
+  if (variant === "primary")
+    return `${base} bg-[var(--color-surface-overlay)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]`;
   return `${base} text-[var(--color-text-muted)] hover:text-[var(--color-text)]`;
 }
 
@@ -270,7 +323,10 @@ function FeedbackPanel({ items }: { items: FeedbackItem[] }) {
   return (
     <div className="flex flex-col gap-1">
       {items.map((item, i) => (
-        <div key={i} className={`text-xs px-2 py-1 rounded border-l-2 bg-[var(--color-surface-overlay)] ${LEVEL_COLORS[item.level] ?? LEVEL_COLORS["info"]}`}>
+        <div
+          key={i}
+          className={`text-xs px-2 py-1 rounded border-l-2 bg-[var(--color-surface-overlay)] ${LEVEL_COLORS[item.level] ?? LEVEL_COLORS["info"]}`}
+        >
           {item.text}
         </div>
       ))}

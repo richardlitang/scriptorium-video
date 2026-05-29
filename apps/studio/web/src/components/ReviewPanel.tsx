@@ -22,7 +22,11 @@ const SEV_COLORS: Record<string, string> = {
 export function ReviewPanel({ projectId, onSelectBeat }: Props) {
   const [filter, setFilter] = useState<"all" | "error" | "warning" | "info">("all");
 
-  const { data: issues = [], isLoading, refetch } = useQuery({
+  const {
+    data: issues = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["projects", projectId, "review"],
     queryFn: async (): Promise<ReviewIssue[]> => {
       const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/review`);

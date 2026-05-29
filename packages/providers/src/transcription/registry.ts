@@ -4,5 +4,5 @@ import { MockTranscriptionProvider } from "./mock-transcription-provider.js";
 
 export const transcriptionProviders: Record<string, TranscriptionProvider> = {
   mock: new MockTranscriptionProvider(),
-  manual: new ManualTranscriptionProvider()
+  manual: new ManualTranscriptionProvider(),
 };

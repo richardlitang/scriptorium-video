@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDraftJob, useStopDraftJob } from "@/queries/draft-job";
-import { draftJobUiModel, draftJobProgressLine, shouldNotifyDraftJobFinished, draftJobNotificationModel } from "@/lib/draft-job-ui-state";
+import {
+  draftJobUiModel,
+  draftJobProgressLine,
+  shouldNotifyDraftJobFinished,
+  draftJobNotificationModel,
+} from "@/lib/draft-job-ui-state";
 import { projectKeys } from "@/queries/projects";
 
 interface Props {
@@ -28,8 +33,8 @@ export function DraftJobBanner({ projectId, onJobFinished }: Props) {
       if (document.hidden && "Notification" in window && Notification.permission === "granted") {
         new Notification(notif.title, { body: notif.body });
       }
-      qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
-      qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
+      void qc.invalidateQueries({ queryKey: projectKeys.detail(projectId) });
+      void qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
       onJobFinished();
       setDismissed(false);
     }
@@ -49,7 +54,9 @@ export function DraftJobBanner({ projectId, onJobFinished }: Props) {
     <div className={`flex items-start gap-3 px-4 py-3 border-b ${colorClass}`}>
       <div className="flex-1 min-w-0">
         <div className="text-sm font-medium">{model.bannerTitle}</div>
-        <div className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">{model.bannerDetail}</div>
+        <div className="text-xs text-[var(--color-text-muted)] mt-0.5 truncate">
+          {model.bannerDetail}
+        </div>
       </div>
       <div className="flex gap-2 shrink-0">
         {model.stopRunDisabled === false && (

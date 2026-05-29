@@ -14,12 +14,14 @@ function normalizeText(value) {
 }
 
 export function imageReuseKey({ narration, size, quality, model }) {
-  return sha256(JSON.stringify({
-    narration: normalizeText(narration),
-    size,
-    quality,
-    model
-  }));
+  return sha256(
+    JSON.stringify({
+      narration: normalizeText(narration),
+      size,
+      quality,
+      model,
+    }),
+  );
 }
 
 export function narrationFromImagePrompt(prompt) {
@@ -30,17 +32,23 @@ function newestFirst(a, b) {
   return String(b.generatedAt || "").localeCompare(String(a.generatedAt || ""));
 }
 
-export function selectCachedImage(entries, { inputHash, reuseKey, size, quality, model, allowNarrationReuse }) {
+export function selectCachedImage(
+  entries,
+  { inputHash, reuseKey, size, quality, model, allowNarrationReuse },
+) {
   const candidates = entries
-    .filter((entry) =>
-      entry &&
-      entry.rootPath &&
-      entry.size === size &&
-      entry.quality === quality &&
-      entry.model === model
+    .filter(
+      (entry) =>
+        entry &&
+        entry.rootPath &&
+        entry.size === size &&
+        entry.quality === quality &&
+        entry.model === model,
     )
     .sort(newestFirst);
 
-  return candidates.find((entry) => entry.inputHash === inputHash) ??
-    (allowNarrationReuse ? candidates.find((entry) => entry.reuseKey === reuseKey) : undefined);
+  return (
+    candidates.find((entry) => entry.inputHash === inputHash) ??
+    (allowNarrationReuse ? candidates.find((entry) => entry.reuseKey === reuseKey) : undefined)
+  );
 }

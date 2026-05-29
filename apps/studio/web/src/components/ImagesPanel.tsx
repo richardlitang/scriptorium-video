@@ -32,9 +32,15 @@ export function ImagesPanel({ projectId, onLog }: Props) {
         coverage: imageBudget,
         quality: imageQuality,
       });
-      const data = (result as unknown as { data?: { generated?: unknown[]; failed?: unknown[]; coverage?: string } }).data;
+      const data = (
+        result as unknown as {
+          data?: { generated?: unknown[]; failed?: unknown[]; coverage?: string };
+        }
+      ).data;
       const label = imageCoverageLabel(data?.coverage ?? imageBudget);
-      onLog(`Images: generated ${data?.generated?.length ?? 0}, failed ${data?.failed?.length ?? 0}. Coverage: ${label}.`);
+      onLog(
+        `Images: generated ${data?.generated?.length ?? 0}, failed ${data?.failed?.length ?? 0}. Coverage: ${label}.`,
+      );
     } catch (err) {
       onLog(`Image generation failed: ${String(err)}`);
     }
@@ -45,7 +51,8 @@ export function ImagesPanel({ projectId, onLog }: Props) {
       {/* Coverage summary */}
       <div className="flex items-center justify-between">
         <div className="text-xs text-[var(--color-text-muted)]">
-          Coverage ({imageCoverageLabel(imageBudget)}): {coverage.total - coverage.missing}/{coverage.total}
+          Coverage ({imageCoverageLabel(imageBudget)}): {coverage.total - coverage.missing}/
+          {coverage.total}
           {coverage.missing > 0 && (
             <span className="text-[var(--color-warning)] ml-1">· {coverage.missing} missing</span>
           )}
@@ -72,7 +79,10 @@ export function ImagesPanel({ projectId, onLog }: Props) {
               : `/api/projects/${encodeURIComponent(projectId)}/media/${encodeURIComponent(String(asset["path"] ?? ""))}`;
 
             return (
-              <div key={asset.id} className="flex flex-col gap-1 bg-[var(--color-surface-raised)] rounded border border-[var(--color-border)] overflow-hidden">
+              <div
+                key={asset.id}
+                className="flex flex-col gap-1 bg-[var(--color-surface-raised)] rounded border border-[var(--color-border)] overflow-hidden"
+              >
                 <div className="aspect-video bg-[var(--color-surface-overlay)] relative">
                   {asset["path"] && (
                     <img
@@ -80,11 +90,15 @@ export function ImagesPanel({ projectId, onLog }: Props) {
                       alt={String(asset["beatId"] ?? asset.id)}
                       className="w-full h-full object-cover"
                       loading="lazy"
-                      onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
                     />
                   )}
                   {asset["locked_by_user"] && (
-                    <div className="absolute top-1 right-1 text-xs bg-[var(--color-warning)]/80 text-black px-1 rounded">🔒</div>
+                    <div className="absolute top-1 right-1 text-xs bg-[var(--color-warning)]/80 text-black px-1 rounded">
+                      🔒
+                    </div>
                   )}
                 </div>
                 <div className="px-2 py-1">
@@ -92,7 +106,9 @@ export function ImagesPanel({ projectId, onLog }: Props) {
                     {String(asset["beatId"] ?? asset.id)}
                   </div>
                   {history.length > 0 && (
-                    <div className="text-xs text-[var(--color-text-muted)] opacity-60">v{history.length}</div>
+                    <div className="text-xs text-[var(--color-text-muted)] opacity-60">
+                      v{history.length}
+                    </div>
                   )}
                 </div>
               </div>

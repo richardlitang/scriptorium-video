@@ -10,5 +10,5 @@ export const ttsProviders: Record<string, TTSProvider> = {
   mms: new MMSTTSProvider(),
   mock: new MockTTSProvider(),
   manual: new ManualTTSProvider(),
-  openai: new OpenAITTSProvider()
+  openai: new OpenAITTSProvider(),
 };

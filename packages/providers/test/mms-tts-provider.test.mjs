@@ -13,13 +13,13 @@ test("MMS TTS reports actionable setup errors when server is unreachable", async
           voiceId: "default",
           outputPath: "/tmp/lvstudio-unreachable-mms.wav",
           format: "wav",
-          options: { language: "fil" }
+          options: { language: "fil" },
         }),
       (error) => {
         assert.match(error.message, /MMS TTS server is unreachable/);
         assert.match(error.message, /scripts\/mms_tts_server\.py/);
         return true;
-      }
+      },
     );
   } finally {
     if (originalUrl === undefined) delete process.env.MMS_TTS_URL;

@@ -42,9 +42,9 @@ export function useGenerateImages(projectId: string | null) {
       api.projects.generateImages(projectId!, body),
     onSuccess: () => {
       if (projectId) {
-        qc.invalidateQueries({ queryKey: projectKeys.assets(projectId) });
-        qc.invalidateQueries({ queryKey: projectKeys.imageHistory(projectId) });
-        qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
+        void qc.invalidateQueries({ queryKey: projectKeys.assets(projectId) });
+        void qc.invalidateQueries({ queryKey: projectKeys.imageHistory(projectId) });
+        void qc.invalidateQueries({ queryKey: projectKeys.renders(projectId) });
       }
     },
   });
@@ -54,14 +54,18 @@ export function usePatchAssetStatus(projectId: string | null) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ assetId, updates }: { assetId: string; updates: Record<string, unknown> }) =>
-      api.projects.asset(projectId!, assetId)
-        .then(() => fetch(`/api/projects/${encodeURIComponent(projectId!)}/assets/${encodeURIComponent(assetId)}`, {
-          method: "PATCH",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify(updates),
-        })),
+      api.projects.asset(projectId!, assetId).then(() =>
+        fetch(
+          `/api/projects/${encodeURIComponent(projectId!)}/assets/${encodeURIComponent(assetId)}`,
+          {
+            method: "PATCH",
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify(updates),
+          },
+        ),
+      ),
     onSuccess: () => {
-      if (projectId) qc.invalidateQueries({ queryKey: projectKeys.assets(projectId) });
+      if (projectId) void qc.invalidateQueries({ queryKey: projectKeys.assets(projectId) });
     },
   });
 }

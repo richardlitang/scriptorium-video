@@ -17,7 +17,14 @@ interface Props {
   qualityLog: string[];
 }
 
-export function PlanEditor({ projectId, planJson, onChange, workflowFlags, onSaved, qualityLog }: Props) {
+export function PlanEditor({
+  projectId,
+  planJson,
+  onChange,
+  workflowFlags,
+  onSaved,
+  qualityLog,
+}: Props) {
   const savePlan = useSavePlan(projectId);
   const [parseError, setParseError] = useState<string | null>(null);
 
@@ -45,7 +52,10 @@ export function PlanEditor({ projectId, planJson, onChange, workflowFlags, onSav
       {workflowFeedback.length > 0 && (
         <div className="flex flex-col gap-1">
           {workflowFeedback.map((item, i) => (
-            <div key={i} className={`text-xs px-2 py-1 rounded border-l-2 bg-[var(--color-surface-overlay)] ${LEVEL_COLORS[item.level]}`}>
+            <div
+              key={i}
+              className={`text-xs px-2 py-1 rounded border-l-2 bg-[var(--color-surface-overlay)] ${LEVEL_COLORS[item.level]}`}
+            >
               {item.text}
             </div>
           ))}
@@ -80,7 +90,9 @@ export function PlanEditor({ projectId, planJson, onChange, workflowFlags, onSav
       {/* Quality log */}
       {qualityLog.length > 0 && (
         <div className="mt-2">
-          <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">Output</div>
+          <div className="text-xs text-[var(--color-text-muted)] uppercase tracking-wider mb-1">
+            Output
+          </div>
           <pre className="text-xs font-mono text-[var(--color-text-muted)] bg-[var(--color-surface-overlay)] border border-[var(--color-border)] rounded p-2 overflow-y-auto max-h-48 whitespace-pre-wrap">
             {qualityLog.join("\n\n")}
           </pre>
@@ -95,9 +107,15 @@ function buildWorkflowFeedback(flags: WorkflowFlags): FeedbackItem[] {
   if (flags.hasUnsavedPlan)
     items.push({ level: "step", text: "Plan has unsaved changes — click Save Plan to persist." });
   else if (flags.needsPrepareDraft)
-    items.push({ level: "step", text: "Make Draft will regenerate narration, images if enabled, captions, and video." });
+    items.push({
+      level: "step",
+      text: "Make Draft will regenerate narration, images if enabled, captions, and video.",
+    });
   if (flags.needsRender)
-    items.push({ level: "step", text: "Rendered output shows a previous draft — run Make Draft to update." });
+    items.push({
+      level: "step",
+      text: "Rendered output shows a previous draft — run Make Draft to update.",
+    });
   return items;
 }
 

@@ -14,15 +14,15 @@ function planWithTts(tts = "chatterbox") {
       tts,
       transcription: "mock",
       media: "manual-media",
-      renderer: "remotion"
+      renderer: "remotion",
     },
     voice: {
       provider: tts,
       voiceId: "clone",
       format: "wav",
-      options: {}
+      options: {},
     },
-    sections: []
+    sections: [],
   };
 }
 
@@ -35,7 +35,7 @@ function beatWithDirection(voiceDirection) {
     media: [],
     motion: { type: "slow_zoom_in", intensity: 0.1 },
     caption: { emphasis: [], style: "default" },
-    voiceDirection
+    voiceDirection,
   };
 }
 
@@ -45,11 +45,10 @@ test("resolveVoiceDirection returns neutral defaults when voiceDirection is miss
   assert.equal(resolved.delivery.intensity, 0.5);
   assert.deepEqual(resolved.delivery.emphasis, []);
   assert.deepEqual(resolved.pauses, { beforeSeconds: 0, afterSeconds: 0 });
-  assert.deepEqual(resolved.providerOptions, {
-    exaggeration: 0.45,
-    cfg_weight: 0.45,
-    temperature: 0.6
-  });
+  assert.equal(resolved.providerOptions.exaggeration, 0.38);
+  assert.equal(resolved.providerOptions.cfg_weight, 0.55);
+  assert.equal(resolved.providerOptions.temperature, 0.45);
+  assert.equal(typeof resolved.providerOptions.seed, "number");
   assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0 });
 });
 
@@ -61,18 +60,17 @@ test("resolveVoiceDirection maps key_point profile to stable chatterbox settings
       emphasis: ["three hours every week"],
       pauseBeforeSeconds: 0.1,
       pauseAfterSeconds: 0.35,
-      source: "llm"
+      source: "llm",
     }),
-    planWithTts()
+    planWithTts(),
   );
 
   assert.equal(resolved.delivery.profile, "key_point");
   assert.equal(resolved.delivery.intensity, 0.7);
-  assert.deepEqual(resolved.providerOptions, {
-    exaggeration: 0.56,
-    cfg_weight: 0.4,
-    temperature: 0.68
-  });
+  assert.equal(resolved.providerOptions.exaggeration, 0.67);
+  assert.equal(resolved.providerOptions.cfg_weight, 0.37);
+  assert.equal(resolved.providerOptions.temperature, 0.65);
+  assert.equal(typeof resolved.providerOptions.seed, "number");
   assert.deepEqual(resolved.pauses, { beforeSeconds: 0.1, afterSeconds: 0.35 });
   assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0 });
 });
@@ -85,9 +83,9 @@ test("resolveVoiceDirection does not inject chatterbox options for non-chatterbo
       emphasis: [],
       pauseBeforeSeconds: 0,
       pauseAfterSeconds: 0,
-      source: "default"
+      source: "default",
     }),
-    planWithTts("openai")
+    planWithTts("openai"),
   );
   assert.deepEqual(resolved.providerOptions, {});
   assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0 });
@@ -106,9 +104,9 @@ test("resolveVoiceDirection computes per-beat speed and pitch from multipliers a
       pauseAfterSeconds: 0,
       speedMultiplier: 1.2,
       pitchOffset: 0.3,
-      source: "llm"
+      source: "llm",
     }),
-    plan
+    plan,
   );
   assert.deepEqual(resolved.voiceOptions, { speed: 1.08, pitch: 0.2 });
 });
@@ -123,10 +121,10 @@ test("resolveVoiceDirection carries planner language and provider routing", () =
       pauseAfterSeconds: 0,
       language: "fil",
       ttsProvider: "mms",
-      source: "llm"
+      source: "llm",
     }),
     planWithTts("chatterbox"),
-    "mms"
+    "mms",
   );
   assert.equal(resolved.ttsProvider, "mms");
   assert.deepEqual(resolved.providerOptions, {});
@@ -143,9 +141,25 @@ test("resolveVoiceDirection prioritizes millisecond pause controls when present"
       pauseAfterMs: 640,
       pauseBeforeSeconds: 0,
       pauseAfterSeconds: 0,
-      source: "llm"
+      source: "llm",
     }),
-    planWithTts("openai")
+    planWithTts("openai"),
   );
   assert.deepEqual(resolved.pauses, { beforeSeconds: 0.18, afterSeconds: 0.64 });
+});
+
+test("resolveVoiceDirection normalizes legacy second pauses into millisecond-backed pauses", () => {
+  const resolved = resolveVoiceDirection(
+    beatWithDirection({
+      profile: "neutral",
+      intensity: 0.5,
+      emphasis: [],
+      pauseBeforeSeconds: 0.333,
+      pauseAfterSeconds: 0.777,
+      source: "llm",
+    }),
+    planWithTts("openai"),
+  );
+
+  assert.deepEqual(resolved.pauses, { beforeSeconds: 0.333, afterSeconds: 0.777 });
 });

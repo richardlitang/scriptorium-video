@@ -91,7 +91,10 @@ function removeParentheticalDirective(value: string, labels: string[]) {
       index += 1;
       continue;
     }
-    const inner = source.slice(index + 1, closeIndex).trim().toLowerCase();
+    const inner = source
+      .slice(index + 1, closeIndex)
+      .trim()
+      .toLowerCase();
     if (labels.some((label) => inner.startsWith(label))) {
       output += " ";
       index = closeIndex + 1;
@@ -119,11 +122,8 @@ function extractDirectives(sectionBody: string) {
       const value = content.slice(separatorIndex + 1).trim();
       const labelLooksDirective =
         label &&
-        [...label].every(
-          (c) => (c >= "A" && c <= "Z") || c === " " || c === "/" || c === "-",
-        );
-      if (labelLooksDirective && value)
-        directives.push(`${label}: ${compactWhitespace(value)}`);
+        [...label].every((c) => (c >= "A" && c <= "Z") || c === " " || c === "/" || c === "-");
+      if (labelLooksDirective && value) directives.push(`${label}: ${compactWhitespace(value)}`);
     }
     index = closeIndex + 1;
   }
@@ -132,10 +132,11 @@ function extractDirectives(sectionBody: string) {
 
 function normalizeNarration(sectionBody: string) {
   return compactWhitespace(
-    removeParentheticalDirective(
-      removeBracketDirectives(sectionBody),
-      ["pause", "long pause", "deliver"],
-    ),
+    removeParentheticalDirective(removeBracketDirectives(sectionBody), [
+      "pause",
+      "long pause",
+      "deliver",
+    ]),
   );
 }
 
@@ -143,9 +144,7 @@ function splitNarrationParagraphs(sectionBody: string) {
   return removeBracketDirectives(sectionBody, "\n\n")
     .split("\n\n")
     .map((p) =>
-      compactWhitespace(
-        removeParentheticalDirective(p, ["pause", "long pause", "deliver"]),
-      ),
+      compactWhitespace(removeParentheticalDirective(p, ["pause", "long pause", "deliver"])),
     )
     .filter(Boolean);
 }
@@ -215,7 +214,10 @@ export function extractThumbnailConcept(rawScript: string) {
   return compactWhitespace(body.join(" "));
 }
 
-export function buildStoryFeedback(rawScript: string, plan: { sections: { beats: unknown[] }[] }): FeedbackItem[] {
+export function buildStoryFeedback(
+  rawScript: string,
+  plan: { sections: { beats: unknown[] }[] },
+): FeedbackItem[] {
   const sections = splitStorySections(rawScript);
   const items: FeedbackItem[] = [];
   if (!firstLabelValue(rawScript, "TITLE")) {
@@ -254,8 +256,14 @@ export function buildStoryFeedback(rawScript: string, plan: { sections: { beats:
   return items;
 }
 
-export function buildPlanFromStory(rawScript: string, currentPlan: Record<string, unknown>): Record<string, unknown> {
-  const title = extractStoryTitle(rawScript, String((currentPlan["title"] as string | undefined) ?? ""));
+export function buildPlanFromStory(
+  rawScript: string,
+  currentPlan: Record<string, unknown>,
+): Record<string, unknown> {
+  const title = extractStoryTitle(
+    rawScript,
+    String((currentPlan["title"] as string | undefined) ?? ""),
+  );
   const thumbnailConcept = extractThumbnailConcept(rawScript);
   const sections = splitStorySections(rawScript);
   if (sections.length === 0) {
@@ -276,7 +284,9 @@ export function buildPlanFromStory(rawScript: string, currentPlan: Record<string
       voiceId: "clone",
       format: "wav",
       options: {
-        ...((currentPlan["voice"] as Record<string, unknown> | undefined)?.["options"] as object | undefined),
+        ...((currentPlan["voice"] as Record<string, unknown> | undefined)?.["options"] as
+          | object
+          | undefined),
         speed: 0.95,
         emotion:
           "Narrate like a tense supernatural horror story: restrained, intimate, serious, and cinematic. Avoid theatrical overacting.",

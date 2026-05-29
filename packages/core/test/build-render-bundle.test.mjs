@@ -18,7 +18,13 @@ function planFixture() {
     mode: "short_story",
     targetPlatform: "local_only",
     stylePackId: "default",
-    providers: { llm: "manual", tts: "chatterbox", transcription: "mock", media: "manual-media", renderer: "remotion" },
+    providers: {
+      llm: "manual",
+      tts: "chatterbox",
+      transcription: "mock",
+      media: "manual-media",
+      renderer: "remotion",
+    },
     voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
     sections: [
       {
@@ -33,11 +39,11 @@ function planFixture() {
             media: [],
             motion: { type: "none", intensity: 0 },
             caption: { emphasis: [], style: "default" },
-            sfxCues: []
-          }
-        ]
-      }
-    ]
+            sfxCues: [],
+          },
+        ],
+      },
+    ],
   };
 }
 
@@ -54,7 +60,7 @@ test("buildRenderBundle blocks rendering when a timeline segment has no visual",
       title: "Fixture",
       createdAt: generatedAt,
       updatedAt: generatedAt,
-      status: "draft"
+      status: "draft",
     });
     await writeJson(path.join(projectDir, "video-plan.json"), plan);
     await writeJson(path.join(projectDir, "asset-manifest.json"), { schemaVersion: 1, assets: [] });
@@ -75,14 +81,14 @@ test("buildRenderBundle blocks rendering when a timeline segment has no visual",
           durationSeconds: 2,
           mediaAssetIds: [],
           audioCues: [],
-          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" }
-        }
-      ]
+          renderPolicy: { mediaPolicy: "loop_or_freeze", scaleMode: "cover" },
+        },
+      ],
     });
 
     await assert.rejects(
       () => buildRenderBundle({ projectId, rootDir: root }),
-      /s1-001 has no visual asset/
+      /s1-001 has no visual asset/,
     );
   } finally {
     await rm(root, { recursive: true, force: true });

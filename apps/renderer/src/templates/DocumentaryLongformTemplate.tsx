@@ -2,7 +2,12 @@ import { AbsoluteFill, Audio, Sequence, useCurrentFrame, useVideoConfig } from "
 import type { RenderBundle } from "@lvstudio/core";
 import { CaptionLayer } from "../components/CaptionLayer";
 import { MediaLayer } from "../components/MediaLayer";
-import { activeSilenceAt, activeVisualCueAt, shouldCutToBlack, visualCueStyle } from "./editorial-runtime";
+import {
+  activeSilenceAt,
+  activeVisualCueAt,
+  shouldCutToBlack,
+  visualCueStyle,
+} from "./editorial-runtime";
 
 type RemotionInputProps = {
   renderBundle: RenderBundle;
@@ -15,13 +20,18 @@ function dbToVolume(levelDb: number): number {
   return Math.max(0, Math.min(1, linear));
 }
 
-function duckingFactorAt(timeSeconds: number, voiceRanges: Array<{ start: number; end: number }>): number {
-  return voiceRanges.some((range) => timeSeconds >= range.start && timeSeconds < range.end) ? 0.35 : 1;
+function duckingFactorAt(
+  timeSeconds: number,
+  voiceRanges: Array<{ start: number; end: number }>,
+): number {
+  return voiceRanges.some((range) => timeSeconds >= range.start && timeSeconds < range.end)
+    ? 0.35
+    : 1;
 }
 
 export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
   renderBundle,
-  assetUrls
+  assetUrls,
 }) => {
   const { videoPlan, assetManifest, timeline, captions } = renderBundle;
   const frame = useCurrentFrame();
@@ -29,7 +39,7 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
   const timeSeconds = frame / fps;
   const activeSegment =
     timeline.segments.find(
-      (segment) => timeSeconds >= segment.startSeconds && timeSeconds < segment.endSeconds
+      (segment) => timeSeconds >= segment.startSeconds && timeSeconds < segment.endSeconds,
     ) ?? timeline.segments[0];
   const visualEditCues = timeline.segments.flatMap((segment) => segment.visualEditCues ?? []);
   const activeVisualCue = activeVisualCueAt(timeSeconds, visualEditCues);
@@ -45,21 +55,39 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
     .map((segment) => ({ start: segment.startSeconds, end: segment.endSeconds }));
   const silenceWindows = timeline.segments.flatMap((segment) => segment.silenceWindows ?? []);
   const cutToBlack = shouldCutToBlack(timeSeconds, visualEditCues);
-  const visualSpans = timeline.segments.reduce<Array<{
-    mediaAssetId?: string;
-    fromSeconds: number;
-    toSeconds: number;
-    motion?: {
-      type: "none" | "slow_zoom_in" | "slow_zoom_out" | "pan_left" | "pan_right";
-      intensity: number;
-    };
-  }>>((acc, segment) => {
+  const visualSpans = timeline.segments.reduce<
+    Array<{
+      mediaAssetId?: string;
+      fromSeconds: number;
+      toSeconds: number;
+      renderPolicy: {
+        scaleMode: "safe_cover" | "contain_blur" | "cover" | "contain" | "stretch";
+        subjectPosition: "center" | "upper_center" | "lower_center" | "left" | "right";
+        cropRisk: "low" | "medium" | "high";
+      };
+      motion?: {
+        type: "none" | "slow_zoom_in" | "slow_zoom_out" | "pan_left" | "pan_right";
+        intensity: number;
+      };
+    }>
+  >((acc, segment) => {
     const beat = videoPlan.sections
       .flatMap((section) => section.beats)
       .find((entry) => entry.id === segment.beatId);
     const mediaAssetId = segment.mediaAssetIds[0];
     const last = acc[acc.length - 1];
-    if (last && last.mediaAssetId === mediaAssetId) {
+    const policy = {
+      scaleMode: segment.renderPolicy?.scaleMode ?? "safe_cover",
+      subjectPosition: segment.renderPolicy?.subjectPosition ?? "center",
+      cropRisk: segment.renderPolicy?.cropRisk ?? "medium",
+    };
+    if (
+      last &&
+      last.mediaAssetId === mediaAssetId &&
+      last.renderPolicy.scaleMode === policy.scaleMode &&
+      last.renderPolicy.subjectPosition === policy.subjectPosition &&
+      last.renderPolicy.cropRisk === policy.cropRisk
+    ) {
       last.toSeconds = segment.endSeconds;
       return acc;
     }
@@ -67,18 +95,27 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
       mediaAssetId,
       fromSeconds: segment.startSeconds,
       toSeconds: segment.endSeconds,
-      motion: beat?.motion
+      renderPolicy: policy,
+      motion: beat?.motion,
     });
     return acc;
   }, []);
-  const activeVisualSpan = visualSpans.find((span) => timeSeconds >= span.fromSeconds && timeSeconds < span.toSeconds);
+  const activeVisualSpan = visualSpans.find(
+    (span) => timeSeconds >= span.fromSeconds && timeSeconds < span.toSeconds,
+  );
   const spanMediaId = activeVisualSpan?.mediaAssetId ?? activeMediaId;
   const spanMedia = assetManifest.assets.find((asset) => asset.id === spanMediaId) ?? activeMedia;
   const spanMediaUrl = spanMediaId ? assetUrls[spanMediaId] : activeMediaUrl;
-  const spanFromFrame = Math.round((activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds) * fps);
+  const spanFromFrame = Math.round(
+    (activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds) * fps,
+  );
   const spanDurationFrames = Math.max(
     1,
-    Math.round(((activeVisualSpan?.toSeconds ?? visualSegment.endSeconds) - (activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds)) * fps)
+    Math.round(
+      ((activeVisualSpan?.toSeconds ?? visualSegment.endSeconds) -
+        (activeVisualSpan?.fromSeconds ?? visualSegment.startSeconds)) *
+        fps,
+    ),
   );
   const localVisualFrame = Math.max(0, frame - spanFromFrame);
 
@@ -91,6 +128,9 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
           <MediaLayer
             asset={spanMedia}
             src={spanMediaUrl}
+            scaleMode={activeVisualSpan?.renderPolicy.scaleMode}
+            subjectPosition={activeVisualSpan?.renderPolicy.subjectPosition}
+            cropRisk={activeVisualSpan?.renderPolicy.cropRisk}
             motion={activeVisualSpan?.motion ?? activeBeat?.motion}
             localFrame={localVisualFrame}
             spanDurationInFrames={spanDurationFrames}
@@ -147,7 +187,7 @@ export const DocumentaryLongformTemplate: React.FC<RemotionInputProps> = ({
               />
             </Sequence>
           );
-        })
+        }),
       )}
 
       <CaptionLayer captions={captions} />

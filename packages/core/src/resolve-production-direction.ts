@@ -6,8 +6,9 @@ import {
   type Section,
   type SoundCueIntent,
   type VisualIntent,
-  type VideoPlan
+  type VideoPlan,
 } from "./schemas/video-plan.schema.js";
+import { canonicalizeVoicePauseFields } from "./voice-pauses.js";
 
 type CaptionTuning = {
   targetMaxWords?: number;
@@ -62,7 +63,7 @@ function sourceByLayer(
   sectionValue: unknown,
   projectValue: unknown,
   legacyValue: unknown,
-  explicit?: SourceLabel
+  explicit?: SourceLabel,
 ): SourceLabel {
   if (explicit) return explicit;
   if (hasValue(beatValue)) return "user";
@@ -77,73 +78,103 @@ function resolveCaptionTuning(plan: VideoPlan, section: Section, beat: Beat): Ca
   const beatLevel = beat.direction?.caption?.tuning;
   const fallback = plan.overrides?.captionTuning;
   return {
-    targetMaxWords: firstDefined(beatLevel?.targetMaxWords, sectionLevel?.targetMaxWords, project?.targetMaxWords, fallback?.targetMaxWords),
-    hardMaxWords: firstDefined(beatLevel?.hardMaxWords, sectionLevel?.hardMaxWords, project?.hardMaxWords, fallback?.hardMaxWords),
+    targetMaxWords: firstDefined(
+      beatLevel?.targetMaxWords,
+      sectionLevel?.targetMaxWords,
+      project?.targetMaxWords,
+      fallback?.targetMaxWords,
+    ),
+    hardMaxWords: firstDefined(
+      beatLevel?.hardMaxWords,
+      sectionLevel?.hardMaxWords,
+      project?.hardMaxWords,
+      fallback?.hardMaxWords,
+    ),
     targetMaxDurationSeconds: firstDefined(
       beatLevel?.targetMaxDurationSeconds,
       sectionLevel?.targetMaxDurationSeconds,
       project?.targetMaxDurationSeconds,
-      fallback?.targetMaxDurationSeconds
+      fallback?.targetMaxDurationSeconds,
     ),
     hardMaxDurationSeconds: firstDefined(
       beatLevel?.hardMaxDurationSeconds,
       sectionLevel?.hardMaxDurationSeconds,
       project?.hardMaxDurationSeconds,
-      fallback?.hardMaxDurationSeconds
+      fallback?.hardMaxDurationSeconds,
     ),
     minWordsBeforeSentenceBreak: firstDefined(
       beatLevel?.minWordsBeforeSentenceBreak,
       sectionLevel?.minWordsBeforeSentenceBreak,
       project?.minWordsBeforeSentenceBreak,
-      fallback?.minWordsBeforeSentenceBreak
-    )
+      fallback?.minWordsBeforeSentenceBreak,
+    ),
   };
 }
 
-export function resolveBeatProductionDirection(plan: VideoPlan, section: Section, beat: Beat): ResolvedBeatProductionDirection {
+export function resolveBeatProductionDirection(
+  plan: VideoPlan,
+  section: Section,
+  beat: Beat,
+): ResolvedBeatProductionDirection {
   const creative = {
-    feel: firstDefined(beat.direction?.creative?.feel, section.direction?.creative?.feel, plan.direction?.creative?.feel),
-    pacing: firstDefined(beat.direction?.creative?.pacing, section.direction?.creative?.pacing, plan.direction?.creative?.pacing),
+    feel: firstDefined(
+      beat.direction?.creative?.feel,
+      section.direction?.creative?.feel,
+      plan.direction?.creative?.feel,
+    ),
+    pacing: firstDefined(
+      beat.direction?.creative?.pacing,
+      section.direction?.creative?.pacing,
+      plan.direction?.creative?.pacing,
+    ),
     visualStyle: firstDefined(
       beat.direction?.creative?.visualStyle,
       section.direction?.creative?.visualStyle,
-      plan.direction?.creative?.visualStyle
+      plan.direction?.creative?.visualStyle,
     ),
-    tension: firstDefined(beat.direction?.creative?.tension, section.direction?.creative?.tension, plan.direction?.creative?.tension),
+    tension: firstDefined(
+      beat.direction?.creative?.tension,
+      section.direction?.creative?.tension,
+      plan.direction?.creative?.tension,
+    ),
     continuityStrictness: firstDefined(
       beat.direction?.creative?.continuityStrictness,
       section.direction?.creative?.continuityStrictness,
-      plan.direction?.creative?.continuityStrictness
-    )
+      plan.direction?.creative?.continuityStrictness,
+    ),
   };
 
-  const voiceDirection = VoiceDirectionSchema.parse({
-    ...plan.direction?.voice,
-    ...section.direction?.voice,
-    ...beat.direction?.voice,
-    ...(beat.voiceDirection || {})
-  });
+  const voiceDirection = canonicalizeVoicePauseFields(
+    VoiceDirectionSchema.parse({
+      ...plan.direction?.voice,
+      ...section.direction?.voice,
+      ...beat.direction?.voice,
+      ...(beat.voiceDirection || {}),
+    }),
+  );
 
-  const captionStyle = firstDefined(
-    beat.direction?.caption?.style,
-    section.direction?.caption?.style,
-    plan.direction?.caption?.style,
-    beat.caption?.style,
-    "default"
-  ) ?? "default";
+  const captionStyle =
+    firstDefined(
+      beat.direction?.caption?.style,
+      section.direction?.caption?.style,
+      plan.direction?.caption?.style,
+      beat.caption?.style,
+      "default",
+    ) ?? "default";
 
-  const emphasis = firstDefined(
-    beat.direction?.caption?.emphasis,
-    section.direction?.caption?.emphasis,
-    plan.direction?.caption?.emphasis,
-    beat.caption?.emphasis
-  ) ?? [];
+  const emphasis =
+    firstDefined(
+      beat.direction?.caption?.emphasis,
+      section.direction?.caption?.emphasis,
+      plan.direction?.caption?.emphasis,
+      beat.caption?.emphasis,
+    ) ?? [];
 
   const motion = MotionSchema.parse({
     ...plan.direction?.motion,
     ...section.direction?.motion,
     ...beat.direction?.motion,
-    ...(beat.motion || {})
+    ...(beat.motion || {}),
   });
 
   const visual = firstDefined(
@@ -158,7 +189,7 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
       beat.direction?.sfxCues,
       section.direction?.sfxCues,
       plan.direction?.sfxCues,
-      beat.sfxCues
+      beat.sfxCues,
     ) ?? []
   ).slice(0, 12);
 
@@ -166,7 +197,7 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
     beat.direction?.editorial,
     section.direction?.editorial,
     plan.direction?.editorial,
-    beat.editorial
+    beat.editorial,
   );
 
   return {
@@ -175,7 +206,7 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
     caption: {
       style: captionStyle,
       emphasis,
-      tuning: resolveCaptionTuning(plan, section, beat)
+      tuning: resolveCaptionTuning(plan, section, beat),
     },
     visual,
     motion,
@@ -187,36 +218,36 @@ export function resolveBeatProductionDirection(plan: VideoPlan, section: Section
         section.direction?.voice,
         plan.direction?.voice,
         beat.voiceDirection,
-        beat.directionMeta?.sources?.voice as SourceLabel | undefined
+        beat.directionMeta?.sources?.voice as SourceLabel | undefined,
       ),
       caption: sourceByLayer(
         beat.direction?.caption,
         section.direction?.caption,
         plan.direction?.caption,
         beat.caption,
-        beat.directionMeta?.sources?.caption as SourceLabel | undefined
+        beat.directionMeta?.sources?.caption as SourceLabel | undefined,
       ),
       motion: sourceByLayer(
         beat.direction?.motion,
         section.direction?.motion,
         plan.direction?.motion,
         beat.motion,
-        beat.directionMeta?.sources?.motion as SourceLabel | undefined
+        beat.directionMeta?.sources?.motion as SourceLabel | undefined,
       ),
       sfx: sourceByLayer(
         beat.direction?.sfxCues,
         section.direction?.sfxCues,
         plan.direction?.sfxCues,
         beat.sfxCues,
-        beat.directionMeta?.sources?.sfx as SourceLabel | undefined
+        beat.directionMeta?.sources?.sfx as SourceLabel | undefined,
       ),
       editorial: sourceByLayer(
         beat.direction?.editorial,
         section.direction?.editorial,
         plan.direction?.editorial,
         beat.editorial,
-        beat.directionMeta?.sources?.editorial as SourceLabel | undefined
-      )
-    }
+        beat.directionMeta?.sources?.editorial as SourceLabel | undefined,
+      ),
+    },
   };
 }
