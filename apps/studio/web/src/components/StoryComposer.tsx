@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { usePlannerDefaults, usePlanFromStory } from "@/queries/planner";
-import { readStored, writeStored } from "@/lib/project-storage";
+import { writeStored } from "@/lib/project-storage";
 import { buildPlanFromStory, buildStoryFeedback, type FeedbackItem } from "@/lib/story-parser";
 import { currentStoryDirection } from "@/lib/story-ui-state";
 import { useTtsHealth } from "@/queries/tts";
@@ -14,37 +14,72 @@ interface Props {
   projectId: string;
   onPlanChange: (planJson: string) => void;
   currentPlanJson: string;
+  // Lifted state — when provided, component becomes controlled
+  story?: string;
+  feel?: string;
+  pacing?: string;
+  visualStyle?: string;
+  systemPrompt?: string;
+  userPromptTemplate?: string;
+  onStoryChange?: (v: string) => void;
+  onFeelChange?: (v: string) => void;
+  onPacingChange?: (v: string) => void;
+  onVisualStyleChange?: (v: string) => void;
+  onSystemPromptChange?: (v: string) => void;
+  onUserPromptTemplateChange?: (v: string) => void;
 }
 
-export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Props) {
+export function StoryComposer({
+  projectId,
+  onPlanChange,
+  currentPlanJson,
+  story: storyProp,
+  feel: feelProp,
+  pacing: pacingProp,
+  visualStyle: visualStyleProp,
+  systemPrompt: systemPromptProp,
+  userPromptTemplate: userPromptTemplateProp,
+  onStoryChange,
+  onFeelChange,
+  onPacingChange,
+  onVisualStyleChange,
+  onSystemPromptChange,
+  onUserPromptTemplateChange,
+}: Props) {
   const { data: plannerDefaults } = usePlannerDefaults();
   const { data: healthState } = useTtsHealth();
   const ttsAvailability = ttsAvailabilityFromHealth(healthState ?? {});
   const ttsReady = ttsAvailability === "ready" || ttsAvailability === "ready_degraded";
 
-  const [story, setStory] = useState(() => readStored(projectId, "story"));
-  const [feel, setFeel] = useState(() => readStored(projectId, "feel", FEEL_DEFAULT));
-  const [pacing, setPacing] = useState(() => readStored(projectId, "pacing", PACING_DEFAULT));
-  const [visualStyle, setVisualStyle] = useState(
-    () => readStored(projectId, "visualStyle", VISUAL_STYLE_DEFAULT),
-  );
-  const [systemPrompt, setSystemPrompt] = useState(() => readStored(projectId, "systemPrompt"));
-  const [userPromptTemplate, setUserPromptTemplate] = useState(
-    () => readStored(projectId, "userPromptTemplate"),
-  );
+  // Internal state used only when props are not provided (uncontrolled mode)
+  const [storyInternal, setStoryInternal] = useState("");
+  const [feelInternal, setFeelInternal] = useState(FEEL_DEFAULT);
+  const [pacingInternal, setPacingInternal] = useState(PACING_DEFAULT);
+  const [visualStyleInternal, setVisualStyleInternal] = useState(VISUAL_STYLE_DEFAULT);
+  const [systemPromptInternal, setSystemPromptInternal] = useState("");
+  const [userPromptTemplateInternal, setUserPromptTemplateInternal] = useState("");
+
+  const story = storyProp ?? storyInternal;
+  const feel = feelProp ?? feelInternal;
+  const pacing = pacingProp ?? pacingInternal;
+  const visualStyle = visualStyleProp ?? visualStyleInternal;
+  const systemPrompt = systemPromptProp ?? systemPromptInternal;
+  const userPromptTemplate = userPromptTemplateProp ?? userPromptTemplateInternal;
+
+  const setStory = onStoryChange ?? setStoryInternal;
+  const setFeel = onFeelChange ?? setFeelInternal;
+  const setPacing = onPacingChange ?? setPacingInternal;
+  const setVisualStyle = onVisualStyleChange ?? setVisualStyleInternal;
+  const setSystemPrompt = onSystemPromptChange ?? setSystemPromptInternal;
+  const setUserPromptTemplate = onUserPromptTemplateChange ?? setUserPromptTemplateInternal;
+
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   const planFromStory = usePlanFromStory(projectId);
 
-  // Restore per-project state when projectId changes
+  // Reset feedback when project changes
   useEffect(() => {
-    setStory(readStored(projectId, "story"));
-    setFeel(readStored(projectId, "feel", FEEL_DEFAULT));
-    setPacing(readStored(projectId, "pacing", PACING_DEFAULT));
-    setVisualStyle(readStored(projectId, "visualStyle", VISUAL_STYLE_DEFAULT));
-    setSystemPrompt(readStored(projectId, "systemPrompt"));
-    setUserPromptTemplate(readStored(projectId, "userPromptTemplate"));
     setFeedback([]);
   }, [projectId]);
 
@@ -58,7 +93,7 @@ export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Prop
   }, [plannerDefaults]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const persist = useCallback(
-    (updates: Partial<{ story: string; feel: string; pacing: string; visualStyle: string; systemPrompt: string; userPromptTemplate: string }>) => {
+    (updates: Partial<Record<string, string>>) => {
       for (const [key, value] of Object.entries(updates)) {
         if (value !== undefined) writeStored(projectId, key, value);
       }
@@ -132,29 +167,17 @@ export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Prop
       {/* Direction controls */}
       <div className="grid grid-cols-1 gap-2">
         <Field label="Feel">
-          <input
-            value={feel}
-            onChange={(e) => { setFeel(e.target.value); persist({ feel: e.target.value }); }}
-            className={inputCls}
-          />
+          <input value={feel} onChange={(e) => { setFeel(e.target.value); persist({ feel: e.target.value }); }} className={inputCls} />
         </Field>
         <Field label="Pacing">
-          <input
-            value={pacing}
-            onChange={(e) => { setPacing(e.target.value); persist({ pacing: e.target.value }); }}
-            className={inputCls}
-          />
+          <input value={pacing} onChange={(e) => { setPacing(e.target.value); persist({ pacing: e.target.value }); }} className={inputCls} />
         </Field>
         <Field label="Visual Style">
-          <input
-            value={visualStyle}
-            onChange={(e) => { setVisualStyle(e.target.value); persist({ visualStyle: e.target.value }); }}
-            className={inputCls}
-          />
+          <input value={visualStyle} onChange={(e) => { setVisualStyle(e.target.value); persist({ visualStyle: e.target.value }); }} className={inputCls} />
         </Field>
       </div>
 
-      {/* Advanced prompts (collapsed by default) */}
+      {/* Advanced prompts */}
       <div>
         <button
           onClick={() => setShowAdvanced((v) => !v)}
@@ -165,20 +188,10 @@ export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Prop
         {showAdvanced && (
           <div className="mt-2 flex flex-col gap-2">
             <Field label="System Prompt">
-              <textarea
-                value={systemPrompt}
-                onChange={(e) => { setSystemPrompt(e.target.value); persist({ systemPrompt: e.target.value }); }}
-                rows={4}
-                className={`${inputCls} resize-y`}
-              />
+              <textarea value={systemPrompt} onChange={(e) => { setSystemPrompt(e.target.value); persist({ systemPrompt: e.target.value }); }} rows={4} className={`${inputCls} resize-y`} />
             </Field>
             <Field label="User Prompt Template">
-              <textarea
-                value={userPromptTemplate}
-                onChange={(e) => { setUserPromptTemplate(e.target.value); persist({ userPromptTemplate: e.target.value }); }}
-                rows={4}
-                className={`${inputCls} resize-y`}
-              />
+              <textarea value={userPromptTemplate} onChange={(e) => { setUserPromptTemplate(e.target.value); persist({ userPromptTemplate: e.target.value }); }} rows={4} className={`${inputCls} resize-y`} />
             </Field>
             <button
               onClick={() => {
@@ -196,7 +209,7 @@ export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Prop
         )}
       </div>
 
-      {/* Action buttons */}
+      {/* Story action buttons */}
       <div className="flex gap-2 flex-wrap">
         <button
           onClick={handleConvertStory}
@@ -210,15 +223,11 @@ export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Prop
           onClick={handleAiPlan}
           disabled={!hasStory || !ttsReady || planFromStory.isPending}
           className={btnCls("accent")}
-          title="Generate a structured video plan using AI"
         >
           {planFromStory.isPending ? "Generating…" : "Generate Plan with AI"}
         </button>
         <button
-          onClick={() => {
-            setStory("");
-            persist({ story: "" });
-          }}
+          onClick={() => { setStory(""); persist({ story: "" }); }}
           disabled={!hasStory}
           className={btnCls("ghost")}
         >
@@ -226,7 +235,6 @@ export function StoryComposer({ projectId, onPlanChange, currentPlanJson }: Prop
         </button>
       </div>
 
-      {/* Feedback */}
       {feedback.length > 0 && <FeedbackPanel items={feedback} />}
     </div>
   );
@@ -237,10 +245,8 @@ const inputCls =
 
 function btnCls(variant: "primary" | "accent" | "ghost") {
   const base = "px-3 py-1.5 text-xs rounded font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed";
-  if (variant === "primary")
-    return `${base} bg-[var(--color-surface-overlay)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]`;
-  if (variant === "accent")
-    return `${base} bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]`;
+  if (variant === "accent") return `${base} bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]`;
+  if (variant === "primary") return `${base} bg-[var(--color-surface-overlay)] border border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-accent)]`;
   return `${base} text-[var(--color-text-muted)] hover:text-[var(--color-text)]`;
 }
 
@@ -264,10 +270,7 @@ function FeedbackPanel({ items }: { items: FeedbackItem[] }) {
   return (
     <div className="flex flex-col gap-1">
       {items.map((item, i) => (
-        <div
-          key={i}
-          className={`text-xs px-2 py-1 rounded border-l-2 bg-[var(--color-surface-overlay)] ${LEVEL_COLORS[item.level] ?? LEVEL_COLORS["info"]}`}
-        >
+        <div key={i} className={`text-xs px-2 py-1 rounded border-l-2 bg-[var(--color-surface-overlay)] ${LEVEL_COLORS[item.level] ?? LEVEL_COLORS["info"]}`}>
           {item.text}
         </div>
       ))}

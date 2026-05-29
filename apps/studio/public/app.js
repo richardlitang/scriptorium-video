@@ -7,8 +7,7 @@ import { buildDraftJobRequestBody, shouldApplyPendingStory } from "./modules/dra
 import { buildStoredUiStateFromControls, restoreUiStateFromStorage } from "./modules/story-ui-state.js";
 import { readStored as readProjectStored, writeStored as writeProjectStored } from "./modules/project-storage.js";
 import { storyButtonState } from "./modules/tts-ui-state.js";
-import { draftJobUiModel, shouldNotifyDraftJobFinished } from "./modules/draft-job-ui-state.js";
-import { draftJobNotificationModel } from "./modules/draft-job-notification.js";
+
 import { currentVisualCoverageFromPlan } from "./modules/image-coverage-stats.js";
 import {
   createReviewController
@@ -28,10 +27,7 @@ const renderBtn = document.getElementById("render-btn");
 const draftNoImagesBtn = document.getElementById("draft-no-images-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
 
-const jobBanner = document.getElementById("job-banner");
-const jobBannerTitle = document.getElementById("job-banner-title");
-const jobBannerDetail = document.getElementById("job-banner-detail");
-const jobBannerDismiss = document.getElementById("job-banner-dismiss");
+
 const jobCenterList = document.getElementById("job-center-list");
 const voiceSettingsBtn = document.getElementById("voice-settings-btn");
 const directVoiceBtn = document.getElementById("direct-voice-btn");
@@ -101,8 +97,7 @@ let needsRender = false;
 let imageHistory = [];
 let currentProjectDetails = null;
 let activeRunController = null;
-let progressPollTimer = null;
-let draftJobPollTimer = null;
+
 let lastSeenDraftJobId = null;
 let currentDraftJob = null;
 let selectedBeatId = null;
@@ -1063,31 +1058,6 @@ function imageProgressLine(progress) {
   return `Images ${completed}/${total} (${coverage}) · generated ${generated}, failed ${failed}${current}`;
 }
 
-function draftJobProgressLine(job) {
-  if (!job || job.kind !== "draft_job") return undefined;
-  const total = Number(job.total) || 1;
-  const completed = Math.min(total, Number(job.completed) || 0);
-  const retry = job.attempt > 1 ? ` · retry ${job.attempt}/${job.maxAttempts}` : "";
-  const section = job.currentSectionTitle ? ` · ${job.currentSectionTitle}` : "";
-  const beat =
-    Number(job.currentBeatIndex) > 0 && Number(job.currentBeatTotal) > 0
-      ? ` · beat ${job.currentBeatIndex}/${job.currentBeatTotal}`
-      : "";
-  return `${job.label || job.phase || "Working"} · ${completed}/${total}${beat}${retry}${section}`;
-}
-
-function showJobBanner(title, detail, status = "running") {
-  jobBanner.hidden = false;
-  jobBanner.classList.toggle("job-banner-complete", status === "completed");
-  jobBanner.classList.toggle("job-banner-failed", status === "failed");
-  jobBannerTitle.textContent = title;
-  jobBannerDetail.textContent = detail;
-}
-
-function hideJobBanner() {
-  jobBanner.hidden = true;
-  jobBanner.classList.remove("job-banner-complete", "job-banner-failed");
-}
 
 function resetProjectScopedRuntimeState() {
   currentDraftJob = null;
@@ -1097,9 +1067,6 @@ function resetProjectScopedRuntimeState() {
   needsRender = false;
   imageHistory = [];
   selectedBeatId = "";
-  stopDraftJobPolling();
-  stopProgressPolling();
-  hideJobBanner();
   storyFeedback.innerHTML = "";
 }
 
@@ -1119,83 +1086,12 @@ const jobCenter = createJobCenterController({
   }
 });
 
-function notifyDraftJobFinished(job) {
-  const model = draftJobNotificationModel(job);
-  if (document.hidden && "Notification" in window && Notification.permission === "granted") {
-    new Notification(model.title, { body: model.body });
-  }
-  document.title = model.documentTitle;
-}
-
-function renderDraftJobState(job) {
-  currentDraftJob = job || null;
-  const model = draftJobUiModel(job, draftJobProgressLine(job), defaultDraftButtonLabel());
-  if (model.hideBanner) {
-    hideJobBanner();
-    if (model.renderButtonText) renderBtn.textContent = model.renderButtonText;
-    if (typeof model.renderButtonDisabled === "boolean") renderBtn.disabled = model.renderButtonDisabled;
-    if (typeof model.stopRunDisabled === "boolean") stopRunBtn.disabled = model.stopRunDisabled;
-    updateStoryButtons();
-    return;
-  }
-  if (model.renderButtonText) renderBtn.textContent = model.renderButtonText;
-  if (typeof model.renderButtonDisabled === "boolean") renderBtn.disabled = model.renderButtonDisabled;
-  if (typeof model.stopRunDisabled === "boolean") stopRunBtn.disabled = model.stopRunDisabled;
-  showJobBanner(model.bannerTitle, model.bannerDetail, model.bannerStatus);
-  if (Array.isArray(model.runStatusLines)) setRunStatus(model.runStatusLines);
-  if (shouldNotifyDraftJobFinished(lastSeenDraftJobId, job)) notifyDraftJobFinished(job);
-  if (job?.jobId) lastSeenDraftJobId = job.jobId;
-  updateStoryButtons();
-}
-
-async function pollDraftJob(projectId) {
-  if (!projectId) return;
-  try {
-    const result = await fetchJson(`/api/projects/${projectId}/draft-job`);
-    const job = result.data;
-    renderDraftJobState(job);
-    await jobCenter.refresh(projectId);
-    if (job?.status === "completed" || job?.status === "failed") {
-      await selectProject(projectId, selectedProjectElement);
-      renderDraftJobState(job);
-      stopDraftJobPolling();
-    }
-  } catch {
-    // Polling should not hide the main workflow controls.
-  }
-}
-
-function startDraftJobPolling(projectId) {
-  stopDraftJobPolling();
-  pollDraftJob(projectId);
-  draftJobPollTimer = setInterval(() => pollDraftJob(projectId), 2500);
-}
-
-function stopDraftJobPolling() {
-  if (!draftJobPollTimer) return;
-  clearInterval(draftJobPollTimer);
-  draftJobPollTimer = null;
-}
-
-function startProgressPolling(projectId, baseSteps) {
-  stopProgressPolling();
-  progressPollTimer = setInterval(async () => {
-    try {
-      const details = await fetchJson(`/api/projects/${projectId}`);
-      currentProjectDetails = details.data;
-      const progressLine = imageProgressLine(details.data.runState?.progress);
-      if (progressLine) setRunStatus([...baseSteps, progressLine]);
-    } catch {
-      // The blocking operation owns the visible failure message.
-    }
-  }, 1500);
-}
-
-function stopProgressPolling() {
-  if (!progressPollTimer) return;
-  clearInterval(progressPollTimer);
-  progressPollTimer = null;
-}
+// Draft-job polling/banner now owned by React SPA (Slice 5)
+function renderDraftJobState() {}
+function startDraftJobPolling() {}
+function stopDraftJobPolling() {}
+function startProgressPolling() {}
+function stopProgressPolling() {}
 
 async function currentVisualCoverage(projectId, coverage) {
   const [details, assetsResult] = await Promise.all([
