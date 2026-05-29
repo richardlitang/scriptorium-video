@@ -38,14 +38,20 @@ const baseDefaults: ResolvedConfig = {
 async function readDefaults(rootDir: string, folder: string, id: string | undefined) {
   if (!id) return {};
   const fileName = `${id.replaceAll("_", "-")}.json`;
-  const filePath = path.resolve(rootDir, folder, fileName);
-  try {
-    const raw = await readFile(filePath, "utf8");
-    return ConfigFileSchema.parse(JSON.parse(raw)).defaults;
-  } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
-    throw error;
+  // Prefer config/<folder>/ (canonical); fall back to <folder>/ (legacy root layout)
+  const candidates = [
+    path.resolve(rootDir, "config", folder, fileName),
+    path.resolve(rootDir, folder, fileName),
+  ];
+  for (const filePath of candidates) {
+    try {
+      const raw = await readFile(filePath, "utf8");
+      return ConfigFileSchema.parse(JSON.parse(raw)).defaults;
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
   }
+  return {};
 }
 
 export async function resolveConfig(
