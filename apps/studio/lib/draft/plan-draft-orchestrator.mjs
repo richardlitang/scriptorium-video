@@ -1,9 +1,9 @@
-import { parseModelFallbacks, runStructuredOutput } from "./openai-structured-output.mjs";
+import { parseModelFallbacks, runStructuredOutput } from "../planner/openai-structured-output.mjs";
 import {
   DEFAULT_PLANNER_SYSTEM_PROMPT,
   DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
-} from "./planner-defaults.mjs";
-import { PlanDraftSchema as CORE_PLAN_DRAFT_SCHEMA } from "../../../packages/core/src/schemas/plan-draft.schema.mjs";
+} from "../planner/planner-defaults.mjs";
+import { PlanDraftSchema as CORE_PLAN_DRAFT_SCHEMA } from "../../../../packages/core/src/schemas/plan-draft.schema.mjs";
 
 export const PLAN_DRAFT_SCHEMA = CORE_PLAN_DRAFT_SCHEMA;
 

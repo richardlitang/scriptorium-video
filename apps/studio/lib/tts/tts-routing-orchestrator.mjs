@@ -1,4 +1,4 @@
-import { runStructuredOutput } from "./openai-structured-output.mjs";
+import { runStructuredOutput } from "../planner/openai-structured-output.mjs";
 
 const TTS_ROUTING_SCHEMA = {
   type: "object",

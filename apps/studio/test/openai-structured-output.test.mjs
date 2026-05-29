@@ -4,7 +4,7 @@ import {
   isOpenAiInsufficientQuotaError,
   parseModelFallbacks,
   runStructuredOutput,
-} from "../lib/openai-structured-output.mjs";
+} from "../lib/planner/openai-structured-output.mjs";
 
 function jsonResponse(data, ok = true, status = 200) {
   return {

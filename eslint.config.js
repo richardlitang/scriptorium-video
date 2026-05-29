@@ -17,6 +17,18 @@ export default [
     ],
   },
 
+  // ── Plain JS/MJS files (studio lib, server, config scripts) ───────────────
+  {
+    files: ["apps/studio/**/*.mjs", "apps/studio/server.mjs"],
+    rules: {
+      "no-nested-ternary": "error",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
+      "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      complexity: ["warn", 15],
+      "max-depth": ["warn", 4],
+    },
+  },
+
   // ── TypeScript source files ────────────────────────────────────────────────
   {
     files: ["**/*.ts", "**/*.tsx"],
@@ -40,7 +52,10 @@ export default [
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-floating-promises": "error",
       // attributes: false — async onClick/onChange handlers are fine; React ignores return values
-      "@typescript-eslint/no-misused-promises": ["error", { checksVoidReturn: { attributes: false } }],
+      "@typescript-eslint/no-misused-promises": [
+        "error",
+        { checksVoidReturn: { attributes: false } },
+      ],
       "@typescript-eslint/consistent-type-imports": [
         "error",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },

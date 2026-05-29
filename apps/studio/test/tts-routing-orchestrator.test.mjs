@@ -3,7 +3,7 @@ import { test } from "node:test";
 import {
   createTtsRoutingOrchestrator,
   planNeedsTtsRouting,
-} from "../lib/tts-routing-orchestrator.mjs";
+} from "../lib/tts/tts-routing-orchestrator.mjs";
 
 function planWithBeat(beat) {
   return {

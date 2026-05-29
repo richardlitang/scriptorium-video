@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import path from "node:path";
 import fs from "node:fs";
 import { fileURLToPath } from "node:url";
-import { createStudioServerRuntime } from "./lib/studio-server-runtime-factory.mjs";
+import { createStudioServerRuntime } from "./lib/runtime/studio-server-runtime-factory.mjs";
 import { spaAssetForPath } from "./static-assets.mjs";
 
 const __filename = fileURLToPath(import.meta.url);

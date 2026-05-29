@@ -12,22 +12,22 @@ import {
 } from "node:fs/promises";
 import path from "node:path";
 import { promisify } from "node:util";
-import { imageReuseKey } from "../image-cache.mjs";
+import { imageReuseKey } from "../../image-cache.mjs";
 import {
   defaultVoiceSettings,
   normalizeVoiceSettings,
   voiceSettingsEnv,
-} from "../voice-settings.mjs";
-import { publicAssetForPath as defaultPublicAssetForPath } from "../static-assets.mjs";
+} from "../../voice-settings.mjs";
+import { publicAssetForPath as defaultPublicAssetForPath } from "../../static-assets.mjs";
 import {
   createOpenAiPlanOrchestrator,
   planNeedsTtsRouting,
   DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
-} from "./openai-plan-orchestrator.mjs";
-import { DEFAULT_PLANNER_SYSTEM_PROMPT } from "./planner-defaults.mjs";
-import { handleStudioApiRoute } from "./studio-routes.mjs";
-import { isOpenAiInsufficientQuotaError } from "./openai-structured-output.mjs";
-import { canonicalizePlanForPersistence } from "./canonicalize-plan.mjs";
+} from "../planner/openai-plan-orchestrator.mjs";
+import { DEFAULT_PLANNER_SYSTEM_PROMPT } from "../planner/planner-defaults.mjs";
+import { handleStudioApiRoute } from "../routes/studio-routes.mjs";
+import { isOpenAiInsufficientQuotaError } from "../planner/openai-structured-output.mjs";
+import { canonicalizePlanForPersistence } from "../planner/canonicalize-plan.mjs";
 // Inlined from former public/modules/image-coverage.js (deleted at cutover)
 function normalizeImageCoverage(value) {
   if (value === "llm" || value === "story" || value === "global") return "llm";
@@ -35,12 +35,12 @@ function normalizeImageCoverage(value) {
   if (value === "balanced" || value === "key") return "balanced";
   return "llm";
 }
-import { createPlanDraftTransformer } from "./plan-draft-transformer.mjs";
-import { createSplitPlannerRuntime } from "./split-planner-runtime.mjs";
-import { createSplitPlanBuilder } from "./split-plan-builder.mjs";
-import { createRunStateStore } from "./run-state-store.mjs";
-import { ttsProvidersForPlan } from "./tts-draft-planning.mjs";
-import { selectImageTargetsFromCandidates } from "./image-target-selection.mjs";
+import { createPlanDraftTransformer } from "../draft/plan-draft-transformer.mjs";
+import { createSplitPlannerRuntime } from "../planner/split-planner-runtime.mjs";
+import { createSplitPlanBuilder } from "../planner/split-plan-builder.mjs";
+import { createRunStateStore } from "../project/run-state-store.mjs";
+import { ttsProvidersForPlan } from "../tts/tts-draft-planning.mjs";
+import { selectImageTargetsFromCandidates } from "../image/image-target-selection.mjs";
 import {
   planNarrationHealth,
   plannerProgressLabel,
@@ -49,19 +49,22 @@ import {
   plannerQualityIsUsable,
   plannerQualityWarningSummary,
   plannerQualityWarnings,
-} from "./planner-quality.mjs";
+} from "../planner/planner-quality.mjs";
 import {
   summarizeManifestForTrace,
   summarizePlanForTrace,
   summarizeStoryInput,
   summarizeTimelineForTrace,
   summarizeVoiceSettingsForTrace,
-} from "./trace-summaries.mjs";
-import { imageDescriptionFromPrompt, imageTagsFromPrompt } from "./image-library-metadata.mjs";
-import { createRunTraceStore } from "./run-trace-store.mjs";
-import { resolveOpenAiApiKey } from "./openai-api-key.mjs";
-import { createDraftAudioRunner } from "./draft-audio-runner.mjs";
-import { createDraftJobRunner } from "./draft-job-runner.mjs";
+} from "../project/trace-summaries.mjs";
+import {
+  imageDescriptionFromPrompt,
+  imageTagsFromPrompt,
+} from "../image/image-library-metadata.mjs";
+import { createRunTraceStore } from "../project/run-trace-store.mjs";
+import { resolveOpenAiApiKey } from "../planner/openai-api-key.mjs";
+import { createDraftAudioRunner } from "../draft/draft-audio-runner.mjs";
+import { createDraftJobRunner } from "../draft/draft-job-runner.mjs";
 import {
   applyDraftDefaults,
   buildPlannerStoryInput,
@@ -69,18 +72,18 @@ import {
   parsePlanFromStoryInput,
   plannerSplitDecision,
   splitStoryIntoLockedUnits,
-} from "./draft-plan-input.mjs";
-import { createProjectMutationQueue } from "./project-mutation-queue.mjs";
+} from "../draft/draft-plan-input.mjs";
+import { createProjectMutationQueue } from "../project/project-mutation-queue.mjs";
 import { createStudioRuntimeConfig } from "./studio-runtime-config.mjs";
-import { createVoicePreviewAndHealth } from "./voice-preview-health.mjs";
-import { createChatterboxRuntime } from "./chatterbox-runtime.mjs";
-import { beatJobProgress, createBeatRegenerateRunner } from "./beat-regenerate-runner.mjs";
-import { createImageGenerationRunner } from "./image-generation-runner.mjs";
-import { defaultImageSizeForPlan, imageTargetsFromPlan } from "./image-prompting.mjs";
-import { createImageCacheStore } from "./image-cache-store.mjs";
-import { createOpenAiImageClient } from "./openai-image-client.mjs";
-import { parseBinaryBody, parseJsonBody, sendJson } from "./http-utils.mjs";
-import { isDraftJobRunning, jobProgress } from "./draft-job-state.mjs";
+import { createVoicePreviewAndHealth } from "../tts/voice-preview-health.mjs";
+import { createChatterboxRuntime } from "../tts/chatterbox-runtime.mjs";
+import { beatJobProgress, createBeatRegenerateRunner } from "../draft/beat-regenerate-runner.mjs";
+import { createImageGenerationRunner } from "../image/image-generation-runner.mjs";
+import { defaultImageSizeForPlan, imageTargetsFromPlan } from "../image/image-prompting.mjs";
+import { createImageCacheStore } from "../image/image-cache-store.mjs";
+import { createOpenAiImageClient } from "../image/openai-image-client.mjs";
+import { parseBinaryBody, parseJsonBody, sendJson } from "../routes/http-utils.mjs";
+import { isDraftJobRunning, jobProgress } from "../draft/draft-job-state.mjs";
 import {
   clampNumber,
   dimensionsFromSize,
@@ -94,16 +97,16 @@ import {
   slugify,
 } from "./studio-runtime-helpers.mjs";
 import { createStudioRuntimeWiring } from "./studio-runtime-wiring.mjs";
-import { createVoiceSettingsStore } from "./voice-settings-store.mjs";
+import { createVoiceSettingsStore } from "../tts/voice-settings-store.mjs";
 import { createStudioOps } from "./studio-ops.mjs";
 import { createStudioOpsRuntimeAdapter } from "./studio-ops-runtime-adapter.mjs";
-import { createStudioTestModeOps } from "./studio-testmode-ops.mjs";
-import { createProjectOps } from "./project-ops.mjs";
-import { createProjectMediaOps } from "./project-media-ops.mjs";
-import { createProjectReadOps } from "./project-read-ops.mjs";
-import { createForegroundJobs } from "./foreground-jobs.mjs";
-import { createDraftStepRetrier } from "./draft-step-retrier.mjs";
-import { createLvstudioDraftRunner } from "./lvstudio-draft-runner.mjs";
+import { createStudioTestModeOps } from "../project/studio-testmode-ops.mjs";
+import { createProjectOps } from "../project/project-ops.mjs";
+import { createProjectMediaOps } from "../project/project-media-ops.mjs";
+import { createProjectReadOps } from "../project/project-read-ops.mjs";
+import { createForegroundJobs } from "../draft/foreground-jobs.mjs";
+import { createDraftStepRetrier } from "../draft/draft-step-retrier.mjs";
+import { createLvstudioDraftRunner } from "../draft/lvstudio-draft-runner.mjs";
 import { createStudioRuntime } from "./studio-runtime.mjs";
 import {
   buildStudioRuntimeContextDependencies,
@@ -113,7 +116,7 @@ import {
   assertLockedNarrationPreserved,
   fallbackMetadataForLockedSection,
   mergeSectionMetadataPlan,
-} from "./split-plan-metadata.mjs";
+} from "../planner/split-plan-metadata.mjs";
 
 const execFileAsync = promisify(execFile);
 const RENDER_PROGRESS_PREFIX = "__LVSTUDIO_RENDER_PROGRESS__";
