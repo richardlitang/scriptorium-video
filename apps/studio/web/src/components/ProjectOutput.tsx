@@ -3,6 +3,7 @@ import { useQualityHistory, useRenders, type RunState } from "@/queries/project-
 import { JobCenter } from "./JobCenter";
 import { ImagesPanel } from "./ImagesPanel";
 import { BeatWorkspace } from "./BeatWorkspace";
+import { ReviewPanel } from "./ReviewPanel";
 
 interface Props {
   projectId: string;
@@ -16,7 +17,7 @@ interface Props {
   onPlanChange?: (json: string) => void;
 }
 
-type OutputTab = "render" | "beats" | "images" | "jobs" | "quality" | "timeline";
+type OutputTab = "render" | "beats" | "images" | "jobs" | "quality" | "review" | "timeline";
 
 export function ProjectOutput({ projectId, timeline, captionCount, runState, needsRender, onRetry, onLog, planJson, onPlanChange }: Props) {
   const [tab, setTab] = useState<OutputTab>("render");
@@ -34,7 +35,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
     <div className="flex flex-col h-full">
       {/* Tab bar */}
       <div className="flex border-b border-[var(--color-border)] shrink-0">
-        {(["render", "beats", "images", "jobs", "quality", "timeline"] as OutputTab[]).map((t) => (
+        {(["render", "beats", "images", "jobs", "quality", "review", "timeline"] as OutputTab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
@@ -44,7 +45,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
                 : "border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
             }`}
           >
-            {t === "render" ? "Render" : t === "beats" ? "Beats" : t === "images" ? "Images" : t === "jobs" ? "Jobs" : t === "quality" ? "Quality" : "Timeline"}
+            {t === "render" ? "Render" : t === "beats" ? "Beats" : t === "images" ? "Images" : t === "jobs" ? "Jobs" : t === "quality" ? "Quality" : t === "review" ? "Review" : "Timeline"}
           </button>
         ))}
         <div className="ml-auto px-3 py-2 text-xs text-[var(--color-text-muted)]">
@@ -60,6 +61,7 @@ export function ProjectOutput({ projectId, timeline, captionCount, runState, nee
         {tab === "images" && <ImagesPanel projectId={projectId} onLog={onLog ?? (() => {})} />}
         {tab === "jobs" && <JobCenter projectId={projectId} onRetry={onRetry} />}
         {tab === "quality" && <QualityTab entries={qualityHistory ?? []} />}
+        {tab === "review" && <ReviewPanel projectId={projectId} />}
         {tab === "timeline" && <TimelineTab timeline={timeline} />}
       </div>
     </div>
