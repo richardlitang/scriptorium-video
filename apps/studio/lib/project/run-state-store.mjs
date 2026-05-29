@@ -32,12 +32,9 @@ export function normalizeRunState(raw = {}) {
     trimmed.find((job) => job.kind === "draft_job") ??
     trimmed[0] ??
     null;
-  const status =
-    active && ["queued", "running"].includes(active.status)
-      ? "queued"
-      : active?.status === "failed"
-        ? "failed"
-        : "idle";
+  let status = "idle";
+  if (active && ["queued", "running"].includes(active.status)) status = "queued";
+  else if (active?.status === "failed") status = "failed";
   return {
     status,
     lastRenderPlanHash: raw.lastRenderPlanHash,

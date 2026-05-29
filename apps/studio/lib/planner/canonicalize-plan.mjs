@@ -2,6 +2,12 @@ function hasKeys(value) {
   return Boolean(value) && typeof value === "object" && Object.keys(value).length > 0;
 }
 
+function resolveMs(msValue, secondsValue) {
+  if (typeof msValue === "number") return msValue;
+  if (typeof secondsValue === "number") return Math.round(secondsValue * 1000);
+  return undefined;
+}
+
 function canonicalizeVoicePauseFields(direction) {
   if (!direction || typeof direction !== "object") return direction;
   const {
@@ -9,18 +15,8 @@ function canonicalizeVoicePauseFields(direction) {
     pauseAfterSeconds: _pauseAfterSeconds,
     ...rest
   } = direction;
-  const pauseBeforeMs =
-    typeof direction.pauseBeforeMs === "number"
-      ? direction.pauseBeforeMs
-      : typeof direction.pauseBeforeSeconds === "number"
-        ? Math.round(direction.pauseBeforeSeconds * 1000)
-        : undefined;
-  const pauseAfterMs =
-    typeof direction.pauseAfterMs === "number"
-      ? direction.pauseAfterMs
-      : typeof direction.pauseAfterSeconds === "number"
-        ? Math.round(direction.pauseAfterSeconds * 1000)
-        : undefined;
+  const pauseBeforeMs = resolveMs(direction.pauseBeforeMs, direction.pauseBeforeSeconds);
+  const pauseAfterMs = resolveMs(direction.pauseAfterMs, direction.pauseAfterSeconds);
   return {
     ...rest,
     ...(pauseBeforeMs !== undefined ? { pauseBeforeMs } : {}),

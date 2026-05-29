@@ -25,12 +25,11 @@ function clamp(value, min, max) {
 
 function semanticVoiceMapping({ deliveryProfile, intensity, stability, pacing, variation }) {
   const profile = String(deliveryProfile || "suspense");
-  const base =
-    profile === "controlled"
-      ? { exaggeration: 0.42, cfgWeight: 0.55, temperature: 0.58 }
-      : profile === "dramatic"
-        ? { exaggeration: 0.74, cfgWeight: 0.34, temperature: 0.88 }
-        : { exaggeration: 0.55, cfgWeight: 0.42, temperature: 0.72 };
+  const PROFILE_BASE = {
+    controlled: { exaggeration: 0.42, cfgWeight: 0.55, temperature: 0.58 },
+    dramatic: { exaggeration: 0.74, cfgWeight: 0.34, temperature: 0.88 },
+  };
+  const base = PROFILE_BASE[profile] ?? { exaggeration: 0.55, cfgWeight: 0.42, temperature: 0.72 };
   const intensityDelta = (intensity - 0.5) * 0.8;
   const stabilityDelta = (stability - 0.5) * 0.6;
   const pacingDelta = (0.5 - pacing) * 0.25;

@@ -1,3 +1,10 @@
+function classifyDirectiveKind(text) {
+  if (/^(?:background visual|visual)\s*:/i.test(text)) return "visual";
+  if (/sfx|sound|low thud|music/i.test(text)) return "sfx";
+  if (/pause|silence/i.test(text)) return "silence";
+  return "visual";
+}
+
 export function parsePlanFromStoryInput(rawInput) {
   try {
     const parsed = JSON.parse(rawInput);
@@ -65,13 +72,7 @@ export function parseStoryForPlanner(rawStory) {
       for (const match of line.matchAll(/\[([^\]]+)\]/g)) {
         const text = normalizeWhitespace(match[1]);
         if (text) {
-          const kind = /^(?:background visual|visual)\s*:/i.test(text)
-            ? "visual"
-            : /sfx|sound|low thud|music/i.test(text)
-              ? "sfx"
-              : /pause|silence/i.test(text)
-                ? "silence"
-                : "visual";
+          const kind = classifyDirectiveKind(text);
           directives.push({
             lineIndex,
             text,

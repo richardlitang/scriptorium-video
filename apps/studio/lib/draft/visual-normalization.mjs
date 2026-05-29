@@ -15,29 +15,35 @@ export function normalizeReferenceIds(value) {
   return [...new Set(value.map((entry) => String(entry || "").trim()).filter(Boolean))].slice(0, 8);
 }
 
+function validOr(value, validValues, conservative, conservativeDefault, normalDefault) {
+  if (validValues.includes(value)) return value;
+  return conservative ? conservativeDefault : normalDefault;
+}
+
+const SCALE_MODES = ["safe_cover", "contain_blur", "cover", "contain", "stretch"];
+const SUBJECT_POSITIONS = ["center", "upper_center", "lower_center", "left", "right"];
+const CROP_RISKS = ["low", "medium", "high"];
+const MOTION_STRENGTHS = ["subtle", "medium", "strong"];
+
 export function normalizeDraftVisualFraming(beatDraft = {}, conservativeVisual = false) {
-  const scaleMode = ["safe_cover", "contain_blur", "cover", "contain", "stretch"].includes(
+  const scaleMode = validOr(
     beatDraft.scaleMode,
-  )
-    ? beatDraft.scaleMode
-    : conservativeVisual
-      ? "contain_blur"
-      : "safe_cover";
-  const subjectPosition = ["center", "upper_center", "lower_center", "left", "right"].includes(
-    beatDraft.subjectPosition,
-  )
+    SCALE_MODES,
+    conservativeVisual,
+    "contain_blur",
+    "safe_cover",
+  );
+  const subjectPosition = SUBJECT_POSITIONS.includes(beatDraft.subjectPosition)
     ? beatDraft.subjectPosition
     : "center";
-  const cropRisk = ["low", "medium", "high"].includes(beatDraft.cropRisk)
-    ? beatDraft.cropRisk
-    : conservativeVisual
-      ? "high"
-      : "medium";
-  const motionStrength = ["subtle", "medium", "strong"].includes(beatDraft.motionStrength)
-    ? beatDraft.motionStrength
-    : conservativeVisual
-      ? "subtle"
-      : "medium";
+  const cropRisk = validOr(beatDraft.cropRisk, CROP_RISKS, conservativeVisual, "high", "medium");
+  const motionStrength = validOr(
+    beatDraft.motionStrength,
+    MOTION_STRENGTHS,
+    conservativeVisual,
+    "subtle",
+    "medium",
+  );
   return { scaleMode, subjectPosition, cropRisk, motionStrength };
 }
 

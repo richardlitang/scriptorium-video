@@ -189,12 +189,9 @@ export function createPlanDraftTransformer(deps) {
               ? beat.motion
               : "slow_zoom_in";
             const imageChangeDecision = beat.imageChangeDecision === "hold" ? "hold" : "change";
-            const coverageRole =
-              sectionIndex === 0 && beatIndex === 0
-                ? "anchor"
-                : imageChangeDecision === "change"
-                  ? "key_moment"
-                  : "none";
+            let coverageRole = "none";
+            if (sectionIndex === 0 && beatIndex === 0) coverageRole = "anchor";
+            else if (imageChangeDecision === "change") coverageRole = "key_moment";
             return {
               id: beatId,
               order: beatIndex + 1,
