@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { TtsHealthPill, TtsHealthDetail } from "./TtsHealthPill";
+import { ProjectWorkspace } from "./ProjectWorkspace";
 
 const STORAGE_KEY = "lvstudio:selectedProjectId";
 
@@ -54,15 +55,6 @@ function EmptyState() {
         <div className="text-4xl mb-4 opacity-30">◎</div>
         <div className="text-sm">Select a project to get started</div>
       </div>
-    </div>
-  );
-}
-
-// Placeholder — subsequent slices fill this out
-function ProjectWorkspace({ projectId }: { projectId: string }) {
-  return (
-    <div className="flex-1 flex items-center justify-center text-[var(--color-text-muted)]">
-      <div className="text-sm font-mono opacity-50">{projectId}</div>
     </div>
   );
 }
