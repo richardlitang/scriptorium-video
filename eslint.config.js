@@ -54,7 +54,9 @@ export default [
       ],
       complexity: ["warn", 15],
       "max-depth": ["warn", 4],
-      "max-lines-per-function": ["warn", 80],
+      // 150 excluding blank lines and comments — JSX renders legitimately long components,
+      // but functions above this threshold are real refactor candidates.
+      "max-lines-per-function": ["warn", { max: 150, skipBlankLines: true, skipComments: true }],
     },
   },
 
