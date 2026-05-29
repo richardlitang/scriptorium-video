@@ -1,4 +1,4 @@
-import { createJobCenterController } from "./modules/job-center.js";
+
 import { createBeatWorkspaceController } from "./modules/beat-workspace.js";
 import { createVoiceSettingsController } from "./modules/voice-settings-ui.js";
 import { imageCoverageLabel, normalizeImageCoverage } from "./modules/image-coverage.js";
@@ -28,7 +28,7 @@ const draftNoImagesBtn = document.getElementById("draft-no-images-btn");
 const stopRunBtn = document.getElementById("stop-run-btn");
 
 
-const jobCenterList = document.getElementById("job-center-list");
+
 const voiceSettingsBtn = document.getElementById("voice-settings-btn");
 const directVoiceBtn = document.getElementById("direct-voice-btn");
 const regenerateAudioBtn = document.getElementById("regenerate-audio-btn");
@@ -1070,21 +1070,8 @@ function resetProjectScopedRuntimeState() {
   storyFeedback.innerHTML = "";
 }
 
-const jobCenter = createJobCenterController({
-  listEl: jobCenterList,
-  fetchJobs: async (projectId) => {
-    const result = await fetchJson(`/api/projects/${projectId}/jobs`);
-    return result.data.jobs || [];
-  },
-  fetchTrace: async (job) => {
-    const result = await fetchJson(`/api/projects/${selectedProjectId}/jobs/${encodeURIComponent(job.id)}/trace`);
-    return result.data;
-  },
-  onRetry: async () => {
-    if (!selectedProjectId) return;
-    await renderBtn.onclick();
-  }
-});
+// Job center now owned by React SPA (Slice 6)
+const jobCenter = { refresh: async () => [], startPolling: () => {}, stopPolling: () => {}, clearExpanded: () => {} };
 
 // Draft-job polling/banner now owned by React SPA (Slice 5)
 function renderDraftJobState() {}
