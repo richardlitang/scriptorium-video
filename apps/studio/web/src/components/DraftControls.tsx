@@ -7,6 +7,7 @@ import { readStored, writeStored } from "@/lib/project-storage";
 import { useTtsHealth } from "@/queries/tts";
 import { ttsAvailabilityFromHealth, storyButtonState } from "@/lib/tts-ui-state";
 import { draftJobKeys } from "@/queries/draft-job";
+import { VoiceSettingsDialog } from "./VoiceSettingsDialog";
 
 interface Props {
   projectId: string;
@@ -109,6 +110,19 @@ export function DraftControls({
 
   const jobRunning = isJobActive(job?.status);
 
+  async function handleDirectVoice() {
+    try {
+      await fetch(`/api/projects/${encodeURIComponent(projectId)}/direct-voice`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ story, feel, pacing, visualStyle }),
+      });
+      onDraftQueued();
+    } catch (err) {
+      onError(`Direct voice failed: ${String(err)}`);
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {/* Image settings */}
@@ -184,6 +198,25 @@ export function DraftControls({
             Draft Without Images
           </button>
         )}
+      </div>
+
+      {/* Voice actions */}
+      <div className="flex gap-1 flex-wrap">
+        <VoiceSettingsDialog
+          projectId={projectId}
+          trigger={
+            <button className="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
+              Voice Settings
+            </button>
+          }
+        />
+        <button
+          onClick={handleDirectVoice}
+          disabled={btnState.directVoiceDisabled}
+          className="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] disabled:opacity-40 transition-colors"
+        >
+          Direct Voice
+        </button>
       </div>
     </div>
   );

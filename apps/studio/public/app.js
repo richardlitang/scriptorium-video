@@ -1,5 +1,4 @@
 
-import { createVoiceSettingsController } from "./modules/voice-settings-ui.js";
 import { imageCoverageLabel, normalizeImageCoverage } from "./modules/image-coverage.js";
 import { currentStoryDirectionFromControls, pendingUiStateFromControls } from "./modules/story-draft-state.js";
 import { buildDraftJobRequestBody, shouldApplyPendingStory } from "./modules/draft-job-request.js";
@@ -28,39 +27,6 @@ const stopRunBtn = document.getElementById("stop-run-btn");
 
 
 
-const voiceSettingsBtn = document.getElementById("voice-settings-btn");
-const directVoiceBtn = document.getElementById("direct-voice-btn");
-const regenerateAudioBtn = document.getElementById("regenerate-audio-btn");
-const voiceSettingsDialog = document.getElementById("voice-settings-dialog");
-const voiceSettingsForm = document.getElementById("voice-settings-form");
-const voiceSettingsClose = document.getElementById("voice-settings-close");
-const voiceTtsModel = document.getElementById("voice-tts-model");
-const voiceAudioPromptPath = document.getElementById("voice-audio-prompt-path");
-const voiceDeliveryProfile = document.getElementById("voice-delivery-profile");
-const voiceIntensity = document.getElementById("voice-intensity");
-const voiceStability = document.getElementById("voice-stability");
-const voiceVariation = document.getElementById("voice-variation");
-const voicePacing = document.getElementById("voice-pacing");
-const voiceIntensityValue = document.getElementById("voice-intensity-value");
-const voiceStabilityValue = document.getElementById("voice-stability-value");
-const voiceVariationValue = document.getElementById("voice-variation-value");
-const voicePacingValue = document.getElementById("voice-pacing-value");
-const voicePickReferenceBtn = document.getElementById("voice-pick-reference");
-const voiceClearReferenceBtn = document.getElementById("voice-clear-reference");
-const voiceReferenceFile = document.getElementById("voice-reference-file");
-const voiceExaggeration = document.getElementById("voice-exaggeration");
-const voiceCfgWeight = document.getElementById("voice-cfg-weight");
-const voiceTemperature = document.getElementById("voice-temperature");
-const voiceSeed = document.getElementById("voice-seed");
-const voiceExaggerationValue = document.getElementById("voice-exaggeration-value");
-const voiceCfgWeightValue = document.getElementById("voice-cfg-weight-value");
-const voiceTemperatureValue = document.getElementById("voice-temperature-value");
-const voiceSettingsStatus = document.getElementById("voice-settings-status");
-const voicePreviewABtn = document.getElementById("voice-preview-a");
-const voicePreviewBBtn = document.getElementById("voice-preview-b");
-const voicePreviewLineAInput = document.getElementById("voice-preview-line-a");
-const voicePreviewLineBInput = document.getElementById("voice-preview-line-b");
-const voicePreviewAudio = document.getElementById("voice-preview-audio");
 const savePlanBtn = document.getElementById("save-plan-btn");
 const prepareDraftBtn = document.getElementById("prepare-draft-btn");
 const renderDraftBtn = document.getElementById("render-draft-btn");
@@ -295,7 +261,6 @@ function restoreUiState(projectId) {
   imageMode.value = state.imageMode;
   imageBudget.value = state.imageBudget;
   imageQuality.value = state.imageQuality;
-  voiceSettingsController.restorePreviewLines(projectId);
 }
 
 function fmt(value) {
@@ -576,9 +541,6 @@ function updateStoryButtons() {
   draftNoImagesBtn.disabled = state.draftNoImagesDisabled;
   if (state.renderButtonText) renderBtn.textContent = state.renderButtonText;
   if (state.draftNoImagesText) draftNoImagesBtn.textContent = state.draftNoImagesText;
-  voiceSettingsBtn.disabled = false;
-  directVoiceBtn.disabled = state.directVoiceDisabled;
-  regenerateAudioBtn.disabled = state.regenerateAudioDisabled;
   prepareDraftBtn.disabled = state.prepareDraftDisabled;
   stopRunBtn.disabled = state.stopRunDisabled;
 }
@@ -940,43 +902,8 @@ const reviewController = createReviewController({
   }
 });
 
-const voiceSettingsController = createVoiceSettingsController({
-  elements: {
-    dialog: voiceSettingsDialog,
-    form: voiceSettingsForm,
-    status: voiceSettingsStatus,
-    ttsModel: voiceTtsModel,
-    audioPromptPath: voiceAudioPromptPath,
-    deliveryProfile: voiceDeliveryProfile,
-    intensity: voiceIntensity,
-    stability: voiceStability,
-    pacing: voicePacing,
-    variation: voiceVariation,
-    exaggeration: voiceExaggeration,
-    cfgWeight: voiceCfgWeight,
-    temperature: voiceTemperature,
-    seed: voiceSeed,
-    intensityValue: voiceIntensityValue,
-    stabilityValue: voiceStabilityValue,
-    pacingValue: voicePacingValue,
-    variationValue: voiceVariationValue,
-    exaggerationValue: voiceExaggerationValue,
-    cfgWeightValue: voiceCfgWeightValue,
-    temperatureValue: voiceTemperatureValue,
-    pickReferenceBtn: voicePickReferenceBtn,
-    clearReferenceBtn: voiceClearReferenceBtn,
-    referenceFile: voiceReferenceFile,
-    previewABtn: voicePreviewABtn,
-    previewBBtn: voicePreviewBBtn,
-    previewLineAInput: voicePreviewLineAInput,
-    previewLineBInput: voicePreviewLineBInput,
-    previewAudio: voicePreviewAudio
-  },
-  fetchJson,
-  readStored,
-  writeStored,
-  getSelectedProjectId: () => selectedProjectId
-});
+// Voice settings now owned by React SPA (Slice 9)
+const voiceSettingsController = { setupEvents: () => {}, loadSettings: async () => {}, restorePreviewLines: () => {}, openDialog: async () => {}, closeDialog: () => {}, applyPreset: () => {} };
 
 async function refreshQualityHistory(projectId) {
   const result = await fetchJson(`/api/projects/${projectId}/quality-history`);
@@ -1348,32 +1275,7 @@ prepareDraftBtn.onclick = () => {
   regenerateAudioForCurrentProject(prepareDraftBtn);
 };
 
-regenerateAudioBtn.onclick = () => {
-  regenerateAudioForCurrentProject(regenerateAudioBtn);
-};
 
-directVoiceBtn.onclick = async () => {
-  if (!selectedProjectId) return;
-  directVoiceBtn.disabled = true;
-  const label = directVoiceBtn.textContent;
-  directVoiceBtn.textContent = "Directing...";
-  try {
-    const result = await fetchJson(`/api/projects/${selectedProjectId}/direct-voice`, {
-      method: "POST"
-    });
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDirect Voice:\n${result.output}`;
-    await selectProject(selectedProjectId, selectedProjectElement);
-    hasUnsavedPlan = true;
-    needsPrepareDraft = true;
-    needsRender = true;
-    renderWorkflowState();
-  } catch (error) {
-    qualityOutput.textContent = `${qualityOutput.textContent}\n\nDirect Voice failed:\n${String(error)}`;
-  } finally {
-    directVoiceBtn.disabled = false;
-    directVoiceBtn.textContent = label;
-  }
-};
 
 renderDraftBtn.onclick = async () => {
   if (!selectedProjectId) return;
@@ -1473,13 +1375,7 @@ storyInput.addEventListener("drop", syncStoryButtonsSoon);
 [storyFeel, storyPacing, storyVisualStyle, storySystemPrompt, storyUserPromptTemplate, imageMode, imageBudget, imageQuality, imageEnabled].forEach((control) => {
   control.addEventListener("change", saveUiState);
 });
-voiceSettingsController.setupEvents();
-document.querySelectorAll("[data-voice-preset]").forEach((button) => {
-  button.addEventListener("click", () => {
-    voiceSettingsController.applyPreset(button.dataset.voicePreset);
-    voiceSettingsStatus.textContent = "";
-  });
-});
+
 const fieldHelpButtons = [...document.querySelectorAll(".field-help")];
 fieldHelpButtons.forEach((button) => {
   button.addEventListener("click", (event) => {
@@ -1492,24 +1388,11 @@ fieldHelpButtons.forEach((button) => {
 document.addEventListener("click", () => {
   fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
 });
-jobBannerDismiss.onclick = () => {
-  hideJobBanner();
-  document.title = "Local Video Studio";
-};
-voiceSettingsDialog.addEventListener("close", () => {
-  fieldHelpButtons.forEach((button) => button.classList.remove("is-open"));
-});
-voiceSettingsBtn.onclick = async () => {
-  await voiceSettingsController.openDialog();
-};
 
 resetPromptDefaultsBtn.onclick = () => {
   storySystemPrompt.value = plannerSystemPromptDefault();
   storyUserPromptTemplate.value = plannerUserPromptTemplateDefault();
   saveUiState();
-};
-voiceSettingsClose.onclick = () => {
-  voiceSettingsController.closeDialog();
 };
 reviewRefreshBtn.onclick = () => {
   reviewController.refresh(selectedProjectId).catch((error) => {
