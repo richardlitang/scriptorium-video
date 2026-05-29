@@ -168,6 +168,8 @@ export function ProjectWorkspace({ projectId }: Props) {
             runState={details?.runState ?? null}
             needsRender={flags.needsRender}
             onLog={appendQualityLog}
+            planJson={planJson}
+            onPlanChange={handlePlanChange}
           />
         </section>
       </div>

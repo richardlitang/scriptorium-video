@@ -1,5 +1,4 @@
 
-import { createBeatWorkspaceController } from "./modules/beat-workspace.js";
 import { createVoiceSettingsController } from "./modules/voice-settings-ui.js";
 import { imageCoverageLabel, normalizeImageCoverage } from "./modules/image-coverage.js";
 import { currentStoryDirectionFromControls, pendingUiStateFromControls } from "./modules/story-draft-state.js";
@@ -82,8 +81,6 @@ const imageMode = document.getElementById("image-mode");
 const imageBudget = document.getElementById("image-budget");
 const imageQuality = document.getElementById("image-quality");
 const imageEnabled = document.getElementById("image-enabled");
-const beatTimeline = document.getElementById("beat-timeline");
-const beatInspector = document.getElementById("beat-inspector");
 const reviewList = document.getElementById("review-list");
 const reviewFilter = document.getElementById("review-filter");
 const reviewRefreshBtn = document.getElementById("review-refresh-btn");
@@ -99,8 +96,6 @@ let activeRunController = null;
 
 let lastSeenDraftJobId = null;
 let currentDraftJob = null;
-let selectedBeatId = null;
-let selectedInspectorTab = "script";
 let plannerDefaults = {
   systemPrompt: "",
   userPromptTemplate: ""
@@ -300,7 +295,6 @@ function restoreUiState(projectId) {
   imageMode.value = state.imageMode;
   imageBudget.value = state.imageBudget;
   imageQuality.value = state.imageQuality;
-  selectedBeatId = state.selectedBeatId;
   voiceSettingsController.restorePreviewLines(projectId);
 }
 
@@ -1050,7 +1044,6 @@ function resetProjectScopedRuntimeState() {
   needsPrepareDraft = false;
   needsRender = false;
   imageHistory = [];
-  selectedBeatId = "";
   storyFeedback.innerHTML = "";
 }
 
