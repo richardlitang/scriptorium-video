@@ -47,7 +47,7 @@ export async function handleProjectQualityRoutes(context, req, res, pathname) {
           summary: "Manual quality check run.",
           output: result.stdout.trim(),
         });
-        sendJson(res, 200, { ok: true, output: result.stdout.trim() });
+        sendJson(res, 200, { ok: true, data: { output: result.stdout.trim() } });
         return true;
       },
     },

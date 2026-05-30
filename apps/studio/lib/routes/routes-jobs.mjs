@@ -294,7 +294,7 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
           });
           return { output, qualityOk: !qualityFailed };
         });
-        sendJson(res, 200, { ok: true, ...result });
+        sendJson(res, 200, { ok: true, data: result });
         return true;
       },
     },
@@ -325,7 +325,7 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
           });
           return { output: step.stdout.trim() };
         });
-        sendJson(res, 200, { ok: true, ...result });
+        sendJson(res, 200, { ok: true, data: result });
         return true;
       },
     },
@@ -384,7 +384,7 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
           });
           return result.stdout.trim();
         });
-        sendJson(res, 200, { ok: true, output });
+        sendJson(res, 200, { ok: true, data: { output } });
         return true;
       },
     },

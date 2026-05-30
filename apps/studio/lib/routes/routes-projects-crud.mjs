@@ -41,7 +41,7 @@ export async function handleProjectCrudRoutes(context, req, res, pathname) {
       method: "GET",
       match: (nextPath) => (nextPath === "/api/projects" ? {} : null),
       handle: async () => {
-        sendJson(res, 200, { ok: true, projects: await listProjects() });
+        sendJson(res, 200, { ok: true, data: { projects: await listProjects() } });
         return true;
       },
     },

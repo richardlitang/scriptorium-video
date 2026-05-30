@@ -103,7 +103,7 @@ export async function handleProjectPlanRoutes(context, req, res, pathname, reque
             currentPlanHash: await sha256(await readFile(planPath, "utf8")),
             updatedAt: new Date().toISOString(),
           });
-          sendJson(res, 200, { ok: true, message: "Plan saved.", output });
+          sendJson(res, 200, { ok: true, message: "Plan saved.", data: { output } });
         } catch (error) {
           await writeFile(planPath, current, "utf8");
           await restoreOptionalFile(timelinePath, currentTimeline);

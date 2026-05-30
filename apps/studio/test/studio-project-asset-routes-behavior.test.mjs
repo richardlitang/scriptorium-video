@@ -147,7 +147,7 @@ test("project quality route writes quality history and returns output", async ()
   assert.equal(handled, true);
   assert.equal(response.status, 200);
   assert.equal(response.body?.ok, true);
-  assert.equal(response.body?.output, "quality ok");
+  assert.equal(response.body?.data?.output, "quality ok");
   assert.equal(historyEntry?.kind, "quality_check");
 });
 
