@@ -95,7 +95,7 @@ export function ImagesPanel({ projectId, onLog }: Props) {
                       }}
                     />
                   )}
-                  {asset["locked_by_user"] && (
+                  {asset.status === "locked_by_user" && (
                     <div className="absolute top-1 right-1 text-xs bg-[var(--color-warning)]/80 text-black px-1 rounded">
                       🔒
                     </div>

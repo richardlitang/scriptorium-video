@@ -12,10 +12,8 @@ export function useDraftJob(projectId: string | null) {
 
   return useQuery({
     queryKey: draftJobKeys.current(projectId ?? ""),
-    queryFn: async (): Promise<DraftJob | null> => {
-      const result = await api.projects.draftJob(projectId!);
-      return (result as unknown as { data: DraftJob | null }).data ?? null;
-    },
+    queryFn: async (): Promise<DraftJob | null> =>
+      (await api.projects.draftJob(projectId!)) ?? null,
     enabled: projectId != null,
     // Poll at 2.5s while active; stop when completed/failed
     refetchInterval: (query) => {

@@ -22,7 +22,6 @@ describe("ProjectSidebar", () => {
 
   it("renders project list", async () => {
     vi.spyOn(client.api.projects, "list").mockResolvedValue({
-      ok: true,
       projects: [
         { id: "abc", title: "My Film", mode: "landscape", status: "active" },
         { id: "xyz", title: "Short", mode: "vertical", status: "draft" },
@@ -35,7 +34,6 @@ describe("ProjectSidebar", () => {
 
   it("shows empty state when no projects", async () => {
     vi.spyOn(client.api.projects, "list").mockResolvedValue({
-      ok: true,
       projects: [],
     });
     render(<ProjectSidebar selectedId={null} onSelect={vi.fn()} />, { wrapper });

@@ -127,9 +127,7 @@ export function StoryComposer({
         userPromptTemplate,
         format: "long_documentary",
       });
-      const data = (
-        result as unknown as { data?: { plan?: unknown; model?: string; warnings?: string[] } }
-      ).data;
+      const data = result;
       if (data?.plan) {
         onPlanChange(JSON.stringify(data.plan, null, 2));
         const sections = (data.plan as { sections?: { beats?: unknown[] }[] }).sections ?? [];

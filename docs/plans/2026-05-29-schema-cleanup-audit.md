@@ -24,17 +24,17 @@ different shape). Worth a decision, not an obvious delete.
 
 ## 1. Inventory — what each schema is and whether it's load-bearing
 
-| Schema file | Role | Verdict |
-| --- | --- | --- |
-| `video-plan.schema.ts` (386 L) | Canonical domain model (Zod). Source of truth per AGENTS.md. | Keep. Has internal duplication — see §3. |
+| Schema file                     | Role                                                                                                | Verdict                                               |
+| ------------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `video-plan.schema.ts` (386 L)  | Canonical domain model (Zod). Source of truth per AGENTS.md.                                        | Keep. Has internal duplication — see §3.              |
 | `plan-draft.schema.mjs` (398 L) | LLM structured-output contract (plain JSON Schema, flat shape). Normalized into the canonical plan. | Keep, but a duplication-reduction candidate — see §4. |
-| `timeline.schema.ts` (158 L) | Render-time timeline + named enums (`ScaleMode`, etc.). | Keep. Enums are correctly centralized here. |
-| `asset-manifest.schema.ts` | Asset manifest + source/license/audio-processing. | Keep. All fields consumed. |
-| `captions.schema.ts` | Caption file + word timings. | Keep. |
-| `transcript.schema.ts` | Transcript file. | Keep. |
-| `project.schema.ts` | Project status record. | Keep. |
-| `quality-report.schema.ts` | Quality findings. | Keep. |
-| `voice-director.schema.ts` | Voice-director output. | Keep. Reuses `video-plan` schemas — good. |
+| `timeline.schema.ts` (158 L)    | Render-time timeline + named enums (`ScaleMode`, etc.).                                             | Keep. Enums are correctly centralized here.           |
+| `asset-manifest.schema.ts`      | Asset manifest + source/license/audio-processing.                                                   | Keep. All fields consumed.                            |
+| `captions.schema.ts`            | Caption file + word timings.                                                                        | Keep.                                                 |
+| `transcript.schema.ts`          | Transcript file.                                                                                    | Keep.                                                 |
+| `project.schema.ts`             | Project status record.                                                                              | Keep.                                                 |
+| `quality-report.schema.ts`      | Quality findings.                                                                                   | Keep.                                                 |
+| `voice-director.schema.ts`      | Voice-director output.                                                                              | Keep. Reuses `video-plan` schemas — good.             |
 
 **Finding A — no genuinely dead fields.** I traced the draft schema's "suspicious" beat fields
 (`lens`, `composition`, `subjectContinuity`, `cameraDistance`, `negativePromptAdditions`,
@@ -45,7 +45,7 @@ transformer / core. Nothing to delete here.
 **Finding B — apparent VisualBible "drift" is intentional.** The Zod `VisualBibleSchema` lacks
 `characters` / `locations` / `objects` that the JSON-Schema draft requires. That's not drift:
 the draft's richer bible is collapsed into prompt strings by `plan-draft-transformer.mjs`
-*before* it becomes a canonical plan. Document this so it isn't "fixed" by accident.
+_before_ it becomes a canonical plan. Document this so it isn't "fixed" by accident.
 
 ---
 
@@ -59,7 +59,7 @@ the draft's richer bible is collapsed into prompt strings by `plan-draft-transfo
 There is already a `canonicalizeVoicePauseFields` normalizer, a `voice-pauses.ts` helper that
 reads ms as a fallback, and a `pause-seconds-boundary` check. So ms is mid-migration.
 
-**Recommendation:** keep ms only at the load/normalize boundary; remove it from the *emitted*
+**Recommendation:** keep ms only at the load/normalize boundary; remove it from the _emitted_
 contract (the draft schema and any writer) so new data is seconds-only. Full removal from the
 domain schema is gated on: no stored project still carrying ms-only values. Add a one-shot audit
 (or extend the existing quality warning) that counts ms-only beats; remove the field once that
@@ -74,13 +74,15 @@ top-level beat fields **and** inside `direction` (`ProductionDirectionSchema`). 
 strongest "two ways to say the same thing" smell.
 
 It is, however, **managed legacy**, not an accident:
+
 - `resolve-production-direction.ts` reads a precedence chain
   `beat.direction.X → section.direction.X → plan.direction.X → beat.X (legacy)`.
 - `plan-legacy-fields.ts` explicitly tracks `voiceDirection | sfxCues | editorial` as legacy
   beat fields and surfaces usage counts.
 - `normalize-video-plan.ts` migrates top-level → `direction`.
 
-**Recommendation:** this is the highest-value *schema* simplification, but it must be staged:
+**Recommendation:** this is the highest-value _schema_ simplification, but it must be staged:
+
 1. Confirm `normalize-video-plan` always lifts legacy top-level fields into `direction`.
 2. Confirm no writer still emits top-level (planner/draft transformer, direct-voice, sync).
 3. Use `plan-legacy-fields` counts as the removal gate; when zero across stored projects,
@@ -94,11 +96,12 @@ Net effect: `BeatSchema` loses ~5 redundant fields and the resolver loses its le
 ## 4. The 400-line hand-maintained draft JSON Schema
 
 `plan-draft.schema.mjs` is plain JSON Schema (not Zod) because OpenAI structured output needs
-JSON Schema with all-fields-required. It is genuinely a *different shape* from the canonical
+JSON Schema with all-fields-required. It is genuinely a _different shape_ from the canonical
 plan (flat beats; LLM-facing field names like `voiceProfile`, `imageChangeDecision`). It's
 guarded by `check-planner-schema-boundary`.
 
 Two options:
+
 - **(Recommended) Leave the shape, stop hand-maintaining it.** Define the draft as its own Zod
   schema in core and generate the JSON Schema via `zod-to-json-schema` (forcing
   `additionalProperties:false` + all-required, which OpenAI needs). One source, derived
@@ -114,6 +117,7 @@ This is a judgment call about appetite, not an obvious win — flagged for your 
 ## 5. The real win — one source of types for front + back
 
 Today `apps/studio/web/src` shares **nothing** with core:
+
 - `api/client.ts` returns `unknown`; queries do `as unknown as { data?: ... }`.
 - The plan is typed `unknown`; planner/tts/assets queries hand-roll loose inline types.
 - `apps/studio/package.json` has **no dependency on `@lvstudio/core`**, and core only ships
@@ -124,6 +128,7 @@ consumers, different shapes). But the **types** absolutely can be shared, and th
 "single source for front and backend" the request is after.
 
 **Recommendation:**
+
 1. Add `@lvstudio/core` as a workspace dependency of `apps/studio`.
 2. In the web app, use **type-only** imports: `import type { VideoPlan, Beat, Timeline } from "@lvstudio/core"`.
    Types erase at compile time, so **no Zod and no schema code enters the browser bundle** —
@@ -145,7 +150,7 @@ without merging the two backend schemas.
 3. **Draft schema: generate from Zod** (§4) — only if appetite; removes ~400 hand-maintained lines.
 4. **Collapse top-level beat fields** (§3) — last, gated on `plan-legacy-fields` counts hitting zero.
 
-## What I am explicitly *not* recommending
+## What I am explicitly _not_ recommending
 
 - Deleting any field that still has readers (none found to be dead).
 - Merging the canonical plan and the LLM draft into one schema.

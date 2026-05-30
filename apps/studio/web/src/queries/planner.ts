@@ -15,27 +15,13 @@ export function usePlannerDefaults() {
   return useQuery({
     queryKey: plannerKeys.defaults,
     queryFn: async (): Promise<PlannerDefaults> => {
-      const result = await api.planner.defaults();
-      const data =
-        (result as unknown as { data?: { systemPrompt?: string; userPromptTemplate?: string } })
-          .data ?? {};
+      const data = await api.planner.defaults();
       return {
         systemPrompt: String(data.systemPrompt ?? ""),
         userPromptTemplate: String(data.userPromptTemplate ?? ""),
       };
     },
     staleTime: Infinity,
-  });
-}
-
-export function usePlan(projectId: string | null) {
-  return useQuery({
-    queryKey: plannerKeys.plan(projectId ?? ""),
-    queryFn: async () => {
-      const result = await api.projects.plan(projectId!);
-      return (result as unknown as { data?: { plan?: unknown } }).data?.plan ?? result.plan;
-    },
-    enabled: projectId != null,
   });
 }
 

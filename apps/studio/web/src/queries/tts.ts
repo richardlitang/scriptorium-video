@@ -33,7 +33,7 @@ export function useTtsHealth() {
     queryFn: async (): Promise<TtsHealthState> => {
       try {
         const result = await api.tts.health();
-        return (result as unknown as { data: TtsHealthState }).data ?? CHECKING_STATE;
+        return (result as TtsHealthState) ?? CHECKING_STATE;
       } catch (err) {
         const msg = String(err ?? "");
         const isMissingRoute =
