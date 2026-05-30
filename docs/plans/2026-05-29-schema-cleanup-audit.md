@@ -49,21 +49,25 @@ _before_ it becomes a canonical plan. Document this so it isn't "fixed" by accid
 
 ---
 
-## 2. The real noise #1 — legacy `*Ms` pause fields
+## 2. The real noise #1 — legacy `*Seconds` pause fields
+
+> **Correction (2026-05-30):** an earlier draft of this section had the direction
+> inverted. The canonical field is **milliseconds**, and **seconds is the legacy
+> field being migrated away.** Verified against the code, not assumed.
 
 `VoiceDirectionSchema` / `VoiceDirectionOverrideSchema` carry **both**:
 
-- `pauseBeforeMs` / `pauseAfterMs` (legacy, milliseconds)
-- `pauseBeforeSeconds` / `pauseAfterSeconds` (canonical, seconds)
+- `pauseBeforeMs` / `pauseAfterMs` — **canonical**. The LLM draft schema requires ms;
+  `canonicalizeVoicePauseFields` and `canonicalize-plan.mjs` produce ms (converting seconds→ms
+  and dropping seconds); `voice-direction.ts` consumes ms (`secondsFromMs`) at render/TTS time.
+- `pauseBeforeSeconds` / `pauseAfterSeconds` — **legacy**. `plan-legacy-fields.ts` names them
+  `LegacyVoicePauseSecondsField`; the `pause-seconds-boundary` check allowlists the few files
+  permitted to mention seconds, stopping new code from spreading them.
 
-There is already a `canonicalizeVoicePauseFields` normalizer, a `voice-pauses.ts` helper that
-reads ms as a fallback, and a `pause-seconds-boundary` check. So ms is mid-migration.
-
-**Recommendation:** keep ms only at the load/normalize boundary; remove it from the _emitted_
-contract (the draft schema and any writer) so new data is seconds-only. Full removal from the
-domain schema is gated on: no stored project still carrying ms-only values. Add a one-shot audit
-(or extend the existing quality warning) that counts ms-only beats; remove the field once that
-count is zero across `.studio-data`.
+**Recommendation:** remove the legacy `*Seconds` fields from `VoiceDirectionSchema` /
+`VoiceDirectionOverrideSchema` (and the seconds defaults). **Gated** on no stored plan still
+carrying seconds — see §6 for the gate status. The observability leg already exists:
+`review-project.ts` calls `findLegacyVoicePauseSecondsUsages`.
 
 ---
 
@@ -143,12 +147,41 @@ without merging the two backend schemas.
 
 ---
 
+## 6. Gate status (verified 2026-05-30) — #2 and #4 are blocked by real data
+
+The legacy-field removals (§2 seconds, §3 top-level beat fields) are gated on no stored plan
+using the legacy fields. That gate is **NOT met**. All four projects under `content/projects/`
+are saturated with legacy data:
+
+| Project  | Top-level legacy beat fields | Legacy `*Seconds` beats | `*Ms` beats |
+| -------- | ---------------------------: | ----------------------: | ----------: |
+| nuno     |                          140 |                      66 |          66 |
+| racing   |                          268 |                     134 |         116 |
+| test     |                          140 |                      67 |          67 |
+| the-race |                          278 |                     139 |          47 |
+
+`the-race` has 139 seconds-using beats but only 47 with ms — ~92 beats are **seconds-only**.
+
+Two consequences:
+
+- Removing `*Seconds` or the top-level beat fields from the `.strict()` schema now would break
+  loading all four projects.
+- `migrateVideoPlan` (CLI `migrate:plan`) already lifts legacy→canonical and strips the
+  top-level beat fields — but it **reads through the strict `VideoPlanSchema` first**, so the
+  schema must keep accepting the legacy fields until migration has run. The order is forced:
+  **migrate every project → verify zero legacy → only then remove the fields.**
+
+Migration mutates the user's project files, so it is a deliberate, user-approved step — not
+something to fold silently into a schema-cleanup commit.
+
 ## Recommended sequencing (each its own slice + verify)
 
-1. **Front/back type sharing** (§5) — highest value, lowest risk, no domain-schema change.
-2. **ms pause removal from emitters** (§2) — stop writing legacy; keep read fallback.
-3. **Draft schema: generate from Zod** (§4) — only if appetite; removes ~400 hand-maintained lines.
-4. **Collapse top-level beat fields** (§3) — last, gated on `plan-legacy-fields` counts hitting zero.
+1. **Front/back type sharing** (§5) — ✅ DONE (backend envelope + web client type sharing).
+2. **Migrate the 4 stored projects** (`migrate:plan`) — prerequisite for #3/#4; mutates user data.
+3. **Remove legacy `*Seconds` fields** (§2) — after #2 verifies zero seconds usage.
+4. **Collapse top-level beat fields** (§3) — after #2 verifies zero top-level usage; `beat.motion` last.
+5. **Draft schema: generate from Zod** (§4) — independent of the above; only if appetite. Risk: the
+   generated JSON Schema must stay byte-compatible with OpenAI strict-mode expectations.
 
 ## What I am explicitly _not_ recommending
 
