@@ -1,0 +1,11 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "packages/mcp-server" },
+    { "path": "packages/quality" },
+    { "path": "packages/providers" },
+    { "path": "packages/cli" },
+    { "path": "apps/renderer" }
+  ]
+}

@@ -1,0 +1,7 @@
+node_modules
+dist
+*.tsbuildinfo
+pnpm-lock.yaml
+content/
+.studio-data/
+apps/studio/web/dist/

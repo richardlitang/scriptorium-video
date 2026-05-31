@@ -1,0 +1,14 @@
+{
+  "name": "@lvstudio/cli",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@lvstudio/core": "workspace:*",
+    "@lvstudio/quality": "workspace:*",
+    "@lvstudio/providers": "workspace:*"
+  },
+  "scripts": {
+    "test": "pnpm -s exec tsc -p tsconfig.json && node --test \"test/**/*.mjs\""
+  }
+}

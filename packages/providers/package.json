@@ -1,0 +1,21 @@
+{
+  "name": "@lvstudio/providers",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "dependencies": {
+    "@lvstudio/core": "workspace:*"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "test": "pnpm -s exec tsc -p tsconfig.json && node --test \"test/**/*.mjs\""
+  }
+}
