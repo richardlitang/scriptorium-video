@@ -1,6 +1,6 @@
-# Local Video Studio
+# Scriptorium Video
 
-Local Video Studio is a TypeScript monorepo for planning, assembling, reviewing, and rendering narrated videos from structured project data. It combines a local Studio web app, a CLI, an MCP server, provider adapters, shared Zod domain schemas, and a Remotion renderer.
+Scriptorium Video is a TypeScript monorepo for planning, assembling, reviewing, and rendering narrated videos from structured project data. It combines a local Studio web app, a CLI, an MCP server, provider adapters, shared Zod domain schemas, and a Remotion renderer.
 
 This is a personal engineering project. The repo is public for code review and portfolio use, not as a polished hosted product.
 
