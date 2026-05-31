@@ -101,8 +101,6 @@ test("project create canonicalizes legacy beat fields before writing plan", asyn
   assert.equal(Object.hasOwn(beat, "sfxCues"), false);
   assert.equal(Object.hasOwn(beat, "editorial"), false);
   assert.equal(beat.direction?.voice?.profile, "urgent");
-  assert.equal(Object.hasOwn(beat.direction?.voice || {}, "pauseBeforeSeconds"), false);
-  assert.equal(Object.hasOwn(beat.direction?.voice || {}, "pauseAfterSeconds"), false);
   assert.equal(Array.isArray(beat.direction?.sfxCues), true);
   assert.equal(Object.hasOwn(beat.direction || {}, "editorial"), true);
 });
@@ -266,8 +264,8 @@ test("project plan save writes updated plan and run-state on success", async () 
                 voiceDirection: {
                   profile: "urgent",
                   intensity: 0.8,
-                  pauseBeforeSeconds: 0.2,
-                  pauseAfterSeconds: 0.4,
+                  pauseBeforeMs: 200,
+                  pauseAfterMs: 400,
                   source: "user",
                 },
                 sfxCues: [
@@ -323,8 +321,6 @@ test("project plan save writes updated plan and run-state on success", async () 
   assert.equal(persistedBeat.direction?.voice?.profile, "urgent");
   assert.equal(persistedBeat.direction?.voice?.pauseBeforeMs, 200);
   assert.equal(persistedBeat.direction?.voice?.pauseAfterMs, 400);
-  assert.equal(Object.hasOwn(persistedBeat.direction?.voice || {}, "pauseBeforeSeconds"), false);
-  assert.equal(Object.hasOwn(persistedBeat.direction?.voice || {}, "pauseAfterSeconds"), false);
   assert.equal(Array.isArray(persistedBeat.direction?.sfxCues), true);
   assert.equal(Object.hasOwn(persistedBeat.direction || {}, "editorial"), true);
   assert.equal(runStateWrite?.currentPlanHash, "hash-after");

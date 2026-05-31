@@ -2,26 +2,12 @@ function hasKeys(value) {
   return Boolean(value) && typeof value === "object" && Object.keys(value).length > 0;
 }
 
-function resolveMs(msValue, secondsValue) {
-  if (typeof msValue === "number") return msValue;
-  if (typeof secondsValue === "number") return Math.round(secondsValue * 1000);
-  return undefined;
-}
-
 function canonicalizeVoicePauseFields(direction) {
   if (!direction || typeof direction !== "object") return direction;
-  const {
-    pauseBeforeSeconds: _pauseBeforeSeconds,
-    pauseAfterSeconds: _pauseAfterSeconds,
-    ...rest
-  } = direction;
-  const pauseBeforeMs = resolveMs(direction.pauseBeforeMs, direction.pauseBeforeSeconds);
-  const pauseAfterMs = resolveMs(direction.pauseAfterMs, direction.pauseAfterSeconds);
-  return {
-    ...rest,
-    ...(pauseBeforeMs !== undefined ? { pauseBeforeMs } : {}),
-    ...(pauseAfterMs !== undefined ? { pauseAfterMs } : {}),
-  };
+  const out = { ...direction };
+  delete out.pauseBeforeSeconds;
+  delete out.pauseAfterSeconds;
+  return out;
 }
 
 export function canonicalizePlanForPersistence(plan = {}) {

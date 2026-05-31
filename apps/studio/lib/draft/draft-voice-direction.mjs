@@ -23,10 +23,6 @@ function clampInteger(value, fallback, min, max) {
   return Math.round(clampNumber(value, fallback, min, max));
 }
 
-function msFromSeconds(seconds) {
-  return Math.round(seconds * 1000);
-}
-
 export function normalizeDraftVoiceDirection(beatDraft = {}) {
   const confidence = clampNumber(beatDraft.voiceConfidence, 0.7, 0, 1);
   const conservative = confidence < 0.45;
@@ -40,26 +36,8 @@ export function normalizeDraftVoiceDirection(beatDraft = {}) {
   const ttsProvider = ["chatterbox", "mms", "openai"].includes(beatDraft.ttsProvider)
     ? beatDraft.ttsProvider
     : undefined;
-  const pauseBeforeMs = conservative
-    ? 0
-    : clampInteger(
-        beatDraft.pauseBeforeMs,
-        beatDraft.pauseBeforeSeconds !== undefined
-          ? msFromSeconds(clampNumber(beatDraft.pauseBeforeSeconds, 0, 0, 1.2))
-          : 0,
-        0,
-        1200,
-      );
-  const pauseAfterMs = conservative
-    ? 80
-    : clampInteger(
-        beatDraft.pauseAfterMs,
-        beatDraft.pauseAfterSeconds !== undefined
-          ? msFromSeconds(clampNumber(beatDraft.pauseAfterSeconds, 0, 0, 1.2))
-          : 0,
-        0,
-        1200,
-      );
+  const pauseBeforeMs = conservative ? 0 : clampInteger(beatDraft.pauseBeforeMs, 0, 0, 1200);
+  const pauseAfterMs = conservative ? 80 : clampInteger(beatDraft.pauseAfterMs, 0, 0, 1200);
 
   return {
     profile: conservative ? "neutral" : profile,

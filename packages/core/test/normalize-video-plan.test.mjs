@@ -87,18 +87,13 @@ test("normalizeVideoPlan preserves explicit direction values when both legacy an
   assert.equal(normalized.sections[0].beats[0].direction.voice.source, "llm");
 });
 
-test("normalizeVideoPlan canonicalizes voice pause fields to milliseconds", () => {
+test("normalizeVideoPlan preserves millisecond pause values from voiceDirection", () => {
   const plan = makePlan();
   const beat = plan.sections[0].beats[0];
-  beat.voiceDirection = { pauseBeforeSeconds: 0.2, pauseAfterSeconds: 0.4, source: "user" };
-  beat.direction = {
-    voice: { pauseBeforeSeconds: 0.333, pauseAfterMs: 250, source: "llm" },
-  };
+  beat.voiceDirection = { pauseBeforeMs: 200, pauseAfterMs: 400, source: "user" };
 
   const normalized = normalizeVideoPlan(plan);
   const voice = normalized.sections[0].beats[0].direction.voice;
-  assert.equal(voice.pauseBeforeMs, 333);
-  assert.equal(voice.pauseAfterMs, 250);
-  assert.equal("pauseBeforeSeconds" in voice, false);
-  assert.equal("pauseAfterSeconds" in voice, false);
+  assert.equal(voice.pauseBeforeMs, 200);
+  assert.equal(voice.pauseAfterMs, 400);
 });

@@ -10,8 +10,6 @@ test("normalizeDraftVoiceDirection clamps and normalizes non-conservative draft 
     emphasis: ["  first  ", "", "second"],
     pauseBeforeMs: 1300,
     pauseAfterMs: -12,
-    pauseBeforeSeconds: 1.8,
-    pauseAfterSeconds: -1,
     intensity: 5,
     speedMultiplier: 9,
     pitchOffset: -9,
@@ -24,8 +22,6 @@ test("normalizeDraftVoiceDirection clamps and normalizes non-conservative draft 
   assert.deepEqual(normalized.emphasis, ["first", "second"]);
   assert.equal(normalized.pauseBeforeMs, 1200);
   assert.equal(normalized.pauseAfterMs, 0);
-  assert.equal(normalized.pauseBeforeSeconds, undefined);
-  assert.equal(normalized.pauseAfterSeconds, undefined);
   assert.equal(normalized.intensity, 1);
   assert.equal(normalized.speedMultiplier, 1.5);
   assert.equal(normalized.pitchOffset, -6);
@@ -40,8 +36,6 @@ test("normalizeDraftVoiceDirection applies conservative fallback when confidence
     voiceProfile: "urgent",
     pauseBeforeMs: 400,
     pauseAfterMs: 500,
-    pauseBeforeSeconds: 0.4,
-    pauseAfterSeconds: 0.9,
     intensity: 0.9,
     ttsProvider: "invalid",
   });
@@ -49,8 +43,6 @@ test("normalizeDraftVoiceDirection applies conservative fallback when confidence
   assert.equal(normalized.profile, "neutral");
   assert.equal(normalized.pauseBeforeMs, 0);
   assert.equal(normalized.pauseAfterMs, 80);
-  assert.equal(normalized.pauseBeforeSeconds, undefined);
-  assert.equal(normalized.pauseAfterSeconds, undefined);
   assert.equal(normalized.intensity, 0.45);
   assert.equal(normalized.ttsProvider, undefined);
 });

@@ -58,8 +58,8 @@ test("resolveVoiceDirection maps key_point profile to stable chatterbox settings
       profile: "key_point",
       intensity: 0.7,
       emphasis: ["three hours every week"],
-      pauseBeforeSeconds: 0.1,
-      pauseAfterSeconds: 0.35,
+      pauseBeforeMs: 100,
+      pauseAfterMs: 350,
       source: "llm",
     }),
     planWithTts(),
@@ -81,8 +81,8 @@ test("resolveVoiceDirection does not inject chatterbox options for non-chatterbo
       profile: "authoritative",
       intensity: 0.6,
       emphasis: [],
-      pauseBeforeSeconds: 0,
-      pauseAfterSeconds: 0,
+      pauseBeforeMs: 0,
+      pauseAfterMs: 0,
       source: "default",
     }),
     planWithTts("openai"),
@@ -100,8 +100,8 @@ test("resolveVoiceDirection computes per-beat speed and pitch from multipliers a
       profile: "neutral",
       intensity: 0.5,
       emphasis: [],
-      pauseBeforeSeconds: 0,
-      pauseAfterSeconds: 0,
+      pauseBeforeMs: 0,
+      pauseAfterMs: 0,
       speedMultiplier: 1.2,
       pitchOffset: 0.3,
       source: "llm",
@@ -117,8 +117,8 @@ test("resolveVoiceDirection carries planner language and provider routing", () =
       profile: "neutral",
       intensity: 0.5,
       emphasis: [],
-      pauseBeforeSeconds: 0,
-      pauseAfterSeconds: 0,
+      pauseBeforeMs: 0,
+      pauseAfterMs: 0,
       language: "fil",
       ttsProvider: "mms",
       source: "llm",
@@ -131,7 +131,7 @@ test("resolveVoiceDirection carries planner language and provider routing", () =
   assert.deepEqual(resolved.voiceOptions, { speed: undefined, pitch: 0, language: "fil" });
 });
 
-test("resolveVoiceDirection prioritizes millisecond pause controls when present", () => {
+test("resolveVoiceDirection uses millisecond pause controls", () => {
   const resolved = resolveVoiceDirection(
     beatWithDirection({
       profile: "neutral",
@@ -139,27 +139,9 @@ test("resolveVoiceDirection prioritizes millisecond pause controls when present"
       emphasis: [],
       pauseBeforeMs: 180,
       pauseAfterMs: 640,
-      pauseBeforeSeconds: 0,
-      pauseAfterSeconds: 0,
       source: "llm",
     }),
     planWithTts("openai"),
   );
   assert.deepEqual(resolved.pauses, { beforeSeconds: 0.18, afterSeconds: 0.64 });
-});
-
-test("resolveVoiceDirection normalizes legacy second pauses into millisecond-backed pauses", () => {
-  const resolved = resolveVoiceDirection(
-    beatWithDirection({
-      profile: "neutral",
-      intensity: 0.5,
-      emphasis: [],
-      pauseBeforeSeconds: 0.333,
-      pauseAfterSeconds: 0.777,
-      source: "llm",
-    }),
-    planWithTts("openai"),
-  );
-
-  assert.deepEqual(resolved.pauses, { beforeSeconds: 0.333, afterSeconds: 0.777 });
 });

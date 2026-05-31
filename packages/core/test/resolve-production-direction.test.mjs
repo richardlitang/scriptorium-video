@@ -125,8 +125,8 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
     profile: "key_point",
     deliveryNote: "legacy",
     emphasis: ["legacy emphasis"],
-    pauseBeforeSeconds: 0.1,
-    pauseAfterSeconds: 0.2,
+    pauseBeforeMs: 100,
+    pauseAfterMs: 200,
     intensity: 0.6,
     speedMultiplier: 1.1,
     pitchOffset: 0.2,
@@ -160,13 +160,12 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
   assert.equal(resolved.sfxCues[0].kind, "knock");
 });
 
-test("resolveBeatProductionDirection canonicalizes voice pauses to millisecond precision", () => {
+test("resolveBeatProductionDirection carries millisecond pause values through", () => {
   const plan = basePlan();
   plan.direction = {
     voice: {
-      pauseBeforeSeconds: 0.333,
+      pauseBeforeMs: 333,
       pauseAfterMs: 640,
-      pauseAfterSeconds: 0.1,
       source: "llm",
     },
   };
@@ -179,8 +178,6 @@ test("resolveBeatProductionDirection canonicalizes voice pauses to millisecond p
 
   assert.equal(resolved.voiceDirection.pauseBeforeMs, 333);
   assert.equal(resolved.voiceDirection.pauseAfterMs, 640);
-  assert.equal(resolved.voiceDirection.pauseBeforeSeconds, undefined);
-  assert.equal(resolved.voiceDirection.pauseAfterSeconds, undefined);
 });
 
 test("VideoPlan schema accepts 16:9 aspect ratio overrides", () => {

@@ -44,8 +44,8 @@ test("studio http handler routes project create through to filesystem writes", a
                 voiceDirection: {
                   profile: "urgent",
                   intensity: 0.8,
-                  pauseBeforeSeconds: 0.2,
-                  pauseAfterSeconds: 0.4,
+                  pauseBeforeMs: 200,
+                  pauseAfterMs: 400,
                   source: "user",
                 },
                 sfxCues: [
@@ -128,8 +128,8 @@ test("studio http handler routes plan save through sync/check and run-state upda
               voiceDirection: {
                 profile: "urgent",
                 intensity: 0.8,
-                pauseBeforeSeconds: 0.2,
-                pauseAfterSeconds: 0.4,
+                pauseBeforeMs: 200,
+                pauseAfterMs: 400,
                 source: "user",
               },
               sfxCues: [
@@ -189,8 +189,6 @@ test("studio http handler routes plan save through sync/check and run-state upda
   assert.equal(persistedBeat.direction?.voice?.profile, "urgent");
   assert.equal(persistedBeat.direction?.voice?.pauseBeforeMs, 200);
   assert.equal(persistedBeat.direction?.voice?.pauseAfterMs, 400);
-  assert.equal(Object.hasOwn(persistedBeat.direction?.voice || {}, "pauseBeforeSeconds"), false);
-  assert.equal(Object.hasOwn(persistedBeat.direction?.voice || {}, "pauseAfterSeconds"), false);
   assert.equal(runStateWrite?.currentPlanHash, "hash-after");
   assert.equal(runStateWrite?.status, "idle");
 });

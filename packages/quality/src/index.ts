@@ -2,8 +2,6 @@ import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import {
   buildRenderBundle,
-  detectVoicePauseConflicts,
-  findLegacyVoicePauseSecondsUsages,
   QualityFindingSchema,
   QualityReportSchema,
   findLegacyBeatFieldUsages,
@@ -84,7 +82,6 @@ export async function runQualityChecks(
   const bundle = await buildRenderBundle({ projectId, rootDir });
   const rawPlanData = JSON.parse(await readFile(paths.videoPlan, "utf8"));
   const legacyUsage = findLegacyBeatFieldUsages(rawPlanData);
-  const legacyPauseSecondsUsage = findLegacyVoicePauseSecondsUsages(rawPlanData);
 
   checks.push({
     id: "shared.timeline.hash",
@@ -101,41 +98,6 @@ export async function runQualityChecks(
         byField: legacyUsage.byField,
       },
     });
-  }
-  if (legacyPauseSecondsUsage.total > 0) {
-    checks.push({
-      id: "shared.plan.legacy_pause_seconds_fields",
-      severity: "warning",
-      message: `video-plan.json contains ${legacyPauseSecondsUsage.total} legacy voice pause seconds field occurrence(s). Run 'lvstudio migrate:plan ${projectId}' to canonicalize.`,
-      data: {
-        total: legacyPauseSecondsUsage.total,
-        byField: legacyPauseSecondsUsage.byField,
-      },
-    });
-  }
-  for (const section of rawPlanData?.sections ?? []) {
-    for (const beat of section?.beats ?? []) {
-      const conflicts = detectVoicePauseConflicts(beat?.voiceDirection);
-      for (const conflict of conflicts) {
-        checks.push({
-          id: "shared.voice.pause_conflict",
-          severity: "warning",
-          message:
-            `Beat ${beat?.id ?? "unknown"} has conflicting ${conflict.field} values ` +
-            `(${conflict.msValue}ms vs ${conflict.secondsValue}s / ${conflict.secondsAsMs}ms).`,
-          path: `video-plan.sections.${section?.id ?? "unknown"}.beats.${beat?.id ?? "unknown"}.voiceDirection`,
-          beatId: beat?.id,
-          sectionId: section?.id,
-          data: {
-            field: conflict.field,
-            msValue: conflict.msValue,
-            secondsValue: conflict.secondsValue,
-            secondsAsMs: conflict.secondsAsMs,
-            deltaMs: conflict.deltaMs,
-          },
-        });
-      }
-    }
   }
 
   for (const section of loaded.videoPlan.sections) {

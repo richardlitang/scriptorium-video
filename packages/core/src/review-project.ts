@@ -9,11 +9,7 @@ import { TimelineSchema } from "./schemas/timeline.schema.js";
 import { VideoPlanSchema } from "./schemas/video-plan.schema.js";
 import { hashString } from "./hash.js";
 import { normalizeVideoPlan } from "./normalize-video-plan.js";
-import {
-  findLegacyBeatFieldUsages,
-  findLegacyVoicePauseSecondsUsages,
-} from "./plan-legacy-fields.js";
-import { detectVoicePauseConflicts } from "./voice-pauses.js";
+import { findLegacyBeatFieldUsages } from "./plan-legacy-fields.js";
 
 export type ReviewSeverity = "critical" | "warning" | "suggestion";
 export type ReviewScope = "project" | "section" | "beat" | "asset" | "render";
@@ -229,7 +225,6 @@ export async function reviewProject(
   const rawPlanText = await readFile(paths.videoPlan, "utf8");
   const rawPlanData = JSON.parse(rawPlanText);
   const legacyUsage = findLegacyBeatFieldUsages(rawPlanData);
-  const legacyPauseSecondsUsage = findLegacyVoicePauseSecondsUsages(rawPlanData);
   if (legacyUsage.total > 0) {
     const sample = legacyUsage.usages
       .slice(0, 3)
@@ -243,39 +238,6 @@ export async function reviewProject(
         message: `video-plan.json still contains ${legacyUsage.total} legacy beat field occurrence(s) (voiceDirection/sfxCues/editorial). Sample: ${sample}`,
       }),
     );
-  }
-  if (legacyPauseSecondsUsage.total > 0) {
-    const sample = legacyPauseSecondsUsage.usages
-      .slice(0, 3)
-      .map((usage) => `${usage.beatId ?? "unknown"}:${usage.source}.${usage.field}`)
-      .join(", ");
-    issues.push(
-      makeIssue({
-        severity: "warning",
-        scope: "project",
-        code: "legacy_voice_pause_seconds_present",
-        message: `video-plan.json still contains ${legacyPauseSecondsUsage.total} legacy voice pause seconds field occurrence(s). Sample: ${sample}`,
-      }),
-    );
-  }
-  for (const section of rawPlanData?.sections ?? []) {
-    for (const beat of section?.beats ?? []) {
-      const conflicts = detectVoicePauseConflicts(beat?.voiceDirection);
-      for (const conflict of conflicts) {
-        issues.push(
-          makeIssue({
-            severity: "warning",
-            scope: "beat",
-            code: "voice_pause_conflict",
-            message:
-              `Beat ${beat?.id ?? "unknown"} has conflicting ${conflict.field} values: ` +
-              `${conflict.msValue}ms vs ${conflict.secondsValue}s (${conflict.secondsAsMs}ms).`,
-            sectionId: section?.id,
-            beatId: beat?.id,
-          }),
-        );
-      }
-    }
   }
 
   const planHash = hashString(rawPlanText);

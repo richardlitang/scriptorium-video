@@ -50,7 +50,6 @@ async function createFixtureRoot() {
               emphasis: [],
               intensity: 0.5,
               pauseBeforeMs: 240,
-              pauseBeforeSeconds: 0,
               source: "llm",
             },
             timing: {
@@ -159,10 +158,8 @@ test("reviewProject reports deterministic issues from isolated fixture", async (
     assert.ok(result.issues.some((issue) => issue.code === "asset_stale"));
     assert.ok(result.issues.some((issue) => issue.code === "render_stale"));
     assert.ok(result.issues.some((issue) => issue.code === "legacy_beat_fields_present"));
-    assert.ok(result.issues.some((issue) => issue.code === "legacy_voice_pause_seconds_present"));
-    assert.ok(result.issues.some((issue) => issue.code === "voice_pause_conflict"));
     assert.equal(result.summary.critical, 1);
-    assert.ok(result.summary.warning >= 7);
+    assert.ok(result.summary.warning >= 5);
     assert.ok(typeof result.summary.suggestion === "number");
   } finally {
     await rm(root, { recursive: true, force: true });

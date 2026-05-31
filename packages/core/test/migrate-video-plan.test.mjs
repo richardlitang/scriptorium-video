@@ -45,8 +45,8 @@ function makePlan(projectId) {
             caption: { emphasis: [], style: "default" },
             voiceDirection: {
               profile: "urgent",
-              pauseBeforeSeconds: 0.2,
-              pauseAfterSeconds: 0.4,
+              pauseBeforeMs: 200,
+              pauseAfterMs: 400,
               intensity: 0.8,
               source: "user",
             },
@@ -80,8 +80,6 @@ test("migrateVideoPlan writes canonical beat direction and strips legacy fields"
     assert.equal(beat.direction.voice.profile, "urgent");
     assert.equal(beat.direction.voice.pauseBeforeMs, 200);
     assert.equal(beat.direction.voice.pauseAfterMs, 400);
-    assert.equal(Object.hasOwn(beat.direction.voice, "pauseBeforeSeconds"), false);
-    assert.equal(Object.hasOwn(beat.direction.voice, "pauseAfterSeconds"), false);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

@@ -71,8 +71,6 @@ test("quality checks include tuning-related warnings", async () => {
                 emphasis: [],
                 pauseBeforeMs: 800,
                 pauseAfterMs: 800,
-                pauseBeforeSeconds: 0.2,
-                pauseAfterSeconds: 0.2,
                 intensity: 0.1,
                 speedMultiplier: 1,
                 pitchOffset: 0,
@@ -261,9 +259,7 @@ test("quality checks include tuning-related warnings", async () => {
     const result = await runQualityChecks(projectId, root);
     const ids = result.checks.map((check) => check.id);
     assert.ok(ids.includes("shared.plan.legacy_beat_fields"));
-    assert.ok(ids.includes("shared.plan.legacy_pause_seconds_fields"));
     assert.ok(ids.includes("shared.voice.pause_budget"));
-    assert.ok(ids.includes("shared.voice.pause_conflict"));
     assert.ok(ids.includes("shared.narration.production_directive"));
     assert.ok(ids.includes("shared.voice.intensity_jump"));
     assert.ok(ids.includes("shared.voice.duration_outlier"));
