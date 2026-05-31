@@ -75,7 +75,6 @@ test("CLI prints Chatterbox setup errors without an uncaught stack trace", async
               media: [],
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
-              sfxCues: [],
             },
           ],
         },

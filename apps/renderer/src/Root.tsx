@@ -53,7 +53,6 @@ const defaultProps: RemotionInputProps = {
               media: [],
               motion: { type: "slow_zoom_in", intensity: 0.1 },
               caption: { emphasis: [], style: "default" },
-              sfxCues: [],
             },
           ],
         },

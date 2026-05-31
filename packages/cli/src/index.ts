@@ -108,7 +108,6 @@ program
 
     let changedCount = 0;
     for (const id of projectIds) {
-      await validateProject(id);
       const result = await migrateVideoPlan(id, {
         write: options.dryRun !== true,
       });
