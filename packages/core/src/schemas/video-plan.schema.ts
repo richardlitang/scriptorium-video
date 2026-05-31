@@ -263,9 +263,6 @@ export const BeatSchema = z
       .default({ emphasis: [], style: "default" }),
     direction: ProductionDirectionSchema.optional(),
     directionMeta: DirectionMetaSchema.optional(),
-    voiceDirection: VoiceDirectionSchema.optional(),
-    sfxCues: z.array(SoundCueIntentSchema).default([]),
-    editorial: BeatEditorialSchema.optional(),
     emotion: z.string().optional(),
     notes: z.string().optional(),
   })

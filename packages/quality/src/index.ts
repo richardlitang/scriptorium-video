@@ -4,7 +4,6 @@ import {
   buildRenderBundle,
   QualityFindingSchema,
   QualityReportSchema,
-  findLegacyBeatFieldUsages,
   getProjectPaths,
   loadProject,
 } from "@lvstudio/core";
@@ -80,25 +79,11 @@ export async function runQualityChecks(
   const loaded = await loadProject(projectId, rootDir);
   const paths = getProjectPaths(projectId, rootDir);
   const bundle = await buildRenderBundle({ projectId, rootDir });
-  const rawPlanData = JSON.parse(await readFile(paths.videoPlan, "utf8"));
-  const legacyUsage = findLegacyBeatFieldUsages(rawPlanData);
-
   checks.push({
     id: "shared.timeline.hash",
     severity: "info",
     message: "timeline.json exists and matches source plan hash.",
   });
-  if (legacyUsage.total > 0) {
-    checks.push({
-      id: "shared.plan.legacy_beat_fields",
-      severity: "warning",
-      message: `video-plan.json contains ${legacyUsage.total} legacy beat field occurrence(s). Run 'lvstudio migrate:plan ${projectId}' to canonicalize.`,
-      data: {
-        total: legacyUsage.total,
-        byField: legacyUsage.byField,
-      },
-    });
-  }
 
   for (const section of loaded.videoPlan.sections) {
     let previousIntensity: number | undefined;
@@ -145,7 +130,7 @@ export async function runQualityChecks(
         });
       }
 
-      const pauses = pauseSecondsFromDirection(beat.voiceDirection);
+      const pauses = pauseSecondsFromDirection(beat.direction?.voice);
       if (pauses > 1.4) {
         checks.push({
           id: "shared.voice.pause_budget",
@@ -158,7 +143,7 @@ export async function runQualityChecks(
         });
       }
 
-      const intensity = beat.voiceDirection?.intensity;
+      const intensity = beat.direction?.voice?.intensity;
       if (
         previousIntensity !== undefined &&
         intensity !== undefined &&

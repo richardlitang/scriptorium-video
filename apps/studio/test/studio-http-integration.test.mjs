@@ -41,26 +41,28 @@ test("studio http handler routes project create through to filesystem writes", a
                 id: "b1",
                 order: 1,
                 narration: "Hello",
-                voiceDirection: {
-                  profile: "urgent",
-                  intensity: 0.8,
-                  pauseBeforeMs: 200,
-                  pauseAfterMs: 400,
-                  source: "user",
-                },
-                sfxCues: [
-                  {
-                    id: "sfx-1",
-                    kind: "thud",
-                    placement: "manual",
-                    offsetSeconds: 0,
-                    levelDb: -16,
-                    pan: 0,
-                    proximity: "room",
-                    duckMusic: false,
+                direction: {
+                  voice: {
+                    profile: "urgent",
+                    intensity: 0.8,
+                    pauseBeforeMs: 200,
+                    pauseAfterMs: 400,
+                    source: "user",
                   },
-                ],
-                editorial: { visualEditCues: [], silenceWindows: [] },
+                  sfxCues: [
+                    {
+                      id: "sfx-1",
+                      kind: "thud",
+                      placement: "manual",
+                      offsetSeconds: 0,
+                      levelDb: -16,
+                      pan: 0,
+                      proximity: "room",
+                      duckMusic: false,
+                    },
+                  ],
+                  editorial: { visualEditCues: [], silenceWindows: [] },
+                },
               },
             ],
           },
@@ -96,9 +98,6 @@ test("studio http handler routes project create through to filesystem writes", a
   assert.ok(planWrite);
   const writtenPlan = JSON.parse(planWrite);
   const beat = writtenPlan.sections[0].beats[0];
-  assert.equal(Object.hasOwn(beat, "voiceDirection"), false);
-  assert.equal(Object.hasOwn(beat, "sfxCues"), false);
-  assert.equal(Object.hasOwn(beat, "editorial"), false);
   assert.equal(beat.direction?.voice?.profile, "urgent");
 });
 
@@ -125,26 +124,28 @@ test("studio http handler routes plan save through sync/check and run-state upda
               id: "b1",
               order: 1,
               narration: "Hello",
-              voiceDirection: {
-                profile: "urgent",
-                intensity: 0.8,
-                pauseBeforeMs: 200,
-                pauseAfterMs: 400,
-                source: "user",
-              },
-              sfxCues: [
-                {
-                  id: "sfx-1",
-                  kind: "thud",
-                  placement: "manual",
-                  offsetSeconds: 0,
-                  levelDb: -16,
-                  pan: 0,
-                  proximity: "room",
-                  duckMusic: false,
+              direction: {
+                voice: {
+                  profile: "urgent",
+                  intensity: 0.8,
+                  pauseBeforeMs: 200,
+                  pauseAfterMs: 400,
+                  source: "user",
                 },
-              ],
-              editorial: { visualEditCues: [], silenceWindows: [] },
+                sfxCues: [
+                  {
+                    id: "sfx-1",
+                    kind: "thud",
+                    placement: "manual",
+                    offsetSeconds: 0,
+                    levelDb: -16,
+                    pan: 0,
+                    proximity: "room",
+                    duckMusic: false,
+                  },
+                ],
+                editorial: { visualEditCues: [], silenceWindows: [] },
+              },
             },
           ],
         },

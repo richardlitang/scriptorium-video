@@ -149,7 +149,6 @@ export function resolveBeatProductionDirection(
       ...plan.direction?.voice,
       ...section.direction?.voice,
       ...beat.direction?.voice,
-      ...(beat.voiceDirection || {}),
     }),
   );
 
@@ -185,19 +184,13 @@ export function resolveBeatProductionDirection(
   );
 
   const sfxCues = (
-    firstDefined(
-      beat.direction?.sfxCues,
-      section.direction?.sfxCues,
-      plan.direction?.sfxCues,
-      beat.sfxCues,
-    ) ?? []
+    firstDefined(beat.direction?.sfxCues, section.direction?.sfxCues, plan.direction?.sfxCues) ?? []
   ).slice(0, 12);
 
   const editorialSource = firstDefined(
     beat.direction?.editorial,
     section.direction?.editorial,
     plan.direction?.editorial,
-    beat.editorial,
   );
 
   return {
@@ -217,7 +210,6 @@ export function resolveBeatProductionDirection(
         beat.direction?.voice,
         section.direction?.voice,
         plan.direction?.voice,
-        beat.voiceDirection,
         beat.directionMeta?.sources?.voice as SourceLabel | undefined,
       ),
       caption: sourceByLayer(
@@ -238,14 +230,12 @@ export function resolveBeatProductionDirection(
         beat.direction?.sfxCues,
         section.direction?.sfxCues,
         plan.direction?.sfxCues,
-        beat.sfxCues,
         beat.directionMeta?.sources?.sfx as SourceLabel | undefined,
       ),
       editorial: sourceByLayer(
         beat.direction?.editorial,
         section.direction?.editorial,
         plan.direction?.editorial,
-        beat.editorial,
         beat.directionMeta?.sources?.editorial as SourceLabel | undefined,
       ),
     },

@@ -45,12 +45,14 @@ async function createFixtureRoot() {
             id: "s1-001",
             order: 1,
             narration: "Short line.",
-            voiceDirection: {
-              profile: "neutral",
-              emphasis: [],
-              intensity: 0.5,
-              pauseBeforeMs: 240,
-              source: "llm",
+            direction: {
+              voice: {
+                profile: "neutral",
+                emphasis: [],
+                intensity: 0.5,
+                pauseBeforeMs: 240,
+                source: "llm",
+              },
             },
             timing: {
               preferredMinSeconds: 4,
@@ -61,7 +63,6 @@ async function createFixtureRoot() {
             media: [],
             motion: { type: "none", intensity: 0 },
             caption: { emphasis: [], style: "default" },
-            sfxCues: [],
           },
         ],
       },
@@ -157,7 +158,6 @@ test("reviewProject reports deterministic issues from isolated fixture", async (
     assert.ok(result.issues.some((issue) => issue.code === "caption_line_too_long"));
     assert.ok(result.issues.some((issue) => issue.code === "asset_stale"));
     assert.ok(result.issues.some((issue) => issue.code === "render_stale"));
-    assert.ok(result.issues.some((issue) => issue.code === "legacy_beat_fields_present"));
     assert.equal(result.summary.critical, 1);
     assert.ok(result.summary.warning >= 5);
     assert.ok(typeof result.summary.suggestion === "number");
@@ -205,7 +205,6 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
               media: [],
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
-              sfxCues: [],
             },
             {
               id: "s1-002",
@@ -215,7 +214,6 @@ test("reviewProject accepts balanced coverage when timeline reuses a renderable 
               media: [],
               motion: { type: "none", intensity: 0 },
               caption: { emphasis: [], style: "default" },
-              sfxCues: [],
             },
           ],
         },

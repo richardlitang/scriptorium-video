@@ -39,26 +39,31 @@ export function applyVoiceDirectionPlan(
         const next = byBeatId.get(beat.id);
         if (!next) return beat;
 
-        const shouldPreserveUserDirection =
-          !options.force && beat.voiceDirection?.source === "user";
+        const existingVoice = beat.direction?.voice;
+        const shouldPreserveUserDirection = !options.force && existingVoice?.source === "user";
         const beatLockedPaths = beat.directionMeta?.lockedPaths;
         const lockVoiceDirection = !options.force && isLocked(beatLockedPaths, "voice");
         const lockSfx = !options.force && isLocked(beatLockedPaths, "sfx");
         const lockCaptionEmphasis = !options.force && isLocked(beatLockedPaths, "caption.emphasis");
-        const voiceDirection =
-          shouldPreserveUserDirection || lockVoiceDirection
-            ? beat.voiceDirection
-            : next.voiceDirection;
+        const newVoice =
+          shouldPreserveUserDirection || lockVoiceDirection ? existingVoice : next.voiceDirection;
+        const existingSfxCues = beat.direction?.sfxCues ?? [];
+        let newSfxCues = existingSfxCues;
+        if (!lockSfx && next.sfxCues.length > 0) newSfxCues = next.sfxCues;
 
         return {
           ...beat,
-          voiceDirection,
+          direction: {
+            ...(beat.direction || {}),
+            ...(newVoice ? { voice: newVoice } : {}),
+            sfxCues: newSfxCues,
+          },
           directionMeta: {
             ...(beat.directionMeta || {}),
             lockedPaths: beat.directionMeta?.lockedPaths ?? [],
             sources: {
               ...(beat.directionMeta?.sources || {}),
-              voice: voiceDirection?.source === "user" ? "user" : "llm",
+              voice: newVoice?.source === "user" ? "user" : "llm",
               sfx: lockSfx ? beat.directionMeta?.sources?.sfx || "user" : "llm",
               "caption.emphasis": lockCaptionEmphasis
                 ? beat.directionMeta?.sources?.["caption.emphasis"] || "user"
@@ -75,10 +80,6 @@ export function applyVoiceDirectionPlan(
                   ...(next.voiceDirection.emphasis ?? []),
                 ]),
           },
-          sfxCues: (() => {
-            if (lockSfx) return beat.sfxCues ?? [];
-            return next.sfxCues.length > 0 ? next.sfxCues : beat.sfxCues;
-          })(),
         };
       }),
     })),

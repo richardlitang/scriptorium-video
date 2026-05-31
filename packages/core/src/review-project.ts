@@ -9,7 +9,6 @@ import { TimelineSchema } from "./schemas/timeline.schema.js";
 import { VideoPlanSchema } from "./schemas/video-plan.schema.js";
 import { hashString } from "./hash.js";
 import { normalizeVideoPlan } from "./normalize-video-plan.js";
-import { findLegacyBeatFieldUsages } from "./plan-legacy-fields.js";
 
 export type ReviewSeverity = "critical" | "warning" | "suggestion";
 export type ReviewScope = "project" | "section" | "beat" | "asset" | "render";
@@ -223,23 +222,6 @@ export async function reviewProject(
   }
 
   const rawPlanText = await readFile(paths.videoPlan, "utf8");
-  const rawPlanData = JSON.parse(rawPlanText);
-  const legacyUsage = findLegacyBeatFieldUsages(rawPlanData);
-  if (legacyUsage.total > 0) {
-    const sample = legacyUsage.usages
-      .slice(0, 3)
-      .map((usage) => `${usage.beatId ?? "unknown"}:${usage.field}`)
-      .join(", ");
-    issues.push(
-      makeIssue({
-        severity: "warning",
-        scope: "project",
-        code: "legacy_beat_fields_present",
-        message: `video-plan.json still contains ${legacyUsage.total} legacy beat field occurrence(s) (voiceDirection/sfxCues/editorial). Sample: ${sample}`,
-      }),
-    );
-  }
-
   const planHash = hashString(rawPlanText);
   const timelineHash = await readFile(path.join(paths.projectDir, "timeline.json"), "utf8")
     .then(hashString)

@@ -45,23 +45,25 @@ function makePlan(overrides = {}) {
   };
 }
 
-test("normalizeVideoPlan migrates legacy beat voiceDirection/sfx/editorial into direction", () => {
+test("normalizeVideoPlan passes through canonical direction fields unchanged", () => {
   const plan = makePlan();
   const beat = plan.sections[0].beats[0];
-  beat.voiceDirection = { profile: "urgent", intensity: 0.8, source: "user" };
-  beat.sfxCues = [
-    {
-      id: "sfx-1",
-      kind: "thud",
-      placement: "manual",
-      offsetSeconds: 0,
-      levelDb: -16,
-      pan: 0,
-      proximity: "room",
-      duckMusic: false,
-    },
-  ];
-  beat.editorial = { visualEditCues: [], silenceWindows: [] };
+  beat.direction = {
+    voice: { profile: "urgent", intensity: 0.8, source: "user" },
+    sfxCues: [
+      {
+        id: "sfx-1",
+        kind: "thud",
+        placement: "manual",
+        offsetSeconds: 0,
+        levelDb: -16,
+        pan: 0,
+        proximity: "room",
+        duckMusic: false,
+      },
+    ],
+    editorial: { visualEditCues: [], silenceWindows: [] },
+  };
 
   const normalized = normalizeVideoPlan(plan);
   assert.equal(normalized.sections[0].beats[0].direction.voice.profile, "urgent");
@@ -72,25 +74,10 @@ test("normalizeVideoPlan migrates legacy beat voiceDirection/sfx/editorial into 
   });
 });
 
-test("normalizeVideoPlan preserves explicit direction values when both legacy and canonical fields exist", () => {
+test("normalizeVideoPlan preserves millisecond pause values from direction.voice", () => {
   const plan = makePlan();
   const beat = plan.sections[0].beats[0];
-  beat.voiceDirection = { profile: "urgent", intensity: 0.8, source: "user" };
-  beat.direction = {
-    voice: { profile: "neutral", intensity: 0.5, source: "llm" },
-    sfxCues: [],
-    editorial: { visualEditCues: [], silenceWindows: [] },
-  };
-
-  const normalized = normalizeVideoPlan(plan);
-  assert.equal(normalized.sections[0].beats[0].direction.voice.profile, "neutral");
-  assert.equal(normalized.sections[0].beats[0].direction.voice.source, "llm");
-});
-
-test("normalizeVideoPlan preserves millisecond pause values from voiceDirection", () => {
-  const plan = makePlan();
-  const beat = plan.sections[0].beats[0];
-  beat.voiceDirection = { pauseBeforeMs: 200, pauseAfterMs: 400, source: "user" };
+  beat.direction = { voice: { pauseBeforeMs: 200, pauseAfterMs: 400, source: "user" } };
 
   const normalized = normalizeVideoPlan(plan);
   const voice = normalized.sections[0].beats[0].direction.voice;

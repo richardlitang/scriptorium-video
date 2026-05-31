@@ -38,7 +38,6 @@ function basePlan() {
             media: [],
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { style: "default", emphasis: [] },
-            sfxCues: [],
           },
         ],
       },
@@ -119,32 +118,32 @@ test("resolveBeatProductionDirection resolves visual intent with beat precedence
   assert.equal(resolved.visual?.source, "user");
 });
 
-test("resolveBeatProductionDirection preserves legacy beat fields as final fallback", () => {
+test("resolveBeatProductionDirection resolves beat direction.voice and sfxCues", () => {
   const plan = basePlan();
-  plan.sections[0].beats[0].voiceDirection = {
-    profile: "key_point",
-    deliveryNote: "legacy",
-    emphasis: ["legacy emphasis"],
-    pauseBeforeMs: 100,
-    pauseAfterMs: 200,
-    intensity: 0.6,
-    speedMultiplier: 1.1,
-    pitchOffset: 0.2,
-    source: "llm",
+  plan.sections[0].beats[0].direction = {
+    voice: {
+      profile: "key_point",
+      deliveryNote: "direct",
+      emphasis: ["beat emphasis"],
+      pauseBeforeMs: 100,
+      pauseAfterMs: 200,
+      intensity: 0.6,
+      source: "llm",
+    },
+    sfxCues: [
+      {
+        id: "cue-1",
+        kind: "knock",
+        placement: "beat_start",
+        offsetSeconds: 0,
+        levelDb: -16,
+      },
+    ],
   };
   plan.sections[0].beats[0].caption = {
-    style: "legacy-style",
-    emphasis: ["legacy-caption"],
+    style: "beat-style",
+    emphasis: ["beat-caption"],
   };
-  plan.sections[0].beats[0].sfxCues = [
-    {
-      id: "cue-1",
-      kind: "knock",
-      placement: "beat_start",
-      offsetSeconds: 0,
-      levelDb: -16,
-    },
-  ];
 
   const resolved = resolveBeatProductionDirection(
     plan,
@@ -153,9 +152,9 @@ test("resolveBeatProductionDirection preserves legacy beat fields as final fallb
   );
 
   assert.equal(resolved.voiceDirection.profile, "key_point");
-  assert.equal(resolved.voiceDirection.deliveryNote, "legacy");
-  assert.equal(resolved.caption.style, "legacy-style");
-  assert.deepEqual(resolved.caption.emphasis, ["legacy-caption"]);
+  assert.equal(resolved.voiceDirection.deliveryNote, "direct");
+  assert.equal(resolved.caption.style, "beat-style");
+  assert.deepEqual(resolved.caption.emphasis, ["beat-caption"]);
   assert.equal(resolved.sfxCues.length, 1);
   assert.equal(resolved.sfxCues[0].kind, "knock");
 });

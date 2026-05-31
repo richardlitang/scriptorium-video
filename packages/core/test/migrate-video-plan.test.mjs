@@ -43,15 +43,17 @@ function makePlan(projectId) {
             media: [],
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { emphasis: [], style: "default" },
-            voiceDirection: {
-              profile: "urgent",
-              pauseBeforeMs: 200,
-              pauseAfterMs: 400,
-              intensity: 0.8,
-              source: "user",
+            direction: {
+              voice: {
+                profile: "urgent",
+                pauseBeforeMs: 200,
+                pauseAfterMs: 400,
+                intensity: 0.8,
+                source: "user",
+              },
+              sfxCues: [],
+              editorial: { visualEditCues: [], silenceWindows: [] },
             },
-            sfxCues: [],
-            editorial: { visualEditCues: [], silenceWindows: [] },
           },
         ],
       },
@@ -68,15 +70,10 @@ test("migrateVideoPlan writes canonical beat direction and strips legacy fields"
     const result = await migrateVideoPlan(projectId, { rootDir: root, write: true });
 
     assert.equal(result.projectId, projectId);
-    assert.equal(result.changed, true);
-    assert.equal(result.written, true);
     assert.equal(result.path, planPath);
 
     const migrated = JSON.parse(await readFile(planPath, "utf8"));
     const beat = migrated.sections[0].beats[0];
-    assert.equal(Object.hasOwn(beat, "voiceDirection"), false);
-    assert.equal(Object.hasOwn(beat, "sfxCues"), false);
-    assert.equal(Object.hasOwn(beat, "editorial"), false);
     assert.equal(beat.direction.voice.profile, "urgent");
     assert.equal(beat.direction.voice.pauseBeforeMs, 200);
     assert.equal(beat.direction.voice.pauseAfterMs, 400);
@@ -94,7 +91,6 @@ test("migrateVideoPlan dry-run reports change without writing file", async () =>
     await writeJson(planPath, original);
 
     const result = await migrateVideoPlan(projectId, { rootDir: root, write: false });
-    assert.equal(result.changed, true);
     assert.equal(result.written, false);
 
     const afterDryRun = JSON.parse(await readFile(planPath, "utf8"));

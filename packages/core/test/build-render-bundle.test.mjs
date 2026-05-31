@@ -39,7 +39,6 @@ function planFixture() {
             media: [],
             motion: { type: "none", intensity: 0 },
             caption: { emphasis: [], style: "default" },
-            sfxCues: [],
           },
         ],
       },

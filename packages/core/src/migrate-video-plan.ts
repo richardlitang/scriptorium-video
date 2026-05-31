@@ -24,19 +24,7 @@ export async function migrateVideoPlan(
   const paths = getProjectPaths(projectId, rootDir);
   const currentPlan = await readJsonFile(paths.videoPlan, VideoPlanSchema);
   const normalizedPlan = normalizeVideoPlan(currentPlan);
-  const migratedPlan = {
-    ...normalizedPlan,
-    sections: normalizedPlan.sections.map((section) => ({
-      ...section,
-      beats: section.beats.map((beat) => {
-        const { voiceDirection, sfxCues, editorial, ...canonicalBeat } = beat;
-        void voiceDirection;
-        void sfxCues;
-        void editorial;
-        return canonicalBeat;
-      }),
-    })),
-  };
+  const migratedPlan = normalizedPlan;
   const changed = JSON.stringify(currentPlan) !== JSON.stringify(migratedPlan);
   if (changed && write) {
     await writeJsonFile(paths.videoPlan, migratedPlan);

@@ -23,30 +23,12 @@ export function canonicalizePlanForPersistence(plan = {}) {
                 const canonicalDirectionVoice = hasKeys(direction.voice)
                   ? canonicalizeVoicePauseFields({ ...direction.voice })
                   : undefined;
-                const canonicalLegacyVoiceDirection = hasKeys(beat?.voiceDirection)
-                  ? canonicalizeVoicePauseFields({ ...beat.voiceDirection })
-                  : undefined;
                 const nextDirection = {
                   ...direction,
                   ...(canonicalDirectionVoice ? { voice: canonicalDirectionVoice } : {}),
-                  ...(hasKeys(beat?.voiceDirection) && !hasKeys(direction.voice)
-                    ? { voice: canonicalLegacyVoiceDirection }
-                    : {}),
-                  ...(Array.isArray(beat?.sfxCues) &&
-                  beat.sfxCues.length > 0 &&
-                  !Array.isArray(direction.sfxCues)
-                    ? { sfxCues: beat.sfxCues.map((cue) => ({ ...cue })) }
-                    : {}),
-                  ...(hasKeys(beat?.editorial) && !hasKeys(direction.editorial)
-                    ? { editorial: { ...beat.editorial } }
-                    : {}),
                 };
-                const { voiceDirection, sfxCues, editorial, ...restBeat } = beat || {};
-                void voiceDirection;
-                void sfxCues;
-                void editorial;
                 return {
-                  ...restBeat,
+                  ...beat,
                   direction: hasKeys(nextDirection) ? nextDirection : undefined,
                 };
               })

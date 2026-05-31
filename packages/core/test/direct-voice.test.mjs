@@ -30,14 +30,16 @@ function samplePlan() {
             media: [],
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { emphasis: ["first"], style: "default" },
-            sfxCues: [],
-            voiceDirection: {
-              profile: "neutral",
-              emphasis: [],
-              pauseBeforeMs: 0,
-              pauseAfterMs: 0,
-              intensity: 0.5,
-              source: "default",
+            direction: {
+              voice: {
+                profile: "neutral",
+                emphasis: [],
+                pauseBeforeMs: 0,
+                pauseAfterMs: 0,
+                intensity: 0.5,
+                source: "default",
+              },
+              sfxCues: [],
             },
           },
           {
@@ -48,14 +50,16 @@ function samplePlan() {
             media: [],
             motion: { type: "slow_zoom_in", intensity: 0.1 },
             caption: { emphasis: [], style: "default" },
-            sfxCues: [],
-            voiceDirection: {
-              profile: "authoritative",
-              emphasis: [],
-              pauseBeforeMs: 0,
-              pauseAfterMs: 0,
-              intensity: 0.5,
-              source: "user",
+            direction: {
+              voice: {
+                profile: "authoritative",
+                emphasis: [],
+                pauseBeforeMs: 0,
+                pauseAfterMs: 0,
+                intensity: 0.5,
+                source: "user",
+              },
+              sfxCues: [],
             },
           },
         ],
@@ -94,9 +98,9 @@ test("applyVoiceDirectionPlan applies direction and merges emphasis", () => {
   });
 
   const beat = next.sections[0].beats[0];
-  assert.equal(beat.voiceDirection.profile, "key_point");
+  assert.equal(beat.direction.voice.profile, "key_point");
   assert.deepEqual(beat.caption.emphasis, ["first", "save", "hours"]);
-  assert.equal(beat.sfxCues[0].id, "cue-1");
+  assert.equal(beat.direction.sfxCues[0].id, "cue-1");
 });
 
 test("applyVoiceDirectionPlan preserves user direction unless force is true", () => {
@@ -120,10 +124,10 @@ test("applyVoiceDirectionPlan preserves user direction unless force is true", ()
   };
 
   const noForce = applyVoiceDirectionPlan(plan, output);
-  assert.equal(noForce.sections[0].beats[1].voiceDirection.profile, "authoritative");
+  assert.equal(noForce.sections[0].beats[1].direction.voice.profile, "authoritative");
 
   const force = applyVoiceDirectionPlan(plan, output, { force: true });
-  assert.equal(force.sections[0].beats[1].voiceDirection.profile, "reveal");
+  assert.equal(force.sections[0].beats[1].direction.voice.profile, "reveal");
 });
 
 test("applyVoiceDirectionPlan respects directionMeta locks", () => {
@@ -154,7 +158,7 @@ test("applyVoiceDirectionPlan respects directionMeta locks", () => {
 
   const next = applyVoiceDirectionPlan(plan, output);
   const beat = next.sections[0].beats[0];
-  assert.equal(beat.voiceDirection.profile, "neutral");
+  assert.equal(beat.direction.voice.profile, "neutral");
   assert.deepEqual(beat.caption.emphasis, ["first"]);
-  assert.equal(beat.sfxCues.length, 0);
+  assert.equal(beat.direction.sfxCues.length, 0);
 });

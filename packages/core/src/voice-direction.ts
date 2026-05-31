@@ -71,7 +71,7 @@ export function resolveVoiceDirection(
   );
   const resolvedDirection = section
     ? resolveBeatProductionDirection(plan, section, beat).voiceDirection
-    : canonicalizeVoicePauseFields(VoiceDirectionSchema.parse(beat.voiceDirection ?? {}));
+    : canonicalizeVoicePauseFields(VoiceDirectionSchema.parse(beat.direction?.voice ?? {}));
   const direction = resolvedDirection;
   const profile = CHATTERBOX_PROFILE_MAP[direction.profile] ?? CHATTERBOX_PROFILE_MAP.neutral;
 
