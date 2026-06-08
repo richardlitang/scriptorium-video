@@ -6,7 +6,7 @@ This is the repo-level contract for both Claude Code and Codex. `CLAUDE.md` poin
 
 **Do not let adapters become the application.** Servers wire routes, UI files wire controllers, components render, commands orchestrate, domain modules compute, configs declare policy, tests lock behavior. When you reach for a file to add logic, first decide which of those it is, and put the logic where it belongs — not wherever the call site happens to be.
 
-This repo is already heavily decomposed (~70 modules in `apps/studio/lib/`, focused `public/modules/`, per-module tests, boundary `check:*` scripts). The failure mode here is **not** under-structuring — it is re-thickening the few remaining god-files and bypassing the sensors. Keep new work boring and small.
+This repo is already heavily decomposed (~70 modules in `apps/studio/lib/`, focused React modules under `apps/studio/web/`, per-module tests, boundary `check:*` scripts). The failure mode here is **not** under-structuring — it is re-thickening the few remaining god-files and bypassing the sensors. Keep new work boring and small.
 
 ## Sensors over prose
 
@@ -14,7 +14,7 @@ Correct behavior is enforced by runnable checks, not by this document. Prefer ad
 
 - `pnpm -s verify` runs the full gate: `format:check`, `lint`, `tsc` builds, package `test` scripts, and the boundary checks below.
 - Style/lint (run individually): `pnpm format` (Prettier write), `pnpm format:check` (CI check), `pnpm lint` (ESLint, zero errors required), `pnpm lint:fix` (auto-fix).
-- Boundary checks (in `package.json`, run individually as `pnpm -s check:<name>`): `studio`, `renderer-boundary`, `test-dist-contract`, `pause-seconds-boundary`, `studio-server-bootstrap`, `planner-schema-boundary`, `video-plan-normalization`, `studio-env-boundary`, `core-env-boundary`, `focused-audit-doc`.
+- Boundary checks (in `package.json`, run individually as `pnpm -s check:<name>`): `studio`, `renderer-boundary`, `test-dist-contract`, `studio-server-bootstrap`, `planner-schema-boundary`, `video-plan-normalization`, `studio-env-boundary`, `core-env-boundary`, `focused-audit-doc`, `agent-harness-docs`.
 - When an agent mistake repeats, add or tighten a `check:*` script or a test instead of writing another paragraph here.
 - **Zod types are canonical** — export named types from `packages/core/src/schemas` (`ScaleMode`, `SubjectPosition`, etc.) and import them everywhere. Do not redeclare inline string unions.
 - **Run `/compact`** when a conversation has been running through large implementation tasks (React migrations, multi-file refactors) and more substantial work remains. Do not wait for 100% context usage.
@@ -40,7 +40,7 @@ For any new repo/workspace/bootstrap in this project, set up linting and formatt
 | `packages/providers` | concrete provider adapters (TTS, image, etc.)                               | own workflow decisions                                                                    |
 | `packages/quality`   | read-only audits and reports                                                | mutate projects                                                                           |
 | `packages/cli`       | command parsing and wiring                                                  | import Remotion; hold workflow logic                                                      |
-| `apps/studio`        | local HTTP server, browser UI, job orchestration, Studio adapters           | put business logic in `server.mjs` or `public/app.js`                                     |
+| `apps/studio`        | local HTTP server, browser UI, job orchestration, Studio adapters           | put business logic in `server.mjs` or React render bodies                                 |
 | `apps/renderer`      | Remotion compositions, render-time presentation                             | own workflow/provider/server logic; read arbitrary project files (consume render bundles) |
 
 The Remotion boundary and the studio server/env boundaries are enforced by `check:*` scripts — do not work around a failing boundary check, fix the placement.
@@ -84,7 +84,7 @@ Prefer `lvstudio_*` MCP tools over ad-hoc shell for project operations (create/l
 
 ## Known debt — bias toward fixing, not extending
 
-- The Studio browser UI migration is **complete** — `public/app.js` and `public/modules/` have been deleted. The SPA lives in `apps/studio/web/` (React 19 + Vite + TypeScript + TanStack Query + Tailwind + Radix). See `apps/studio/AGENTS.md` for the frontend stack and `docs/plans/2026-05-28-studio-frontend-react-migration.md` for the full record.
+- The Studio browser UI migration is **complete** — the legacy vanilla UI files have been deleted. The SPA lives in `apps/studio/web/` (React 19 + Vite + TypeScript + TanStack Query + Tailwind + Radix). See `apps/studio/AGENTS.md` for the frontend stack and `docs/plans/2026-05-28-studio-frontend-react-migration.md` for the full record.
 - The git history shows a long run of `fix(studio): ...` follow-up commits. Prefer one correct change behind a sensor over a fix-on-fix chain. If a class of regression keeps recurring, encode it as a `check:*` script.
 - Planner quality gates were recently downgraded to warnings. Treat that as known debt; do not silently weaken a gate further to make output pass — surface it.
 

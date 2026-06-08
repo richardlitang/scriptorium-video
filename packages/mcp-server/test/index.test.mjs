@@ -4,6 +4,7 @@ import {
   LVSTUDIO_INPUT_SCHEMA_SPECS,
   LVSTUDIO_TOOLS,
   createLvStudioMcpServer,
+  createLvStudioToolHandler,
   handleLvStudioToolCall,
 } from "../dist/index.js";
 
@@ -22,9 +23,44 @@ test("mcp tool registry contains unique lvstudio tool names", () => {
     "lvstudio_sync_project",
     "lvstudio_run_quality_checks",
     "lvstudio_render_project",
+    "lvstudio_prepare_draft_assets",
+    "lvstudio_plan_quality_repairs",
   ]) {
     assert.ok(unique.has(required), `expected tool ${required}`);
   }
+});
+
+test("plan quality repairs returns bounded actions from current quality report", async () => {
+  const handler = createLvStudioToolHandler({
+    runQualityChecks: async (projectId) => ({
+      status: "fail",
+      checks: [
+        {
+          id: "shared.beat.media",
+          severity: "error",
+          message: `Beat missing-media in ${projectId} needs media.`,
+          sectionId: "s1",
+          beatId: "missing-media",
+        },
+      ],
+    }),
+  });
+
+  const response = await handler("lvstudio_plan_quality_repairs", { projectId: "demo" });
+  const parsed = JSON.parse(response.content[0].text);
+
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.message, "Quality repair plan prepared.");
+  assert.equal(parsed.data.quality.status, "fail");
+  assert.deepEqual(parsed.data.repairPlan.actions, [
+    {
+      kind: "resolve_media",
+      severity: "error",
+      reason: "Beat missing-media in demo needs media.",
+      sectionId: "s1",
+      beatId: "missing-media",
+    },
+  ]);
 });
 
 test("createLvStudioMcpServer returns a server instance", () => {
@@ -69,4 +105,78 @@ test("tool input schemas stay aligned with source input schema specs", () => {
       );
     }
   }
+});
+
+test("prepare draft assets workflow runs deterministic project stages in order", async () => {
+  const calls = [];
+  const handler = createLvStudioToolHandler({
+    validateProject: async (projectId) => {
+      calls.push(["validate", projectId]);
+      return {
+        videoPlan: {
+          providers: {
+            tts: "fake-tts",
+            transcription: "fake-transcription",
+          },
+        },
+      };
+    },
+    syncProject: async (projectId) => {
+      calls.push(["sync", projectId]);
+      return { timeline: { segments: [] }, issues: [] };
+    },
+    generateTTSForProject: async (projectId, provider, options) => {
+      calls.push(["tts", projectId, provider.id, options]);
+      return { generated: 2 };
+    },
+    transcribeProject: async (projectId, provider) => {
+      calls.push(["transcribe", projectId, provider.id]);
+      return { transcriptPath: "captions/transcript.json" };
+    },
+    generateCaptionsForProject: async (projectId) => {
+      calls.push(["captions", projectId]);
+      return { captionsPath: "captions/captions.json" };
+    },
+    runQualityChecks: async (projectId) => {
+      calls.push(["quality", projectId]);
+      return { status: "warn", checks: [] };
+    },
+    ttsProviders: {
+      "fake-tts": { id: "fake-tts" },
+      overrideTts: { id: "overrideTts" },
+    },
+    transcriptionProviders: {
+      "fake-transcription": { id: "fake-transcription" },
+      overrideTranscription: { id: "overrideTranscription" },
+    },
+  });
+
+  const response = await handler("lvstudio_prepare_draft_assets", {
+    projectId: "demo",
+    ttsProvider: "overrideTts",
+    transcriptionProvider: "overrideTranscription",
+    forceTts: true,
+    noTtsCache: true,
+  });
+  const parsed = JSON.parse(response.content[0].text);
+
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.message, "Draft assets prepared.");
+  assert.equal(parsed.data.quality.status, "warn");
+  assert.deepEqual(calls, [
+    ["validate", "demo"],
+    ["sync", "demo"],
+    [
+      "tts",
+      "demo",
+      "overrideTts",
+      {
+        force: true,
+        noCache: true,
+      },
+    ],
+    ["transcribe", "demo", "overrideTranscription"],
+    ["captions", "demo"],
+    ["quality", "demo"],
+  ]);
 });

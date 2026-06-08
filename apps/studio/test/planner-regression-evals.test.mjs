@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import {
   buildPlannerStoryInput,
@@ -7,28 +8,8 @@ import {
   splitStoryIntoLockedUnits,
 } from "../lib/draft/draft-plan-input.mjs";
 
-const messyScripts = [
-  {
-    name: "nuno-style bracketed visual cues",
-    story: [
-      "[BACKGROUND VISUAL: Black screen. SFX: Crickets, distant rain.]",
-      "My cousins told me not to look under the bed.",
-      "[LOW THUD. CUT TO BLACK.]",
-      "But I heard something breathing there.",
-    ].join("\n"),
-  },
-  {
-    name: "inline production cue",
-    story: "The candle went out. [SMASH CUT TO BLACK.] Then my sister whispered my name.",
-  },
-  {
-    name: "manageable multi-line script",
-    story: Array.from(
-      { length: 30 },
-      (_, index) => `Narration line ${index + 1} keeps the story moving.`,
-    ).join("\n"),
-  },
-];
+const fixturePath = new URL("./fixtures/planner-regression-cases.json", import.meta.url);
+const messyScripts = JSON.parse(await readFile(fixturePath, "utf8"));
 
 test("planner eval: production cues are metadata, not spoken narration", () => {
   for (const fixture of messyScripts) {

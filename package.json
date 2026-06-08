@@ -16,7 +16,7 @@
     "lint": "eslint \"**/*.{ts,tsx}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\"",
     "lint:fix": "eslint --fix \"**/*.{ts,tsx}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\"",
     "test": "pnpm -r --if-present test",
-    "verify": "pnpm -s format:check && pnpm -s lint && pnpm -s check:studio && pnpm -s check:renderer-boundary && pnpm -s check:test-dist-contract && pnpm -s check:studio-server-bootstrap && pnpm -s check:planner-schema-boundary && pnpm -s check:video-plan-normalization && pnpm -s check:studio-env-boundary && pnpm -s check:core-env-boundary && pnpm -s check:focused-audit-doc && pnpm -s build && pnpm -s test && pnpm --filter @lvstudio/studio test:web",
+    "verify": "pnpm -s format:check && pnpm -s lint && pnpm -s check:studio && pnpm -s check:renderer-boundary && pnpm -s check:test-dist-contract && pnpm -s check:studio-server-bootstrap && pnpm -s check:planner-schema-boundary && pnpm -s check:video-plan-normalization && pnpm -s check:studio-env-boundary && pnpm -s check:core-env-boundary && pnpm -s check:focused-audit-doc && pnpm -s check:agent-harness-docs && pnpm -s build && pnpm -s test && pnpm --filter @lvstudio/studio test:web",
     "check:studio": "tsc -p tsconfig.studio.json",
     "check:renderer-boundary": "bash scripts/check-renderer-boundary.sh",
     "check:test-dist-contract": "node scripts/check-test-dist-contract.mjs",
@@ -26,6 +26,7 @@
     "check:studio-env-boundary": "node scripts/check-studio-env-boundary.mjs",
     "check:core-env-boundary": "node scripts/check-core-env-boundary.mjs",
     "check:focused-audit-doc": "node scripts/check-focused-audit-doc.mjs",
+    "check:agent-harness-docs": "node scripts/check-agent-harness-docs.mjs",
     "mcp:server": "pnpm -s build && node packages/mcp-server/dist/index.js",
     "studio": "node apps/studio/server.mjs"
   },

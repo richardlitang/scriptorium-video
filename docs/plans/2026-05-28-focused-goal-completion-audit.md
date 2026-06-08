@@ -17,8 +17,8 @@ Requirement: `apps/studio/server.mjs` should be thin bootstrap; orchestration sh
 Evidence:
 
 - [`apps/studio/server.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/server.mjs) is 19 lines and only bootstraps runtime + starts server.
-- [`apps/studio/lib/studio-server-runtime-factory.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/studio-server-runtime-factory.mjs) owns runtime graph assembly.
-- [`apps/studio/lib/studio-runtime.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/studio-runtime.mjs), [`apps/studio/lib/studio-http-handler.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/studio-http-handler.mjs), and [`apps/studio/lib/studio-runtime-dependencies.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/studio-runtime-dependencies.mjs) enforce composition boundaries.
+- [`apps/studio/lib/runtime/studio-server-runtime-factory.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/runtime/studio-server-runtime-factory.mjs) owns runtime graph assembly.
+- [`apps/studio/lib/runtime/studio-runtime.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/runtime/studio-runtime.mjs), [`apps/studio/lib/routes/studio-http-handler.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/routes/studio-http-handler.mjs), and [`apps/studio/lib/runtime/studio-runtime-dependencies.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/runtime/studio-runtime-dependencies.mjs) enforce composition boundaries.
 - Tests:
   - [`apps/studio/test/studio-http-handler.test.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/test/studio-http-handler.test.mjs)
   - [`apps/studio/test/studio-runtime.test.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/test/studio-runtime.test.mjs)
@@ -36,8 +36,8 @@ Evidence:
 - Core canonicalization:
   - [`packages/core/src/voice-pauses.ts`](/Users/richardlitang/code/personal/scriptorium/packages/core/src/voice-pauses.ts) canonicalizes to ms fields and strips seconds on canonical output.
 - Studio write paths:
-  - [`apps/studio/public/modules/beat-workspace.js`](/Users/richardlitang/code/personal/scriptorium/apps/studio/public/modules/beat-workspace.js) writes ms fields.
-  - [`apps/studio/lib/draft-voice-direction.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/draft-voice-direction.mjs) emits ms fields.
+  - [`apps/studio/web/src/components/BeatWorkspace.tsx`](/Users/richardlitang/code/personal/scriptorium/apps/studio/web/src/components/BeatWorkspace.tsx) writes ms fields through the plan update flow.
+  - [`apps/studio/lib/draft/draft-voice-direction.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/draft/draft-voice-direction.mjs) emits ms fields.
 - CLI write path:
   - [`packages/cli/src/direct-voice.ts`](/Users/richardlitang/code/personal/scriptorium/packages/cli/src/direct-voice.ts) prompts/schema use ms fields.
 - Quality checks prefer ms with legacy fallback:
@@ -56,11 +56,11 @@ Requirement: bounded caches and explicit lifecycle cleanup hooks for long-runnin
 Evidence:
 
 - FIFO cap exists for preview cache:
-  - [`apps/studio/lib/voice-preview-health.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/voice-preview-health.mjs)
+  - [`apps/studio/lib/tts/voice-preview-health.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/tts/voice-preview-health.mjs)
 - Lifecycle hooks added:
   - `clearPreviewCache()` and `previewCacheSize()`
-  - `resetStartState()` in [`apps/studio/lib/chatterbox-runtime.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/chatterbox-runtime.mjs)
-  - `dispose()` in [`apps/studio/lib/studio-server-runtime-factory.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/studio-server-runtime-factory.mjs)
+  - `resetStartState()` in [`apps/studio/lib/tts/chatterbox-runtime.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/tts/chatterbox-runtime.mjs)
+  - `dispose()` in [`apps/studio/lib/runtime/studio-server-runtime-factory.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/lib/runtime/studio-server-runtime-factory.mjs)
 - Tests:
   - [`apps/studio/test/voice-preview-health.test.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/test/voice-preview-health.test.mjs)
   - [`apps/studio/test/chatterbox-runtime.test.mjs`](/Users/richardlitang/code/personal/scriptorium/apps/studio/test/chatterbox-runtime.test.mjs)

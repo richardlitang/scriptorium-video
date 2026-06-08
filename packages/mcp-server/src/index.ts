@@ -7,6 +7,7 @@ import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprot
 import { z } from "zod";
 import {
   buildRenderBundle,
+  buildQualityRepairPlan,
   createProjectScaffold,
   generateCaptionsForProject,
   generateTTSForProject,
@@ -18,6 +19,7 @@ import {
   transcribeProject,
   validateProject,
 } from "@lvstudio/core";
+import type { RendererProvider, TTSProvider, TranscriptionProvider } from "@lvstudio/core";
 import { rendererProviders, transcriptionProviders, ttsProviders } from "@lvstudio/providers";
 import { runQualityChecks } from "@lvstudio/quality";
 
@@ -49,6 +51,13 @@ const TranscribeInput = z.object({
   projectId: z.string().min(1),
   provider: z.string().optional(),
 });
+const PrepareDraftAssetsInput = z.object({
+  projectId: z.string().min(1),
+  ttsProvider: z.string().optional(),
+  transcriptionProvider: z.string().optional(),
+  forceTts: z.boolean().optional(),
+  noTtsCache: z.boolean().optional(),
+});
 const ImportMediaInput = z.object({
   projectId: z.string().min(1),
   filePath: z.string().min(1),
@@ -77,6 +86,7 @@ export const LVSTUDIO_INPUT_SCHEMA_SPECS: Record<string, InputSchemaSpec> = {
   lvstudio_sync_project: { required: ["projectId"] },
   lvstudio_run_quality_checks: { required: ["projectId"] },
   lvstudio_get_quality_report: { required: ["projectId"] },
+  lvstudio_plan_quality_repairs: { required: ["projectId"] },
   lvstudio_render_project: {
     required: ["projectId"],
     enums: {
@@ -86,6 +96,7 @@ export const LVSTUDIO_INPUT_SCHEMA_SPECS: Record<string, InputSchemaSpec> = {
   lvstudio_generate_tts: { required: ["projectId"] },
   lvstudio_transcribe_project: { required: ["projectId"] },
   lvstudio_generate_captions: { required: ["projectId"] },
+  lvstudio_prepare_draft_assets: { required: ["projectId"] },
   lvstudio_import_media: {
     required: ["projectId", "filePath", "beat"],
     enums: {
@@ -226,6 +237,17 @@ export const LVSTUDIO_TOOLS = [
     },
   },
   {
+    name: "lvstudio_plan_quality_repairs",
+    description:
+      "Run quality checks and return a bounded, non-mutating repair plan for known findings.",
+    inputSchema: {
+      type: "object",
+      properties: { projectId: { type: "string" } },
+      required: ["projectId"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "lvstudio_generate_tts",
     description: "Generate per-beat voiceover assets through the selected TTS provider.",
     inputSchema: {
@@ -268,6 +290,23 @@ export const LVSTUDIO_TOOLS = [
     },
   },
   {
+    name: "lvstudio_prepare_draft_assets",
+    description:
+      "Run the deterministic draft asset pipeline: validate, sync, generate TTS, transcribe, captions, and quality checks.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        projectId: { type: "string" },
+        ttsProvider: { type: "string" },
+        transcriptionProvider: { type: "string" },
+        forceTts: { type: "boolean" },
+        noTtsCache: { type: "boolean" },
+      },
+      required: ["projectId"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "lvstudio_import_media",
     description: "Import a local media file and register it to a beat in asset-manifest.",
     inputSchema: {
@@ -286,7 +325,56 @@ export const LVSTUDIO_TOOLS = [
   },
 ];
 
-export async function handleLvStudioToolCall(name: string, args: unknown) {
+type LvStudioToolHandlerDeps = {
+  buildRenderBundle: typeof buildRenderBundle;
+  buildQualityRepairPlan: typeof buildQualityRepairPlan;
+  createProjectScaffold: typeof createProjectScaffold;
+  generateCaptionsForProject: typeof generateCaptionsForProject;
+  generateTTSForProject: typeof generateTTSForProject;
+  getProjectPaths: typeof getProjectPaths;
+  importMediaToProject: typeof importMediaToProject;
+  loadProject: typeof loadProject;
+  resolveConfig: typeof resolveConfig;
+  runQualityChecks: typeof runQualityChecks;
+  syncProject: typeof syncProject;
+  transcribeProject: typeof transcribeProject;
+  validateProject: typeof validateProject;
+  rendererProviders: Record<string, RendererProvider>;
+  transcriptionProviders: Record<string, TranscriptionProvider>;
+  ttsProviders: Record<string, TTSProvider>;
+};
+
+const defaultToolHandlerDeps: LvStudioToolHandlerDeps = {
+  buildRenderBundle,
+  buildQualityRepairPlan,
+  createProjectScaffold,
+  generateCaptionsForProject,
+  generateTTSForProject,
+  getProjectPaths,
+  importMediaToProject,
+  loadProject,
+  resolveConfig,
+  runQualityChecks,
+  syncProject,
+  transcribeProject,
+  validateProject,
+  rendererProviders,
+  transcriptionProviders,
+  ttsProviders,
+};
+
+export function createLvStudioToolHandler(
+  deps: Partial<LvStudioToolHandlerDeps> = {},
+): (name: string, args: unknown) => Promise<ReturnType<typeof text>> {
+  const toolDeps = { ...defaultToolHandlerDeps, ...deps };
+  return (name: string, args: unknown) => handleLvStudioToolCallWithDeps(toolDeps, name, args);
+}
+
+async function handleLvStudioToolCallWithDeps(
+  deps: LvStudioToolHandlerDeps,
+  name: string,
+  args: unknown,
+) {
   switch (name) {
     case "lvstudio_list_projects": {
       const root = path.resolve(process.cwd(), "content", "projects");
@@ -296,7 +384,7 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
       for (const entry of entries) {
         if (!entry.isDirectory()) continue;
         const projectId = entry.name;
-        const loaded = await loadProject(projectId).catch(() => undefined);
+        const loaded = await deps.loadProject(projectId).catch(() => undefined);
         if (!loaded) continue;
         projects.push({
           id: loaded.project.id,
@@ -311,12 +399,12 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
     }
     case "lvstudio_create_project": {
       const input = CreateProjectInput.parse(args ?? {});
-      await createProjectScaffold(input.projectId, input.mode, input.targetPlatform);
+      await deps.createProjectScaffold(input.projectId, input.mode, input.targetPlatform);
       return okResult("Project created.", { projectId: input.projectId });
     }
     case "lvstudio_get_project_status": {
       const input = ProjectIdInput.parse(args ?? {});
-      const loaded = await loadProject(input.projectId);
+      const loaded = await deps.loadProject(input.projectId);
       return okResult("Project status loaded.", {
         project: loaded.project,
         mode: loaded.videoPlan.mode,
@@ -327,33 +415,39 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
     }
     case "lvstudio_validate_project": {
       const input = ProjectIdInput.parse(args ?? {});
-      await validateProject(input.projectId);
+      await deps.validateProject(input.projectId);
       return okResult("Project validated.", { projectId: input.projectId });
     }
     case "lvstudio_resolve_config": {
       const input = ProjectIdInput.parse(args ?? {});
-      const loaded = await validateProject(input.projectId);
-      const config = await resolveConfig(loaded.videoPlan);
+      const loaded = await deps.validateProject(input.projectId);
+      const config = await deps.resolveConfig(loaded.videoPlan);
       return okResult("Resolved config.", { config });
     }
     case "lvstudio_sync_project": {
       const input = ProjectIdInput.parse(args ?? {});
-      const sync = await syncProject(input.projectId);
+      const sync = await deps.syncProject(input.projectId);
       return okResult("Project synced.", { timeline: sync.timeline, issues: sync.issues });
     }
     case "lvstudio_run_quality_checks":
     case "lvstudio_get_quality_report": {
       const input = ProjectIdInput.parse(args ?? {});
-      const result = await runQualityChecks(input.projectId);
+      const result = await deps.runQualityChecks(input.projectId);
       return okResult("Quality checks completed.", { result });
+    }
+    case "lvstudio_plan_quality_repairs": {
+      const input = ProjectIdInput.parse(args ?? {});
+      const quality = await deps.runQualityChecks(input.projectId);
+      const repairPlan = deps.buildQualityRepairPlan(quality);
+      return okResult("Quality repair plan prepared.", { quality, repairPlan });
     }
     case "lvstudio_render_project": {
       const input = RenderProjectInput.parse(args ?? {});
-      await validateProject(input.projectId);
+      await deps.validateProject(input.projectId);
       if (!input.noSync) {
-        await syncProject(input.projectId);
+        await deps.syncProject(input.projectId);
       }
-      const quality = await runQualityChecks(input.projectId);
+      const quality = await deps.runQualityChecks(input.projectId);
       if (quality.status === "fail" && !input.force) {
         return failResult("Render blocked by failing quality checks.", [
           {
@@ -362,15 +456,15 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
           },
         ]);
       }
-      const bundle = await buildRenderBundle({ projectId: input.projectId });
+      const bundle = await deps.buildRenderBundle({ projectId: input.projectId });
       const providerId = bundle.videoPlan.providers.renderer;
-      const renderer = rendererProviders[providerId];
+      const renderer = deps.rendererProviders[providerId];
       if (!renderer) {
         return failResult(`Unknown renderer provider: ${providerId}`, [
           { code: "provider.renderer.unknown", message: providerId },
         ]);
       }
-      const projectPaths = getProjectPaths(input.projectId);
+      const projectPaths = deps.getProjectPaths(input.projectId);
       await mkdir(projectPaths.rendersDir, { recursive: true });
       const outputPath = path.join(projectPaths.rendersDir, `${input.quality}.mp4`);
       const renderResult = await renderer.render({
@@ -383,15 +477,15 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
     }
     case "lvstudio_generate_tts": {
       const input = GenerateTTSInput.parse(args ?? {});
-      const loaded = await validateProject(input.projectId);
+      const loaded = await deps.validateProject(input.projectId);
       const providerId = input.provider ?? loaded.videoPlan.providers.tts;
-      const provider = ttsProviders[providerId];
+      const provider = deps.ttsProviders[providerId];
       if (!provider) {
         return failResult(`Unknown TTS provider: ${providerId}`, [
           { code: "provider.tts.unknown", message: providerId },
         ]);
       }
-      const result = await generateTTSForProject(input.projectId, provider, {
+      const result = await deps.generateTTSForProject(input.projectId, provider, {
         force: input.force,
         noCache: input.noCache,
         onlySection: input.onlySection,
@@ -401,27 +495,61 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
     }
     case "lvstudio_transcribe_project": {
       const input = TranscribeInput.parse(args ?? {});
-      const loaded = await validateProject(input.projectId);
+      const loaded = await deps.validateProject(input.projectId);
       const providerId = input.provider ?? loaded.videoPlan.providers.transcription;
-      const provider = transcriptionProviders[providerId];
+      const provider = deps.transcriptionProviders[providerId];
       if (!provider) {
         return failResult(`Unknown transcription provider: ${providerId}`, [
           { code: "provider.transcription.unknown", message: providerId },
         ]);
       }
-      const result = await transcribeProject(input.projectId, provider);
+      const result = await deps.transcribeProject(input.projectId, provider);
       return okResult("Transcription completed.", { providerId, result });
     }
     case "lvstudio_generate_captions": {
       const input = ProjectIdInput.parse(args ?? {});
-      await validateProject(input.projectId);
-      const result = await generateCaptionsForProject(input.projectId);
+      await deps.validateProject(input.projectId);
+      const result = await deps.generateCaptionsForProject(input.projectId);
       return okResult("Captions generated.", { result });
+    }
+    case "lvstudio_prepare_draft_assets": {
+      const input = PrepareDraftAssetsInput.parse(args ?? {});
+      const loaded = await deps.validateProject(input.projectId);
+      const sync = await deps.syncProject(input.projectId);
+      const ttsProviderId = input.ttsProvider ?? loaded.videoPlan.providers.tts;
+      const ttsProvider = deps.ttsProviders[ttsProviderId];
+      if (!ttsProvider) {
+        return failResult(`Unknown TTS provider: ${ttsProviderId}`, [
+          { code: "provider.tts.unknown", message: ttsProviderId },
+        ]);
+      }
+      const tts = await deps.generateTTSForProject(input.projectId, ttsProvider, {
+        force: input.forceTts,
+        noCache: input.noTtsCache,
+      });
+      const transcriptionProviderId =
+        input.transcriptionProvider ?? loaded.videoPlan.providers.transcription;
+      const transcriptionProvider = deps.transcriptionProviders[transcriptionProviderId];
+      if (!transcriptionProvider) {
+        return failResult(`Unknown transcription provider: ${transcriptionProviderId}`, [
+          { code: "provider.transcription.unknown", message: transcriptionProviderId },
+        ]);
+      }
+      const transcript = await deps.transcribeProject(input.projectId, transcriptionProvider);
+      const captions = await deps.generateCaptionsForProject(input.projectId);
+      const quality = await deps.runQualityChecks(input.projectId);
+      return okResult("Draft assets prepared.", {
+        sync,
+        tts: { providerId: ttsProviderId, result: tts },
+        transcript: { providerId: transcriptionProviderId, result: transcript },
+        captions,
+        quality,
+      });
     }
     case "lvstudio_import_media": {
       const input = ImportMediaInput.parse(args ?? {});
-      await validateProject(input.projectId);
-      const result = await importMediaToProject(input.projectId, input.filePath, {
+      await deps.validateProject(input.projectId);
+      const result = await deps.importMediaToProject(input.projectId, input.filePath, {
         beat: input.beat,
         role: input.role,
         section: input.section,
@@ -433,6 +561,8 @@ export async function handleLvStudioToolCall(name: string, args: unknown) {
       return failResult(`Unknown tool: ${name}`, [{ code: "tool.unknown", message: name }]);
   }
 }
+
+export const handleLvStudioToolCall = createLvStudioToolHandler();
 
 export function createLvStudioMcpServer() {
   const server = new Server(
