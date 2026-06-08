@@ -104,6 +104,7 @@ import { createStudioTestModeOps } from "../project/studio-testmode-ops.mjs";
 import { createProjectOps } from "../project/project-ops.mjs";
 import { createProjectMediaOps } from "../project/project-media-ops.mjs";
 import { createProjectReadOps } from "../project/project-read-ops.mjs";
+import { createAgentHandoffStore } from "../project/agent-handoff-store.mjs";
 import { createForegroundJobs } from "../draft/foreground-jobs.mjs";
 import { createDraftStepRetrier } from "../draft/draft-step-retrier.mjs";
 import { createLvstudioDraftRunner } from "../draft/lvstudio-draft-runner.mjs";
@@ -473,7 +474,8 @@ export function createStudioServerRuntime({
     projectsDir,
     sendJson,
   });
-  const { runTrackedForegroundJob } = createForegroundJobs({ upsertRunJob });
+  const { writeAgentHandoff } = createAgentHandoffStore(rootDir);
+  const { runTrackedForegroundJob } = createForegroundJobs({ upsertRunJob, writeAgentHandoff });
 
   studioOpsRuntime.setRuntime(
     createStudioOps({

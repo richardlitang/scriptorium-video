@@ -1,5 +1,5 @@
 export function createForegroundJobs(deps) {
-  const { upsertRunJob } = deps;
+  const { upsertRunJob, writeAgentHandoff } = deps;
 
   function createForegroundJob({ kind, label, total = 1 }) {
     return {
@@ -43,6 +43,10 @@ export function createForegroundJobs(deps) {
       job.completed = job.total;
       job.output = outputLines.join("\n\n");
       await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
+      await writeAgentHandoff?.(projectId, job, {
+        summary: job.label,
+        nextAction: "Review the job output and continue the project workflow.",
+      });
       return result;
     } catch (error) {
       job.status = "failed";
@@ -51,6 +55,10 @@ export function createForegroundJobs(deps) {
       job.error = error instanceof Error ? error.message : String(error);
       job.output = [...outputLines, `Error:\n${job.error}`].join("\n\n");
       await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
+      await writeAgentHandoff?.(projectId, job, {
+        summary: `${options.label} failed.`,
+        nextAction: "Inspect the error and rerun after fixing the underlying issue.",
+      });
       throw error;
     }
   }
