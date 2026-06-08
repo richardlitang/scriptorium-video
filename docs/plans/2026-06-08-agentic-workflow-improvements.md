@@ -163,7 +163,7 @@ For long-running draft/repair/render workflows, produce a concise handoff contai
 First step implemented:
 
 - `apps/studio/lib/project/agent-handoff-store.mjs` writes concise JSON handoffs under `.studio-data/agent-handoffs/<projectId>/<jobId>.json`.
-- Foreground Studio jobs write terminal handoffs for completed and failed jobs.
+- Foreground Studio jobs and background draft jobs write terminal handoffs for completed and failed jobs.
 - Handoffs include project id, generated timestamp, summary, next action, terminal job status, error, and trimmed output.
 
 Next expansion: attach quality/render/touched-artifact summaries from individual runners when those values are available.

@@ -8,6 +8,7 @@ test("draft job runner queues and completes no-story flow", async () => {
   const upserts = [];
   const qualityHistory = [];
   const lvstudioArgs = [];
+  const handoffs = [];
 
   const runDraftJob = createDraftJobRunner({
     runTraceDisplayPath: () => "trace.ndjson",
@@ -74,6 +75,9 @@ test("draft job runner queues and completes no-story flow", async () => {
       runStates.push(payload);
     },
     readRunState: async () => ({}),
+    writeAgentHandoff: async (projectId, job, context) => {
+      handoffs.push({ projectId, job, context });
+    },
   });
 
   const result = await runDraftJob("demo", { imageEnabled: false });
@@ -87,4 +91,8 @@ test("draft job runner queues and completes no-story flow", async () => {
     lvstudioArgs.some((args) => args[0] === "render"),
     true,
   );
+  assert.equal(handoffs.length, 1);
+  assert.equal(handoffs[0].projectId, "demo");
+  assert.equal(handoffs[0].job.status, "completed");
+  assert.equal(handoffs[0].context.summary, "Draft video is ready");
 });

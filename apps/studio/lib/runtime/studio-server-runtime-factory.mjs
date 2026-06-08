@@ -172,6 +172,7 @@ export function createStudioServerRuntime({
   const { runStatePath, readRunState, writeRunState, upsertRunJob, updateRunProgress } =
     createRunStateStore(rootDir);
   const { runTraceDisplayPath, appendRunTrace, readRunTrace } = createRunTraceStore(rootDir);
+  const { writeAgentHandoff } = createAgentHandoffStore(rootDir);
   const { buildPlanFromAiDraft } = createPlanDraftTransformer({
     slugify,
     estimateDurationSeconds,
@@ -434,6 +435,7 @@ export function createStudioServerRuntime({
     jobProgress,
     writeRunState,
     readRunState,
+    writeAgentHandoff,
   });
 
   const projectOps = createProjectOps({
@@ -474,7 +476,6 @@ export function createStudioServerRuntime({
     projectsDir,
     sendJson,
   });
-  const { writeAgentHandoff } = createAgentHandoffStore(rootDir);
   const { runTrackedForegroundJob } = createForegroundJobs({ upsertRunJob, writeAgentHandoff });
 
   studioOpsRuntime.setRuntime(

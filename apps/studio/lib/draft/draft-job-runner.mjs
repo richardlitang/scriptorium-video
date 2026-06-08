@@ -55,6 +55,7 @@ export function createDraftJobRunner(deps) {
     jobProgress,
     writeRunState,
     readRunState,
+    writeAgentHandoff,
   } = deps;
 
   return async function runDraftJob(projectId, body) {
@@ -436,6 +437,10 @@ export function createDraftJobRunner(deps) {
           lastRenderCompletedAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),
         });
+        await writeAgentHandoff?.(projectId, job, {
+          summary: job.label,
+          nextAction: "Review the draft render and quality output before finalizing.",
+        });
         activeDraftJobs.delete(projectId);
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -458,6 +463,12 @@ export function createDraftJobRunner(deps) {
           output: job.output.join("\n\n").trim(),
         }).catch(() => {});
         await writeDraftJobState(projectId, job);
+        await writeAgentHandoff?.(projectId, job, {
+          summary: cancelled ? "Draft job cancelled." : "Draft job failed.",
+          nextAction: cancelled
+            ? "Restart Make Draft when ready."
+            : "Inspect the error and rerun after fixing the underlying issue.",
+        });
         activeDraftJobs.delete(projectId);
       }
     }).catch(() => {});
