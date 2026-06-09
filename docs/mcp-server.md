@@ -55,6 +55,22 @@ type McpToolResult<T> = {
 
 If quality status is `fail`, render is blocked unless `force: true`.
 
+The current render tool is synchronous. It is acceptable for small/local runs, but it is not the long-term boundary for Studio-scale or agent-driven rendering because an MCP tool call should not block for a multi-minute video job.
+
+Planned async render tools:
+
+- `lvstudio_start_render_job`
+- `lvstudio_get_render_job`
+- `lvstudio_cancel_render_job`
+
+Intended behavior:
+
+1. `lvstudio_start_render_job` validates input, records a queued render job, and returns a job id immediately.
+2. `lvstudio_get_render_job` returns structured job state, progress, quality status, output path when complete, and any terminal error.
+3. `lvstudio_cancel_render_job` requests cancellation and returns the terminal or in-progress cancellation state.
+
+The synchronous `lvstudio_render_project` tool should remain available until the async job tools land, but it should be treated as the small-run compatibility path rather than the primary automation surface.
+
 ## Repair Planning Flow
 
 `lvstudio_plan_quality_repairs` runs quality checks and returns a non-mutating repair plan for known structured findings. The plan classifies deterministic actions such as `generate_tts`, `resolve_media`, `rewrite_narration`, `adjust_voice_direction`, and `adjust_editorial`.
@@ -73,3 +89,11 @@ Unknown error findings are returned as blocked findings so an agent or user can 
 6. quality checks
 
 This tool intentionally does not call the Studio background draft planner. The Studio draft job is app-owned runtime orchestration; exposing it over MCP needs a shared workflow boundary or a Studio-owned MCP surface, not direct imports from `packages/mcp-server`.
+
+The same rule applies to future draft-job MCP tools:
+
+- `lvstudio_start_draft_job`
+- `lvstudio_get_draft_job`
+- `lvstudio_cancel_draft_job`
+
+Those tools should bind to explicit job-state APIs rather than shelling out to Studio or importing app runtime internals into `packages/mcp-server`.

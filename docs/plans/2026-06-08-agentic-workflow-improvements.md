@@ -182,3 +182,21 @@ pnpm -s --filter @lvstudio/studio test
 - New agentic behavior must go through schemas, quality checks, run state, and trace artifacts.
 - Do not let an LLM mutate generated artifacts directly.
 - Add or tighten a check whenever a repeated agent mistake is found.
+
+## Next Boundary
+
+The next MCP workflow boundary is async job control for long-running operations.
+
+Render first:
+
+- `lvstudio_start_render_job`
+- `lvstudio_get_render_job`
+- `lvstudio_cancel_render_job`
+
+Then draft orchestration:
+
+- `lvstudio_start_draft_job`
+- `lvstudio_get_draft_job`
+- `lvstudio_cancel_draft_job`
+
+These tools should reuse explicit job-state and workflow modules. They must not block an MCP call for the full runtime of a multi-minute render, and they must not couple `packages/mcp-server` to Studio runtime internals.
