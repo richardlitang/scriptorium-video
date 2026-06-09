@@ -6,10 +6,5 @@
     "outDir": "dist"
   },
   "include": ["src/**/*.ts"],
-  "references": [
-    { "path": "../core" },
-    { "path": "../providers" },
-    { "path": "../quality" },
-    { "path": "../workflows" }
-  ]
+  "references": [{ "path": "../core" }, { "path": "../quality" }]
 }

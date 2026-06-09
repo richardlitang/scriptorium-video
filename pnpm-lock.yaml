@@ -163,6 +163,9 @@ importers:
       '@lvstudio/quality':
         specifier: workspace:*
         version: link:../quality
+      '@lvstudio/workflows':
+        specifier: workspace:*
+        version: link:../workflows
 
   packages/core: {}
 
@@ -177,6 +180,9 @@ importers:
       '@lvstudio/quality':
         specifier: workspace:*
         version: link:../quality
+      '@lvstudio/workflows':
+        specifier: workspace:*
+        version: link:../workflows
       '@modelcontextprotocol/sdk':
         specifier: ^1.12.1
         version: 1.29.0(zod@4.4.3)
@@ -195,6 +201,15 @@ importers:
       '@lvstudio/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/workflows:
+    dependencies:
+      '@lvstudio/core':
+        specifier: workspace:*
+        version: link:../core
+      '@lvstudio/quality':
+        specifier: workspace:*
+        version: link:../quality
 
 packages:
 

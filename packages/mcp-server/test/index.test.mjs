@@ -181,43 +181,16 @@ test("prepare draft assets workflow runs deterministic project stages in order",
   ]);
 });
 
-test("render project quality-checks the same bundle it renders", async () => {
+test("render project delegates to the shared render workflow", async () => {
   const calls = [];
-  const bundle = {
-    videoPlan: {
-      providers: {
-        renderer: "fake-renderer",
-      },
-    },
-  };
   const handler = createLvStudioToolHandler({
-    validateProject: async (projectId) => {
-      calls.push(["validate", projectId]);
-      return {};
-    },
-    syncProject: async (projectId) => {
-      calls.push(["sync", projectId]);
-      return {};
-    },
-    buildRenderBundle: async ({ projectId }) => {
-      calls.push(["bundle", projectId]);
-      return bundle;
-    },
-    runQualityChecksForBundle: async (projectId, receivedBundle) => {
-      calls.push(["quality", projectId, receivedBundle]);
-      return { status: "pass", checks: [] };
-    },
-    getProjectPaths: (projectId) => ({
-      projectDir: `/tmp/${projectId}`,
-      rendersDir: `/tmp/${projectId}/renders`,
-    }),
-    rendererProviders: {
-      "fake-renderer": {
-        render: async ({ renderBundle }) => {
-          calls.push(["render", renderBundle]);
-          return { outputPath: "/tmp/demo/renders/draft.mp4" };
-        },
-      },
+    runRenderWorkflow: async (input, workflowDeps) => {
+      calls.push(["workflow", input, Object.keys(workflowDeps).sort()]);
+      return {
+        status: "rendered",
+        quality: { status: "pass", checks: [] },
+        renderResult: { outputPath: "/tmp/demo/renders/draft.mp4" },
+      };
     },
   });
 
@@ -229,10 +202,18 @@ test("render project quality-checks the same bundle it renders", async () => {
 
   assert.equal(parsed.ok, true);
   assert.equal(parsed.message, "Render completed.");
-  assert.equal(calls[3][2], bundle);
-  assert.equal(calls[4][1], bundle);
-  assert.deepEqual(
-    calls.map(([step]) => step),
-    ["validate", "sync", "bundle", "quality", "render"],
-  );
+  assert.deepEqual(calls[0][1], {
+    projectId: "demo",
+    quality: "draft",
+    force: undefined,
+    noSync: undefined,
+  });
+  assert.deepEqual(calls[0][2], [
+    "buildRenderBundle",
+    "getProjectPaths",
+    "rendererProviders",
+    "runQualityChecksForBundle",
+    "syncProject",
+    "validateProject",
+  ]);
 });

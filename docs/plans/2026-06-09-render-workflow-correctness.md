@@ -157,7 +157,7 @@ pnpm -s --filter @lvstudio/mcp-server test
 
 **Files:**
 
-- Create: `packages/core/test/render-workflow.test.mjs` or new package if `core` ownership feels too broad.
+- Create: `packages/workflows/test/render-workflow.test.mjs`
 
 **Action:**
 
@@ -185,8 +185,10 @@ pnpm -s --filter @lvstudio/core test
 
 **Files:**
 
-- Create: `packages/core/src/render/render-workflow.ts` or a new `packages/workflows` package if the dependency direction requires it.
-- Modify: `packages/core/src/index.ts` if implemented in core.
+- Create: `packages/workflows/src/render-workflow.ts`
+- Create: `packages/workflows/src/index.ts`
+- Create: `packages/workflows/package.json`
+- Create: `packages/workflows/tsconfig.json`
 
 **Action:**
 
@@ -196,7 +198,7 @@ Implement a typed function such as:
 export async function runRenderWorkflow(input, deps): Promise<RenderWorkflowResult>;
 ```
 
-Keep provider registries injected. Do not import concrete providers into core if this stays in `packages/core`.
+Keep provider registries injected. This workflow lives in `packages/workflows` because it depends on both `@lvstudio/core` and `@lvstudio/quality`, and putting it in `core` would create a package cycle.
 
 **Verify GREEN:**
 
@@ -204,7 +206,7 @@ Keep provider registries injected. Do not import concrete providers into core if
 pnpm -s --filter @lvstudio/core test
 ```
 
-**Commit:** `feat(core): add shared render workflow`
+**Commit:** `feat(workflows): add shared render workflow`
 
 ---
 

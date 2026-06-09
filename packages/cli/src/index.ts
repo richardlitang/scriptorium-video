@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import { mkdir, readdir } from "node:fs/promises";
+import { readdir } from "node:fs/promises";
 import path from "node:path";
 import {
   buildRenderBundle,
@@ -13,6 +13,7 @@ import {
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
 import { runQualityChecks, runQualityChecksForBundle } from "@lvstudio/quality";
+import { runRenderWorkflow } from "@lvstudio/workflows";
 import { createProject } from "./create-project.js";
 import { enrichAudioCli, ingestAudioCli } from "./audio-ingest.js";
 import { exportProject } from "./export-project.js";
@@ -287,36 +288,32 @@ program
   .option("--force", "render even if quality checks fail")
   .option("--provider <provider>", "override renderer provider id")
   .action(async (projectId, options) => {
-    await validateProject(projectId);
-    if (options.sync !== false) {
-      await syncProject(projectId);
-    }
-    const bundle = await buildRenderBundle({ projectId });
-    const qualityResult = await runQualityChecksForBundle(projectId, bundle);
-    if (qualityResult.status === "fail" && options.force !== true) {
+    const result = await runRenderWorkflow(
+      {
+        projectId,
+        quality: options.quality === "final" ? "final" : "draft",
+        noSync: options.sync === false,
+        force: options.force === true,
+        rendererProviderId: options.provider,
+        onProgress: (progress: Record<string, unknown>) => {
+          console.log(`${RENDER_PROGRESS_PREFIX}${JSON.stringify(progress)}`);
+        },
+      },
+      {
+        buildRenderBundle,
+        getProjectPaths,
+        runQualityChecksForBundle,
+        syncProject,
+        validateProject,
+        rendererProviders,
+      },
+    );
+    if (result.status === "blocked") {
       throw new Error(
         `Render blocked by quality checks. Run 'lvstudio check ${projectId}' for details or pass --force.`,
       );
     }
-    const providerId = options.provider ?? bundle.videoPlan.providers.renderer;
-    const renderer = rendererProviders[providerId];
-    if (!renderer) {
-      throw new Error(`Unknown renderer provider: ${providerId}`);
-    }
-    const quality = options.quality === "final" ? "final" : "draft";
-    const projectPaths = getProjectPaths(projectId);
-    await mkdir(projectPaths.rendersDir, { recursive: true });
-    const outputPath = path.join(projectPaths.rendersDir, `${quality}.mp4`);
-    const result = await renderer.render({
-      projectDir: projectPaths.projectDir,
-      renderBundle: bundle,
-      outputPath,
-      quality,
-      onProgress: (progress) => {
-        console.log(`${RENDER_PROGRESS_PREFIX}${JSON.stringify(progress)}`);
-      },
-    });
-    console.log(`Rendered ${result.outputPath}`);
+    console.log(`Rendered ${result.renderResult.outputPath}`);
   });
 
 program

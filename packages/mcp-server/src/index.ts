@@ -1,4 +1,3 @@
-import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { Server } from "@modelcontextprotocol/sdk/server/index.js";
@@ -22,6 +21,7 @@ import {
 import type { RendererProvider, TTSProvider, TranscriptionProvider } from "@lvstudio/core";
 import { rendererProviders, transcriptionProviders, ttsProviders } from "@lvstudio/providers";
 import { runQualityChecks, runQualityChecksForBundle } from "@lvstudio/quality";
+import { runRenderWorkflow } from "@lvstudio/workflows";
 
 const CreateProjectInput = z.object({
   projectId: z.string().min(1),
@@ -335,6 +335,7 @@ type LvStudioToolHandlerDeps = {
   importMediaToProject: typeof importMediaToProject;
   loadProject: typeof loadProject;
   resolveConfig: typeof resolveConfig;
+  runRenderWorkflow: typeof runRenderWorkflow;
   runQualityChecks: typeof runQualityChecks;
   runQualityChecksForBundle: typeof runQualityChecksForBundle;
   syncProject: typeof syncProject;
@@ -355,6 +356,7 @@ const defaultToolHandlerDeps: LvStudioToolHandlerDeps = {
   importMediaToProject,
   loadProject,
   resolveConfig,
+  runRenderWorkflow,
   runQualityChecks,
   runQualityChecksForBundle,
   syncProject,
@@ -445,37 +447,34 @@ async function handleLvStudioToolCallWithDeps(
     }
     case "lvstudio_render_project": {
       const input = RenderProjectInput.parse(args ?? {});
-      await deps.validateProject(input.projectId);
-      if (!input.noSync) {
-        await deps.syncProject(input.projectId);
-      }
-      const bundle = await deps.buildRenderBundle({ projectId: input.projectId });
-      const quality = await deps.runQualityChecksForBundle(input.projectId, bundle);
-      if (quality.status === "fail" && !input.force) {
+      const result = await deps.runRenderWorkflow(
+        {
+          projectId: input.projectId,
+          quality: input.quality,
+          force: input.force,
+          noSync: input.noSync,
+        },
+        {
+          buildRenderBundle: deps.buildRenderBundle,
+          getProjectPaths: deps.getProjectPaths,
+          runQualityChecksForBundle: deps.runQualityChecksForBundle,
+          syncProject: deps.syncProject,
+          validateProject: deps.validateProject,
+          rendererProviders: deps.rendererProviders,
+        },
+      );
+      if (result.status === "blocked") {
         return failResult("Render blocked by failing quality checks.", [
           {
             code: "quality.fail",
-            message: JSON.stringify(quality),
+            message: JSON.stringify(result.quality),
           },
         ]);
       }
-      const providerId = bundle.videoPlan.providers.renderer;
-      const renderer = deps.rendererProviders[providerId];
-      if (!renderer) {
-        return failResult(`Unknown renderer provider: ${providerId}`, [
-          { code: "provider.renderer.unknown", message: providerId },
-        ]);
-      }
-      const projectPaths = deps.getProjectPaths(input.projectId);
-      await mkdir(projectPaths.rendersDir, { recursive: true });
-      const outputPath = path.join(projectPaths.rendersDir, `${input.quality}.mp4`);
-      const renderResult = await renderer.render({
-        projectDir: projectPaths.projectDir,
-        renderBundle: bundle,
-        outputPath,
-        quality: input.quality,
+      return okResult("Render completed.", {
+        renderResult: result.renderResult,
+        quality: result.quality,
       });
-      return okResult("Render completed.", { renderResult, quality });
     }
     case "lvstudio_generate_tts": {
       const input = GenerateTTSInput.parse(args ?? {});
