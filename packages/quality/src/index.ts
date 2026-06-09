@@ -1,4 +1,4 @@
-import { access, readFile } from "node:fs/promises";
+import { access } from "node:fs/promises";
 import path from "node:path";
 import {
   buildRenderBundle,
@@ -8,7 +8,7 @@ import {
   loadProject,
 } from "@lvstudio/core";
 
-import type { QualityFinding, QualityReport } from "@lvstudio/core";
+import type { QualityFinding, QualityReport, RenderBundle } from "@lvstudio/core";
 
 // Alias exports for consumers that already depend on the old names
 export type QualityCheck = QualityFinding;
@@ -75,10 +75,18 @@ export async function runQualityChecks(
   projectId: string,
   rootDir = process.cwd(),
 ): Promise<QualityResult> {
+  const bundle = await buildRenderBundle({ projectId, rootDir });
+  return runQualityChecksForBundle(projectId, bundle, rootDir);
+}
+
+export async function runQualityChecksForBundle(
+  projectId: string,
+  bundle: RenderBundle,
+  rootDir = process.cwd(),
+): Promise<QualityResult> {
   const checks: QualityCheck[] = [];
   const loaded = await loadProject(projectId, rootDir);
   const paths = getProjectPaths(projectId, rootDir);
-  const bundle = await buildRenderBundle({ projectId, rootDir });
   checks.push({
     id: "shared.timeline.hash",
     severity: "info",

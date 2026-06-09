@@ -180,3 +180,59 @@ test("prepare draft assets workflow runs deterministic project stages in order",
     ["quality", "demo"],
   ]);
 });
+
+test("render project quality-checks the same bundle it renders", async () => {
+  const calls = [];
+  const bundle = {
+    videoPlan: {
+      providers: {
+        renderer: "fake-renderer",
+      },
+    },
+  };
+  const handler = createLvStudioToolHandler({
+    validateProject: async (projectId) => {
+      calls.push(["validate", projectId]);
+      return {};
+    },
+    syncProject: async (projectId) => {
+      calls.push(["sync", projectId]);
+      return {};
+    },
+    buildRenderBundle: async ({ projectId }) => {
+      calls.push(["bundle", projectId]);
+      return bundle;
+    },
+    runQualityChecksForBundle: async (projectId, receivedBundle) => {
+      calls.push(["quality", projectId, receivedBundle]);
+      return { status: "pass", checks: [] };
+    },
+    getProjectPaths: (projectId) => ({
+      projectDir: `/tmp/${projectId}`,
+      rendersDir: `/tmp/${projectId}/renders`,
+    }),
+    rendererProviders: {
+      "fake-renderer": {
+        render: async ({ renderBundle }) => {
+          calls.push(["render", renderBundle]);
+          return { outputPath: "/tmp/demo/renders/draft.mp4" };
+        },
+      },
+    },
+  });
+
+  const response = await handler("lvstudio_render_project", {
+    projectId: "demo",
+    quality: "draft",
+  });
+  const parsed = JSON.parse(response.content[0].text);
+
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.message, "Render completed.");
+  assert.equal(calls[3][2], bundle);
+  assert.equal(calls[4][1], bundle);
+  assert.deepEqual(
+    calls.map(([step]) => step),
+    ["validate", "sync", "bundle", "quality", "render"],
+  );
+});

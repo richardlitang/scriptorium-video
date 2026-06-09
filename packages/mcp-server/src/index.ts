@@ -21,7 +21,7 @@ import {
 } from "@lvstudio/core";
 import type { RendererProvider, TTSProvider, TranscriptionProvider } from "@lvstudio/core";
 import { rendererProviders, transcriptionProviders, ttsProviders } from "@lvstudio/providers";
-import { runQualityChecks } from "@lvstudio/quality";
+import { runQualityChecks, runQualityChecksForBundle } from "@lvstudio/quality";
 
 const CreateProjectInput = z.object({
   projectId: z.string().min(1),
@@ -336,6 +336,7 @@ type LvStudioToolHandlerDeps = {
   loadProject: typeof loadProject;
   resolveConfig: typeof resolveConfig;
   runQualityChecks: typeof runQualityChecks;
+  runQualityChecksForBundle: typeof runQualityChecksForBundle;
   syncProject: typeof syncProject;
   transcribeProject: typeof transcribeProject;
   validateProject: typeof validateProject;
@@ -355,6 +356,7 @@ const defaultToolHandlerDeps: LvStudioToolHandlerDeps = {
   loadProject,
   resolveConfig,
   runQualityChecks,
+  runQualityChecksForBundle,
   syncProject,
   transcribeProject,
   validateProject,
@@ -447,7 +449,8 @@ async function handleLvStudioToolCallWithDeps(
       if (!input.noSync) {
         await deps.syncProject(input.projectId);
       }
-      const quality = await deps.runQualityChecks(input.projectId);
+      const bundle = await deps.buildRenderBundle({ projectId: input.projectId });
+      const quality = await deps.runQualityChecksForBundle(input.projectId, bundle);
       if (quality.status === "fail" && !input.force) {
         return failResult("Render blocked by failing quality checks.", [
           {
@@ -456,7 +459,6 @@ async function handleLvStudioToolCallWithDeps(
           },
         ]);
       }
-      const bundle = await deps.buildRenderBundle({ projectId: input.projectId });
       const providerId = bundle.videoPlan.providers.renderer;
       const renderer = deps.rendererProviders[providerId];
       if (!renderer) {

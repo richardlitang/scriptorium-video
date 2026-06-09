@@ -12,7 +12,7 @@ import {
   reviewProject,
 } from "@lvstudio/core";
 import { rendererProviders } from "@lvstudio/providers";
-import { runQualityChecks } from "@lvstudio/quality";
+import { runQualityChecks, runQualityChecksForBundle } from "@lvstudio/quality";
 import { createProject } from "./create-project.js";
 import { enrichAudioCli, ingestAudioCli } from "./audio-ingest.js";
 import { exportProject } from "./export-project.js";
@@ -292,7 +292,7 @@ program
       await syncProject(projectId);
     }
     const bundle = await buildRenderBundle({ projectId });
-    const qualityResult = await runQualityChecks(projectId);
+    const qualityResult = await runQualityChecksForBundle(projectId, bundle);
     if (qualityResult.status === "fail" && options.force !== true) {
       throw new Error(
         `Render blocked by quality checks. Run 'lvstudio check ${projectId}' for details or pass --force.`,

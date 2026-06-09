@@ -3,8 +3,8 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
-import { runQualityChecks } from "../dist/index.js";
-import { syncProject } from "@lvstudio/core";
+import { runQualityChecks, runQualityChecksForBundle } from "../dist/index.js";
+import { buildRenderBundle, syncProject } from "@lvstudio/core";
 
 async function writeJson(filePath, value) {
   await mkdir(path.dirname(filePath), { recursive: true });
@@ -273,6 +273,128 @@ test("quality checks include tuning-related warnings", async () => {
     assert.ok(ids.includes("shared.editorial.silence_overlap"));
     assert.ok(ids.includes("shared.editorial.silence_overuse"));
     assert.ok(ids.includes("short_story.ending_black_hold"));
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("quality checks can certify a prebuilt render bundle", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-quality-bundle-"));
+  const projectId = "fixture";
+  const projectDir = path.join(root, "content", "projects", projectId);
+  try {
+    await writeJson(path.join(projectDir, "project.json"), {
+      schemaVersion: 1,
+      id: projectId,
+      title: "Fixture",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      status: "draft",
+    });
+    await writeJson(path.join(projectDir, "video-plan.json"), {
+      schemaVersion: 1,
+      title: "Fixture",
+      mode: "short_story",
+      targetPlatform: "local_only",
+      stylePackId: "default",
+      templateId: "vertical-story",
+      providers: {
+        llm: "manual",
+        tts: "chatterbox",
+        transcription: "mock",
+        media: "manual-media",
+        renderer: "remotion",
+      },
+      voice: {
+        provider: "chatterbox",
+        voiceId: "clone",
+        format: "wav",
+        options: {},
+      },
+      sections: [
+        {
+          id: "s1",
+          title: "S1",
+          beats: [
+            {
+              id: "s1-001",
+              order: 1,
+              narration: "A short line.",
+              timing: { mediaPolicy: "loop_or_freeze", locked: false },
+              media: [
+                {
+                  id: "m1",
+                  type: "title_card",
+                  role: "primary_visual",
+                  prompt: "prompt",
+                  scaleMode: "cover",
+                  placement: "background",
+                },
+              ],
+              motion: { type: "none", intensity: 0 },
+              caption: { emphasis: [], style: "default" },
+              direction: {
+                voice: {
+                  profile: "neutral",
+                  emphasis: [],
+                  pauseBeforeMs: 900,
+                  pauseAfterMs: 900,
+                  intensity: 0.5,
+                  speedMultiplier: 1,
+                  pitchOffset: 0,
+                  source: "llm",
+                },
+              },
+            },
+          ],
+        },
+      ],
+    });
+    await mkdir(path.join(projectDir, "assets", "audio", "voice"), { recursive: true });
+    await mkdir(path.join(projectDir, "assets", "images"), { recursive: true });
+    await writeFile(
+      path.join(projectDir, "assets", "audio", "voice", "s1-001.wav"),
+      "stub",
+      "utf8",
+    );
+    await writeFile(path.join(projectDir, "assets", "images", "s1-001.png"), "stub", "utf8");
+    await writeJson(path.join(projectDir, "asset-manifest.json"), {
+      schemaVersion: 1,
+      assets: [
+        {
+          id: "voice-s1-001",
+          type: "audio",
+          role: "voiceover",
+          sectionId: "s1",
+          beatId: "s1-001",
+          path: "assets/audio/voice/s1-001.wav",
+          source: { kind: "generated", provider: "chatterbox", inputHash: "voice" },
+          durationSeconds: 2.5,
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+        {
+          id: "image-s1-001",
+          type: "image",
+          role: "primary_visual",
+          sectionId: "s1",
+          beatId: "s1-001",
+          path: "assets/images/s1-001.png",
+          source: { kind: "generated", provider: "manual-media", inputHash: "image" },
+          status: "generated",
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      ],
+    });
+    await syncProject(projectId, root);
+    const bundle = await buildRenderBundle({ projectId, rootDir: root });
+
+    const result = await runQualityChecksForBundle(projectId, bundle, root);
+
+    assert.notEqual(result.status, "pass");
+    assert.ok(result.checks.some((check) => check.id === "shared.voice.pause_budget"));
   } finally {
     await rm(root, { recursive: true, force: true });
   }
