@@ -13,8 +13,18 @@ export type RenderWorkflowInput = {
   noSync?: boolean;
   rendererProviderId?: string;
   rootDir?: string;
+  onStageChange?: (stage: RenderWorkflowStage) => void | Promise<void>;
+  shouldCancel?: () => boolean;
   onProgress?: RenderRequest["onProgress"];
 };
+
+export type RenderWorkflowStage =
+  | "validating"
+  | "syncing"
+  | "building_bundle"
+  | "checking_quality"
+  | "rendering"
+  | "completed";
 
 export type RenderWorkflowBlockedResult = {
   status: "blocked";
@@ -59,12 +69,26 @@ export async function runRenderWorkflow(
     ...deps,
   };
 
+  const assertNotCancelled = () => {
+    if (input.shouldCancel?.()) {
+      throw new Error("Render job cancelled by user.");
+    }
+  };
+  const markStage = async (stage: RenderWorkflowStage) => {
+    assertNotCancelled();
+    await input.onStageChange?.(stage);
+  };
+
+  await markStage("validating");
   await runtimeDeps.validateProject(input.projectId, rootDir);
   if (!input.noSync) {
+    await markStage("syncing");
     await runtimeDeps.syncProject(input.projectId, rootDir);
   }
 
+  await markStage("building_bundle");
   const bundle = await runtimeDeps.buildRenderBundle({ projectId: input.projectId, rootDir });
+  await markStage("checking_quality");
   const qualityResult = await runtimeDeps.runQualityChecksForBundle(
     input.projectId,
     bundle,
@@ -87,13 +111,18 @@ export async function runRenderWorkflow(
   const projectPaths = runtimeDeps.getProjectPaths(input.projectId, rootDir);
   await mkdir(projectPaths.rendersDir, { recursive: true });
   const outputPath = path.join(projectPaths.rendersDir, `${quality}.mp4`);
+  await markStage("rendering");
   const renderResult = await renderer.render({
     projectDir: projectPaths.projectDir,
     renderBundle: bundle,
     outputPath,
     quality,
-    onProgress: input.onProgress,
+    onProgress: (progress) => {
+      assertNotCancelled();
+      input.onProgress?.(progress);
+    },
   });
+  await markStage("completed");
 
   return {
     status: "rendered",

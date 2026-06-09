@@ -18,6 +18,9 @@ The server exposes `lvstudio_*` tools over stdio.
 - `lvstudio_sync_project`
 - `lvstudio_run_quality_checks`
 - `lvstudio_render_project`
+- `lvstudio_start_render_job`
+- `lvstudio_get_render_job`
+- `lvstudio_cancel_render_job`
 - `lvstudio_get_quality_report`
 - `lvstudio_plan_quality_repairs`
 - `lvstudio_generate_tts`
@@ -57,19 +60,20 @@ If quality status is `fail`, render is blocked unless `force: true`.
 
 The current render tool is synchronous. It is acceptable for small/local runs, but it is not the long-term boundary for Studio-scale or agent-driven rendering because an MCP tool call should not block for a multi-minute video job.
 
-Planned async render tools:
-
-- `lvstudio_start_render_job`
-- `lvstudio_get_render_job`
-- `lvstudio_cancel_render_job`
-
-Intended behavior:
+Implemented async render tools:
 
 1. `lvstudio_start_render_job` validates input, records a queued render job, and returns a job id immediately.
 2. `lvstudio_get_render_job` returns structured job state, progress, quality status, output path when complete, and any terminal error.
 3. `lvstudio_cancel_render_job` requests cancellation and returns the terminal or in-progress cancellation state.
 
-The synchronous `lvstudio_render_project` tool should remain available until the async job tools land, but it should be treated as the small-run compatibility path rather than the primary automation surface.
+Current runtime semantics:
+
+- Render jobs are process-local to the MCP server instance.
+- If the MCP server restarts, in-memory render jobs are lost; callers should treat missing jobs after restart as stale state and start a fresh render.
+- Only one queued/running render job is allowed per project to avoid concurrent render races against the same project artifacts.
+- Cancellation is best-effort. The workflow checks for cancellation between major stages and during progress callbacks; a provider that does not surface callback aborts may still finish its current render step before the job reaches a terminal cancelled state.
+
+The synchronous `lvstudio_render_project` tool remains available as the small-run compatibility path, but job-based render is now the preferred automation surface.
 
 ## Repair Planning Flow
 

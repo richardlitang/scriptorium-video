@@ -23,6 +23,9 @@ test("mcp tool registry contains unique lvstudio tool names", () => {
     "lvstudio_sync_project",
     "lvstudio_run_quality_checks",
     "lvstudio_render_project",
+    "lvstudio_start_render_job",
+    "lvstudio_get_render_job",
+    "lvstudio_cancel_render_job",
     "lvstudio_prepare_draft_assets",
     "lvstudio_plan_quality_repairs",
   ]) {
@@ -216,4 +219,86 @@ test("render project delegates to the shared render workflow", async () => {
     "syncProject",
     "validateProject",
   ]);
+});
+
+test("start render job delegates to the render job manager", async () => {
+  const calls = [];
+  const handler = createLvStudioToolHandler({
+    startRenderJob: (input, workflowDeps) => {
+      calls.push(["start", input, Object.keys(workflowDeps).sort()]);
+      return {
+        jobId: "render-job-1",
+        kind: "render_job",
+        projectId: "demo",
+        quality: "draft",
+        force: false,
+        noSync: false,
+        status: "queued",
+        label: "Queued render job",
+        createdAt: "2026-06-09T00:00:00.000Z",
+        updatedAt: "2026-06-09T00:00:00.000Z",
+        cancelRequested: false,
+      };
+    },
+  });
+
+  const response = await handler("lvstudio_start_render_job", {
+    projectId: "demo",
+    quality: "draft",
+  });
+  const parsed = JSON.parse(response.content[0].text);
+
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.message, "Render job queued.");
+  assert.equal(parsed.data.job.jobId, "render-job-1");
+  assert.deepEqual(calls[0][1], {
+    projectId: "demo",
+    quality: "draft",
+    force: undefined,
+    noSync: undefined,
+  });
+  assert.deepEqual(calls[0][2], [
+    "buildRenderBundle",
+    "getProjectPaths",
+    "rendererProviders",
+    "runQualityChecksForBundle",
+    "syncProject",
+    "validateProject",
+  ]);
+});
+
+test("get render job returns structured not-found failure", async () => {
+  const handler = createLvStudioToolHandler({
+    getRenderJob: () => null,
+  });
+
+  const response = await handler("lvstudio_get_render_job", { jobId: "missing" });
+  const parsed = JSON.parse(response.content[0].text);
+
+  assert.equal(parsed.ok, false);
+  assert.equal(parsed.errors[0].code, "render_job.not_found");
+});
+
+test("cancel render job returns updated job state", async () => {
+  const handler = createLvStudioToolHandler({
+    cancelRenderJob: (jobId) => ({
+      jobId,
+      kind: "render_job",
+      projectId: "demo",
+      quality: "draft",
+      force: false,
+      noSync: false,
+      status: "cancelling",
+      label: "Cancellation requested; waiting for current step to stop",
+      createdAt: "2026-06-09T00:00:00.000Z",
+      updatedAt: "2026-06-09T00:00:01.000Z",
+      cancelRequested: true,
+    }),
+  });
+
+  const response = await handler("lvstudio_cancel_render_job", { jobId: "render-job-1" });
+  const parsed = JSON.parse(response.content[0].text);
+
+  assert.equal(parsed.ok, true);
+  assert.equal(parsed.data.job.status, "cancelling");
 });

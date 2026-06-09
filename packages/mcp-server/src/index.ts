@@ -21,7 +21,7 @@ import {
 import type { RendererProvider, TTSProvider, TranscriptionProvider } from "@lvstudio/core";
 import { rendererProviders, transcriptionProviders, ttsProviders } from "@lvstudio/providers";
 import { runQualityChecks, runQualityChecksForBundle } from "@lvstudio/quality";
-import { runRenderWorkflow } from "@lvstudio/workflows";
+import { createRenderJobManager, runRenderWorkflow } from "@lvstudio/workflows";
 
 const CreateProjectInput = z.object({
   projectId: z.string().min(1),
@@ -38,6 +38,9 @@ const RenderProjectInput = z.object({
   quality: z.enum(["draft", "final"]).default("draft"),
   force: z.boolean().optional(),
   noSync: z.boolean().optional(),
+});
+const GetRenderJobInput = z.object({
+  jobId: z.string().min(1),
 });
 const GenerateTTSInput = z.object({
   projectId: z.string().min(1),
@@ -93,6 +96,14 @@ export const LVSTUDIO_INPUT_SCHEMA_SPECS: Record<string, InputSchemaSpec> = {
       quality: ["draft", "final"],
     },
   },
+  lvstudio_start_render_job: {
+    required: ["projectId"],
+    enums: {
+      quality: ["draft", "final"],
+    },
+  },
+  lvstudio_get_render_job: { required: ["jobId"] },
+  lvstudio_cancel_render_job: { required: ["jobId"] },
   lvstudio_generate_tts: { required: ["projectId"] },
   lvstudio_transcribe_project: { required: ["projectId"] },
   lvstudio_generate_captions: { required: ["projectId"] },
@@ -227,6 +238,45 @@ export const LVSTUDIO_TOOLS = [
     },
   },
   {
+    name: "lvstudio_start_render_job",
+    description: "Queue a background render job and return a job id immediately.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        projectId: { type: "string" },
+        quality: { type: "string", enum: ["draft", "final"] },
+        force: { type: "boolean" },
+        noSync: { type: "boolean" },
+      },
+      required: ["projectId"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "lvstudio_get_render_job",
+    description: "Get current state for a background render job.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        jobId: { type: "string" },
+      },
+      required: ["jobId"],
+      additionalProperties: false,
+    },
+  },
+  {
+    name: "lvstudio_cancel_render_job",
+    description: "Request cancellation for a background render job.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        jobId: { type: "string" },
+      },
+      required: ["jobId"],
+      additionalProperties: false,
+    },
+  },
+  {
     name: "lvstudio_get_quality_report",
     description: "Get last quality report (computed live).",
     inputSchema: {
@@ -335,6 +385,9 @@ type LvStudioToolHandlerDeps = {
   importMediaToProject: typeof importMediaToProject;
   loadProject: typeof loadProject;
   resolveConfig: typeof resolveConfig;
+  startRenderJob: ReturnType<typeof createRenderJobManager>["startRenderJob"];
+  getRenderJob: ReturnType<typeof createRenderJobManager>["getRenderJob"];
+  cancelRenderJob: ReturnType<typeof createRenderJobManager>["cancelRenderJob"];
   runRenderWorkflow: typeof runRenderWorkflow;
   runQualityChecks: typeof runQualityChecks;
   runQualityChecksForBundle: typeof runQualityChecksForBundle;
@@ -346,6 +399,8 @@ type LvStudioToolHandlerDeps = {
   ttsProviders: Record<string, TTSProvider>;
 };
 
+const renderJobManager = createRenderJobManager();
+
 const defaultToolHandlerDeps: LvStudioToolHandlerDeps = {
   buildRenderBundle,
   buildQualityRepairPlan,
@@ -356,6 +411,9 @@ const defaultToolHandlerDeps: LvStudioToolHandlerDeps = {
   importMediaToProject,
   loadProject,
   resolveConfig,
+  startRenderJob: renderJobManager.startRenderJob,
+  getRenderJob: renderJobManager.getRenderJob,
+  cancelRenderJob: renderJobManager.cancelRenderJob,
   runRenderWorkflow,
   runQualityChecks,
   runQualityChecksForBundle,
@@ -475,6 +533,51 @@ async function handleLvStudioToolCallWithDeps(
         renderResult: result.renderResult,
         quality: result.quality,
       });
+    }
+    case "lvstudio_start_render_job": {
+      const input = RenderProjectInput.parse(args ?? {});
+      try {
+        const job = deps.startRenderJob(
+          {
+            projectId: input.projectId,
+            quality: input.quality,
+            force: input.force,
+            noSync: input.noSync,
+          },
+          {
+            buildRenderBundle: deps.buildRenderBundle,
+            getProjectPaths: deps.getProjectPaths,
+            runQualityChecksForBundle: deps.runQualityChecksForBundle,
+            syncProject: deps.syncProject,
+            validateProject: deps.validateProject,
+            rendererProviders: deps.rendererProviders,
+          },
+        );
+        return okResult("Render job queued.", { job });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return failResult(message, [{ code: "render_job.start_failed", message }]);
+      }
+    }
+    case "lvstudio_get_render_job": {
+      const input = GetRenderJobInput.parse(args ?? {});
+      const job = deps.getRenderJob(input.jobId);
+      if (!job) {
+        return failResult(`Unknown render job: ${input.jobId}`, [
+          { code: "render_job.not_found", message: input.jobId },
+        ]);
+      }
+      return okResult("Render job loaded.", { job });
+    }
+    case "lvstudio_cancel_render_job": {
+      const input = GetRenderJobInput.parse(args ?? {});
+      const job = deps.cancelRenderJob(input.jobId);
+      if (!job) {
+        return failResult(`Unknown render job: ${input.jobId}`, [
+          { code: "render_job.not_found", message: input.jobId },
+        ]);
+      }
+      return okResult("Render job cancellation requested.", { job });
     }
     case "lvstudio_generate_tts": {
       const input = GenerateTTSInput.parse(args ?? {});
