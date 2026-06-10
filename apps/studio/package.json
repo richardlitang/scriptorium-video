@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --import tsx --test \"test/**/*.mjs\" \"test/**/*.mts\"",
+    "test": "node --import tsx --test --test-concurrency=1 \"test/**/*.mjs\" \"test/**/*.mts\"",
     "dev": "vite web",
     "build:web": "vite build web",
     "test:web": "vitest run --config web/vite.config.ts"
