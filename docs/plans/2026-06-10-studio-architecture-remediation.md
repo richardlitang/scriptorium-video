@@ -36,6 +36,7 @@ Small, fully-specified fixes. Do these first; they are prerequisites for trustin
 `tsconfig.studio.json` includes `apps/studio/public/modules/**/*.js`, but `apps/studio/public/modules/` was deleted in the React migration. The sensor silently checks nothing for that glob.
 
 **Files:**
+
 - Modify: `tsconfig.studio.json`
 
 - [ ] **Step 1: Edit the include list**
@@ -74,6 +75,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 `apps/studio/lib/planner/openai-api-key.mjs` is a byte-level copy (minus types) of `packages/core/src/openai-api-key.ts`. Core exports `parseEnvFile`, `readEnvFile`, and `resolveOpenAiApiKey` from its index (`packages/core/src/index.ts` line 13). Studio already declares `@lvstudio/core` as a workspace dependency (`apps/studio/package.json`).
 
 **Files:**
+
 - Delete: `apps/studio/lib/planner/openai-api-key.mjs`
 - Modify: `apps/studio/lib/runtime/studio-server-runtime-factory.mjs` (the only lib importer)
 - Modify: `apps/studio/test/openai-api-key.test.mjs`
@@ -145,6 +147,7 @@ Migrate the 70 `.mjs` modules in `apps/studio/lib/` plus the 4 root-level files 
 ### Task 1.1: Migration tooling
 
 **Files:**
+
 - Create: `apps/studio/tsconfig.json`
 - Delete: `tsconfig.studio.json` (root)
 - Modify: `package.json` (root — `check:studio`, `studio`, `format`, `format:check` scripts)
@@ -254,40 +257,41 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 **Batch order** (leaf modules first so importers always point at already-typed code; verify with a quick grep that nothing in an earlier batch imports from a later one — if it does, pull that file forward):
 
 - [ ] **Task 1.2 — Batch A, leaf utilities (4 files):**
-  `lib/routes/http-utils.mjs`, `lib/routes/route-utils.mjs`, `lib/routes/route-context.mjs`, `lib/runtime/studio-runtime-helpers.mjs`
-  Commit: `refactor(studio): migrate route/runtime utilities to TypeScript`
+      `lib/routes/http-utils.mjs`, `lib/routes/route-utils.mjs`, `lib/routes/route-context.mjs`, `lib/runtime/studio-runtime-helpers.mjs`
+      Commit: `refactor(studio): migrate route/runtime utilities to TypeScript`
 
 - [ ] **Task 1.3 — Batch B, stores and project modules (10 files):**
-  `lib/project/run-state-store.mjs`, `lib/project/run-trace-store.mjs`, `lib/project/trace-summaries.mjs`, `lib/project/agent-handoff-store.mjs`, `lib/project/project-mutation-queue.mjs`, `lib/project/project-read-ops.mjs`, `lib/project/project-media-ops.mjs`, `lib/project/project-ops.mjs`, `lib/project/studio-testmode-ops.mjs`, `lib/image/image-cache-store.mjs`
-  Commit: `refactor(studio): migrate project stores and ops to TypeScript`
+      `lib/project/run-state-store.mjs`, `lib/project/run-trace-store.mjs`, `lib/project/trace-summaries.mjs`, `lib/project/agent-handoff-store.mjs`, `lib/project/project-mutation-queue.mjs`, `lib/project/project-read-ops.mjs`, `lib/project/project-media-ops.mjs`, `lib/project/project-ops.mjs`, `lib/project/studio-testmode-ops.mjs`, `lib/image/image-cache-store.mjs`
+      Commit: `refactor(studio): migrate project stores and ops to TypeScript`
 
 - [ ] **Task 1.4 — Batch C, planner and draft modules (26 files):**
-  All of `lib/planner/*.mjs` (8 files after Task 0.2 deleted one) and all of `lib/draft/*.mjs` (17 files), plus `lib/image/image-library-metadata.mjs`.
-  This batch contains the deep relative import in `lib/draft/plan-draft-orchestrator.mjs` — **leave the import specifier exactly as-is in this batch** (`../../../../packages/core/src/schemas/plan-draft.schema.mjs`); Task 1.8 handles it with its sensor. To type the schema import, add a local `// @ts-expect-error untyped .mjs schema shim, removed in Task 1.8` if needed.
-  Commit: `refactor(studio): migrate planner and draft modules to TypeScript`
+      All of `lib/planner/*.mjs` (8 files after Task 0.2 deleted one) and all of `lib/draft/*.mjs` (17 files), plus `lib/image/image-library-metadata.mjs`.
+      This batch contains the deep relative import in `lib/draft/plan-draft-orchestrator.mjs` — **leave the import specifier exactly as-is in this batch** (`../../../../packages/core/src/schemas/plan-draft.schema.mjs`); Task 1.8 handles it with its sensor. To type the schema import, add a local `// @ts-expect-error untyped .mjs schema shim, removed in Task 1.8` if needed.
+      Commit: `refactor(studio): migrate planner and draft modules to TypeScript`
 
 - [ ] **Task 1.5 — Batch D, image and tts modules (11 files):**
-  Remaining `lib/image/*.mjs` (5 files) and all `lib/tts/*.mjs` (6 files).
-  Commit: `refactor(studio): migrate image and tts modules to TypeScript`
+      Remaining `lib/image/*.mjs` (5 files) and all `lib/tts/*.mjs` (6 files).
+      Commit: `refactor(studio): migrate image and tts modules to TypeScript`
 
 - [ ] **Task 1.6 — Batch E, route handlers (10 files):**
-  `lib/routes/routes-settings.mjs`, `lib/routes/routes-assets.mjs`, `lib/routes/routes-jobs.mjs`, `lib/routes/routes-projects-crud.mjs`, `lib/routes/routes-projects-plan.mjs`, `lib/routes/routes-projects-media.mjs`, `lib/routes/routes-projects-quality.mjs`, `lib/routes/routes-projects.mjs`, `lib/routes/studio-routes.mjs`, `lib/routes/studio-http-handler.mjs`
-  The `*_ROUTE_KEYS` arrays become `as const` tuples so the context picker gets literal key types. The `studio-routes-deps.test.mjs` and `studio-routes-behavior.test.mjs` suites pin these — they must stay green unmodified.
-  Commit: `refactor(studio): migrate route handlers to TypeScript`
+      `lib/routes/routes-settings.mjs`, `lib/routes/routes-assets.mjs`, `lib/routes/routes-jobs.mjs`, `lib/routes/routes-projects-crud.mjs`, `lib/routes/routes-projects-plan.mjs`, `lib/routes/routes-projects-media.mjs`, `lib/routes/routes-projects-quality.mjs`, `lib/routes/routes-projects.mjs`, `lib/routes/studio-routes.mjs`, `lib/routes/studio-http-handler.mjs`
+      The `*_ROUTE_KEYS` arrays become `as const` tuples so the context picker gets literal key types. The `studio-routes-deps.test.mjs` and `studio-routes-behavior.test.mjs` suites pin these — they must stay green unmodified.
+      Commit: `refactor(studio): migrate route handlers to TypeScript`
 
 - [ ] **Task 1.7 — Batch F, runtime wiring + entry (12 files):**
-  Remaining `lib/runtime/*.mjs` (8 files), then `static-assets.mjs`, `image-cache.mjs`, `voice-settings.mjs`, and finally `server.mjs → server.mts`.
-  Renaming `server.mjs` trips two sensors — update both **in the same commit**:
+      Remaining `lib/runtime/*.mjs` (8 files), then `static-assets.mjs`, `image-cache.mjs`, `voice-settings.mjs`, and finally `server.mjs → server.mts`.
+      Renaming `server.mjs` trips two sensors — update both **in the same commit**:
   1. Root script: `"studio": "pnpm -s build && node --import tsx apps/studio/server.mts"`
   2. `scripts/check-studio-server-bootstrap.mjs` line 4: `const serverPath = "apps/studio/server.mts";`
-  Also flip `apps/studio/tsconfig.json`: remove the four `.mjs` entries from `include` and set `"allowJs": false` — every production file is now type-checked, no passthrough remains.
-  Commit: `refactor(studio): complete server TypeScript migration, retire allowJs`
+     Also flip `apps/studio/tsconfig.json`: remove the four `.mjs` entries from `include` and set `"allowJs": false` — every production file is now type-checked, no passthrough remains.
+     Commit: `refactor(studio): complete server TypeScript migration, retire allowJs`
 
 ### Task 1.8: Replace the deep schema import with a package import
 
 After Batch C/F, studio is typed and can import core's TS source of truth through the package boundary instead of reaching into `packages/core/src` with a relative path.
 
 **Files:**
+
 - Rename: `packages/core/src/schemas/plan-draft.zod.mjs` → `plan-draft.zod.ts`, `packages/core/src/schemas/plan-draft.schema.mjs` → `plan-draft.schema.ts`
 - Modify: `packages/core/src/index.ts`, `apps/studio/lib/draft/plan-draft-orchestrator.mts`, `scripts/check-planner-schema-boundary.mjs`
 
@@ -342,20 +346,21 @@ Studio currently shells out via `studio-ops.mjs` → `spawn("pnpm", ["lvstudio",
 
 **Inventory of subprocess commands** (from grep of `runLvstudio` call sites in `lib/`):
 
-| CLI command | In-process replacement | Port order |
-| --- | --- | --- |
-| `sync <id>` | `syncProject(projectId)` from `@lvstudio/core` | 1 |
-| `check <id>` / `review <id>` | `runQualityChecks(projectId)` from `@lvstudio/quality` | 2 |
-| `create <id> --mode --platform` | `createProjectScaffold(id, mode, platform)` from core | 3 |
-| `render <id> --quality draft --force` | `runRenderWorkflow(input, deps)` from `@lvstudio/workflows` | 4 |
-| `captions <id>` | `generateCaptionsForProject(...)` from core | 5 |
-| `transcribe <id> --provider` | `transcribeProject(...)` + `transcriptionProviders` | 6 |
-| `generate:tts <id> --provider --force` | `generateTTSForProject(...)` + `ttsProviders` | 7 (env-coupled, see Task 2.4) |
-| `direct:voice <id>` | core `direct-voice` module | 7 (env-coupled, see Task 2.4) |
+| CLI command                            | In-process replacement                                      | Port order                    |
+| -------------------------------------- | ----------------------------------------------------------- | ----------------------------- |
+| `sync <id>`                            | `syncProject(projectId)` from `@lvstudio/core`              | 1                             |
+| `check <id>` / `review <id>`           | `runQualityChecks(projectId)` from `@lvstudio/quality`      | 2                             |
+| `create <id> --mode --platform`        | `createProjectScaffold(id, mode, platform)` from core       | 3                             |
+| `render <id> --quality draft --force`  | `runRenderWorkflow(input, deps)` from `@lvstudio/workflows` | 4                             |
+| `captions <id>`                        | `generateCaptionsForProject(...)` from core                 | 5                             |
+| `transcribe <id> --provider`           | `transcribeProject(...)` + `transcriptionProviders`         | 6                             |
+| `generate:tts <id> --provider --force` | `generateTTSForProject(...)` + `ttsProviders`               | 7 (env-coupled, see Task 2.4) |
+| `direct:voice <id>`                    | core `direct-voice` module                                  | 7 (env-coupled, see Task 2.4) |
 
 ### Task 2.1: Create the domain-ops module
 
 **Files:**
+
 - Create: `apps/studio/lib/runtime/domain-ops.mts`
 - Create: `apps/studio/test/domain-ops.test.mts`
 - Modify: `apps/studio/package.json` (add `@lvstudio/quality`, `@lvstudio/workflows`, `@lvstudio/providers` workspace deps)
@@ -480,6 +485,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 ### Task 2.2: Port read-only and idempotent commands (sync, check/review, create)
 
 **Files:**
+
 - Modify: `apps/studio/lib/runtime/studio-runtime-wiring.mts` (or wherever `runLvstudio` is threaded into deps — find with `grep -rn "createStudioOps" apps/studio/lib`)
 - Modify: call sites in `lib/project/project-ops.mts`, `lib/project/project-read-ops.mts`, `lib/routes/routes-projects-crud.mts`, `lib/routes/routes-projects-plan.mts`
 - Modify: their tests
@@ -516,6 +522,7 @@ The subprocess path injects voice settings as env vars (`voiceSettingsEnv(settin
 ### Task 3.1: Define the grouped context
 
 **Files:**
+
 - Create: `apps/studio/lib/routes/route-capabilities.mts`
 - Modify: `apps/studio/lib/runtime/studio-api-context.mts`, `apps/studio/lib/routes/studio-routes.mts`, all `routes-*.mts`, `apps/studio/test/studio-routes-deps.test.*`, `apps/studio/test/studio-api-context.test.*`
 
@@ -573,6 +580,7 @@ Two of the ten `check:*` scripts are ripgrep-with-allowlist wrappers that ESLint
 ### Task 4.1: Replace `check:studio-env-boundary` and `check:core-env-boundary`
 
 **Files:**
+
 - Modify: `eslint.config.js`, `package.json` (root), `AGENTS.md`
 - Delete: `scripts/check-studio-env-boundary.mjs`, `scripts/check-core-env-boundary.mjs`
 
