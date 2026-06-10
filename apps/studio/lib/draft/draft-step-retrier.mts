@@ -1,12 +1,49 @@
-export function createDraftStepRetrier(deps) {
+type DraftJob = {
+  id: string;
+  output: string[];
+  cancelRequested?: boolean;
+  maxAttempts: number;
+  completed: number;
+};
+
+type DraftStepResult = {
+  stdout?: string;
+  stderr?: string;
+};
+
+type DraftStepRetrierDeps = {
+  ensureChatterboxReady: (
+    reason: string,
+  ) => Promise<{ ok: boolean; status?: string; error?: string | null }>;
+  appendRunTrace: (
+    projectId: string,
+    jobId: string,
+    event: string,
+    payload: Record<string, unknown>,
+  ) => Promise<void>;
+  writeDraftJobState: (
+    projectId: string,
+    job: DraftJob,
+    patch?: Record<string, unknown>,
+  ) => Promise<void>;
+  sleep: (ms: number) => Promise<void>;
+};
+
+export function createDraftStepRetrier(deps: DraftStepRetrierDeps) {
   const { ensureChatterboxReady, appendRunTrace, writeDraftJobState, sleep } = deps;
 
-  return async function runRetriedDraftStep(projectId, job, label, operation, options = {}) {
+  return async function runRetriedDraftStep(
+    projectId: string,
+    job: DraftJob,
+    label: string,
+    operation: () => Promise<DraftStepResult>,
+    options: { countCompletion?: boolean } = {},
+  ): Promise<DraftStepResult> {
     const countCompletion = options.countCompletion !== false;
     if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
-    const isProviderUnreachableError = (message) =>
+    const isProviderUnreachableError = (message: string) =>
       /TTS server is unreachable/i.test(String(message || ""));
-    const maybeRecoverFromUnreachable = async (message) => {
+    const maybeRecoverFromUnreachable = async (message: string) => {
       if (!isProviderUnreachableError(message)) return false;
       if (!/chatterbox/i.test(label)) return false;
       const recovered = await ensureChatterboxReady("draft_step_retry");

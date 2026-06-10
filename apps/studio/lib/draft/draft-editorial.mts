@@ -55,9 +55,7 @@ export function normalizeDraftEditorial(beatDraft: DraftEditorialInput = {}) {
         ].includes(String(cue.type))
           ? String(cue.type)
           : "hard_cut",
-        placement: ["beat_start", "beat_end", "key_point", "manual"].includes(
-          String(cue.placement),
-        )
+        placement: ["beat_start", "beat_end", "key_point", "manual"].includes(String(cue.placement))
           ? String(cue.placement)
           : "manual",
         offsetSeconds: clampNumber(cue.offsetSeconds, 0, -5, 5),

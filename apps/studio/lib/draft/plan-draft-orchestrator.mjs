@@ -1,4 +1,4 @@
-import { parseModelFallbacks, runStructuredOutput } from "../planner/openai-structured-output.mjs";
+import { parseModelFallbacks, runStructuredOutput } from "../planner/openai-structured-output.mts";
 import {
   DEFAULT_PLANNER_SYSTEM_PROMPT,
   DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,

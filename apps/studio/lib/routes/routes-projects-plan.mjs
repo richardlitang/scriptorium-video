@@ -1,7 +1,7 @@
 import { badRequest, dispatchRoute, parseProjectPath } from "./route-utils.mjs";
 import { requireRouteContext } from "./route-context.mjs";
 import { canonicalizePlanForPersistence } from "../planner/canonicalize-plan.mjs";
-import { buildPlannerStoryInput } from "../draft/draft-plan-input.mjs";
+import { buildPlannerStoryInput } from "../draft/draft-plan-input.mts";
 
 export const PROJECT_PLAN_ROUTE_KEYS = [
   "sendJson",

@@ -1,17 +1,39 @@
-function clone(value) {
+type DirectionMeta = {
+  lockedPaths?: string[];
+  sources?: Record<string, unknown>;
+};
+
+type DraftDirection = Record<string, unknown> & {
+  creative?: Record<string, unknown> & {
+    feel?: unknown;
+    pacing?: unknown;
+    visualStyle?: unknown;
+  };
+  voice?: unknown;
+  caption?: Record<string, unknown> & {
+    emphasis?: unknown[];
+    style?: unknown;
+    tuning?: unknown;
+  };
+  motion?: unknown;
+  sfxCues?: unknown[];
+  editorial?: unknown;
+};
+
+function clone<T>(value: T): T | undefined {
   return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
 }
 
-function isLocked(meta, path) {
+function isLocked(meta: DirectionMeta | null | undefined, path: string): boolean {
   return Array.isArray(meta?.lockedPaths) && meta.lockedPaths.includes(path);
 }
 
 export function mergeDirectionWithLocks(
-  previousDirection,
-  previousMeta,
-  nextDirection,
-  nextSources = {},
-) {
+  previousDirection: DraftDirection | null | undefined,
+  previousMeta: DirectionMeta | null | undefined,
+  nextDirection: DraftDirection | null | undefined,
+  nextSources: Record<string, unknown> = {},
+): { direction: DraftDirection; directionMeta: Required<DirectionMeta> } {
   const merged = clone(nextDirection) || {};
   const previous = previousDirection || {};
   if (isLocked(previousMeta, "creative")) {

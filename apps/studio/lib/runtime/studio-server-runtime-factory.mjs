@@ -26,7 +26,7 @@ import {
 } from "../planner/openai-plan-orchestrator.mjs";
 import { DEFAULT_PLANNER_SYSTEM_PROMPT } from "../planner/planner-defaults.mjs";
 import { handleStudioApiRoute } from "../routes/studio-routes.mjs";
-import { isOpenAiInsufficientQuotaError } from "../planner/openai-structured-output.mjs";
+import { isOpenAiInsufficientQuotaError } from "../planner/openai-structured-output.mts";
 import { canonicalizePlanForPersistence } from "../planner/canonicalize-plan.mjs";
 // Inlined from former public/modules/image-coverage.js (deleted at cutover)
 function normalizeImageCoverage(value) {
@@ -36,7 +36,7 @@ function normalizeImageCoverage(value) {
   return "llm";
 }
 import { createPlanDraftTransformer } from "../draft/plan-draft-transformer.mjs";
-import { createSplitPlannerRuntime } from "../planner/split-planner-runtime.mjs";
+import { createSplitPlannerRuntime } from "../planner/split-planner-runtime.mts";
 import { createSplitPlanBuilder } from "../planner/split-plan-builder.mjs";
 import { createRunStateStore } from "../project/run-state-store.mjs";
 import { ttsProvidersForPlan } from "../tts/tts-draft-planning.mjs";
@@ -72,7 +72,7 @@ import {
   parsePlanFromStoryInput,
   plannerSplitDecision,
   splitStoryIntoLockedUnits,
-} from "../draft/draft-plan-input.mjs";
+} from "../draft/draft-plan-input.mts";
 import { createProjectMutationQueue } from "../project/project-mutation-queue.mjs";
 import { createStudioRuntimeConfig } from "./studio-runtime-config.mjs";
 import { createVoicePreviewAndHealth } from "../tts/voice-preview-health.mjs";
@@ -105,8 +105,8 @@ import { createProjectOps } from "../project/project-ops.mjs";
 import { createProjectMediaOps } from "../project/project-media-ops.mjs";
 import { createProjectReadOps } from "../project/project-read-ops.mjs";
 import { createAgentHandoffStore } from "../project/agent-handoff-store.mjs";
-import { createForegroundJobs } from "../draft/foreground-jobs.mjs";
-import { createDraftStepRetrier } from "../draft/draft-step-retrier.mjs";
+import { createForegroundJobs } from "../draft/foreground-jobs.mts";
+import { createDraftStepRetrier } from "../draft/draft-step-retrier.mts";
 import { createLvstudioDraftRunner } from "../draft/lvstudio-draft-runner.mjs";
 import { createStudioRuntime } from "./studio-runtime.mjs";
 import {

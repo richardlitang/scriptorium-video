@@ -24,10 +24,6 @@ export function narrationBeatRunLabel(
   return `Narration: ${section.title} · ${beat.id} · ${provider}`;
 }
 
-export function ttsArgsForBeat(
-  projectId: string,
-  provider: string,
-  beatId: string,
-): string[] {
+export function ttsArgsForBeat(projectId: string, provider: string, beatId: string): string[] {
   return ["generate:tts", projectId, "--provider", provider, "--force", "--only-beat", beatId];
 }

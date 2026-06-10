@@ -54,7 +54,9 @@ export function normalizeDraftVisualFraming(
     "contain_blur",
     "safe_cover",
   );
-  const subjectPosition = SUBJECT_POSITIONS.includes(beatDraft.subjectPosition as (typeof SUBJECT_POSITIONS)[number])
+  const subjectPosition = SUBJECT_POSITIONS.includes(
+    beatDraft.subjectPosition as (typeof SUBJECT_POSITIONS)[number],
+  )
     ? (beatDraft.subjectPosition as (typeof SUBJECT_POSITIONS)[number])
     : "center";
   const cropRisk = validOr(beatDraft.cropRisk, CROP_RISKS, conservativeVisual, "high", "medium");
@@ -75,10 +77,7 @@ export function normalizeDraftVisualReferences(beatDraft: VisualNormalizationInp
   };
 }
 
-export function motionIntensityForBeat(
-  motionStrength: unknown,
-  cropRisk: unknown,
-): number {
+export function motionIntensityForBeat(motionStrength: unknown, cropRisk: unknown): number {
   const baseByStrength = {
     subtle: 0.06,
     medium: 0.12,
@@ -90,9 +89,6 @@ export function motionIntensityForBeat(
     high: 0.1,
   };
   const base = baseByStrength[String(motionStrength) as keyof typeof baseByStrength] ?? 0.12;
-  const capped = Math.min(
-    base,
-    capByRisk[String(cropRisk) as keyof typeof capByRisk] ?? 0.14,
-  );
+  const capped = Math.min(base, capByRisk[String(cropRisk) as keyof typeof capByRisk] ?? 0.14);
   return clampNumber(capped, 0.1, 0.02, 0.24);
 }

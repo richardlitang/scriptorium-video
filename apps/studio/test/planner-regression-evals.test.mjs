@@ -6,7 +6,7 @@ import {
   parseStoryForPlanner,
   plannerSplitDecision,
   splitStoryIntoLockedUnits,
-} from "../lib/draft/draft-plan-input.mjs";
+} from "../lib/draft/draft-plan-input.mts";
 
 const fixturePath = new URL("./fixtures/planner-regression-cases.json", import.meta.url);
 const messyScripts = JSON.parse(await readFile(fixturePath, "utf8"));

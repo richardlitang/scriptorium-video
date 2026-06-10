@@ -9,7 +9,7 @@ import {
   plannerSplitDecision,
   resolveSplitPlannerConfig,
   splitStoryIntoLockedUnits,
-} from "../lib/draft/draft-plan-input.mjs";
+} from "../lib/draft/draft-plan-input.mts";
 
 test("parsePlanFromStoryInput returns plan objects and ignores plain prose", () => {
   const parsed = parsePlanFromStoryInput(

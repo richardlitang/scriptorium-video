@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mergeDirectionWithLocks } from "../lib/draft/direction-lock-merge.mjs";
+import { mergeDirectionWithLocks } from "../lib/draft/direction-lock-merge.mts";
 
 test("mergeDirectionWithLocks preserves fully locked creative direction", () => {
   const result = mergeDirectionWithLocks(

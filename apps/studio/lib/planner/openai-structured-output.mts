@@ -1,4 +1,51 @@
-export function extractResponseText(responseJson) {
+type StructuredOutputProgressEvent = {
+  event: string;
+  model: string;
+  attempt: number;
+  attempts: number;
+  modelIndex: number;
+  modelCount: number;
+  elapsedMs: number;
+  timeoutMs: number;
+  payloadChars?: number;
+  approxPayloadTokens?: number;
+  inputChars?: number;
+  approxInputTokens?: number;
+  schemaChars?: number;
+  approxSchemaTokens?: number;
+  message?: string;
+};
+
+type ResponseOutputContent = {
+  type?: string;
+  text?: string;
+};
+
+type ResponseOutputItem = {
+  content?: ResponseOutputContent[];
+};
+
+type ResponseJson = {
+  output_text?: string;
+  output?: ResponseOutputItem[];
+};
+
+type StructuredOutputRequest = {
+  fetchImpl?: typeof fetch;
+  url: string;
+  apiKey: string;
+  model: string;
+  input: unknown;
+  schemaName: string;
+  schema: Record<string, unknown>;
+  errorLabel: string;
+  timeoutMs?: number;
+  maxAttempts?: number;
+  fallbackModels?: string[];
+  onProgress?: (event: StructuredOutputProgressEvent) => Promise<void> | void;
+};
+
+export function extractResponseText(responseJson: ResponseJson): string {
   if (typeof responseJson.output_text === "string") return responseJson.output_text;
   for (const item of responseJson.output ?? []) {
     for (const content of item.content ?? []) {
@@ -8,18 +55,18 @@ export function extractResponseText(responseJson) {
   throw new Error("OpenAI response did not include output text.");
 }
 
-export function parseModelFallbacks(value) {
+export function parseModelFallbacks(value: string | undefined | null): string[] {
   return String(value || "")
     .split(",")
     .map((model) => model.trim())
     .filter(Boolean);
 }
 
-function sleep(ms) {
+function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-function uniqueModelSequence(model, fallbackModels = []) {
+function uniqueModelSequence(model: string, fallbackModels: string[] = []): string[] {
   const seen = new Set();
   return [model, ...fallbackModels].filter((entry) => {
     const value = String(entry || "").trim();
@@ -29,36 +76,36 @@ function uniqueModelSequence(model, fallbackModels = []) {
   });
 }
 
-function errorCause(error, timeoutMs) {
-  return error?.name === "AbortError"
+function errorCause(error: unknown, timeoutMs: number): string {
+  return error instanceof Error && error.name === "AbortError"
     ? `request timed out after ${timeoutMs}ms`
-    : String(error?.message || error);
+    : String(error instanceof Error ? error.message : error);
 }
 
-export function isOpenAiInsufficientQuotaError(error) {
-  const message = String(error?.message || error || "");
+export function isOpenAiInsufficientQuotaError(error: unknown): boolean {
+  const message = String(error instanceof Error ? error.message : error || "");
   return /insufficient_quota|exceeded your current quota|check your plan and billing details/i.test(
     message,
   );
 }
 
-function isRetriableOpenAiError(error, timeoutMs) {
+function isRetriableOpenAiError(error: unknown, timeoutMs: number): boolean {
   if (isOpenAiInsufficientQuotaError(error)) return false;
   const cause = errorCause(error, timeoutMs);
   return (
-    error?.name === "AbortError" ||
+    (error instanceof Error && error.name === "AbortError") ||
     /fetch failed|network|timed out|econn|enotfound|eai_again|429|500|502|503|504/i.test(cause)
   );
 }
 
-function textLength(value) {
+function textLength(value: unknown): number {
   if (typeof value === "string") return value.length;
   if (Array.isArray(value)) return value.reduce((total, entry) => total + textLength(entry), 0);
   if (value && typeof value === "object") return textLength(Object.values(value));
   return 0;
 }
 
-function approxTokens(chars) {
+function approxTokens(chars: number): number {
   return Math.ceil(Number(chars || 0) / 4);
 }
 
@@ -75,8 +122,8 @@ export async function runStructuredOutput({
   maxAttempts = 3,
   fallbackModels = [],
   onProgress,
-}) {
-  const buildPayload = (currentModel) =>
+}: StructuredOutputRequest): Promise<unknown> {
+  const buildPayload = (currentModel: string): string =>
     JSON.stringify({
       model: currentModel,
       input,
@@ -92,7 +139,7 @@ export async function runStructuredOutput({
   const inputChars = textLength(input);
   const schemaChars = JSON.stringify(schema).length;
   const models = uniqueModelSequence(model, fallbackModels);
-  const failures = [];
+  const failures: string[] = [];
   const attempts = Math.max(1, Number.isFinite(maxAttempts) ? maxAttempts : 3);
   for (const currentModel of models) {
     let lastError = null;
@@ -121,7 +168,7 @@ export async function runStructuredOutput({
           approxSchemaTokens: approxTokens(schemaChars),
         });
         heartbeat = setInterval(() => {
-          onProgress?.({
+          void onProgress?.({
             event: "request.heartbeat",
             model: currentModel,
             attempt,

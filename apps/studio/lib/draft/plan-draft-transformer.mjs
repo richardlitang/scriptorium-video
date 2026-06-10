@@ -2,7 +2,7 @@ import { normalizeCaptionTuning } from "./caption-tuning.mjs";
 import { normalizeDraftVoiceDirection } from "./draft-voice-direction.mjs";
 import { normalizeDraftSfxCues } from "./draft-sfx-cues.mjs";
 import { normalizeDraftEditorial } from "./draft-editorial.mjs";
-import { mergeDirectionWithLocks } from "./direction-lock-merge.mjs";
+import { mergeDirectionWithLocks } from "./direction-lock-merge.mts";
 import {
   motionIntensityForBeat,
   normalizeDraftVisualFraming,

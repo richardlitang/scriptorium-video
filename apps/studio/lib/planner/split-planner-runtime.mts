@@ -1,4 +1,104 @@
-export function createSplitPlannerRuntime(deps) {
+type PlannerProgressEvent = {
+  event: string;
+  model: string;
+  attempt: number;
+  attempts: number;
+  modelIndex: number;
+  modelCount: number;
+  elapsedMs: number;
+  timeoutMs: number;
+  message?: string;
+};
+
+type SplitPlannerJob = {
+  id?: string;
+  output: string[];
+};
+
+type LockedBeat = {
+  id: string;
+  narration: string;
+};
+
+type LockedSection = {
+  id: string;
+  title: string;
+  beats: LockedBeat[];
+};
+
+type LockedPlan = Record<string, unknown> & {
+  title?: string;
+  voice?: unknown;
+  visualBible?: unknown;
+  direction?: unknown;
+  directionMeta?: unknown;
+  overrides?: unknown;
+  sections: LockedSection[];
+};
+
+type SplitPlanDraft = {
+  model: string;
+  warnings?: string[];
+  quality?: {
+    coverageNotes?: string;
+  };
+  plan: LockedPlan;
+};
+
+type SplitPlannerRuntimeDeps = {
+  plannerSplitDecision: (
+    body?: Record<string, unknown>,
+    story?: string,
+    splitPlannerConfig?: Record<string, unknown>,
+  ) => { enabled: boolean };
+  splitPlannerConfig: Record<string, unknown>;
+  defaultPlannerUserPromptTemplate: string;
+  appendDraftTraceAndState: (
+    projectId: string,
+    job: SplitPlannerJob,
+    event: string,
+    payload: Record<string, unknown>,
+    patch: Record<string, unknown>,
+  ) => Promise<void>;
+  plannerProgressLabel: (prefix: string, progress: PlannerProgressEvent) => string;
+  buildLockedPlanFromStory: (
+    currentPlan: Record<string, unknown>,
+    story: string,
+    direction: { feel?: string; pacing?: string; visualStyle?: string },
+  ) => LockedPlan;
+  appendRunTrace: (
+    projectId: string,
+    jobId: string,
+    event: string,
+    payload: Record<string, unknown>,
+  ) => Promise<void>;
+  splitPlannerSectionAttempts: number;
+  generatePlanDraftWithOpenAi: (input: Record<string, unknown>) => Promise<SplitPlanDraft>;
+  isOpenAiInsufficientQuotaError: (error: unknown) => boolean;
+  sleep: (ms: number) => Promise<void>;
+  fallbackMetadataForLockedSection: (
+    plan: LockedPlan,
+    sectionIndex: number,
+    error: unknown,
+  ) => LockedPlan;
+  mergeSectionMetadataPlan: (
+    lockedPlan: LockedPlan,
+    sectionIndex: number,
+    draftPlan: LockedPlan,
+  ) => LockedPlan;
+  planNarrationHealth: (
+    plan: LockedPlan,
+    story: string,
+    plannerSelfReview?: Record<string, unknown>,
+  ) => {
+    plannerSelfReview?: {
+      orderingConfidence?: number;
+    };
+  };
+  assertLockedNarrationPreserved: (plan: LockedPlan, lockedPlan: LockedPlan) => void;
+};
+
+export function createSplitPlannerRuntime(deps: SplitPlannerRuntimeDeps) {
   const {
     plannerSplitDecision,
     splitPlannerConfig,
@@ -17,9 +117,14 @@ export function createSplitPlannerRuntime(deps) {
     assertLockedNarrationPreserved,
   } = deps;
 
-  function plannerProgressTracer(projectId, job, prefix, strictness) {
+  function plannerProgressTracer(
+    projectId: string,
+    job: SplitPlannerJob,
+    prefix: string,
+    strictness: string,
+  ) {
     let lastHeartbeatSecond = -1;
-    return async (progress) => {
+    return async (progress: PlannerProgressEvent): Promise<void> => {
       const elapsedSecond = Math.round(Number(progress.elapsedMs ?? 0) / 1000);
       if (progress.event === "request.heartbeat" && elapsedSecond - lastHeartbeatSecond < 10)
         return;
@@ -47,7 +152,7 @@ export function createSplitPlannerRuntime(deps) {
     };
   }
 
-  function stricterPlannerUserPromptTemplate() {
+  function stricterPlannerUserPromptTemplate(): string {
     return [
       defaultPlannerUserPromptTemplate,
       "",
@@ -64,7 +169,7 @@ export function createSplitPlannerRuntime(deps) {
     ].join("\n");
   }
 
-  function splitPlannerEnabled(body = {}, story = "") {
+  function splitPlannerEnabled(body: Record<string, unknown> = {}, story = ""): boolean {
     return plannerSplitDecision(body, story, splitPlannerConfig).enabled;
   }
 
@@ -80,7 +185,30 @@ export function createSplitPlannerRuntime(deps) {
     onProgress,
     projectId,
     job,
-  }) {
+  }: {
+    story: string;
+    currentPlan: Record<string, unknown>;
+    feel?: string;
+    pacing?: string;
+    visualStyle?: string;
+    format?: string;
+    systemPrompt?: string;
+    userPromptTemplate?: string;
+    onProgress?: (progress: PlannerProgressEvent) => Promise<void> | void;
+    projectId?: string;
+    job?: SplitPlannerJob;
+  }): Promise<{
+    plan: LockedPlan;
+    quality: {
+      estimatedSourceCoverageRatio: number;
+      containsInventedChannelCta: boolean;
+      introHookPlacement: string;
+      orderingConfidence: number;
+      coverageNotes: string;
+    };
+    warnings: string[];
+    model: string;
+  }> {
     const lockedPlan = buildLockedPlanFromStory(currentPlan, story, { feel, pacing, visualStyle });
     let mergedPlan = lockedPlan;
     const models = [];
@@ -113,8 +241,8 @@ export function createSplitPlannerRuntime(deps) {
         "- Do not add, remove, combine, split, rewrite, or reorder beat narration.",
         "- Use the existing global visual bible if present; do not rename existing character/location/object IDs.",
       ].join("\n");
-      let draft;
-      let lastError;
+      let draft: SplitPlanDraft | undefined;
+      let lastError: unknown;
       for (let attempt = 1; attempt <= splitPlannerSectionAttempts; attempt += 1) {
         try {
           if (projectId && job?.id)

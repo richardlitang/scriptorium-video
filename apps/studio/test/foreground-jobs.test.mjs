@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { createForegroundJobs } from "../lib/draft/foreground-jobs.mjs";
+import { createForegroundJobs } from "../lib/draft/foreground-jobs.mts";
 
 test("runTrackedForegroundJob writes completion handoff for terminal jobs", async () => {
   const jobs = [];

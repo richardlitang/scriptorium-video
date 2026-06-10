@@ -1,7 +1,41 @@
-export function createForegroundJobs(deps) {
+type ForegroundJob = {
+  kind: string;
+  jobId: string;
+  status: string;
+  phase: string;
+  label: string;
+  completed: number;
+  total: number;
+  startedAt: string;
+  finishedAt?: string;
+  error?: string;
+  output: string;
+};
+
+type ForegroundJobOptions = {
+  kind: string;
+  label: string;
+  total?: number;
+  completedLabel?: string;
+};
+
+type ForegroundJobStepResult = {
+  stdout?: string;
+};
+
+type ForegroundJobDeps = {
+  upsertRunJob: (projectId: string, job: Record<string, unknown>) => Promise<void>;
+  writeAgentHandoff?: (
+    projectId: string,
+    job: ForegroundJob,
+    handoff: { summary: string; nextAction: string },
+  ) => Promise<void>;
+};
+
+export function createForegroundJobs(deps: ForegroundJobDeps) {
   const { upsertRunJob, writeAgentHandoff } = deps;
 
-  function createForegroundJob({ kind, label, total = 1 }) {
+  function createForegroundJob({ kind, label, total = 1 }: ForegroundJobOptions): ForegroundJob {
     return {
       kind,
       jobId: `${kind}-${Date.now().toString(36)}`,
@@ -17,11 +51,25 @@ export function createForegroundJobs(deps) {
     };
   }
 
-  async function runTrackedForegroundJob(projectId, options, runner) {
+  async function runTrackedForegroundJob<T>(
+    projectId: string,
+    options: ForegroundJobOptions,
+    runner: (context: {
+      job: ForegroundJob;
+      advance: (
+        label: string,
+        operation: () => Promise<ForegroundJobStepResult>,
+      ) => Promise<ForegroundJobStepResult>;
+      outputLines: string[];
+    }) => Promise<T>,
+  ): Promise<T> {
     const job = createForegroundJob(options);
-    const outputLines = [];
+    const outputLines: string[] = [];
     await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
-    const advance = async (label, operation) => {
+    const advance = async (
+      label: string,
+      operation: () => Promise<ForegroundJobStepResult>,
+    ): Promise<ForegroundJobStepResult> => {
       job.label = label;
       await upsertRunJob(projectId, { ...job, updatedAt: new Date().toISOString() });
       const result = await operation();

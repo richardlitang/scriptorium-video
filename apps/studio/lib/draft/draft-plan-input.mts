@@ -1,11 +1,54 @@
-function classifyDirectiveKind(text) {
+type PlannerDirectiveKind = "visual" | "sfx" | "silence";
+
+type PlannerDirective = {
+  lineIndex: number;
+  text: string;
+  kind: PlannerDirectiveKind;
+};
+
+type PlannerStoryParseResult = {
+  narrationUnits: string[];
+  directives: PlannerDirective[];
+};
+
+type PlannerSection = {
+  id?: string;
+  beats?: unknown[];
+};
+
+type StoryInputPlan = {
+  schemaVersion: 1;
+  sections: PlannerSection[];
+  [key: string]: unknown;
+};
+
+type SplitPlannerConfig = {
+  enabled?: boolean;
+  minWords?: number;
+  minUnits?: number;
+};
+
+type PlannerRequestBody = {
+  plannerMode?: string;
+};
+
+type DraftPlan = Record<string, unknown> & {
+  sections?: Array<{ beats?: Array<{ narration?: string }> }>;
+  providers?: Record<string, unknown>;
+  voice?: Record<string, unknown> & {
+    voiceId?: string;
+    options?: Record<string, unknown>;
+  };
+};
+
+function classifyDirectiveKind(text: string): PlannerDirectiveKind {
   if (/^(?:background visual|visual)\s*:/i.test(text)) return "visual";
   if (/sfx|sound|low thud|music/i.test(text)) return "sfx";
   if (/pause|silence/i.test(text)) return "silence";
   return "visual";
 }
 
-export function parsePlanFromStoryInput(rawInput) {
+export function parsePlanFromStoryInput(rawInput: string): StoryInputPlan | undefined {
   try {
     const parsed = JSON.parse(rawInput);
     if (parsed?.schemaVersion === 1 && Array.isArray(parsed.sections)) return parsed;
@@ -15,19 +58,19 @@ export function parsePlanFromStoryInput(rawInput) {
   return undefined;
 }
 
-export function countStoryWords(value) {
+export function countStoryWords(value: string): number {
   return String(value || "")
     .split(/\s+/)
     .filter(Boolean).length;
 }
 
-function normalizeWhitespace(value) {
+function normalizeWhitespace(value: string): string {
   return String(value || "")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-export function stripNonSpokenDirectives(text) {
+export function stripNonSpokenDirectives(text: string): string {
   return normalizeWhitespace(
     String(text || "")
       .replace(/\[[^\]]+\]/g, " ")
@@ -35,7 +78,7 @@ export function stripNonSpokenDirectives(text) {
   );
 }
 
-export function isNonSpokenDirective(text) {
+export function isNonSpokenDirective(text: string): boolean {
   const normalized = normalizeWhitespace(text);
   if (!normalized) return true;
   if (/^\[[^\]]+\]$/.test(normalized)) return true;
@@ -57,11 +100,11 @@ export function isNonSpokenDirective(text) {
   return false;
 }
 
-export function parseStoryForPlanner(rawStory) {
+export function parseStoryForPlanner(rawStory: string): PlannerStoryParseResult {
   const story = String(rawStory || "").trim();
   if (!story) return { narrationUnits: [], directives: [] };
 
-  const directives = [];
+  const directives: PlannerDirective[] = [];
   const sourceLines = story
     .split(/\n+/)
     .map((line, lineIndex) => ({ line, lineIndex }))
@@ -96,14 +139,14 @@ export function parseStoryForPlanner(rawStory) {
   return { narrationUnits, directives };
 }
 
-export function splitStoryIntoLockedUnits(rawStory) {
+export function splitStoryIntoLockedUnits(rawStory: string): string[] {
   const parsed = parseStoryForPlanner(rawStory);
   if (parsed.narrationUnits.length > 0) return parsed.narrationUnits;
   const story = normalizeWhitespace(rawStory);
   return story ? [story] : [];
 }
 
-export function buildPlannerStoryInput(rawStory) {
+export function buildPlannerStoryInput(rawStory: string): string {
   const parsed = parseStoryForPlanner(rawStory);
   const narration = parsed.narrationUnits.join("\n");
   if (!parsed.directives.length) return narration;
@@ -121,14 +164,20 @@ export function buildPlannerStoryInput(rawStory) {
     .trim();
 }
 
-function integerSetting(value, fallback, { min = 1 } = {}) {
+function integerSetting(
+  value: string | number | undefined | null,
+  fallback: number,
+  { min = 1 }: { min?: number } = {},
+): number {
   if (value === undefined || value === null || value === "") return fallback;
   const parsed = Number(value);
   if (!Number.isInteger(parsed) || parsed < min) return fallback;
   return parsed;
 }
 
-export function resolveSplitPlannerConfig(env = process.env) {
+export function resolveSplitPlannerConfig(
+  env: Record<string, string | undefined> = process.env,
+): Required<SplitPlannerConfig> {
   return {
     enabled: env.LVSTUDIO_SPLIT_PLANNER !== "0",
     minWords: integerSetting(env.LVSTUDIO_SPLIT_PLANNER_MIN_WORDS, 2500),
@@ -137,10 +186,17 @@ export function resolveSplitPlannerConfig(env = process.env) {
 }
 
 export function plannerSplitDecision(
-  body = {},
+  body: PlannerRequestBody = {},
   story = "",
-  splitPlannerConfig = resolveSplitPlannerConfig(),
-) {
+  splitPlannerConfig: SplitPlannerConfig = resolveSplitPlannerConfig(),
+): {
+  enabled: boolean;
+  reason: string;
+  wordCount?: number;
+  unitCount?: number;
+  minWords?: number;
+  minUnits?: number;
+} {
   if (body.plannerMode === "single") return { enabled: false, reason: "explicit-single" };
   if (body.plannerMode === "split") return { enabled: true, reason: "explicit-split" };
   const splitPlannerEnabled = splitPlannerConfig.enabled !== false;
@@ -161,7 +217,7 @@ export function plannerSplitDecision(
   };
 }
 
-export function isScaffoldPlaceholderPlan(plan) {
+export function isScaffoldPlaceholderPlan(plan: DraftPlan | null | undefined): boolean {
   const beats = (plan?.sections ?? []).flatMap((section) => section.beats ?? []);
   return beats.some(
     (beat) =>
@@ -171,7 +227,7 @@ export function isScaffoldPlaceholderPlan(plan) {
   );
 }
 
-export function applyDraftDefaults(plan) {
+export function applyDraftDefaults(plan: DraftPlan): DraftPlan {
   return {
     ...plan,
     providers: {
@@ -182,7 +238,7 @@ export function applyDraftDefaults(plan) {
     voice: {
       ...plan.voice,
       provider: "chatterbox",
-      voiceId: ["onyx", "manual-voice", "verse", "marin"].includes(plan.voice?.voiceId)
+      voiceId: ["onyx", "manual-voice", "verse", "marin"].includes(String(plan.voice?.voiceId))
         ? "clone"
         : plan.voice?.voiceId || "clone",
       format: "wav",

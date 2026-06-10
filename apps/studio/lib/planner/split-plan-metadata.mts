@@ -26,7 +26,10 @@ type PlanRecord = {
   sections: SectionRecord[];
 };
 
-function mergeBeatMetadataIntoLockedBeat(lockedBeat: BeatRecord, draftBeat?: BeatRecord): BeatRecord {
+function mergeBeatMetadataIntoLockedBeat(
+  lockedBeat: BeatRecord,
+  draftBeat?: BeatRecord,
+): BeatRecord {
   if (!draftBeat) return lockedBeat;
   return {
     ...lockedBeat,
@@ -40,15 +43,15 @@ function mergeBeatMetadataIntoLockedBeat(lockedBeat: BeatRecord, draftBeat?: Bea
         ? [
             {
               ...lockedBeat.media?.[0],
-              prompt:
-                String(draftBeat.media[0].prompt || draftBeat.visual?.prompt || lockedBeat.narration),
-              scaleMode:
-                String(
-                  draftBeat.media[0].scaleMode ||
-                    draftBeat.visual?.scaleMode ||
-                    lockedBeat.media?.[0]?.scaleMode ||
-                    "safe_cover",
-                ),
+              prompt: String(
+                draftBeat.media[0].prompt || draftBeat.visual?.prompt || lockedBeat.narration,
+              ),
+              scaleMode: String(
+                draftBeat.media[0].scaleMode ||
+                  draftBeat.visual?.scaleMode ||
+                  lockedBeat.media?.[0]?.scaleMode ||
+                  "safe_cover",
+              ),
             },
           ]
         : lockedBeat.media,
@@ -56,13 +59,12 @@ function mergeBeatMetadataIntoLockedBeat(lockedBeat: BeatRecord, draftBeat?: Bea
     visual: {
       ...(lockedBeat.visual || {}),
       ...(draftBeat.visual || {}),
-      prompt:
-        String(
-          draftBeat.visual?.prompt ||
-            draftBeat.media?.[0]?.prompt ||
-            lockedBeat.visual?.prompt ||
-            lockedBeat.narration,
-        ),
+      prompt: String(
+        draftBeat.visual?.prompt ||
+          draftBeat.media?.[0]?.prompt ||
+          lockedBeat.visual?.prompt ||
+          lockedBeat.narration,
+      ),
       source: String(draftBeat.visual?.source || "llm"),
     },
     direction: draftBeat.direction || lockedBeat.direction,

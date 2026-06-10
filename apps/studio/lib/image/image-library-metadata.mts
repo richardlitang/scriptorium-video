@@ -11,11 +11,7 @@ export function imageDescriptionFromPrompt(prompt: string): string {
 
 export function imageTagsFromPrompt(
   prompt: string,
-  {
-    size,
-    quality,
-    model,
-  }: { size?: string; quality?: string; model?: string },
+  { size, quality, model }: { size?: string; quality?: string; model?: string },
 ): string[] {
   const text = String(prompt || "");
   const tags = [
