@@ -9,7 +9,6 @@
     "moduleResolution": "NodeNext"
   },
   "include": [
-    "apps/studio/public/modules/**/*.js",
     "apps/studio/static-assets.mjs",
     "apps/studio/image-cache.mjs",
     "apps/studio/voice-settings.mjs"
