@@ -20,3 +20,4 @@ content/projects/**/video-plan.json
 content/projects/**/project.json
 __pycache__/
 *.pyc
+.worktrees/
