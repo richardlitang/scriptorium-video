@@ -23,6 +23,8 @@
 - Run `pnpm -s verify` before claiming any task complete; show the output.
 - Commit after every task with a conventional-commit message ending in `Co-Authored-By: Claude <noreply@anthropic.com>`.
 
+**Known environment caveat (verify before starting):** on this machine `pnpm -s verify` has previously failed only on `scripts/check-renderer-boundary.sh` because `rg` (ripgrep) was a shell function, not an installed binary — a pre-existing environment issue, not a code issue. Run `pnpm -s verify` once on clean `main` before Task 0.1 and record which checks (if any) fail; that is your baseline. Never "fix" a baseline failure by weakening a sensor — either install ripgrep (`brew install ripgrep`) or carry the known failure explicitly in every gate comparison.
+
 ---
 
 ## Phase 0 — Sensor repair and duplication removal
