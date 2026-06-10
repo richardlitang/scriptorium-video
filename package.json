@@ -28,7 +28,7 @@
     "check:focused-audit-doc": "node scripts/check-focused-audit-doc.mjs",
     "check:agent-harness-docs": "node scripts/check-agent-harness-docs.mjs",
     "mcp:server": "pnpm -s build && node packages/mcp-server/dist/index.js",
-    "studio": "node apps/studio/server.mjs"
+    "studio": "pnpm -s build && node apps/studio/server.mjs"
   },
   "dependencies": {
     "@remotion/bundler": "^4.0.443",
