@@ -1,7 +1,31 @@
-export function createProjectMediaOps(deps) {
+import type { Dirent, Stats } from "node:fs";
+import type { IncomingMessage, ServerResponse } from "node:http";
+
+type PathApi = {
+  basename: (path: string, suffix?: string) => string;
+  extname: (path: string) => string;
+  join: (...parts: string[]) => string;
+  normalize: (path: string) => string;
+  resolve: (...parts: string[]) => string;
+  sep: string;
+};
+
+interface ProjectMediaOpsDeps {
+  path: PathApi;
+  readdir: (dirPath: string, options: { withFileTypes: true }) => Promise<Dirent[]>;
+  stat: (filePath: string) => Promise<Stats>;
+  createReadStream: (
+    filePath: string,
+    options?: { start?: number; end?: number },
+  ) => NodeJS.ReadableStream;
+  projectsDir: string;
+  sendJson: (res: ServerResponse, statusCode: number, payload: Record<string, unknown>) => void;
+}
+
+export function createProjectMediaOps(deps: ProjectMediaOpsDeps) {
   const { path, readdir, stat, createReadStream, projectsDir, sendJson } = deps;
 
-  function safeProjectPath(projectId, relativeAssetPath) {
+  function safeProjectPath(projectId: string, relativeAssetPath: string): string | null {
     const projectDir = path.join(projectsDir, projectId);
     const normalized = path.normalize(relativeAssetPath);
     const absolute = path.resolve(projectDir, normalized);
@@ -9,7 +33,12 @@ export function createProjectMediaOps(deps) {
     return absolute;
   }
 
-  async function sendVideoFile(req, res, filePath, contentType) {
+  async function sendVideoFile(
+    req: IncomingMessage,
+    res: ServerResponse,
+    filePath: string,
+    contentType: string,
+  ) {
     const fileStat = await stat(filePath).catch(() => null);
     if (!fileStat) {
       return sendJson(res, 404, { ok: false, message: "Render not found." });
@@ -50,7 +79,7 @@ export function createProjectMediaOps(deps) {
     createReadStream(filePath, { start, end }).pipe(res);
   }
 
-  async function getRenderDetails(projectId) {
+  async function getRenderDetails(projectId: string) {
     const rendersDir = path.join(projectsDir, projectId, "renders");
     const entries = await readdir(rendersDir, { withFileTypes: true }).catch(() => []);
     const renderEntries = entries

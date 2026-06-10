@@ -2,22 +2,98 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { voiceSettingsEnv } from "../../voice-settings.mjs";
 
-function sha256(value) {
+type VoiceDirectionSummary = {
+  ttsProvider?: string;
+  language?: string;
+  narrationLanguage?: string;
+};
+
+type BeatSummaryInput = {
+  id?: string;
+  order?: number;
+  narration?: string;
+  narrationLanguage?: string;
+  media?: unknown[];
+  voiceDirection?: VoiceDirectionSummary;
+  direction?: {
+    voice?: VoiceDirectionSummary;
+    editorial?: {
+      visualEditCues?: unknown[];
+      silenceWindows?: unknown[];
+    };
+  };
+  visualEditCues?: unknown[];
+  silenceWindows?: unknown[];
+};
+
+type SectionSummaryInput = {
+  id?: string;
+  title?: string;
+  beats?: BeatSummaryInput[];
+};
+
+type PlanSummaryInput = {
+  title?: string;
+  providers?: { tts?: string };
+  sections?: SectionSummaryInput[];
+};
+
+type ManifestAsset = {
+  id?: string;
+  beatId?: string;
+  sectionId?: string;
+  role?: string;
+  status?: string;
+  path?: string;
+  durationSeconds?: number;
+  source?: {
+    kind?: string;
+    provider?: string;
+  };
+};
+
+type ManifestSummaryInput = {
+  assets?: ManifestAsset[];
+};
+
+type TimelineSegment = {
+  beatId?: string;
+  startSeconds?: number;
+  endSeconds?: number;
+  durationSeconds?: number;
+  voiceAssetId?: string;
+  mediaAssetIds?: string[];
+  visualEditCues?: unknown[];
+  silenceWindows?: unknown[];
+};
+
+type TimelineSummaryInput = {
+  durationSeconds?: number;
+  segments?: TimelineSegment[];
+};
+
+type VoiceSettingsSummaryInput = {
+  ttsModel?: string;
+  deliveryProfile?: string;
+  audioPromptPath?: string;
+};
+
+function sha256(value: string): string {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function countWords(value) {
+function countWords(value: string): number {
   return String(value || "")
     .split(/\s+/)
     .filter(Boolean).length;
 }
 
-function redactPath(value) {
+function redactPath(value?: string): string {
   if (!value) return "";
   return path.basename(String(value));
 }
 
-export function directiveCandidateLines(story) {
+export function directiveCandidateLines(story: string): Array<{ index: number; text: string }> {
   return String(story || "")
     .split(/\r?\n/)
     .map((line, index) => ({ index: index + 1, text: line.trim() }))
@@ -33,7 +109,7 @@ export function directiveCandidateLines(story) {
     .slice(0, 40);
 }
 
-export function summarizeStoryInput(story) {
+export function summarizeStoryInput(story: string) {
   const raw = String(story || "");
   return {
     hash: sha256(raw),
@@ -44,7 +120,7 @@ export function summarizeStoryInput(story) {
   };
 }
 
-export function summarizePlanForTrace(plan, story = "") {
+export function summarizePlanForTrace(plan: PlanSummaryInput, story = "") {
   const beats = (plan.sections ?? []).flatMap((section) =>
     (section.beats ?? []).map((beat) => ({
       sectionId: section.id,
@@ -52,7 +128,7 @@ export function summarizePlanForTrace(plan, story = "") {
       beatId: beat.id,
       order: beat.order,
       narrationChars: String(beat.narration || "").length,
-      narrationWords: countWords(beat.narration),
+      narrationWords: countWords(String(beat.narration || "")),
       ttsProvider:
         beat.voiceDirection?.ttsProvider ||
         beat.direction?.voice?.ttsProvider ||
@@ -87,7 +163,7 @@ export function summarizePlanForTrace(plan, story = "") {
   };
 }
 
-export function summarizeManifestForTrace(manifest) {
+export function summarizeManifestForTrace(manifest: ManifestSummaryInput) {
   const assets = manifest?.assets ?? [];
   return {
     totalAssets: assets.length,
@@ -116,13 +192,18 @@ export function summarizeManifestForTrace(manifest) {
   };
 }
 
-export function summarizeTimelineForTrace(timeline, manifest) {
-  const assetsById = new Map((manifest?.assets ?? []).map((asset) => [asset.id, asset]));
+export function summarizeTimelineForTrace(
+  timeline: TimelineSummaryInput,
+  manifest: ManifestSummaryInput,
+) {
+  const assetsById = new Map(
+    (manifest?.assets ?? []).map((asset) => [asset.id ?? "", asset] as const),
+  );
   return {
     durationSeconds: timeline?.durationSeconds ?? 0,
     segmentCount: timeline?.segments?.length ?? 0,
     segments: (timeline?.segments ?? []).map((segment) => {
-      const visualAsset = assetsById.get(segment.mediaAssetIds?.[0]);
+      const visualAsset = assetsById.get(segment.mediaAssetIds?.[0] ?? "");
       return {
         beatId: segment.beatId,
         startSeconds: segment.startSeconds,
@@ -138,12 +219,13 @@ export function summarizeTimelineForTrace(timeline, manifest) {
   };
 }
 
-export function summarizeVoiceSettingsForTrace(settings) {
+export function summarizeVoiceSettingsForTrace(settings: VoiceSettingsSummaryInput) {
+  const env = voiceSettingsEnv(settings as Record<string, unknown>) as Record<string, string>;
   return {
     ttsModel: settings.ttsModel,
     deliveryProfile: settings.deliveryProfile,
     hasAudioPromptPath: Boolean(settings.audioPromptPath),
     audioPromptFile: redactPath(settings.audioPromptPath),
-    envIncludesAudioPrompt: Boolean(voiceSettingsEnv(settings).CHATTERBOX_AUDIO_PROMPT_PATH),
+    envIncludesAudioPrompt: Boolean(env.CHATTERBOX_AUDIO_PROMPT_PATH),
   };
 }

@@ -1,6 +1,108 @@
+import type { Dirent, Stats } from "node:fs";
 import { narrationFromImagePrompt, selectCachedImage } from "../../image-cache.mjs";
 
-function imageCacheEntryFromHistory(projectId, entry, { path, imageReuseKey }) {
+type PathApi = {
+  basename: (path: string, suffix?: string) => string;
+  dirname: (path: string) => string;
+  join: (...parts: string[]) => string;
+  resolve: (...parts: string[]) => string;
+  sep: string;
+};
+
+type ImageHistoryEntry = {
+  assetId?: string;
+  beatId?: string;
+  libraryPath?: string;
+  path: string;
+  inputHash?: string;
+  reuseKey?: string;
+  model?: string;
+  size?: string;
+  quality?: string;
+  prompt?: string;
+  description?: string;
+  tags?: string[];
+  sha256?: string;
+  generatedAt?: string;
+};
+
+type ImageCacheEntry = {
+  projectId: string;
+  assetId?: string;
+  beatId?: string;
+  rootPath: string;
+  inputHash?: string;
+  reuseKey?: string;
+  model?: string;
+  size?: string;
+  quality?: string;
+  prompt?: string;
+  description?: string;
+  tags?: string[];
+  sha256?: string;
+  generatedAt?: string;
+};
+
+type ImageLibraryMetadata = {
+  firstSeen?: Record<string, unknown>;
+  reuseCount?: number;
+};
+
+type ImageQuery = {
+  inputHash: string | undefined;
+  reuseKey: string | undefined;
+  size: string | undefined;
+  quality: string | undefined;
+  model: string | undefined;
+  allowNarrationReuse: boolean | undefined;
+};
+
+type StoreImageInput = {
+  bytes: string | Uint8Array;
+  prompt: string;
+  projectId: string;
+  assetId?: string;
+  beatId?: string;
+  sectionId?: string;
+  model?: string;
+  size?: string;
+  quality?: string;
+  inputHash?: string;
+  reuseKey?: string;
+};
+
+interface ImageCacheStoreDeps {
+  path: PathApi;
+  rootDir: string;
+  imageHistoryDir: string;
+  imageCachePath: string;
+  imageLibraryDir: string;
+  imageReuseKey: (input: {
+    narration: string;
+    size?: string;
+    quality?: string;
+    model?: string;
+  }) => string;
+  imageDescriptionFromPrompt: (prompt: string) => string;
+  imageTagsFromPrompt: (
+    prompt: string,
+    input: { size?: string; quality?: string; model?: string },
+  ) => string[];
+  sha256: (value: string | Uint8Array) => string;
+  safeReadJson: <T>(filePath: string) => Promise<T>;
+  readFile: (filePath: string, encoding: string) => Promise<string>;
+  readdir: (dirPath: string, options: { withFileTypes: true }) => Promise<Dirent[]>;
+  stat: (filePath: string) => Promise<Stats>;
+  appendFile: (filePath: string, content: string, encoding: string) => Promise<void>;
+  mkdir: (dirPath: string, options: { recursive: true }) => Promise<void>;
+  writeFile: (filePath: string, content: string | Uint8Array) => Promise<void>;
+}
+
+function imageCacheEntryFromHistory(
+  projectId: string,
+  entry: ImageHistoryEntry,
+  { path, imageReuseKey }: Pick<ImageCacheStoreDeps, "path" | "imageReuseKey">,
+): ImageCacheEntry {
   const narration = narrationFromImagePrompt(entry.prompt);
   return {
     projectId,
@@ -29,7 +131,7 @@ function imageCacheEntryFromHistory(projectId, entry, { path, imageReuseKey }) {
   };
 }
 
-export function createImageCacheStore(deps) {
+export function createImageCacheStore(deps: ImageCacheStoreDeps) {
   const {
     path,
     rootDir,
@@ -49,36 +151,36 @@ export function createImageCacheStore(deps) {
     writeFile,
   } = deps;
 
-  async function readImageHistory(projectId) {
+  async function readImageHistory(projectId: string): Promise<ImageHistoryEntry[]> {
     const logPath = path.join(imageHistoryDir, `${projectId}.ndjson`);
     const raw = await readFile(logPath, "utf8").catch(() => "");
     if (!raw.trim()) return [];
     return raw
       .trim()
       .split("\n")
-      .map((line) => JSON.parse(line))
+      .map((line) => JSON.parse(line) as ImageHistoryEntry)
       .filter(Boolean)
-      .sort((a, b) => (a.generatedAt < b.generatedAt ? 1 : -1));
+      .sort((a, b) => (String(a.generatedAt) < String(b.generatedAt) ? 1 : -1));
   }
 
-  async function appendImageHistory(projectId, entry) {
+  async function appendImageHistory(projectId: string, entry: ImageHistoryEntry): Promise<void> {
     await mkdir(imageHistoryDir, { recursive: true });
     const logPath = path.join(imageHistoryDir, `${projectId}.ndjson`);
     await appendFile(logPath, `${JSON.stringify(entry)}\n`, "utf8");
   }
 
-  async function readImageCacheEntries() {
+  async function readImageCacheEntries(): Promise<ImageCacheEntry[]> {
     const cacheRaw = await readFile(imageCachePath, "utf8").catch(() => "");
     const cacheEntries = cacheRaw.trim()
       ? cacheRaw
           .trim()
           .split("\n")
-          .map((line) => JSON.parse(line))
+          .map((line) => JSON.parse(line) as ImageCacheEntry)
           .filter(Boolean)
       : [];
 
     const historyFiles = await readdir(imageHistoryDir, { withFileTypes: true }).catch(() => []);
-    const historyEntries = [];
+    const historyEntries: ImageCacheEntry[] = [];
     for (const file of historyFiles) {
       if (!file.isFile() || !file.name.endsWith(".ndjson")) continue;
       const projectId = path.basename(file.name, ".ndjson");
@@ -93,8 +195,10 @@ export function createImageCacheStore(deps) {
     return [...cacheEntries, ...historyEntries];
   }
 
-  async function findReusableImage(query) {
-    const selected = selectCachedImage(await readImageCacheEntries(), query);
+  async function findReusableImage(query: ImageQuery) {
+    const selected = selectCachedImage(await readImageCacheEntries(), query) as
+      | (ImageCacheEntry & { rootPath: string })
+      | undefined;
     if (!selected) return undefined;
     const absolutePath = path.resolve(rootDir, selected.rootPath);
     if (!absolutePath.startsWith(rootDir + path.sep)) return undefined;
@@ -102,7 +206,7 @@ export function createImageCacheStore(deps) {
     return { ...selected, absolutePath };
   }
 
-  async function appendImageCacheEntry(entry) {
+  async function appendImageCacheEntry(entry: ImageCacheEntry): Promise<void> {
     await mkdir(path.dirname(imageCachePath), { recursive: true });
     await appendFile(imageCachePath, `${JSON.stringify(entry)}\n`, "utf8");
   }
@@ -119,7 +223,7 @@ export function createImageCacheStore(deps) {
     quality,
     inputHash,
     reuseKey,
-  }) {
+  }: StoreImageInput) {
     const fileHash = sha256(bytes);
     const relativeImagePath = path.join(
       ".studio-data",
@@ -136,7 +240,9 @@ export function createImageCacheStore(deps) {
     const description = imageDescriptionFromPrompt(prompt);
     const tags = imageTagsFromPrompt(prompt, { size, quality, model });
     const metadataPath = path.join(imageLibraryDir, "metadata", `${fileHash}.json`);
-    const existingMetadata = await safeReadJson(metadataPath).catch(() => null);
+    const existingMetadata = await safeReadJson<ImageLibraryMetadata>(metadataPath).catch(
+      () => null,
+    );
     const metadata = {
       schemaVersion: 1,
       sha256: fileHash,
@@ -165,7 +271,7 @@ export function createImageCacheStore(deps) {
       updatedAt: new Date().toISOString(),
     };
     await mkdir(path.dirname(metadataPath), { recursive: true });
-    await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`, "utf8");
+    await writeFile(metadataPath, `${JSON.stringify(metadata, null, 2)}\n`);
     return {
       sha256: fileHash,
       rootPath: relativeImagePath,

@@ -1,5 +1,64 @@
 import { canonicalizePlanForPersistence } from "../planner/canonicalize-plan.mjs";
 
+type PathApi = {
+  dirname: (path: string) => string;
+  join: (...parts: string[]) => string;
+};
+
+type SafeReadJson = <T>(filePath: string) => Promise<T>;
+
+type TestModeDeps = {
+  path: PathApi;
+  mkdir: (dirPath: string, options: { recursive: true }) => Promise<void>;
+  writeFile: (filePath: string, content: string, encoding: string) => Promise<void>;
+  safeReadJson: SafeReadJson;
+  projectsDir: string;
+  sha256: (value: string) => string;
+};
+
+type TestCommandResult = { stdout: string; stderr: string };
+
+type TestPlanBeat = {
+  id: string;
+  order: number;
+  narration: string;
+  timing?: { mediaPolicy?: string; estimatedDurationSeconds?: number; locked?: boolean };
+};
+
+type TestPlanSection = {
+  id: string;
+  title: string;
+  beats?: TestPlanBeat[];
+};
+
+type TestPlan = {
+  schemaVersion: number;
+  title: string;
+  mode: string;
+  targetPlatform: string;
+  stylePackId: string;
+  providers: Record<string, string>;
+  voice: Record<string, unknown>;
+  sections?: TestPlanSection[];
+};
+
+type TestManifest = {
+  schemaVersion: number;
+  assets: Array<{ id: string; [key: string]: unknown }>;
+};
+
+type TestTimeline = {
+  durationSeconds: number;
+  segments?: Array<{
+    sectionId: string;
+    beatId: string;
+    startSeconds: number;
+    endSeconds: number;
+    durationSeconds: number;
+  }>;
+  [key: string]: unknown;
+};
+
 export function createStudioTestModeOps({
   path,
   mkdir,
@@ -7,19 +66,19 @@ export function createStudioTestModeOps({
   safeReadJson,
   projectsDir,
   sha256,
-}) {
-  return async function runLvstudioTestMode(args) {
+}: TestModeDeps) {
+  return async function runLvstudioTestMode(args: string[]): Promise<TestCommandResult> {
     const command = args[0];
     const projectId = args[1];
     if (!projectId && command !== "create") return { stdout: "ok", stderr: "" };
-    const projectDir = projectId ? path.join(projectsDir, projectId) : null;
+    const projectDir = projectId ? path.join(projectsDir, projectId) : "";
     const now = new Date().toISOString();
 
     if (command === "create") {
       const mode = args[3] || "long_documentary";
-      const plan = {
+      const plan: TestPlan = {
         schemaVersion: 1,
-        title: projectId,
+        title: String(projectId),
         mode,
         targetPlatform: "local_only",
         stylePackId: "default",
@@ -46,10 +105,6 @@ export function createStudioTestModeOps({
                 order: 1,
                 narration: "Test narration.",
                 timing: { mediaPolicy: "loop_or_freeze", locked: false },
-                media: [],
-                motion: { type: "none", intensity: 0 },
-                caption: { emphasis: [], style: "default" },
-                sfxCues: [],
               },
             ],
           },
@@ -64,7 +119,7 @@ export function createStudioTestModeOps({
         `${JSON.stringify({ schemaVersion: 1, id: projectId, title: projectId, createdAt: now, updatedAt: now, status: "draft" }, null, 2)}\n`,
         "utf8",
       );
-      const canonicalPlan = canonicalizePlanForPersistence(plan);
+      const canonicalPlan = canonicalizePlanForPersistence(plan as Record<string, unknown>);
       await writeFile(
         path.join(projectDir, "video-plan.json"),
         `${JSON.stringify(canonicalPlan, null, 2)}\n`,
@@ -79,8 +134,8 @@ export function createStudioTestModeOps({
     }
 
     if (command === "sync") {
-      const plan = await safeReadJson(path.join(projectDir, "video-plan.json"));
-      const segments = [];
+      const plan = await safeReadJson<TestPlan>(path.join(projectDir, "video-plan.json"));
+      const segments: Array<Record<string, unknown>> = [];
       let cursor = 0;
       for (const section of plan.sections ?? []) {
         for (const beat of section.beats ?? []) {
@@ -124,9 +179,9 @@ export function createStudioTestModeOps({
     }
 
     if (command === "generate:tts") {
-      const plan = await safeReadJson(path.join(projectDir, "video-plan.json"));
+      const plan = await safeReadJson<TestPlan>(path.join(projectDir, "video-plan.json"));
       const manifestPath = path.join(projectDir, "asset-manifest.json");
-      const manifest = await safeReadJson(manifestPath).catch(() => ({
+      const manifest = await safeReadJson<TestManifest>(manifestPath).catch(() => ({
         schemaVersion: 1,
         assets: [],
       }));
@@ -158,22 +213,24 @@ export function createStudioTestModeOps({
     }
 
     if (command === "transcribe") {
-      const timeline = await safeReadJson(path.join(projectDir, "timeline.json"));
-      const words = [];
-      const segments = [];
+      const timeline = await safeReadJson<TestTimeline>(path.join(projectDir, "timeline.json"));
+      const words: Array<Record<string, unknown>> = [];
+      const segments: Array<Record<string, unknown>> = [];
       for (const segment of timeline.segments ?? []) {
         const text = "test line";
-        segments.push({ startSeconds: segment.startSeconds, endSeconds: segment.endSeconds, text });
+        const startSeconds = Number(segment.startSeconds ?? 0);
+        const endSeconds = Number(segment.endSeconds ?? startSeconds + 1);
+        segments.push({ startSeconds, endSeconds, text });
         words.push({
           word: "test",
-          startSeconds: segment.startSeconds,
-          endSeconds: segment.startSeconds + 0.5,
+          startSeconds,
+          endSeconds: startSeconds + 0.5,
           confidence: 1,
         });
         words.push({
           word: "line",
-          startSeconds: segment.startSeconds + 0.5,
-          endSeconds: segment.startSeconds + 1,
+          startSeconds: startSeconds + 0.5,
+          endSeconds: startSeconds + 1,
           confidence: 1,
         });
       }
@@ -196,12 +253,15 @@ export function createStudioTestModeOps({
     }
 
     if (command === "captions") {
-      const timeline = await safeReadJson(path.join(projectDir, "timeline.json"));
+      const timeline = await safeReadJson<TestTimeline>(path.join(projectDir, "timeline.json"));
       const captions = (timeline.segments || []).map((segment, index) => ({
         id: `caption-${index + 1}`,
         beatId: segment.beatId,
-        startSeconds: segment.startSeconds,
-        endSeconds: Math.min(segment.endSeconds, segment.startSeconds + 1.5),
+        startSeconds: Number(segment.startSeconds ?? 0),
+        endSeconds: Math.min(
+          Number(segment.endSeconds ?? Number(segment.startSeconds ?? 0) + 1.5),
+          Number(segment.startSeconds ?? 0) + 1.5,
+        ),
         text: "test line",
         style: "default",
         words: [],
@@ -221,11 +281,12 @@ export function createStudioTestModeOps({
     }
 
     if (command === "check") return { stdout: '{"status":"pass","checks":[]}', stderr: "" };
-    if (command === "review")
+    if (command === "review") {
       return {
         stdout: '{"issues":[],"summary":{"critical":0,"warning":0,"suggestion":0}}',
         stderr: "",
       };
+    }
     if (command === "direct:voice") return { stdout: "{}", stderr: "" };
     return { stdout: "ok", stderr: "" };
   };

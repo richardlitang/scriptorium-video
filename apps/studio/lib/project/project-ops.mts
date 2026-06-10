@@ -1,3 +1,6 @@
+import type { Dirent } from "node:fs";
+import type { RunJob } from "./run-state-store.mjs";
+
 const lockableTransitions = new Set([
   "generated:locked_by_user",
   "edited:locked_by_user",
@@ -5,15 +8,91 @@ const lockableTransitions = new Set([
   "locked_by_user:generated",
 ]);
 
-function isJobHistory(entry) {
+type PathApi = {
+  join: (...parts: string[]) => string;
+  sep: string;
+};
+
+type LvstudioResult = { stdout: string; stderr: string };
+
+type ManifestAsset = {
+  id: string;
+  status: string;
+  updatedAt?: string;
+};
+
+type AssetManifest = {
+  assets: ManifestAsset[];
+};
+
+type QualityHistoryEntry = {
+  timestamp: string;
+  kind: string;
+  summary?: string;
+  output?: string;
+};
+
+type LiveJob = {
+  status?: string;
+};
+
+type JobProgressEntry = {
+  jobId: string;
+  status: string;
+  startedAt?: string;
+  finishedAt?: string;
+  label?: string;
+  output?: string;
+  error?: string;
+  completed?: number;
+  total?: number;
+  currentSectionTitle?: string;
+  beatId?: string;
+  tracePath?: string;
+  updatedAt?: string;
+};
+
+type ProjectRecord = {
+  id: string;
+  title?: string;
+  status?: string;
+  updatedAt?: string;
+};
+
+type PlanRecord = {
+  mode?: string;
+  targetPlatform?: string;
+};
+
+interface ProjectOpsDeps {
+  path: PathApi;
+  readdir: (dirPath: string, options: { withFileTypes: true }) => Promise<Dirent[]>;
+  rm: (filePath: string, options: { recursive?: true; force?: true }) => Promise<void>;
+  readFile: (filePath: string, encoding: string) => Promise<string>;
+  writeFile: (filePath: string, content: string, encoding: string) => Promise<void>;
+  safeReadJson: <T>(filePath: string) => Promise<T>;
+  projectsDir: string;
+  qualityHistoryDir: string;
+  imageHistoryDir: string;
+  runStatePath: (projectId: string) => string;
+  runLvstudio: (args: string[]) => Promise<LvstudioResult>;
+  appendQualityHistory: (projectId: string, entry: QualityHistoryEntry) => Promise<void>;
+  readRunState: (projectId: string) => Promise<{ jobs?: RunJob[] }>;
+  activeDraftJobs: Map<string, LiveJob>;
+  activeBeatJobs: Map<string, LiveJob>;
+  jobProgress: (job: LiveJob) => JobProgressEntry;
+  beatJobProgress: (job: LiveJob) => JobProgressEntry;
+  sha256: (value: string) => string;
+}
+
+function isJobHistory(entry: QualityHistoryEntry): boolean {
   return Boolean(entry?.kind && entry?.summary);
 }
 
-export function createProjectOps(deps) {
+export function createProjectOps(deps: ProjectOpsDeps) {
   const {
     path,
     readdir,
-    stat,
     rm,
     readFile,
     writeFile,
@@ -32,10 +111,10 @@ export function createProjectOps(deps) {
     sha256,
   } = deps;
 
-  async function deleteProjectAsset(projectId, assetId) {
+  async function deleteProjectAsset(projectId: string, assetId: string) {
     const projectDir = path.join(projectsDir, projectId);
     const manifestPath = path.join(projectDir, "asset-manifest.json");
-    const manifest = await safeReadJson(manifestPath);
+    const manifest = await safeReadJson<AssetManifest>(manifestPath);
     const before = manifest.assets.length;
     const nextAssets = manifest.assets.filter((asset) => asset.id !== assetId);
     if (nextAssets.length === before) {
@@ -56,10 +135,10 @@ export function createProjectOps(deps) {
     return { assetId, syncOutput: syncResult.stdout.trim() };
   }
 
-  async function updateProjectAssetStatus(projectId, assetId, nextStatus) {
+  async function updateProjectAssetStatus(projectId: string, assetId: string, nextStatus: string) {
     const projectDir = path.join(projectsDir, projectId);
     const manifestPath = path.join(projectDir, "asset-manifest.json");
-    const manifest = await safeReadJson(manifestPath);
+    const manifest = await safeReadJson<AssetManifest>(manifestPath);
     const asset = manifest.assets.find((entry) => entry.id === assetId);
     if (!asset) throw new Error(`Asset not found: ${assetId}`);
     const transition = `${asset.status}:${nextStatus}`;
@@ -73,19 +152,19 @@ export function createProjectOps(deps) {
     return { asset, syncOutput: syncResult.stdout.trim() };
   }
 
-  async function readQualityHistory(projectId) {
+  async function readQualityHistory(projectId: string): Promise<QualityHistoryEntry[]> {
     const logPath = path.join(qualityHistoryDir, `${projectId}.ndjson`);
     const raw = await readFile(logPath, "utf8").catch(() => "");
     if (!raw.trim()) return [];
     return raw
       .trim()
       .split("\n")
-      .map((line) => JSON.parse(line))
+      .map((line) => JSON.parse(line) as QualityHistoryEntry)
       .filter(Boolean)
       .sort((a, b) => (a.timestamp < b.timestamp ? 1 : -1));
   }
 
-  async function listDraftJobs(projectId) {
+  async function listDraftJobs(projectId: string) {
     const runState = await readRunState(projectId);
     const active = activeDraftJobs.get(projectId);
     const activeBeat = activeBeatJobs.get(projectId);
@@ -103,22 +182,45 @@ export function createProjectOps(deps) {
         kind: entry.kind,
       }));
 
-    const runStateJobs = (runState.jobs ?? []).slice(0, 24).map((job) => ({
-      id: job.jobId,
-      status: job.status,
-      startedAt: job.startedAt,
-      finishedAt: job.finishedAt,
-      label: job.label || job.kind,
-      output: job.output ?? "",
-      kind: `${job.kind}_runstate`,
-      error: job.error,
-      completed: job.completed,
-      total: job.total,
-      currentSectionTitle: job.currentSectionTitle ?? job.beatId,
-      tracePath: job.tracePath,
-      updatedAt: job.updatedAt,
-    }));
-    const liveJobs = [];
+    const runStateJobs = (runState.jobs ?? []).slice(0, 24).map((job) => {
+      let currentSectionTitle: string | undefined;
+      if (typeof job.currentSectionTitle === "string") {
+        currentSectionTitle = job.currentSectionTitle;
+      } else if (typeof job.beatId === "string") {
+        currentSectionTitle = job.beatId;
+      }
+
+      return {
+        id: job.jobId,
+        status: String(job.status ?? ""),
+        startedAt: typeof job.startedAt === "string" ? job.startedAt : undefined,
+        finishedAt: typeof job.finishedAt === "string" ? job.finishedAt : undefined,
+        label: String(job.label || job.kind || ""),
+        output: String(job.output ?? ""),
+        kind: `${String(job.kind ?? "unknown")}_runstate`,
+        error: typeof job.error === "string" ? job.error : undefined,
+        completed: typeof job.completed === "number" ? job.completed : undefined,
+        total: typeof job.total === "number" ? job.total : undefined,
+        currentSectionTitle,
+        tracePath: typeof job.tracePath === "string" ? job.tracePath : undefined,
+        updatedAt: typeof job.updatedAt === "string" ? job.updatedAt : undefined,
+      };
+    });
+    const liveJobs: Array<{
+      id: string;
+      status: string;
+      startedAt?: string;
+      finishedAt?: string;
+      label?: string;
+      output: string;
+      kind: string;
+      error?: string;
+      completed?: number;
+      total?: number;
+      currentSectionTitle?: string;
+      tracePath?: string;
+      updatedAt?: string;
+    }> = [];
     if (active) {
       const current = jobProgress(active);
       liveJobs.push({
@@ -169,13 +271,22 @@ export function createProjectOps(deps) {
 
   async function listProjects() {
     const entries = await readdir(projectsDir, { withFileTypes: true }).catch(() => []);
-    const projects = [];
+    const projects: Array<{
+      id: string;
+      title?: string;
+      status?: string;
+      mode?: string;
+      targetPlatform?: string;
+      updatedAt?: string;
+    }> = [];
     for (const entry of entries) {
       if (!entry.isDirectory()) continue;
       const id = entry.name;
       try {
-        const project = await safeReadJson(path.join(projectsDir, id, "project.json"));
-        const plan = await safeReadJson(path.join(projectsDir, id, "video-plan.json"));
+        const project = await safeReadJson<ProjectRecord>(
+          path.join(projectsDir, id, "project.json"),
+        );
+        const plan = await safeReadJson<PlanRecord>(path.join(projectsDir, id, "video-plan.json"));
         projects.push({
           id: project.id,
           title: project.title,
@@ -191,19 +302,19 @@ export function createProjectOps(deps) {
     return projects.sort((a, b) => a.id.localeCompare(b.id));
   }
 
-  function projectDeleteBlocker(projectId) {
+  function projectDeleteBlocker(projectId: string): string {
     const activeDraft = activeDraftJobs.get(projectId);
-    if (activeDraft && ["queued", "running"].includes(activeDraft.status)) {
+    if (activeDraft && ["queued", "running"].includes(activeDraft.status ?? "")) {
       return "Cannot delete project while a draft job is queued or running. Stop the job first.";
     }
     const activeBeat = activeBeatJobs.get(projectId);
-    if (activeBeat && ["queued", "running"].includes(activeBeat.status)) {
+    if (activeBeat && ["queued", "running"].includes(activeBeat.status ?? "")) {
       return "Cannot delete project while a beat regeneration job is queued or running. Stop the job first.";
     }
     return "";
   }
 
-  async function deleteProject(projectId) {
+  async function deleteProject(projectId: string): Promise<void> {
     const projectDir = path.join(projectsDir, projectId);
     if (!projectDir.startsWith(projectsDir + path.sep)) throw new Error("Invalid project id.");
     await rm(projectDir, { recursive: true, force: true });
