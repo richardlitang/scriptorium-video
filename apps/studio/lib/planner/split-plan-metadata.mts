@@ -1,4 +1,32 @@
-function mergeBeatMetadataIntoLockedBeat(lockedBeat, draftBeat) {
+type BeatRecord = {
+  id: string;
+  order: number;
+  narration: string;
+  timing?: Record<string, unknown> & { estimatedDurationSeconds?: number };
+  media?: Array<Record<string, unknown> & { prompt?: string; scaleMode?: string }>;
+  motion?: Record<string, unknown>;
+  visual?: Record<string, unknown> & { prompt?: string; source?: string };
+  direction?: Record<string, unknown>;
+  directionMeta?: Record<string, unknown>;
+  caption?: Record<string, unknown>;
+  voiceDirection?: Record<string, unknown> & { profile?: string; source?: string };
+  sfxCues?: unknown[];
+  editorial?: Record<string, unknown>;
+  emotion?: unknown;
+  notes?: string;
+};
+
+type SectionRecord = {
+  direction?: Record<string, unknown>;
+  directionMeta?: Record<string, unknown>;
+  beats: BeatRecord[];
+};
+
+type PlanRecord = {
+  sections: SectionRecord[];
+};
+
+function mergeBeatMetadataIntoLockedBeat(lockedBeat: BeatRecord, draftBeat?: BeatRecord): BeatRecord {
   if (!draftBeat) return lockedBeat;
   return {
     ...lockedBeat,
@@ -11,13 +39,16 @@ function mergeBeatMetadataIntoLockedBeat(lockedBeat, draftBeat) {
       Array.isArray(draftBeat.media) && draftBeat.media[0]
         ? [
             {
-              ...lockedBeat.media[0],
-              prompt: draftBeat.media[0].prompt || draftBeat.visual?.prompt || lockedBeat.narration,
+              ...lockedBeat.media?.[0],
+              prompt:
+                String(draftBeat.media[0].prompt || draftBeat.visual?.prompt || lockedBeat.narration),
               scaleMode:
-                draftBeat.media[0].scaleMode ||
-                draftBeat.visual?.scaleMode ||
-                lockedBeat.media[0]?.scaleMode ||
-                "safe_cover",
+                String(
+                  draftBeat.media[0].scaleMode ||
+                    draftBeat.visual?.scaleMode ||
+                    lockedBeat.media?.[0]?.scaleMode ||
+                    "safe_cover",
+                ),
             },
           ]
         : lockedBeat.media,
@@ -26,11 +57,13 @@ function mergeBeatMetadataIntoLockedBeat(lockedBeat, draftBeat) {
       ...(lockedBeat.visual || {}),
       ...(draftBeat.visual || {}),
       prompt:
-        draftBeat.visual?.prompt ||
-        draftBeat.media?.[0]?.prompt ||
-        lockedBeat.visual?.prompt ||
-        lockedBeat.narration,
-      source: draftBeat.visual?.source || "llm",
+        String(
+          draftBeat.visual?.prompt ||
+            draftBeat.media?.[0]?.prompt ||
+            lockedBeat.visual?.prompt ||
+            lockedBeat.narration,
+        ),
+      source: String(draftBeat.visual?.source || "llm"),
     },
     direction: draftBeat.direction || lockedBeat.direction,
     directionMeta: draftBeat.directionMeta || lockedBeat.directionMeta,
@@ -43,7 +76,7 @@ function mergeBeatMetadataIntoLockedBeat(lockedBeat, draftBeat) {
   };
 }
 
-export function assertLockedNarrationPreserved(plan, lockedPlan) {
+export function assertLockedNarrationPreserved(plan: PlanRecord, lockedPlan: PlanRecord): void {
   const source = lockedPlan.sections.flatMap((section) => section.beats ?? []);
   const next = plan.sections.flatMap((section) => section.beats ?? []);
   if (source.length !== next.length) {
@@ -58,14 +91,18 @@ export function assertLockedNarrationPreserved(plan, lockedPlan) {
   }
 }
 
-export function mergeSectionMetadataPlan(lockedPlan, sectionIndex, draftPlan) {
+export function mergeSectionMetadataPlan(
+  lockedPlan: PlanRecord,
+  sectionIndex: number,
+  draftPlan: PlanRecord,
+): PlanRecord {
   const draftBeats = (draftPlan.sections ?? []).flatMap((section) => section.beats ?? []);
-  const beatIdFromLockedNarration = (value) => {
+  const beatIdFromLockedNarration = (value: unknown): string => {
     const text = String(value || "").trim();
     const match = text.match(/^\[([a-z0-9-]+)\]\s*/i);
     return match?.[1] || "";
   };
-  const draftBeatByLockedId = new Map();
+  const draftBeatByLockedId = new Map<string, BeatRecord>();
   for (const draftBeat of draftBeats) {
     const id = beatIdFromLockedNarration(draftBeat?.narration);
     if (id && !draftBeatByLockedId.has(id)) draftBeatByLockedId.set(id, draftBeat);
@@ -98,7 +135,11 @@ export function mergeSectionMetadataPlan(lockedPlan, sectionIndex, draftPlan) {
   };
 }
 
-export function fallbackMetadataForLockedSection(plan, sectionIndex, error) {
+export function fallbackMetadataForLockedSection(
+  plan: PlanRecord,
+  sectionIndex: number,
+  error: unknown,
+): PlanRecord {
   const section = plan.sections[sectionIndex];
   if (!section) return plan;
   const nextSections = plan.sections.map((entry, index) => {
@@ -109,7 +150,7 @@ export function fallbackMetadataForLockedSection(plan, sectionIndex, error) {
         ...beat,
         visual: {
           ...(beat.visual || {}),
-          prompt: beat.visual?.prompt || beat.narration,
+          prompt: String(beat.visual?.prompt || beat.narration),
           priority: beatIndex === 0 ? 4 : 3,
           needsUniqueImage: true,
           reusePolicy: "none",
@@ -120,12 +161,12 @@ export function fallbackMetadataForLockedSection(plan, sectionIndex, error) {
         caption: beat.caption || { emphasis: [], style: "default" },
         voiceDirection: {
           ...(beat.voiceDirection || {}),
-          profile: beat.voiceDirection?.profile || "neutral",
-          source: beat.voiceDirection?.source || "default",
+          profile: String(beat.voiceDirection?.profile || "neutral"),
+          source: String(beat.voiceDirection?.source || "default"),
         },
         notes: [
           beat.notes || beat.narration,
-          `Split planner metadata fallback used for this beat: ${String(error?.message || error || "unknown error")}`,
+          `Split planner metadata fallback used for this beat: ${String(error instanceof Error ? error.message : error || "unknown error")}`,
         ]
           .filter(Boolean)
           .join("\n\n"),

@@ -1,17 +1,60 @@
-function chunkLockedUnits(units, chunkSize = 8) {
-  const chunks = [];
+type CurrentPlan = {
+  title?: string;
+  mode?: string;
+  targetPlatform?: string;
+  stylePackId?: string;
+  providers?: {
+    llm?: string;
+    tts?: string;
+    transcription?: string;
+    media?: string;
+    renderer?: string;
+  };
+  voice?: {
+    provider?: string;
+    voiceId?: string;
+    format?: string;
+    options?: {
+      language?: string;
+    };
+  };
+  direction?: {
+    creative?: {
+      feel?: string;
+      pacing?: string;
+      visualStyle?: string;
+    };
+  };
+};
+
+type CreativeDirection = {
+  feel?: string;
+  pacing?: string;
+  visualStyle?: string;
+};
+
+type SplitPlanBuilderDeps = {
+  splitStoryIntoLockedUnits: (story: string) => string[];
+  splitPlannerBeatsPerSection: number;
+  splitPlannerMaxSections: number;
+  slugify: (value: string, fallback: string) => string;
+  estimateDurationSeconds: (narration: string) => number;
+};
+
+function chunkLockedUnits(units: string[], chunkSize = 8): string[][] {
+  const chunks: string[][] = [];
   for (let index = 0; index < units.length; index += chunkSize) {
     chunks.push(units.slice(index, index + chunkSize));
   }
   return chunks;
 }
 
-function lockedSectionTitle(index, total) {
+function lockedSectionTitle(index: number, total: number): string {
   if (total <= 1) return "Story";
   return `Story Part ${index + 1}`;
 }
 
-export function createSplitPlanBuilder(deps) {
+export function createSplitPlanBuilder(deps: SplitPlanBuilderDeps) {
   const {
     splitStoryIntoLockedUnits,
     splitPlannerBeatsPerSection,
@@ -20,7 +63,11 @@ export function createSplitPlanBuilder(deps) {
     estimateDurationSeconds,
   } = deps;
 
-  function buildLockedPlanFromStory(currentPlan, story, direction = {}) {
+  function buildLockedPlanFromStory(
+    currentPlan: CurrentPlan,
+    story: string,
+    direction: CreativeDirection = {},
+  ) {
     const units = splitStoryIntoLockedUnits(story);
     const chunkSize = Math.max(
       splitPlannerBeatsPerSection,

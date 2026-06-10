@@ -1,4 +1,4 @@
-export function imageDescriptionFromPrompt(prompt) {
+export function imageDescriptionFromPrompt(prompt: string): string {
   const visualTarget =
     /\nVisual target:\n([\s\S]*?)(?:\n\nShot type:|\n\nStyle preset:|\n\nVisual direction:|$)/.exec(
       String(prompt || ""),
@@ -9,7 +9,14 @@ export function imageDescriptionFromPrompt(prompt) {
     .slice(0, 700);
 }
 
-export function imageTagsFromPrompt(prompt, { size, quality, model }) {
+export function imageTagsFromPrompt(
+  prompt: string,
+  {
+    size,
+    quality,
+    model,
+  }: { size?: string; quality?: string; model?: string },
+): string[] {
   const text = String(prompt || "");
   const tags = [
     /Story mode:\s*([^;\n]+)/.exec(text)?.[1],

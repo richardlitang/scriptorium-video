@@ -12,30 +12,42 @@ const ALLOWED_VOICE_PROFILES = new Set([
   "soft_close",
 ]);
 
-function clampNumber(value, fallback, min, max) {
+type DraftVoiceDirectionInput = {
+  voiceConfidence?: unknown;
+  voiceProfile?: unknown;
+  narrationLanguage?: unknown;
+  ttsProvider?: unknown;
+  pauseBeforeMs?: unknown;
+  pauseAfterMs?: unknown;
+  deliveryNote?: unknown;
+  emphasis?: unknown[];
+  intensity?: unknown;
+  speedMultiplier?: unknown;
+  pitchOffset?: unknown;
+};
+
+function clampNumber(value: unknown, fallback: number, min: number, max: number): number {
   if (value === undefined || value === null || value === "") return fallback;
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return fallback;
   return Math.min(max, Math.max(min, numeric));
 }
 
-function clampInteger(value, fallback, min, max) {
+function clampInteger(value: unknown, fallback: number, min: number, max: number): number {
   return Math.round(clampNumber(value, fallback, min, max));
 }
 
-export function normalizeDraftVoiceDirection(beatDraft = {}) {
+export function normalizeDraftVoiceDirection(beatDraft: DraftVoiceDirectionInput = {}) {
   const confidence = clampNumber(beatDraft.voiceConfidence, 0.7, 0, 1);
   const conservative = confidence < 0.45;
-  const profile = ALLOWED_VOICE_PROFILES.has(beatDraft.voiceProfile)
-    ? beatDraft.voiceProfile
-    : "neutral";
+  const voiceProfile = String(beatDraft.voiceProfile);
+  const profile = ALLOWED_VOICE_PROFILES.has(voiceProfile) ? voiceProfile : "neutral";
   const language =
     String(beatDraft.narrationLanguage || "")
       .trim()
       .toLowerCase() || undefined;
-  const ttsProvider = ["chatterbox", "mms", "openai"].includes(beatDraft.ttsProvider)
-    ? beatDraft.ttsProvider
-    : undefined;
+  const provider = String(beatDraft.ttsProvider);
+  const ttsProvider = ["chatterbox", "mms", "openai"].includes(provider) ? provider : undefined;
   const pauseBeforeMs = conservative ? 0 : clampInteger(beatDraft.pauseBeforeMs, 0, 0, 1200);
   const pauseAfterMs = conservative ? 80 : clampInteger(beatDraft.pauseAfterMs, 0, 0, 1200);
 
