@@ -2,17 +2,132 @@ import { normalizeCaptionTuning } from "./caption-tuning.mjs";
 import { normalizeDraftVoiceDirection } from "./draft-voice-direction.mjs";
 import { normalizeDraftSfxCues } from "./draft-sfx-cues.mjs";
 import { normalizeDraftEditorial } from "./draft-editorial.mjs";
-import { mergeDirectionWithLocks } from "./direction-lock-merge.mts";
+import { mergeDirectionWithLocks } from "./direction-lock-merge.mjs";
 import {
   motionIntensityForBeat,
   normalizeDraftVisualFraming,
   normalizeDraftVisualReferences,
 } from "./visual-normalization.mjs";
 
-export function createPlanDraftTransformer(deps) {
+type TransformerDeps = {
+  slugify: (value: string, fallback: string) => string;
+  estimateDurationSeconds: (narration: string) => number;
+  clampNumber: (value: unknown, fallback: number, min: number, max: number) => number;
+};
+
+type CurrentPlan = Record<string, unknown> & {
+  title?: string;
+  providers?: Record<string, unknown> & {
+    tts?: string;
+    transcription?: string;
+  };
+  voice?: Record<string, unknown> & {
+    options?: Record<string, unknown> & {
+      language?: string;
+    };
+  };
+  visualBible?: Record<string, unknown>;
+  direction?: Record<string, unknown>;
+  directionMeta?: Record<string, unknown> & {
+    lockedPaths?: string[];
+    sources?: Record<string, unknown>;
+  };
+  overrides?: Record<string, unknown> & {
+    captionTuning?: Record<string, unknown>;
+  };
+  sections?: Array<
+    Record<string, unknown> & {
+      id?: string;
+      title?: string;
+      direction?: Record<string, unknown>;
+      directionMeta?: Record<string, unknown> & {
+        lockedPaths?: string[];
+        sources?: Record<string, unknown>;
+      };
+      beats?: Array<
+        Record<string, unknown> & {
+          id?: string;
+          order?: number;
+          narration?: string;
+          direction?: Record<string, unknown>;
+          directionMeta?: Record<string, unknown> & {
+            lockedPaths?: string[];
+            sources?: Record<string, unknown>;
+          };
+        }
+      >;
+    }
+  >;
+};
+
+type DraftSectionBeat = Record<string, unknown> & {
+  narration: string;
+  visualPrompt?: string;
+  estimatedDurationSeconds?: number;
+  motion?: string;
+  imageChangeDecision?: string;
+  emphasis?: unknown[];
+  notes?: string;
+  captionStyle?: string;
+  visualConfidence?: unknown;
+  scaleMode?: unknown;
+  subjectPosition?: unknown;
+  cropRisk?: unknown;
+  motionStrength?: unknown;
+  referenceIds?: unknown[];
+  referencePriority?: unknown;
+  shotType?: string;
+  cameraDistance?: string;
+  lighting?: string;
+  lens?: string;
+  composition?: string;
+  subjectContinuity?: string;
+  negativePromptAdditions?: string;
+  narrationLanguage?: string;
+  sfxCues?: Array<Record<string, unknown>>;
+  visualEditCues?: Array<Record<string, unknown>>;
+  silenceWindows?: Array<Record<string, unknown>>;
+  endingPolicy?: Record<string, unknown>;
+};
+
+type DraftSection = Record<string, unknown> & {
+  title: string;
+  purpose?: string;
+  summary?: string;
+  feel?: string;
+  pacing?: string;
+  visualStyle?: string;
+  beats: DraftSectionBeat[];
+};
+
+type PlanDraft = Record<string, unknown> & {
+  title?: string;
+  feel?: string;
+  pacing?: string;
+  visualStyle?: string;
+  voice?: Record<string, unknown> & {
+    speed?: number;
+    language?: string;
+    direction?: string;
+  };
+  visualBible?: Record<string, unknown> & {
+    stylePreset?: string;
+    lookAndFeel?: string;
+    characterAnchors?: string[];
+    characters?: Array<Record<string, unknown>>;
+    locations?: Array<Record<string, unknown>>;
+    objects?: Array<Record<string, unknown>>;
+    continuityRules?: string[];
+    negativePrompt?: string;
+  };
+  captionTuning?: Record<string, unknown>;
+  sections: DraftSection[];
+};
+
+export function createPlanDraftTransformer(deps: TransformerDeps) {
   const { slugify, estimateDurationSeconds, clampNumber } = deps;
 
-  function buildPlanFromAiDraft(currentPlan, draft) {
+  function buildPlanFromAiDraft(currentPlan: CurrentPlan, draft: PlanDraft): CurrentPlan {
     const visualBible = draft.visualBible || {};
     const captionTuning = normalizeCaptionTuning(draft.captionTuning || {});
     const visualBibleSuffix = [
@@ -75,7 +190,11 @@ export function createPlanDraftTransformer(deps) {
       .filter(Boolean)
       .join("\n");
 
-    const nextPlan = {
+    const voiceOptions =
+      currentPlan.voice && typeof currentPlan.voice === "object" && currentPlan.voice.options
+        ? currentPlan.voice.options
+        : {};
+    const nextPlan: CurrentPlan = {
       ...currentPlan,
       title: draft.title,
       providers: {
@@ -89,7 +208,7 @@ export function createPlanDraftTransformer(deps) {
         voiceId: "clone",
         format: "wav",
         options: {
-          ...currentPlan.voice.options,
+          ...voiceOptions,
           speed: draft.voice?.speed ?? 0.92,
           language: draft.voice?.language || currentPlan.voice?.options?.language,
           emotion:
@@ -185,7 +304,7 @@ export function createPlanDraftTransformer(deps) {
               "slow_zoom_out",
               "pan_left",
               "pan_right",
-            ].includes(beat.motion)
+            ].includes(String(beat.motion))
               ? beat.motion
               : "slow_zoom_in";
             const imageChangeDecision = beat.imageChangeDecision === "hold" ? "hold" : "change";
@@ -279,8 +398,8 @@ export function createPlanDraftTransformer(deps) {
       nextPlan.direction,
       nextPlan.directionMeta?.sources || {},
     );
-    nextPlan.direction = mergedPlanDirection.direction;
-    nextPlan.directionMeta = mergedPlanDirection.directionMeta;
+    nextPlan.direction = mergedPlanDirection.direction as CurrentPlan["direction"];
+    nextPlan.directionMeta = mergedPlanDirection.directionMeta as CurrentPlan["directionMeta"];
     return nextPlan;
   }
 

@@ -4,7 +4,7 @@ import path from "node:path";
 const rootDir = path.resolve(import.meta.dirname, "..");
 const studioOrchestratorPath = path.join(
   rootDir,
-  "apps/studio/lib/draft/plan-draft-orchestrator.mjs",
+  "apps/studio/lib/draft/plan-draft-orchestrator.mts",
 );
 const coreSchemaPath = path.join(rootDir, "packages/core/src/schemas/plan-draft.schema.mjs");
 

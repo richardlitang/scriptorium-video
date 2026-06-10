@@ -1,4 +1,4 @@
-import { parseModelFallbacks, runStructuredOutput } from "../planner/openai-structured-output.mts";
+import { parseModelFallbacks, runStructuredOutput } from "../planner/openai-structured-output.mjs";
 import {
   DEFAULT_PLANNER_SYSTEM_PROMPT,
   DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
@@ -6,13 +6,77 @@ import {
 import { PlanDraftSchema as CORE_PLAN_DRAFT_SCHEMA } from "../../../../packages/core/src/schemas/plan-draft.schema.mjs";
 
 export const PLAN_DRAFT_SCHEMA = CORE_PLAN_DRAFT_SCHEMA;
+const DEFAULT_OPENAI_RESPONSES_URL = "https://api.openai.com/v1/responses";
 
-function fillPlannerTemplate(template, values) {
+type PlannerRequestConfig = {
+  model: string;
+  fallbackModels: string[];
+  timeoutMs: number;
+  maxAttempts: number;
+};
+
+type PlannerPromptValues = {
+  story: string;
+  currentTitle?: unknown;
+  feel?: unknown;
+  pacing?: unknown;
+  visualStyle?: unknown;
+  format?: unknown;
+  target: string;
+};
+
+type DraftQuality = {
+  estimatedSourceCoverageRatio: number;
+  containsInventedChannelCta: boolean;
+  introHookPlacement: string;
+  orderingConfidence: number;
+  coverageNotes: string;
+};
+
+type BuiltPlan = Record<string, unknown>;
+
+type GeneratePlanDraftInput = {
+  story: string;
+  currentPlan: Record<string, unknown>;
+  feel?: unknown;
+  pacing?: unknown;
+  visualStyle?: unknown;
+  format?: unknown;
+  systemPrompt?: string;
+  userPromptTemplate?: string;
+  onProgress?: (event: Record<string, unknown>) => Promise<void> | void;
+};
+
+type GeneratePlanDraftResult = {
+  plan: BuiltPlan;
+  quality: DraftQuality;
+  warnings: string[];
+  model: string;
+};
+
+type PlanDraftOrchestratorDeps = {
+  fetchImpl?: typeof fetch;
+  getOpenAiApiKey: () => Promise<string | undefined>;
+  buildPlanFromAiDraft: (
+    currentPlan: Record<string, unknown>,
+    draft: Record<string, unknown>,
+  ) => BuiltPlan;
+  studioTestMode?: boolean;
+  openAiResponsesUrl?: string;
+  plannerRequestConfig?: PlannerRequestConfig;
+};
+
+function fillPlannerTemplate(template: string | undefined, values: PlannerPromptValues): string {
   const source = String(template || DEFAULT_PLANNER_USER_PROMPT_TEMPLATE);
-  return source.replace(/\{\{(\w+)\}\}/g, (_, key) => String(values[key] ?? ""));
+  return source.replace(/\{\{(\w+)\}\}/g, (_, key: string) => {
+    const promptKey = key as keyof PlannerPromptValues;
+    return String(values[promptKey] ?? "");
+  });
 }
 
-export function resolvePlannerRequestConfig(env = {}) {
+export function resolvePlannerRequestConfig(
+  env: Record<string, string | undefined> = {},
+): PlannerRequestConfig {
   const model = env.OPENAI_PLANNER_MODEL ?? "gpt-5.4-mini";
   const fallbackModels = parseModelFallbacks(
     env.OPENAI_PLANNER_FALLBACK_MODELS ?? "gpt-5-mini,gpt-4.1-mini",
@@ -37,7 +101,7 @@ export function createPlanDraftOrchestrator({
   studioTestMode = false,
   openAiResponsesUrl,
   plannerRequestConfig = resolvePlannerRequestConfig({}),
-}) {
+}: PlanDraftOrchestratorDeps) {
   if (typeof getOpenAiApiKey !== "function")
     throw new Error("createPlanDraftOrchestrator requires getOpenAiApiKey function.");
   if (typeof buildPlanFromAiDraft !== "function")
@@ -53,7 +117,7 @@ export function createPlanDraftOrchestrator({
     systemPrompt,
     userPromptTemplate,
     onProgress,
-  }) {
+  }: GeneratePlanDraftInput): Promise<GeneratePlanDraftResult> {
     if (studioTestMode) {
       return {
         plan: buildPlanFromAiDraft(currentPlan, {
@@ -168,8 +232,9 @@ export function createPlanDraftOrchestrator({
     }
 
     const apiKey = await getOpenAiApiKey();
+    if (!apiKey) throw new Error("OpenAI planner request failed: missing OPENAI_API_KEY.");
     const { model, fallbackModels, timeoutMs, maxAttempts } = plannerRequestConfig;
-    const promptValues = {
+    const promptValues: PlannerPromptValues = {
       story,
       currentTitle: currentPlan.title,
       feel,
@@ -186,9 +251,9 @@ export function createPlanDraftOrchestrator({
       resolvedUserPrompt = `${resolvedUserPrompt}\n\nStory:\n${promptValues.story}`.trim();
     }
 
-    const draft = await runStructuredOutput({
+    const draft = (await runStructuredOutput({
       fetchImpl,
-      url: openAiResponsesUrl,
+      url: openAiResponsesUrl || DEFAULT_OPENAI_RESPONSES_URL,
       apiKey,
       model,
       input: [
@@ -202,12 +267,16 @@ export function createPlanDraftOrchestrator({
       maxAttempts,
       fallbackModels,
       onProgress,
-    });
+    })) as Record<string, unknown> & {
+      quality: DraftQuality;
+      warnings?: string[];
+      __model?: string;
+    };
 
     return {
       plan: buildPlanFromAiDraft(currentPlan, draft),
       quality: draft.quality,
-      warnings: draft.warnings,
+      warnings: draft.warnings ?? [],
       model: draft.__model ?? model,
     };
   };

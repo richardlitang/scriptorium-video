@@ -15,7 +15,10 @@ export { DEFAULT_PLANNER_SYSTEM_PROMPT, DEFAULT_PLANNER_USER_PROMPT_TEMPLATE, pl
 type OpenAiPlanOrchestratorDeps = {
   fetchImpl?: typeof fetch;
   getOpenAiApiKey: () => Promise<string | undefined>;
-  buildPlanFromAiDraft: (...args: unknown[]) => unknown;
+  buildPlanFromAiDraft: (
+    currentPlan: Record<string, unknown>,
+    draft: Record<string, unknown>,
+  ) => Record<string, unknown>;
   studioTestMode?: boolean;
   openAiResponsesUrl?: string;
   plannerRequestConfig?: {
