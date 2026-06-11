@@ -306,7 +306,12 @@ test("project plan save writes updated plan and run-state on success", async () 
         worker({
           advance: async (_label, fn) => fn(),
         }),
-      runLvstudio: async (args) => ({ stdout: `ok ${args.join(" ")}` }),
+      syncProject: async () => ({
+        timeline: { segments: [{ id: "seg-1" }], durationSeconds: 3 },
+        issues: [],
+        staleAssetIds: [],
+      }),
+      runQualityChecks: async () => ({ status: "pass", checks: [] }),
       appendQualityHistory: async () => {},
       readRunState: async () => ({ status: "dirty" }),
       writeRunState: async (_projectId, state) => {
@@ -337,6 +342,7 @@ test("project plan save writes updated plan and run-state on success", async () 
   assert.equal(Object.hasOwn(persistedBeat.direction || {}, "editorial"), true);
   assert.equal(runStateWrite?.currentPlanHash, "hash-after");
   assert.equal(runStateWrite?.status, "idle");
+  assert.match(response.body?.data?.output || "", /Synced demo: 1 segments, 3.00s\./);
 });
 
 test("project plan save rolls back files when sync/check step fails", async () => {

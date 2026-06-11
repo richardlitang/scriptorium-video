@@ -2,6 +2,7 @@ import { badRequest, dispatchRoute, parseProjectPath } from "./route-utils.mjs";
 import { requireRouteContext } from "./route-context.mjs";
 import { canonicalizePlanForPersistence } from "../planner/canonicalize-plan.mjs";
 import { buildPlannerStoryInput } from "../draft/draft-plan-input.mts";
+import { formatQualityResultOutput, formatSyncResultOutput } from "../runtime/domain-ops.mjs";
 
 export const PROJECT_PLAN_ROUTE_KEYS = [
   "sendJson",
@@ -13,7 +14,8 @@ export const PROJECT_PLAN_ROUTE_KEYS = [
   "restoreOptionalFile",
   "writeFile",
   "runTrackedForegroundJob",
-  "runLvstudio",
+  "syncProject",
+  "runQualityChecks",
   "appendQualityHistory",
   "readRunState",
   "writeRunState",
@@ -36,7 +38,8 @@ export async function handleProjectPlanRoutes(context, req, res, pathname, reque
     restoreOptionalFile,
     writeFile,
     runTrackedForegroundJob,
-    runLvstudio,
+    syncProject,
+    runQualityChecks,
     appendQualityHistory,
     readRunState,
     writeRunState,
@@ -76,16 +79,17 @@ export async function handleProjectPlanRoutes(context, req, res, pathname, reque
               completedLabel: "Plan saved",
             },
             async ({ advance }) => {
-              const syncResult = await advance("Syncing plan", () =>
-                runLvstudio(["sync", projectId]),
-              );
+              const syncResult = await advance("Syncing plan", () => syncProject(projectId));
               const checkResult = skipCheck
                 ? undefined
-                : await advance("Running plan check", () => runLvstudio(["check", projectId]));
+                : await advance("Running plan check", () => runQualityChecks(projectId));
               return { syncResult, checkResult };
             },
           );
-          const output = [syncResult.stdout.trim(), checkResult?.stdout.trim()]
+          const output = [
+            formatSyncResultOutput(projectId, syncResult),
+            checkResult ? formatQualityResultOutput(checkResult) : "",
+          ]
             .filter(Boolean)
             .join("\n\n");
           await appendQualityHistory(projectId, {

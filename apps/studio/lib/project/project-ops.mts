@@ -1,5 +1,7 @@
 import type { Dirent } from "node:fs";
+import type { SyncResult } from "@lvstudio/core";
 import type { RunJob } from "./run-state-store.mjs";
+import { formatSyncResultOutput } from "../runtime/domain-ops.mjs";
 
 const lockableTransitions = new Set([
   "generated:locked_by_user",
@@ -62,15 +64,6 @@ type PlanRecord = {
   targetPlatform?: string;
 };
 
-type SyncResult = {
-  timeline: {
-    segments: unknown[];
-    durationSeconds: number;
-  };
-  issues: Array<{ level?: string; message: string }>;
-  staleAssetIds: string[];
-};
-
 interface ProjectOpsDeps {
   path: PathApi;
   readdir: (dirPath: string, options: { withFileTypes: true }) => Promise<Dirent[]>;
@@ -94,19 +87,6 @@ interface ProjectOpsDeps {
 
 function isJobHistory(entry: QualityHistoryEntry): boolean {
   return Boolean(entry?.kind && entry?.summary);
-}
-
-function formatSyncOutput(projectId: string, result: SyncResult): string {
-  const lines = [
-    `Synced ${projectId}: ${result.timeline.segments.length} segments, ${result.timeline.durationSeconds.toFixed(2)}s.`,
-  ];
-  if (result.staleAssetIds.length > 0) {
-    lines.push(`Stale assets: ${result.staleAssetIds.join(", ")}`);
-  }
-  for (const warning of result.issues.filter((issue) => issue.level === "warning")) {
-    lines.push(`Warning: ${warning.message}`);
-  }
-  return lines.join("\n");
 }
 
 export function createProjectOps(deps: ProjectOpsDeps) {
@@ -146,7 +126,7 @@ export function createProjectOps(deps: ProjectOpsDeps) {
       "utf8",
     );
     const syncResult = await syncProject(projectId);
-    const syncOutput = formatSyncOutput(projectId, syncResult);
+    const syncOutput = formatSyncResultOutput(projectId, syncResult);
     await appendQualityHistory(projectId, {
       timestamp: new Date().toISOString(),
       kind: "asset_delete",
@@ -170,7 +150,7 @@ export function createProjectOps(deps: ProjectOpsDeps) {
     asset.updatedAt = new Date().toISOString();
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
     const syncResult = await syncProject(projectId);
-    return { asset, syncOutput: formatSyncOutput(projectId, syncResult) };
+    return { asset, syncOutput: formatSyncResultOutput(projectId, syncResult) };
   }
 
   async function readQualityHistory(projectId: string): Promise<QualityHistoryEntry[]> {

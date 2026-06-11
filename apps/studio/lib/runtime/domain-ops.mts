@@ -23,6 +23,23 @@ export interface DomainOpsLogEntry {
   error?: string;
 }
 
+export function formatSyncResultOutput(projectId: string, result: SyncResult): string {
+  const lines = [
+    `Synced ${projectId}: ${result.timeline.segments.length} segments, ${result.timeline.durationSeconds.toFixed(2)}s.`,
+  ];
+  if (result.staleAssetIds.length > 0) {
+    lines.push(`Stale assets: ${result.staleAssetIds.join(", ")}`);
+  }
+  for (const warning of result.issues.filter((issue) => issue.level === "warning")) {
+    lines.push(`Warning: ${warning.message}`);
+  }
+  return lines.join("\n");
+}
+
+export function formatQualityResultOutput(result: QualityResult): string {
+  return JSON.stringify(result, null, 2);
+}
+
 export type DomainOps = {
   syncProject: (projectId: string) => Promise<SyncResult>;
   runQualityChecks: (projectId: string) => Promise<QualityResult>;
