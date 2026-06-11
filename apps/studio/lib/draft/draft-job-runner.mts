@@ -1,7 +1,191 @@
 import { preflightDraftTtsProviders } from "../tts/tts-preflight.mjs";
 import { draftAudioStepCount } from "../tts/tts-draft-planning.mjs";
 
-export function createDraftJobRunner(deps) {
+type DraftJob = {
+  projectId: string;
+  id: string;
+  status: string;
+  phase: string;
+  label: string;
+  completed: number;
+  total: number;
+  attempt: number;
+  maxAttempts: number;
+  startedAt: string;
+  finishedAt?: string;
+  error?: string;
+  tracePath?: string;
+  output: string[];
+  cancelRequested?: boolean;
+};
+
+type DraftRequestBody = Record<string, unknown> & {
+  story?: string;
+  imageEnabled?: boolean;
+  imageMode?: string;
+  imageCoverage?: unknown;
+  imageQuality?: string;
+  plan?: Record<string, unknown>;
+  feel?: string;
+  pacing?: string;
+  visualStyle?: string;
+  format?: string;
+  systemPrompt?: string;
+  userPromptTemplate?: string;
+};
+
+type DraftPlan = Record<string, unknown> & {
+  providers: {
+    tts: string;
+    transcription: string;
+  };
+  sections: Array<{
+    beats?: Array<{
+      id?: string;
+      order?: number;
+    }>;
+  }>;
+};
+
+type ImageGenerationResult = {
+  generated: Array<
+    Record<string, unknown> & {
+      assetId?: string;
+      beatId?: string;
+      sectionId?: string;
+      path?: string;
+      version?: string | number;
+      reusedFrom?: string;
+    }
+  >;
+  failed?: Array<Record<string, unknown>>;
+  skipped?: boolean;
+};
+
+type DraftJobRunnerDeps = {
+  runTraceDisplayPath: (projectId: string, jobId: string) => string;
+  activeDraftJobs: Map<string, DraftJob>;
+  writeDraftJobState: (
+    projectId: string,
+    job: DraftJob,
+    patch?: Record<string, unknown>,
+  ) => Promise<void>;
+  appendRunTrace: (
+    projectId: string,
+    jobId: string,
+    event: string,
+    payload: Record<string, unknown>,
+  ) => Promise<void>;
+  normalizeImageCoverage: (value: unknown) => string;
+  summarizeVoiceSettingsForTrace: (settings: Record<string, unknown>) => Record<string, unknown>;
+  readVoiceSettings: () => Promise<Record<string, unknown>>;
+  runProjectMutation: (projectId: string, worker: () => Promise<void>) => Promise<void>;
+  path: { join: (...parts: string[]) => string };
+  projectsDir: string;
+  getProjectDetails: (projectId: string) => Promise<{ plan: DraftPlan }>;
+  summarizeStoryInput: (story: string) => Record<string, unknown>;
+  summarizePlanForTrace: (plan: DraftPlan, story?: string) => Record<string, unknown>;
+  parsePlanFromStoryInput: (rawInput: string) => DraftPlan | undefined;
+  applyDraftDefaults: (plan: DraftPlan) => DraftPlan;
+  buildPlannerStoryInput: (rawStory: string) => string;
+  splitStoryIntoLockedUnits: (rawStory: string) => string[];
+  plannerSplitDecision: (
+    body: Record<string, unknown>,
+    story: string,
+    splitPlannerConfig?: Record<string, unknown>,
+  ) => { enabled: boolean } & Record<string, unknown>;
+  splitPlannerConfig: Record<string, unknown>;
+  generateSplitPlanDraftWithOpenAi: (input: Record<string, unknown>) => Promise<{
+    plan: DraftPlan;
+    quality?: Record<string, unknown>;
+    warnings?: string[];
+    model: string;
+  }>;
+  generatePlanDraftWithOpenAi: (input: Record<string, unknown>) => Promise<{
+    plan: DraftPlan;
+    quality?: Record<string, unknown>;
+    warnings?: string[];
+    model: string;
+  }>;
+  planNarrationHealth: (
+    plan: DraftPlan,
+    story?: string,
+    quality?: Record<string, unknown>,
+  ) => Record<string, unknown>;
+  plannerQualityWarnings: (quality: Record<string, unknown>) => string[];
+  plannerQualityWarningSummary: (quality: Record<string, unknown>) => string;
+  plannerQualityIsUsable: (quality: Record<string, unknown>) => boolean;
+  plannerBlockingFailures: (quality: Record<string, unknown>) => string[];
+  plannerBlockingFailureMessage: (quality: Record<string, unknown>) => string;
+  stricterPlannerUserPromptTemplate: () => string;
+  plannerProgressTracer: (
+    projectId: string,
+    job: DraftJob,
+    prefix: string,
+    strictness: string,
+  ) => (progress: Record<string, unknown>) => Promise<void> | void;
+  canonicalizePlanForPersistence: (plan: DraftPlan) => DraftPlan;
+  writeFile: (path: string, contents: string, encoding: string) => Promise<void>;
+  planNeedsTtsRouting: (plan: DraftPlan) => boolean;
+  routePlanTtsWithOpenAi: (plan: DraftPlan) => Promise<{
+    plan: DraftPlan;
+    model: string;
+    warnings?: string[];
+  }>;
+  ensureChatterboxReady: (reason: string) => Promise<Record<string, unknown>>;
+  readMmsHealth: () => Promise<Record<string, unknown>>;
+  getOpenAiApiKey: () => Promise<string | undefined>;
+  runRetriedDraftStep: (
+    projectId: string,
+    job: DraftJob,
+    label: string,
+    operation: () => Promise<{ stdout?: string }>,
+    options?: { countCompletion?: boolean },
+  ) => Promise<unknown>;
+  runLvstudioForDraft: (job: DraftJob, args: string[]) => Promise<{ stdout: string }>;
+  readProjectTraceSnapshot: (projectId: string) => Promise<Record<string, unknown>>;
+  safeReadJson: (path: string) => Promise<Record<string, unknown>>;
+  selectImageTargets: (
+    plan: DraftPlan,
+    manifest: Record<string, unknown>,
+    mode: string,
+    coverage: string,
+    options: Record<string, unknown>,
+  ) => Array<{
+    assetId: string;
+    beat: { id?: string; order?: number };
+    section: { id?: string };
+  }>;
+  defaultImageSizeForPlan: (plan: DraftPlan) => string;
+  summarizeManifestForTrace: (manifest: Record<string, unknown>) => Record<string, unknown>;
+  generateProjectImages: (
+    projectId: string,
+    options: Record<string, unknown>,
+  ) => Promise<ImageGenerationResult>;
+  generateDraftAudioBySection: (
+    projectId: string,
+    job: DraftJob,
+    plan: DraftPlan,
+    transcriptionProvider: string,
+  ) => Promise<void>;
+  sha256: (value: string) => string;
+  readFile: (path: string, encoding: string) => Promise<string>;
+  appendQualityHistory: (
+    projectId: string,
+    entry: { timestamp: string; kind: string; summary: string; output: string },
+  ) => Promise<void>;
+  upsertRunJob: (projectId: string, payload: Record<string, unknown>) => Promise<void>;
+  jobProgress: (job: DraftJob) => Record<string, unknown>;
+  writeRunState: (projectId: string, state: Record<string, unknown>) => Promise<void>;
+  readRunState: (projectId: string) => Promise<Record<string, unknown>>;
+  writeAgentHandoff?: (
+    projectId: string,
+    job: DraftJob,
+    handoff: { summary: string; nextAction: string },
+  ) => Promise<void>;
+};
+
+export function createDraftJobRunner(deps: DraftJobRunnerDeps) {
   const {
     runTraceDisplayPath,
     activeDraftJobs,
@@ -58,8 +242,11 @@ export function createDraftJobRunner(deps) {
     writeAgentHandoff,
   } = deps;
 
-  return async function runDraftJob(projectId, body) {
-    const job = {
+  return async function runDraftJob(
+    projectId: string,
+    body: DraftRequestBody,
+  ): Promise<Record<string, unknown>> {
+    const job: DraftJob = {
       projectId,
       id: `draft-${Date.now().toString(36)}`,
       status: "queued",
@@ -94,12 +281,12 @@ export function createDraftJobRunner(deps) {
       voiceSettings: summarizeVoiceSettingsForTrace(await readVoiceSettings()),
     }).catch(() => {});
 
-    runProjectMutation(projectId, async () => {
+    void runProjectMutation(projectId, async () => {
       try {
         const projectDir = path.join(projectsDir, projectId);
         const planPath = path.join(projectDir, "video-plan.json");
         let details = await getProjectDetails(projectId);
-        let plan = details.plan;
+        let plan: DraftPlan = details.plan;
         const story = String(body.story || "").trim();
         const imageEnabledForJob = body.imageEnabled !== false;
         const imageSteps = imageEnabledForJob ? 1 : 0;
@@ -126,7 +313,7 @@ export function createDraftJobRunner(deps) {
             planningSteps = 1;
             const plannerStory = buildPlannerStoryInput(story);
             const sourceNarration = splitStoryIntoLockedUnits(story).join("\n");
-            const plannerInput = {
+            const plannerInput: Record<string, unknown> = {
               story: plannerStory,
               currentPlan: plan,
               feel: body.feel ?? "",
@@ -174,7 +361,7 @@ export function createDraftJobRunner(deps) {
                 phase: "planning",
                 label: `Planner output unusable from ${draft.model}; retrying stricter plan`,
               });
-              const retryPlannerInput = {
+              const retryPlannerInput: Record<string, unknown> = {
                 story: plannerStory,
                 currentPlan: details.plan,
                 feel: body.feel ?? "",
@@ -231,7 +418,7 @@ export function createDraftJobRunner(deps) {
           plan = canonicalizePlanForPersistence(plan);
           await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
         } else if (body.plan && typeof body.plan === "object") {
-          plan = canonicalizePlanForPersistence(body.plan);
+          plan = canonicalizePlanForPersistence(body.plan as DraftPlan);
           await writeFile(planPath, `${JSON.stringify(plan, null, 2)}\n`, "utf8");
           await appendRunTrace(projectId, job.id, "planning.used_supplied_plan", {
             plan: summarizePlanForTrace(plan),
