@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@lvstudio/core": "workspace:*",
+    "@lvstudio/providers": "workspace:*",
+    "@lvstudio/quality": "workspace:*",
+    "@lvstudio/workflows": "workspace:*",
     "@tanstack/react-query": "^5.100.14",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
