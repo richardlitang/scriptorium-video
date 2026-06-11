@@ -113,6 +113,7 @@ import {
   buildStudioRuntimeContextDependencies,
   buildStudioRuntimeHttpDependencies,
 } from "./studio-runtime-dependencies.mjs";
+import { createDomainOps } from "./domain-ops.mjs";
 import {
   assertLockedNarrationPreserved,
   fallbackMetadataForLockedSection,
@@ -267,6 +268,19 @@ export function createStudioServerRuntime({
   const appendCommandLog = (entry) => studioOpsRuntime.appendCommandLog(entry);
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
   const runLvstudioReport = (args) => studioOpsRuntime.runLvstudioReport(args);
+  const domainOps = createDomainOps({
+    rootDir,
+    log: async (entry) => {
+      await appendCommandLog({
+        command: `domain:${entry.op}`,
+        ok: entry.ok,
+        durationMs: entry.durationMs,
+        stdout: "",
+        stderr: entry.error ?? "",
+        ...(entry.error ? { message: entry.error } : {}),
+      });
+    },
+  });
 
   const { getProjectDetails } = createProjectReadOps({
     path,
@@ -450,7 +464,7 @@ export function createStudioServerRuntime({
     qualityHistoryDir,
     imageHistoryDir,
     runStatePath,
-    runLvstudio,
+    syncProject: domainOps.syncProject,
     appendQualityHistory,
     readRunState,
     activeDraftJobs,
@@ -515,6 +529,9 @@ export function createStudioServerRuntime({
       safeProjectId,
       projectsDir,
       stat,
+      createProjectScaffold: domainOps.createProjectScaffold,
+      syncProject: domainOps.syncProject,
+      runQualityChecks: domainOps.runQualityChecks,
       runLvstudio,
       safeReadJson,
       projectDeleteBlocker,

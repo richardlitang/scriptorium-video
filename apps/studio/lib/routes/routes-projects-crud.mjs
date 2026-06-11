@@ -10,7 +10,8 @@ export const PROJECT_CRUD_ROUTE_KEYS = [
   "projectsDir",
   "path",
   "stat",
-  "runLvstudio",
+  "createProjectScaffold",
+  "syncProject",
   "safeReadJson",
   "writeFile",
   "projectDeleteBlocker",
@@ -28,7 +29,8 @@ export async function handleProjectCrudRoutes(context, req, res, pathname) {
     projectsDir,
     path,
     stat,
-    runLvstudio,
+    createProjectScaffold,
+    syncProject,
     safeReadJson,
     writeFile,
     projectDeleteBlocker,
@@ -63,7 +65,7 @@ export async function handleProjectCrudRoutes(context, req, res, pathname) {
         }
         const mode = body.mode || "long_documentary";
         const platform = body.platform || "local_only";
-        await runLvstudio(["create", projectId, "--mode", mode, "--platform", platform]);
+        await createProjectScaffold(projectId, mode, platform);
         const projectPath = path.join(projectDir, "project.json");
         const planPath = path.join(projectDir, "video-plan.json");
         const [project, plan] = await Promise.all([
@@ -88,7 +90,7 @@ export async function handleProjectCrudRoutes(context, req, res, pathname) {
         const canonicalPlan = canonicalizePlanForPersistence(plan);
         await writeFile(projectPath, `${JSON.stringify(project, null, 2)}\n`, "utf8");
         await writeFile(planPath, `${JSON.stringify(canonicalPlan, null, 2)}\n`, "utf8");
-        await runLvstudio(["sync", projectId]);
+        await syncProject(projectId);
         sendJson(res, 201, { ok: true, message: "Project created.", data: { projectId } });
         return true;
       },

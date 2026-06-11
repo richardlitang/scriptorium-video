@@ -13,8 +13,6 @@ type PathApi = {
   sep: string;
 };
 
-type LvstudioResult = { stdout: string; stderr: string };
-
 type ManifestAsset = {
   id: string;
   status: string;
@@ -64,6 +62,15 @@ type PlanRecord = {
   targetPlatform?: string;
 };
 
+type SyncResult = {
+  timeline: {
+    segments: unknown[];
+    durationSeconds: number;
+  };
+  issues: Array<{ level?: string; message: string }>;
+  staleAssetIds: string[];
+};
+
 interface ProjectOpsDeps {
   path: PathApi;
   readdir: (dirPath: string, options: { withFileTypes: true }) => Promise<Dirent[]>;
@@ -75,7 +82,7 @@ interface ProjectOpsDeps {
   qualityHistoryDir: string;
   imageHistoryDir: string;
   runStatePath: (projectId: string) => string;
-  runLvstudio: (args: string[]) => Promise<LvstudioResult>;
+  syncProject: (projectId: string) => Promise<SyncResult>;
   appendQualityHistory: (projectId: string, entry: QualityHistoryEntry) => Promise<void>;
   readRunState: (projectId: string) => Promise<{ jobs?: RunJob[] }>;
   activeDraftJobs: Map<string, LiveJob>;
@@ -87,6 +94,19 @@ interface ProjectOpsDeps {
 
 function isJobHistory(entry: QualityHistoryEntry): boolean {
   return Boolean(entry?.kind && entry?.summary);
+}
+
+function formatSyncOutput(projectId: string, result: SyncResult): string {
+  const lines = [
+    `Synced ${projectId}: ${result.timeline.segments.length} segments, ${result.timeline.durationSeconds.toFixed(2)}s.`,
+  ];
+  if (result.staleAssetIds.length > 0) {
+    lines.push(`Stale assets: ${result.staleAssetIds.join(", ")}`);
+  }
+  for (const warning of result.issues.filter((issue) => issue.level === "warning")) {
+    lines.push(`Warning: ${warning.message}`);
+  }
+  return lines.join("\n");
 }
 
 export function createProjectOps(deps: ProjectOpsDeps) {
@@ -101,7 +121,7 @@ export function createProjectOps(deps: ProjectOpsDeps) {
     qualityHistoryDir,
     imageHistoryDir,
     runStatePath,
-    runLvstudio,
+    syncProject,
     appendQualityHistory,
     readRunState,
     activeDraftJobs,
@@ -125,14 +145,15 @@ export function createProjectOps(deps: ProjectOpsDeps) {
       `${JSON.stringify({ ...manifest, assets: nextAssets }, null, 2)}\n`,
       "utf8",
     );
-    const syncResult = await runLvstudio(["sync", projectId]);
+    const syncResult = await syncProject(projectId);
+    const syncOutput = formatSyncOutput(projectId, syncResult);
     await appendQualityHistory(projectId, {
       timestamp: new Date().toISOString(),
       kind: "asset_delete",
       summary: `Deleted asset ${assetId}.`,
-      output: syncResult.stdout.trim(),
+      output: syncOutput,
     });
-    return { assetId, syncOutput: syncResult.stdout.trim() };
+    return { assetId, syncOutput };
   }
 
   async function updateProjectAssetStatus(projectId: string, assetId: string, nextStatus: string) {
@@ -148,8 +169,8 @@ export function createProjectOps(deps: ProjectOpsDeps) {
     asset.status = nextStatus;
     asset.updatedAt = new Date().toISOString();
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-    const syncResult = await runLvstudio(["sync", projectId]);
-    return { asset, syncOutput: syncResult.stdout.trim() };
+    const syncResult = await syncProject(projectId);
+    return { asset, syncOutput: formatSyncOutput(projectId, syncResult) };
   }
 
   async function readQualityHistory(projectId: string): Promise<QualityHistoryEntry[]> {

@@ -34,6 +34,13 @@ export function makeProjectContext(overrides = {}) {
   base.listProjects = async () => [];
   base.safeProjectId = (value) => String(value || "");
   base.stat = async () => null;
+  base.createProjectScaffold = async () => {};
+  base.syncProject = async () => ({
+    timeline: { segments: [], durationSeconds: 0 },
+    issues: [],
+    staleAssetIds: [],
+  });
+  base.runQualityChecks = async () => ({ status: "pass", checks: [] });
   base.runLvstudio = async () => ({ stdout: "", ok: true });
   base.safeReadJson = async () => ({});
   base.writeFile = async () => {};

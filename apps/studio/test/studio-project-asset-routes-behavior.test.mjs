@@ -36,7 +36,12 @@ test("project create canonicalizes legacy beat fields before writing plan", asyn
       parseJsonBody: async () => ({ id: "demo", title: "Demo" }),
       safeProjectId: (value) => String(value || ""),
       stat: async () => null,
-      runLvstudio: async () => ({ ok: true, stdout: "ok" }),
+      createProjectScaffold: async () => {},
+      syncProject: async () => ({
+        timeline: { segments: [], durationSeconds: 0 },
+        issues: [],
+        staleAssetIds: [],
+      }),
       safeReadJson: async (targetPath) => {
         if (targetPath.endsWith("/project.json")) {
           return { id: "demo", title: "Demo", updatedAt: "2026-01-01T00:00:00.000Z" };
@@ -133,7 +138,7 @@ test("project quality route writes quality history and returns output", async ()
       sendJson,
       runTrackedForegroundJob: async (_projectId, _job, worker) =>
         worker({ advance: async (_label, fn) => fn() }),
-      runLvstudio: async () => ({ stdout: "quality ok\n" }),
+      runQualityChecks: async () => ({ status: "pass", checks: [{ id: "q1" }] }),
       appendQualityHistory: async (_projectId, entry) => {
         historyEntry = entry;
       },
@@ -147,7 +152,10 @@ test("project quality route writes quality history and returns output", async ()
   assert.equal(handled, true);
   assert.equal(response.status, 200);
   assert.equal(response.body?.ok, true);
-  assert.equal(response.body?.data?.output, "quality ok");
+  assert.equal(
+    response.body?.data?.output,
+    JSON.stringify({ status: "pass", checks: [{ id: "q1" }] }, null, 2),
+  );
   assert.equal(historyEntry?.kind, "quality_check");
 });
 

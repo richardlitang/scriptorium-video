@@ -4,7 +4,7 @@ import { requireRouteContext } from "./route-context.mjs";
 export const PROJECT_QUALITY_ROUTE_KEYS = [
   "sendJson",
   "runTrackedForegroundJob",
-  "runLvstudio",
+  "runQualityChecks",
   "appendQualityHistory",
   "runLvstudioReport",
   "readQualityHistory",
@@ -15,7 +15,7 @@ export async function handleProjectQualityRoutes(context, req, res, pathname) {
   const {
     sendJson,
     runTrackedForegroundJob,
-    runLvstudio,
+    runQualityChecks,
     appendQualityHistory,
     runLvstudioReport,
     readQualityHistory,
@@ -39,15 +39,18 @@ export async function handleProjectQualityRoutes(context, req, res, pathname) {
             completedLabel: "Quality check complete",
           },
           async ({ advance }) =>
-            advance("Running quality check", () => runLvstudio(["check", projectId])),
+            advance("Running quality check", async () => ({
+              output: JSON.stringify(await runQualityChecks(projectId), null, 2),
+            })),
         );
+        const output = String(result.output || "").trim();
         await appendQualityHistory(projectId, {
           timestamp: new Date().toISOString(),
           kind: "quality_check",
           summary: "Manual quality check run.",
-          output: result.stdout.trim(),
+          output,
         });
-        sendJson(res, 200, { ok: true, data: { output: result.stdout.trim() } });
+        sendJson(res, 200, { ok: true, data: { output } });
         return true;
       },
     },
