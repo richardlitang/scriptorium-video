@@ -7,7 +7,73 @@ import {
 import { preflightDraftTtsProviders } from "../tts/tts-preflight.mjs";
 import { ttsProviderForBeat } from "../tts/tts-draft-planning.mjs";
 
-function countWords(value) {
+type DraftBeat = Record<string, unknown> & {
+  id: string;
+  order: number;
+  narration: string;
+  narrationLanguage?: string;
+  voiceDirection?: Record<string, unknown> & {
+    language?: string;
+    narrationLanguage?: string;
+  };
+};
+
+type DraftSection = {
+  id: string;
+  title?: string;
+  beats?: DraftBeat[];
+};
+
+type DraftPlan = {
+  providers: {
+    tts: string;
+    transcription?: string;
+  };
+  sections?: DraftSection[];
+};
+
+type DraftJob = {
+  id: string;
+  completed: number;
+  phase?: string;
+  currentSectionId?: string;
+  currentSectionTitle?: string;
+  currentBeatId?: string;
+  currentBeatIndex?: number;
+  currentBeatTotal?: number;
+};
+
+type RetriedStep = (
+  projectId: string,
+  job: DraftJob,
+  label: string,
+  operation: () => Promise<{ stdout?: string }>,
+  options?: { countCompletion?: boolean },
+) => Promise<unknown>;
+
+type DraftAudioRunnerDeps = {
+  readVoiceSettings: () => Promise<Record<string, unknown>>;
+  appendRunTrace: (
+    projectId: string,
+    jobId: string,
+    event: string,
+    payload: Record<string, unknown>,
+  ) => Promise<void>;
+  summarizeVoiceSettingsForTrace: (settings: Record<string, unknown>) => Record<string, unknown>;
+  ensureChatterboxReady: (reason: string) => Promise<Record<string, unknown>>;
+  readMmsHealth: () => Promise<Record<string, unknown>>;
+  getOpenAiApiKey: () => Promise<string | undefined>;
+  writeDraftJobState: (
+    projectId: string,
+    job: DraftJob,
+    patch?: Record<string, unknown>,
+  ) => Promise<void>;
+  runRetriedDraftStep: RetriedStep;
+  runLvstudioForDraft: (job: DraftJob, args: string[]) => Promise<{ stdout?: string }>;
+  readProjectTraceSnapshot: (projectId: string) => Promise<Record<string, unknown>>;
+};
+
+function countWords(value: string): number {
   return String(value || "")
     .trim()
     .split(/\s+/)
@@ -25,8 +91,13 @@ export function createDraftAudioRunner({
   runRetriedDraftStep,
   runLvstudioForDraft,
   readProjectTraceSnapshot,
-}) {
-  return async function generateDraftAudioBySection(projectId, job, plan, transcriptionProvider) {
+}: DraftAudioRunnerDeps) {
+  return async function generateDraftAudioBySection(
+    projectId: string,
+    job: DraftJob,
+    plan: DraftPlan,
+    transcriptionProvider: string,
+  ): Promise<void> {
     const sections = plan.sections ?? [];
     const beatRefs = sections.flatMap((section) =>
       [...(section.beats ?? [])]
@@ -54,7 +125,9 @@ export function createDraftAudioRunner({
       providers: ttsPreflight,
     }).catch(() => {});
 
-    const uniqueProviders = [...new Set(beatRefs.map((ref) => ref.provider))];
+    const uniqueProviders = [...new Set(beatRefs.map((ref) => String(ref.provider || "")))].filter(
+      Boolean,
+    );
     if (beatRefs.length > 0 && uniqueProviders.length === 1) {
       const provider = uniqueProviders[0];
       await appendRunTrace(projectId, job.id, "audio.batch.start", {

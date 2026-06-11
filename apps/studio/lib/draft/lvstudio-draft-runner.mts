@@ -1,4 +1,67 @@
-export function createLvstudioDraftRunner(deps) {
+type DraftJob = {
+  id: string;
+  projectId: string;
+  phase?: string;
+  cancelRequested?: boolean;
+  currentProcessPid?: number;
+};
+
+type LvstudioDraftResult = {
+  stdout: string;
+  stderr?: string;
+};
+
+type VoiceSettings = Record<string, unknown>;
+
+type CommandLogEntry = {
+  command: string;
+  ok: boolean;
+  durationMs: number;
+  stdout: string;
+  stderr: string;
+  exitCode?: string | number;
+  message?: string;
+};
+
+type RunProgressPatch = {
+  status: string;
+  progress: Record<string, unknown>;
+};
+
+type SpawnChild = {
+  pid?: number;
+  stdout?: {
+    on: (event: "data", listener: (chunk: unknown) => void) => void;
+  };
+  stderr?: {
+    on: (event: "data", listener: (chunk: unknown) => void) => void;
+  };
+  on: (
+    event: "error" | "close",
+    listener:
+      | ((error: unknown) => void)
+      | ((code: number | null, signal: NodeJS.Signals | null) => void),
+  ) => void;
+};
+
+type LvstudioDraftRunnerDeps = {
+  spawn: (
+    command: string,
+    args: string[],
+    options: { cwd: string; env: NodeJS.ProcessEnv; stdio: ["ignore", "pipe", "pipe"] },
+  ) => SpawnChild;
+  rootDir: string;
+  processEnv: NodeJS.ProcessEnv;
+  voiceSettingsEnv: (settings: VoiceSettings) => NodeJS.ProcessEnv;
+  readVoiceSettings: () => Promise<VoiceSettings>;
+  appendCommandLog: (entry: CommandLogEntry) => Promise<void>;
+  updateRunProgress: (projectId: string, patch: RunProgressPatch) => Promise<void>;
+  renderProgressPrefix: string;
+  runLvstudioTestModeFn: () => (args: string[]) => Promise<LvstudioDraftResult>;
+  studioTestMode?: boolean;
+};
+
+export function createLvstudioDraftRunner(deps: LvstudioDraftRunnerDeps) {
   const {
     spawn,
     rootDir,
@@ -12,7 +75,10 @@ export function createLvstudioDraftRunner(deps) {
     studioTestMode,
   } = deps;
 
-  return async function runLvstudioForDraft(job, args) {
+  return async function runLvstudioForDraft(
+    job: DraftJob,
+    args: string[],
+  ): Promise<LvstudioDraftResult> {
     if (studioTestMode) {
       if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
       return runLvstudioTestModeFn()(args);
@@ -21,7 +87,7 @@ export function createLvstudioDraftRunner(deps) {
     const command = ["pnpm", "lvstudio", ...args].join(" ");
     const startedAt = Date.now();
     const settings = await readVoiceSettings();
-    return await new Promise((resolve, reject) => {
+    return await new Promise<LvstudioDraftResult>((resolve, reject) => {
       const child = spawn("pnpm", ["lvstudio", ...args], {
         cwd: rootDir,
         env: { ...processEnv, ...voiceSettingsEnv(settings) },
@@ -51,7 +117,7 @@ export function createLvstudioDraftRunner(deps) {
               const percent = Number.isFinite(computed)
                 ? Math.max(0, Math.min(100, computed * 100))
                 : 0;
-              updateRunProgress(job.projectId, {
+              void updateRunProgress(job.projectId, {
                 status: "rendering",
                 progress: {
                   kind: "render",
@@ -73,24 +139,25 @@ export function createLvstudioDraftRunner(deps) {
       child.stderr?.on("data", (chunk) => {
         stderr += String(chunk);
       });
-      child.on("error", async (error) => {
+      child.on("error", (error: unknown) => {
         job.currentProcessPid = undefined;
-        await appendCommandLog({
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        void appendCommandLog({
           command,
           ok: false,
           durationMs: Date.now() - startedAt,
           stdout: stdout.trim(),
           stderr: stderr.trim(),
-          message: String(error?.message || error),
+          message: errorMessage,
         }).catch(() => {});
-        reject(new Error(String(error?.message || error)));
+        reject(new Error(errorMessage));
       });
-      child.on("close", async (code, signal) => {
+      child.on("close", (code: number | null, signal: NodeJS.Signals | null) => {
         job.currentProcessPid = undefined;
         const ok = code === 0;
         const exitCode = code ?? (signal ? String(signal) : undefined);
         if (ok) {
-          await appendCommandLog({
+          void appendCommandLog({
             command,
             ok: true,
             durationMs: Date.now() - startedAt,
@@ -108,7 +175,7 @@ export function createLvstudioDraftRunner(deps) {
         ]
           .filter(Boolean)
           .join("\n\n");
-        await appendCommandLog({
+        void appendCommandLog({
           command,
           ok: false,
           exitCode,
