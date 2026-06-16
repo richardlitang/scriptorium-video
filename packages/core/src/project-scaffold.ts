@@ -1,11 +1,22 @@
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 import { writeJsonFile } from "./json.js";
-import type { TargetPlatformSchema, VideoModeSchema } from "./schemas/video-plan.schema.js";
+import { TargetPlatformSchema, VideoModeSchema } from "./schemas/video-plan.schema.js";
 import type { z } from "zod";
 
 type Mode = z.infer<typeof VideoModeSchema>;
 type Platform = z.infer<typeof TargetPlatformSchema>;
+
+function parseEnum<T extends string>(
+  schema: { options: readonly T[]; safeParse: (value: unknown) => { success: boolean } },
+  value: string,
+  label: string,
+): T {
+  if (!schema.safeParse(value).success) {
+    throw new Error(`Invalid ${label} "${value}". Expected one of: ${schema.options.join(", ")}.`);
+  }
+  return value as T;
+}
 
 export async function createProjectScaffold(
   projectId: string,
@@ -13,6 +24,8 @@ export async function createProjectScaffold(
   platform: Platform,
   rootDir = process.cwd(),
 ): Promise<void> {
+  mode = parseEnum(VideoModeSchema, mode, "mode");
+  platform = parseEnum(TargetPlatformSchema, platform, "platform");
   const now = new Date().toISOString();
   const projectDir = path.resolve(rootDir, "content", "projects", projectId);
   await mkdir(path.join(projectDir, "assets", "images"), { recursive: true });
