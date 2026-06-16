@@ -1,24 +1,12 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { execFileSync } from "node:child_process";
+import { grepFiles } from "./lib/grep-files.mjs";
 
 const repoRoot = process.cwd();
 const scanDir = "packages/core/src";
 const allowFiles = new Set(["packages/core/src/migrate-video-plan.ts"]);
 
-function runRipgrep() {
-  try {
-    return execFileSync("rg", ["-n", "readJsonFile\\(.*VideoPlanSchema", scanDir], {
-      cwd: repoRoot,
-      encoding: "utf8",
-    });
-  } catch (error) {
-    if (error?.status === 1) return "";
-    throw error;
-  }
-}
-
-const raw = runRipgrep().trim();
+const raw = grepFiles(/readJsonFile\(.*VideoPlanSchema/, [scanDir], { cwd: repoRoot }).trim();
 if (!raw) {
   console.log("check-video-plan-normalization passed.");
   process.exit(0);

@@ -1,30 +1,16 @@
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
+import { grepFiles } from "./lib/grep-files.mjs";
 
 const repoRoot = process.cwd();
 const scanDirs = ["packages/core/src"];
 
 const allowedFiles = new Set(["packages/core/src/core-runtime-env.ts"]);
 
-function runRipgrep() {
-  try {
-    return execFileSync(
-      "rg",
-      [
-        "-n",
-        "process\\.env\\.(LVSTUDIO_TTS_CONCURRENCY|LVSTUDIO_SFX_LIBRARY_DIR|LVSTUDIO_DEFAULT_MUSIC_BED|LVSTUDIO_ENABLE_AUTO_MUSIC_BED|LVSTUDIO_MUSIC_BED_LEVEL_DB)|env\\.(LVSTUDIO_TTS_CONCURRENCY|LVSTUDIO_SFX_LIBRARY_DIR|LVSTUDIO_DEFAULT_MUSIC_BED|LVSTUDIO_ENABLE_AUTO_MUSIC_BED|LVSTUDIO_MUSIC_BED_LEVEL_DB)",
-        ...scanDirs,
-      ],
-      { cwd: repoRoot, encoding: "utf8" },
-    );
-  } catch (error) {
-    if (error?.status === 1) return "";
-    throw error;
-  }
-}
+const envPattern =
+  /process\.env\.(LVSTUDIO_TTS_CONCURRENCY|LVSTUDIO_SFX_LIBRARY_DIR|LVSTUDIO_DEFAULT_MUSIC_BED|LVSTUDIO_ENABLE_AUTO_MUSIC_BED|LVSTUDIO_MUSIC_BED_LEVEL_DB)|env\.(LVSTUDIO_TTS_CONCURRENCY|LVSTUDIO_SFX_LIBRARY_DIR|LVSTUDIO_DEFAULT_MUSIC_BED|LVSTUDIO_ENABLE_AUTO_MUSIC_BED|LVSTUDIO_MUSIC_BED_LEVEL_DB)/;
 
-const raw = runRipgrep().trim();
+const raw = grepFiles(envPattern, scanDirs, { cwd: repoRoot }).trim();
 if (!raw) {
   console.log("check-core-env-boundary passed.");
   process.exit(0);

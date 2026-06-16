@@ -1,25 +1,13 @@
-import { execFileSync } from "node:child_process";
 import path from "node:path";
 import process from "node:process";
+import { grepFiles } from "./lib/grep-files.mjs";
 
 const repoRoot = process.cwd();
 const scanDirs = ["apps/studio/lib", "apps/studio/server.mjs"];
 
 const allowedFiles = new Set(["apps/studio/test/draft-flow-integration.test.mjs"]);
 
-function runRipgrep() {
-  try {
-    return execFileSync("rg", ["-n", "process\\.env\\.[A-Z][A-Z0-9_]*", ...scanDirs], {
-      cwd: repoRoot,
-      encoding: "utf8",
-    });
-  } catch (error) {
-    if (error?.status === 1) return "";
-    throw error;
-  }
-}
-
-const raw = runRipgrep().trim();
+const raw = grepFiles(/process\.env\.[A-Z][A-Z0-9_]*/, scanDirs, { cwd: repoRoot }).trim();
 if (!raw) {
   console.log("check-studio-env-boundary passed.");
   process.exit(0);
