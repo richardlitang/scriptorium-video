@@ -37,13 +37,18 @@ This is a personal engineering project. The repo is public for code review and p
 
 ```bash
 pnpm install
-pnpm -s verify
-pnpm studio
+pnpm start
 ```
 
-The Studio server defaults to `http://localhost:4173`.
+`pnpm start` builds the packages, builds the web SPA, and launches the Studio server in one command. It defaults to `http://localhost:4173`.
 
-For provider-backed flows, copy `.env.example` into your local shell or an ignored env file and provide the required credentials or local service URLs. Do not commit real secrets.
+The server autostarts the local Chatterbox TTS server on demand when a narration job runs. Chatterbox needs a one-time Python environment setup (Python 3.11, several GB of dependencies and model weights):
+
+```bash
+pnpm setup:chatterbox   # one time; re-run after a reboot if the venv lives under /private/tmp
+```
+
+For provider-backed flows (OpenAI planning/images/TTS), copy `.env.example` into your local shell or an ignored env file and provide the required credentials or local service URLs. Do not commit real secrets.
 
 ## Useful commands
 
