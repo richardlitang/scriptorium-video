@@ -4,6 +4,7 @@ import os
 import subprocess
 import tempfile
 import inspect
+import threading
 from pathlib import Path
 from typing import Any
 
@@ -55,6 +56,15 @@ def pick_device() -> str:
 
 
 @app.on_event("startup")
+def start_model_load() -> None:
+    # Load the model off the startup path so uvicorn binds immediately and
+    # /health is reachable (returning status "loading") while the weights
+    # download/load. Studio's UI polls /health and enables draft actions once
+    # status becomes "ready"; a blocking load would refuse connections for
+    # minutes and surface as "unreachable" instead of "loading".
+    threading.Thread(target=load_model, name="chatterbox-model-load", daemon=True).start()
+
+
 def load_model() -> None:
     global model, sample_rate, model_status, model_error
     device = os.environ.get("CHATTERBOX_DEVICE", pick_device())
