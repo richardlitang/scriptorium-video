@@ -72,6 +72,16 @@ export function createChatterboxRuntime({
     return recovered.ready ?? health;
   }
 
+  function warmChatterbox(reason = "boot") {
+    // Fire-and-forget autostart for server boot: kick the model load in the
+    // background so /health transitions unreachable -> loading -> ready while
+    // the user gets to the page, instead of showing "unreachable" until they
+    // trigger a draft action. Dedups via startState.pending.
+    if (!autoStartEnabled || studioTestMode) return false;
+    void tryAutoStartChatterbox(reason).catch(() => {});
+    return true;
+  }
+
   function resetStartState() {
     startState.pending = null;
   }
@@ -80,6 +90,7 @@ export function createChatterboxRuntime({
     waitForChatterboxReady,
     tryAutoStartChatterbox,
     ensureChatterboxReady,
+    warmChatterbox,
     resetStartState,
   };
 }

@@ -43,6 +43,10 @@ function shutdown() {
 
 server.listen(port, () => {
   console.log(`Studio running at http://localhost:${port}`);
+  // Start warming the Chatterbox TTS model in the background so the UI shows
+  // "warming -> ready" on its own instead of "unreachable" until the user
+  // triggers a draft action. No-op when autostart is disabled.
+  if (typeof runtime.warmChatterbox === "function") runtime.warmChatterbox("boot");
 });
 
 process.on("SIGINT", () => shutdown("SIGINT"));

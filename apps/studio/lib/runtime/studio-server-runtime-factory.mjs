@@ -157,7 +157,7 @@ export function createStudioServerRuntime({
     chatterboxHealthUrl: runtimeConfig.chatterboxHealthUrl,
     studioTestMode: STUDIO_TEST_MODE,
   });
-  const { ensureChatterboxReady, resetStartState } = createChatterboxRuntime({
+  const { ensureChatterboxReady, warmChatterbox, resetStartState } = createChatterboxRuntime({
     readTtsHealth,
     spawnImpl: spawn,
     sleepImpl: sleep,
@@ -569,6 +569,7 @@ export function createStudioServerRuntime({
   return {
     port,
     handleStudioHttpRequest,
+    warmChatterbox,
     dispose() {
       clearPreviewCache();
       resetStartState();
