@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { ProjectSidebar } from "./ProjectSidebar";
 import { TtsHealthPill, TtsHealthDetail } from "./TtsHealthPill";
 import { ProjectWorkspace } from "./ProjectWorkspace";
+import { StartupPanel } from "./StartupPanel";
+import { useProjects, useCreateProject } from "@/queries/projects";
 
 const STORAGE_KEY = "lvstudio:selectedProjectId";
 
@@ -9,6 +11,8 @@ export function App() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(() =>
     localStorage.getItem(STORAGE_KEY),
   );
+  const { data: projects, isLoading: projectsLoading } = useProjects();
+  const createProject = useCreateProject();
 
   useEffect(() => {
     if (selectedProjectId) {
@@ -17,6 +21,25 @@ export function App() {
       localStorage.removeItem(STORAGE_KEY);
     }
   }, [selectedProjectId]);
+
+  // Land in a workspace on startup instead of an empty center: drop a stale
+  // selection that points at a deleted project, then open the first project
+  // when nothing is selected.
+  useEffect(() => {
+    if (!projects) return;
+    if (selectedProjectId && !projects.some((p) => p.id === selectedProjectId)) {
+      setSelectedProjectId(null);
+      return;
+    }
+    if (!selectedProjectId && projects.length > 0) {
+      setSelectedProjectId(projects[0].id);
+    }
+  }, [projects, selectedProjectId]);
+
+  async function handleCreateFirstProject() {
+    const result = await createProject.mutateAsync({ title: "Untitled project" });
+    setSelectedProjectId(result.project.id);
+  }
 
   return (
     <div className="flex h-screen overflow-hidden flex-col">
@@ -34,19 +57,17 @@ export function App() {
           <TtsHealthDetail />
         </div>
         <main className="flex-1 overflow-hidden flex flex-col">
-          {selectedProjectId ? <ProjectWorkspace projectId={selectedProjectId} /> : <EmptyState />}
+          {selectedProjectId ? (
+            <ProjectWorkspace projectId={selectedProjectId} />
+          ) : (
+            <StartupPanel
+              projectsLoading={projectsLoading}
+              hasProjects={(projects?.length ?? 0) > 0}
+              onCreate={handleCreateFirstProject}
+              creating={createProject.isPending}
+            />
+          )}
         </main>
-      </div>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="flex-1 flex items-center justify-center text-[var(--color-text-muted)]">
-      <div className="text-center">
-        <div className="text-4xl mb-4 opacity-30">◎</div>
-        <div className="text-sm">Select a project to get started</div>
       </div>
     </div>
   );
