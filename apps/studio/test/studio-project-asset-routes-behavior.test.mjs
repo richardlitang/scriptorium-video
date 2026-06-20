@@ -331,6 +331,102 @@ test("project plan save writes updated plan and run-state on success", async () 
   assert.equal(runStateWrite?.status, "idle");
 });
 
+test("project plan save strips draft-only visual metadata before sync", async () => {
+  const { res, response, sendJson } = makeJsonResponder();
+  const projectFs = createInMemoryProjectFs({
+    "/tmp/projects/demo/video-plan.json": '{"title":"before"}\n',
+    "/tmp/projects/demo/timeline.json": '{"segments":[]}\n',
+    "/tmp/projects/demo/asset-manifest.json": '{"assets":[]}\n',
+  });
+  const handled = await handleProjectRoutes(
+    makeProjectContext({
+      sendJson,
+      parseJsonBody: async () => ({
+        schemaVersion: 1,
+        title: "after",
+        mode: "short_story",
+        targetPlatform: "local_only",
+        stylePackId: "default",
+        providers: { tts: "chatterbox", transcription: "mock" },
+        voice: { provider: "chatterbox", voiceId: "clone", format: "wav", options: {} },
+        visualBible: {
+          stylePreset: "cinematic_illustration",
+          lookAndFeel: "grounded",
+          palette: ["#111111"],
+          eraAndLocation: "present day",
+          characterAnchors: ["same lead"],
+          characters: [{ id: "lead", name: "Lead" }],
+          locations: [{ id: "street", name: "Street" }],
+          objects: [{ id: "door", name: "Door" }],
+          continuityRules: ["same wardrobe"],
+          negativePrompt: "watermarks",
+        },
+        sections: [
+          {
+            id: "s1",
+            title: "Section 1",
+            beats: [
+              {
+                id: "b1",
+                order: 1,
+                narration: "Hello",
+                timing: { locked: false, mediaPolicy: "loop_or_freeze" },
+                media: [{ id: "b1-visual", type: "title_card", scaleMode: "safe_cover" }],
+                visual: {
+                  prompt: "Lead at the door",
+                  scaleMode: "safe_cover",
+                  subjectPosition: "center",
+                  cropRisk: "medium",
+                  motionStrength: "subtle",
+                  referenceIds: ["lead", "door"],
+                  referencePriority: "high",
+                },
+                voiceDirection: { profile: "urgent", source: "llm" },
+                sfxCues: [],
+                editorial: { visualEditCues: [], silenceWindows: [] },
+              },
+            ],
+          },
+        ],
+      }),
+      readFile: projectFs.readFile,
+      writeFile: projectFs.writeFile,
+      readOptionalFile: projectFs.readOptionalFile,
+      restoreOptionalFile: projectFs.restoreOptionalFile,
+      runTrackedForegroundJob: async (_projectId, _job, worker) =>
+        worker({ advance: async (_label, fn) => fn() }),
+      runLvstudio: async (args) => ({ stdout: `ok ${args.join(" ")}` }),
+      appendQualityHistory: async () => {},
+      readRunState: async () => ({ status: "dirty" }),
+      writeRunState: async () => {},
+      sha256: async () => "hash-after",
+    }),
+    { method: "PUT" },
+    res,
+    "/api/projects/demo/plan",
+    new URL("http://localhost:4173/?check=false"),
+  );
+
+  assert.equal(handled, true);
+  assert.equal(response.status, 200);
+  const persistedPlan = JSON.parse(projectFs.files.get("/tmp/projects/demo/video-plan.json"));
+  assert.deepEqual(Object.keys(persistedPlan.visualBible).sort(), [
+    "characterAnchors",
+    "continuityRules",
+    "eraAndLocation",
+    "lookAndFeel",
+    "negativePrompt",
+    "palette",
+    "stylePreset",
+  ]);
+  const persistedBeat = persistedPlan.sections[0].beats[0];
+  assert.equal(Object.hasOwn(persistedBeat, "voiceDirection"), false);
+  assert.equal(Object.hasOwn(persistedBeat, "sfxCues"), false);
+  assert.equal(Object.hasOwn(persistedBeat, "editorial"), false);
+  assert.deepEqual(Object.keys(persistedBeat.visual).sort(), ["prompt"]);
+  assert.equal(persistedBeat.direction?.voice?.profile, "urgent");
+});
+
 test("project plan save rolls back files when sync/check step fails", async () => {
   const { res, sendJson } = makeJsonResponder();
   const projectFs = createInMemoryProjectFs({

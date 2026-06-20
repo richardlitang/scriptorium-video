@@ -7,7 +7,7 @@ import { hashFile, hashString } from "./hash.js";
 import { readJsonFile, writeJsonFile } from "./json.js";
 import { probeMedia } from "./media-probe.js";
 import { getProjectPaths } from "./paths.js";
-import { normalizeVideoPlan } from "./normalize-video-plan.js";
+import { normalizeVideoPlan, prepareVideoPlanForSchema } from "./normalize-video-plan.js";
 import { resolveBeatProductionDirection } from "./resolve-production-direction.js";
 import { VideoPlanSchema, type Beat } from "./schemas/video-plan.schema.js";
 import {
@@ -349,7 +349,8 @@ function assertLicensedAudioAsset(asset: Asset): void {
 
 export async function syncProject(projectId: string, rootDir = process.cwd()): Promise<SyncResult> {
   const paths = getProjectPaths(projectId, rootDir);
-  const plan = normalizeVideoPlan(await readJsonFile(paths.videoPlan, VideoPlanSchema));
+  const rawPlan = JSON.parse(await readFile(paths.videoPlan, "utf8")) as unknown;
+  const plan = normalizeVideoPlan(VideoPlanSchema.parse(prepareVideoPlanForSchema(rawPlan)));
   const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const resolvedConfig = await resolveConfig(plan, rootDir);
   const issues: SyncIssue[] = [];

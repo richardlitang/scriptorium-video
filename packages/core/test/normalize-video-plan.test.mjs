@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { normalizeVideoPlan } from "../dist/normalize-video-plan.js";
+import { normalizeVideoPlan, prepareVideoPlanForSchema } from "../dist/normalize-video-plan.js";
 
 function makePlan(overrides = {}) {
   return {
@@ -83,4 +83,61 @@ test("normalizeVideoPlan preserves millisecond pause values from direction.voice
   const voice = normalized.sections[0].beats[0].direction.voice;
   assert.equal(voice.pauseBeforeMs, 200);
   assert.equal(voice.pauseAfterMs, 400);
+});
+
+test("prepareVideoPlanForSchema strips draft-only visual metadata before strict parse", () => {
+  const plan = makePlan({
+    visualBible: {
+      stylePreset: "cinematic_illustration",
+      lookAndFeel: "grounded",
+      palette: ["#111111"],
+      eraAndLocation: "present day",
+      characterAnchors: ["same lead"],
+      characters: [{ id: "lead", name: "Lead" }],
+      locations: [{ id: "street", name: "Street" }],
+      objects: [{ id: "door", name: "Door" }],
+      continuityRules: ["same wardrobe"],
+      negativePrompt: "watermarks",
+    },
+  });
+  const beat = plan.sections[0].beats[0];
+  beat.media = [{ id: "beat-1-visual", type: "title_card", scaleMode: "safe_cover" }];
+  beat.visual = {
+    prompt: "Lead at the door",
+    scaleMode: "safe_cover",
+    subjectPosition: "center",
+    cropRisk: "medium",
+    motionStrength: "subtle",
+    referenceIds: ["lead", "door"],
+    referencePriority: "high",
+  };
+  beat.voiceDirection = { profile: "urgent", source: "llm" };
+  beat.sfxCues = [];
+  beat.editorial = { visualEditCues: [], silenceWindows: [] };
+
+  const prepared = prepareVideoPlanForSchema(plan);
+  assert.equal(Object.hasOwn(prepared.visualBible, "characters"), false);
+  assert.equal(Object.hasOwn(prepared.visualBible, "locations"), false);
+  assert.equal(Object.hasOwn(prepared.visualBible, "objects"), false);
+  assert.equal(Object.hasOwn(prepared.sections[0].beats[0].visual, "scaleMode"), false);
+  assert.equal(Object.hasOwn(prepared.sections[0].beats[0].visual, "referenceIds"), false);
+  assert.equal(Object.hasOwn(prepared.sections[0].beats[0], "voiceDirection"), false);
+  assert.equal(prepared.sections[0].beats[0].direction.voice.profile, "urgent");
+});
+
+test("prepareVideoPlanForSchema removes visual objects containing only draft metadata", () => {
+  const plan = makePlan({
+    visualBible: {
+      characters: [{ id: "lead", name: "Lead" }],
+    },
+  });
+  plan.sections[0].beats[0].visual = {
+    scaleMode: "safe_cover",
+    referenceIds: ["lead"],
+  };
+
+  const prepared = prepareVideoPlanForSchema(plan);
+
+  assert.equal(prepared.visualBible, undefined);
+  assert.equal(prepared.sections[0].beats[0].visual, undefined);
 });
