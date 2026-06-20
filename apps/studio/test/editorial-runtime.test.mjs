@@ -4,7 +4,7 @@ import {
   activeVisualCueAt,
   shouldCutToBlack,
   visualCueStyle,
-} from "../../renderer/dist/templates/editorial-runtime.js";
+} from "../../renderer/dist/templates/editorialHelpers.js";
 
 test("editorial runtime prioritizes next_visual cues and ignores black-target cues for active visual effects", () => {
   const cues = [
