@@ -14,6 +14,28 @@ This is a personal engineering project. The repo is public for code review and p
 - Provider integrations for planning, image generation, transcription/TTS-style workflows, and local-first media flows.
 - Structural guardrails, linting, formatting, type checks, and package-owned tests composed by one verification command.
 
+## Portfolio case study
+
+The useful claim here is not that this is a finished hosted video product. It is that the codebase has a deliberate, testable shape for a local-first video workflow: shared contracts, thin adapters, focused orchestration, provider boundaries, and a renderer that consumes prepared bundles.
+
+![Deterministic portfolio proof workflow](docs/portfolio-proof-workflow.svg)
+
+**Problem:** a video-production tool needs to coordinate mutable local files, provider work, quality checks, and rendering without turning every user surface into a second application.
+
+**Design:** canonical Zod contracts live in `packages/core`; CLI, MCP, Studio HTTP routes, and React UI validate and delegate; provider adapters stay separate from workflow decisions; the Remotion app receives a prepared render bundle instead of reading project state.
+
+**Evidence:** runnable boundary checks protect those choices alongside linting, type checks, package-owned tests, and `pnpm -s verify`.
+
+Run the deterministic proof locally:
+
+```bash
+bash docs/portfolio-demo.sh
+```
+
+The script builds the workspace, creates a short-form `portfolio_site` project in a temporary directory, validates its canonical contracts, resolves its declared production policy, prints the generated project shape, and removes the temporary directory. It makes no network calls, requires no API key, and does not generate media. See the [representative output](docs/portfolio-demo-output.txt).
+
+For the full production path, use a real local project and follow `validate → sync → check → render`; provider-backed narration, images, captions, and rendered media are intentionally opt-in because they can require credentials, local services, or substantial assets.
+
 ## Workspace map
 
 | Workspace             | Responsibility                                                                             |

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title desc">
+  <title id="title">Scriptorium deterministic portfolio proof workflow</title>
+  <desc id="desc">Build, scaffold an isolated project, validate canonical contracts, and resolve production policy.</desc>
+  <rect width="1200" height="360" fill="#101827" rx="24"/>
+  <text x="64" y="78" fill="#f8fafc" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="28" font-weight="700">A repeatable local proof — no API keys or generated media</text>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace">
+    <g transform="translate(64 138)">
+      <rect width="230" height="132" rx="14" fill="#1e293b" stroke="#38bdf8" stroke-width="2"/>
+      <text x="22" y="48" fill="#38bdf8" font-size="18">01 / BUILD</text>
+      <text x="22" y="84" fill="#e2e8f0" font-size="15">pnpm -s build</text>
+    </g>
+    <path d="M314 204h70m-15-15 15 15-15 15" fill="none" stroke="#94a3b8" stroke-width="3"/>
+    <g transform="translate(404 138)">
+      <rect width="230" height="132" rx="14" fill="#1e293b" stroke="#a78bfa" stroke-width="2"/>
+      <text x="22" y="48" fill="#a78bfa" font-size="18">02 / SCAFFOLD</text>
+      <text x="22" y="84" fill="#e2e8f0" font-size="15">temporary project</text>
+    </g>
+    <path d="M654 204h70m-15-15 15 15-15 15" fill="none" stroke="#94a3b8" stroke-width="3"/>
+    <g transform="translate(744 138)">
+      <rect width="180" height="132" rx="14" fill="#1e293b" stroke="#34d399" stroke-width="2"/>
+      <text x="22" y="48" fill="#34d399" font-size="18">03 / VALIDATE</text>
+      <text x="22" y="84" fill="#e2e8f0" font-size="15">Zod contracts</text>
+    </g>
+    <path d="M944 204h56m-15-15 15 15-15 15" fill="none" stroke="#94a3b8" stroke-width="3"/>
+    <g transform="translate(1020 138)">
+      <rect width="116" height="132" rx="14" fill="#1e293b" stroke="#fbbf24" stroke-width="2"/>
+      <text x="16" y="48" fill="#fbbf24" font-size="18">04</text>
+      <text x="16" y="80" fill="#e2e8f0" font-size="14">resolve</text>
+      <text x="16" y="102" fill="#e2e8f0" font-size="14">policy</text>
+    </g>
+  </g>
+</svg>

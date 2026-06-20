@@ -1,0 +1,25 @@
+Representative output from `bash docs/portfolio-demo.sh`
+-----------------------------------------------------------
+
+== Create an isolated project ==
+Created content/projects/portfolio-proof
+
+== Validate its canonical project contracts ==
+Project portfolio-proof is valid.
+
+== Resolve the declared production policy ==
+{
+  "templateId": "vertical-story",
+  "exportProfile": "shorts-1080x1920"
+}
+
+== Inspect the generated local project shape ==
+<temporary>/content/projects/portfolio-proof/asset-manifest.json
+<temporary>/content/projects/portfolio-proof/project.json
+<temporary>/content/projects/portfolio-proof/video-plan.json
+
+Demo complete. The temporary project was isolated from this checkout and will be removed.
+
+The exact resolved-policy JSON includes defaults and can change as the canonical
+configuration evolves. The stable proof is that scaffolding, validation, and
+configuration resolution run locally without provider calls or persistent output.
