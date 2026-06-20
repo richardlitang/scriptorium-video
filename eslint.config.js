@@ -11,6 +11,7 @@ export default [
       "**/node_modules/**",
       "**/dist/**",
       "**/*.tsbuildinfo",
+      ".worktrees/**",
       "content/**",
       ".studio-data/**",
       "apps/studio/web/dist/**",
