@@ -84,7 +84,8 @@ export function makeAssetContext(overrides = {}) {
   base.activeBeatJobs = new Map();
   base.beatJobProgress = (job) => job;
   base.runBeatRegenerateJob = async () => ({});
-  return { ...base, ...overrides };
+  const dependencies = { ...base, ...overrides };
+  return createRouteCapabilities(dependencies);
 }
 
 export function makeJobContext(overrides = {}) {

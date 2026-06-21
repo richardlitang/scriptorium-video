@@ -34,7 +34,12 @@ test("studio route composition handles unmatched API route with complete scoped 
 test("route module fails fast when required dependency key is missing", async () => {
   await assert.rejects(
     () =>
-      handleAssetRoutes({ sendJson: () => {} }, { method: "GET" }, {}, "/api/projects/demo/assets"),
-    /Missing dependency "parseJsonBody" for asset routes/,
+      handleAssetRoutes(
+        { http: { sendJson: () => {} } },
+        { method: "GET" },
+        {},
+        "/api/projects/demo/assets",
+      ),
+    /Missing capability "http\.parseJsonBody" for asset routes/,
   );
 });

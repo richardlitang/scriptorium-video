@@ -17,11 +17,26 @@ export const ASSET_ROUTE_KEYS = [
   "runBeatRegenerateJob",
 ];
 
+const ASSET_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "http.parseJsonBody",
+  "projects.projectsDir",
+  "projects.path",
+  "projects.safeReadJson",
+  "projects.runProjectMutation",
+  "projects.deleteProjectAsset",
+  "projects.updateProjectAssetStatus",
+  "projects.readImageHistory",
+  "projects.generateProjectImages",
+  "jobs.activeBeatJobs",
+  "jobs.beatJobProgress",
+  "jobs.runBeatRegenerateJob",
+];
+
 export async function handleAssetRoutes(context, req, res, pathname) {
-  requireRouteContext(context, "asset routes", ASSET_ROUTE_KEYS);
+  requireRouteContext(context, "asset routes", ASSET_ROUTE_CAPABILITIES);
+  const { sendJson, parseJsonBody } = context.http;
   const {
-    sendJson,
-    parseJsonBody,
     projectsDir,
     path,
     safeReadJson,
@@ -30,10 +45,8 @@ export async function handleAssetRoutes(context, req, res, pathname) {
     updateProjectAssetStatus,
     readImageHistory,
     generateProjectImages,
-    activeBeatJobs,
-    beatJobProgress,
-    runBeatRegenerateJob,
-  } = context;
+  } = context.projects;
+  const { activeBeatJobs, beatJobProgress, runBeatRegenerateJob } = context.jobs;
 
   const routes = [
     {
