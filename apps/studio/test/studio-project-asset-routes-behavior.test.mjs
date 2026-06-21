@@ -463,8 +463,7 @@ test("project plan save rolls back files when sync/check step fails", async () =
   });
   await assert.rejects(async () => {
     await handleProjectRoutes(
-      {
-        ...makeProjectContext(),
+      makeProjectContext({
         sendJson,
         parseJsonBody: async () => ({ title: "after", sections: [] }),
         readFile: projectFs.readFile,
@@ -475,7 +474,7 @@ test("project plan save rolls back files when sync/check step fails", async () =
           throw new Error("sync failed");
         },
         sha256: async () => "hash",
-      },
+      }),
       { method: "PUT" },
       res,
       "/api/projects/demo/plan",

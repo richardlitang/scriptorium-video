@@ -24,32 +24,51 @@ export const PROJECT_PLAN_ROUTE_KEYS = [
   "generatePlanDraftWithOpenAi",
 ];
 
+const PROJECT_PLAN_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "http.parseJsonBody",
+  "projects.projectsDir",
+  "projects.path",
+  "projects.readFile",
+  "projects.readOptionalFile",
+  "projects.restoreOptionalFile",
+  "projects.writeFile",
+  "projects.sha256",
+  "projects.getProjectDetails",
+  "projects.splitPlannerEnabled",
+  "projects.generateSplitPlanDraftWithOpenAi",
+  "projects.generatePlanDraftWithOpenAi",
+  "jobs.runTrackedForegroundJob",
+  "traces.appendQualityHistory",
+  "traces.readRunState",
+  "traces.writeRunState",
+  "domainOps.sync",
+  "domainOps.check",
+];
+
 function formatOutput(value) {
   return JSON.stringify(value, null, 2);
 }
 
 export async function handleProjectPlanRoutes(context, req, res, pathname, requestUrl) {
-  requireRouteContext(context, "project plan routes", PROJECT_PLAN_ROUTE_KEYS);
+  requireRouteContext(context, "project plan routes", PROJECT_PLAN_ROUTE_CAPABILITIES);
+  const { sendJson, parseJsonBody } = context.http;
   const {
-    sendJson,
-    parseJsonBody,
     projectsDir,
     path,
     readFile,
     readOptionalFile,
     restoreOptionalFile,
     writeFile,
-    runTrackedForegroundJob,
-    domainOps,
-    appendQualityHistory,
-    readRunState,
-    writeRunState,
     sha256,
     getProjectDetails,
     splitPlannerEnabled,
     generateSplitPlanDraftWithOpenAi,
     generatePlanDraftWithOpenAi,
-  } = context;
+  } = context.projects;
+  const { runTrackedForegroundJob } = context.jobs;
+  const { appendQualityHistory, readRunState, writeRunState } = context.traces;
+  const { domainOps } = context;
 
   const routes = [
     {
