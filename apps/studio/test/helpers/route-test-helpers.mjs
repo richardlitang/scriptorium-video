@@ -2,7 +2,6 @@ import path from "node:path";
 import { PROJECT_ROUTE_KEYS } from "../../lib/routes/routes-projects.mjs";
 import { ASSET_ROUTE_KEYS } from "../../lib/routes/routes-assets.mjs";
 import { JOB_ROUTE_KEYS } from "../../lib/routes/routes-jobs.mjs";
-import { STUDIO_ROUTE_CONTEXT_KEYS } from "../../lib/routes/studio-routes.mjs";
 import { createRouteCapabilities } from "../../lib/routes/route-capabilities.mjs";
 
 export function makeJsonResponder() {
@@ -64,7 +63,6 @@ export function makeProjectContext(overrides = {}) {
   base.getRenderDetails = async () => ({ renders: [] });
   base.sendVideoFile = async () => {};
   base.safeProjectPath = () => null;
-  base.runLvstudioReport = async () => ({ ok: true, stdout: "{}" });
   base.readQualityHistory = async () => [];
   const dependencies = {
     ...base,
@@ -90,7 +88,7 @@ export function makeAssetContext(overrides = {}) {
   base.beatJobProgress = (job) => job;
   base.runBeatRegenerateJob = async () => ({});
   const dependencies = { ...base, ...overrides };
-  return createRouteCapabilities(dependencies);
+  return { ...dependencies, ...createRouteCapabilities(dependencies) };
 }
 
 export function makeJobContext(overrides = {}) {
@@ -120,20 +118,22 @@ export function makeJobContext(overrides = {}) {
     render: async () => ({}),
   };
   base.runLvstudio = async () => ({});
-  base.runLvstudioReport = async () => ({});
   base.appendQualityHistory = async () => {};
   base.writeRunState = async () => {};
   base.path = path;
   base.projectsDir = "/tmp/projects";
   base.readFile = async () => "";
   base.sha256 = () => "hash";
-  return { ...base, ...overrides };
+  const dependencies = {
+    ...base,
+    ...overrides,
+    domainOps: { ...base.domainOps, ...(overrides.domainOps ?? {}) },
+  };
+  return { ...dependencies, ...createRouteCapabilities(dependencies) };
 }
 
 export function makeStudioBaseContext(overrides = {}) {
-  const base = Object.fromEntries(STUDIO_ROUTE_CONTEXT_KEYS.map((key) => [key, async () => ({})]));
   const merged = {
-    ...base,
     ...makeProjectContext(),
     ...makeAssetContext(),
     ...makeJobContext(),

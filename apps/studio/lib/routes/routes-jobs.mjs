@@ -28,6 +28,36 @@ export const JOB_ROUTE_KEYS = [
   "sha256",
 ];
 
+const JOB_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "http.parseJsonBody",
+  "jobs.listDraftJobs",
+  "jobs.activeDraftJobs",
+  "jobs.jobProgress",
+  "jobs.isDraftJobRunning",
+  "jobs.process",
+  "jobs.isScaffoldPlaceholderPlan",
+  "jobs.getProjectDetails",
+  "jobs.runDraftJob",
+  "jobs.runProjectMutation",
+  "jobs.runTrackedForegroundJob",
+  "jobs.runLvstudio",
+  "jobs.path",
+  "jobs.projectsDir",
+  "jobs.readFile",
+  "jobs.sha256",
+  "traces.readRunTrace",
+  "traces.readRunState",
+  "traces.appendRunTrace",
+  "traces.writeDraftJobState",
+  "traces.appendQualityHistory",
+  "traces.writeRunState",
+  "domainOps.captions",
+  "domainOps.render",
+  "domainOps.sync",
+  "domainOps.check",
+];
+
 function stoppedDraftRunStateJob(job, message) {
   const now = new Date().toISOString();
   return {
@@ -44,33 +74,34 @@ function stoppedDraftRunStateJob(job, message) {
 }
 
 export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
-  requireRouteContext(context, "job routes", JOB_ROUTE_KEYS);
+  requireRouteContext(context, "job routes", JOB_ROUTE_CAPABILITIES);
+  const { sendJson, parseJsonBody } = context.http;
   const {
-    sendJson,
-    parseJsonBody,
     listDraftJobs,
-    readRunTrace,
     activeDraftJobs,
     jobProgress,
-    readRunState,
     isDraftJobRunning,
-    appendRunTrace,
-    writeDraftJobState,
     process,
     isScaffoldPlaceholderPlan,
     getProjectDetails,
     runDraftJob,
     runProjectMutation,
     runTrackedForegroundJob,
-    domainOps,
     runLvstudio,
-    appendQualityHistory,
-    writeRunState,
     path,
     projectsDir,
     readFile,
     sha256,
-  } = context;
+  } = context.jobs;
+  const {
+    readRunTrace,
+    readRunState,
+    appendRunTrace,
+    writeDraftJobState,
+    appendQualityHistory,
+    writeRunState,
+  } = context.traces;
+  const { domainOps } = context;
 
   const formatOutput = (value) => JSON.stringify(value, null, 2);
 

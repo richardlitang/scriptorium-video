@@ -64,7 +64,6 @@ test("studio runtime dependency builders return scoped dependency objects", () =
     process,
     isScaffoldPlaceholderPlan: () => false,
     runDraftJob: async () => ({}),
-    runLvstudioReport: async () => ({ ok: true }),
     port: 4173,
     publicDir: "/tmp/public",
     handleStudioApiRoute: async () => false,

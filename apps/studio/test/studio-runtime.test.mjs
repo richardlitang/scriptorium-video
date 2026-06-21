@@ -60,7 +60,6 @@ test("studio runtime composes route context and exposes request handler", () => 
     process,
     isScaffoldPlaceholderPlan: () => false,
     runDraftJob: async () => ({}),
-    runLvstudioReport: async () => ({ ok: true }),
   };
 
   const runtime = createStudioRuntime({
@@ -78,6 +77,6 @@ test("studio runtime composes route context and exposes request handler", () => 
 
   assert.equal(typeof runtime.handleStudioHttpRequest, "function");
   assert.equal(typeof runtime.studioApiContext, "object");
-  assert.equal(runtime.studioApiContext.sendJson, contextDependencies.sendJson);
-  assert.equal(runtime.studioApiContext.runDraftJob, contextDependencies.runDraftJob);
+  assert.equal(runtime.studioApiContext.http.sendJson, contextDependencies.sendJson);
+  assert.equal(runtime.studioApiContext.jobs.runDraftJob, contextDependencies.runDraftJob);
 });

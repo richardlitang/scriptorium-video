@@ -1,29 +1,51 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createStudioApiContext } from "../lib/runtime/studio-api-context.mjs";
-import { STUDIO_ROUTE_CONTEXT_KEYS } from "../lib/routes/studio-routes.mjs";
+import {
+  HTTP_CAPABILITY_KEYS,
+  JOBS_CAPABILITY_KEYS,
+  PROJECTS_CAPABILITY_KEYS,
+  TRACES_CAPABILITY_KEYS,
+  VOICE_CAPABILITY_KEYS,
+} from "../lib/routes/route-capabilities.mjs";
 
-test("createStudioApiContext includes every route-required dependency key", () => {
-  const dependencies = Object.fromEntries(
-    STUDIO_ROUTE_CONTEXT_KEYS.map((key) => [key, Symbol(key)]),
-  );
+const dependencyKeys = Array.from(
+  new Set([
+    ...HTTP_CAPABILITY_KEYS,
+    ...PROJECTS_CAPABILITY_KEYS,
+    ...JOBS_CAPABILITY_KEYS,
+    ...TRACES_CAPABILITY_KEYS,
+    ...VOICE_CAPABILITY_KEYS,
+  ]),
+);
+
+test("createStudioApiContext includes every named route capability", () => {
+  const dependencies = Object.fromEntries(dependencyKeys.map((key) => [key, Symbol(key)]));
+  dependencies.domainOps = { sync: async () => ({}) };
   const context = createStudioApiContext(dependencies);
 
-  for (const key of STUDIO_ROUTE_CONTEXT_KEYS) {
-    assert.ok(key in context, `missing key: ${key}`);
-    assert.equal(context[key], dependencies[key]);
-  }
+  assert.deepEqual(Object.keys(context).sort(), [
+    "domainOps",
+    "http",
+    "jobs",
+    "projects",
+    "traces",
+    "voice",
+  ]);
 });
 
-test("createStudioApiContext omits unrelated dependency keys", () => {
-  const dependencies = Object.fromEntries(STUDIO_ROUTE_CONTEXT_KEYS.map((key) => [key, key]));
+test("createStudioApiContext omits flat and unrelated dependency keys", () => {
+  const dependencies = Object.fromEntries(dependencyKeys.map((key) => [key, key]));
+  dependencies.domainOps = {};
   dependencies.unused_extra = "extra";
   const context = createStudioApiContext(dependencies);
   assert.equal("unused_extra" in context, false);
+  assert.equal("sendJson" in context, false);
 });
 
 test("createStudioApiContext groups route dependencies into named capabilities", () => {
-  const dependencies = Object.fromEntries(STUDIO_ROUTE_CONTEXT_KEYS.map((key) => [key, key]));
+  const dependencies = Object.fromEntries(dependencyKeys.map((key) => [key, key]));
+  dependencies.domainOps = {};
   const context = createStudioApiContext(dependencies);
 
   assert.equal(context.http.sendJson, dependencies.sendJson);

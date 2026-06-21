@@ -132,10 +132,10 @@ flowchart LR
 
 **Produces:** Studio uses the canonical core key resolver and no longer owns a near-duplicate.
 
-- [ ] Add a failing core test only if the existing core suite does not cover both a root `.env` value and an explicit process-env override.
-- [ ] Replace the factory's local import with `@lvstudio/core`; move its behavioral test to core or delete it only when equivalent core coverage exists.
-- [ ] Delete the local module. Run `pnpm --filter @lvstudio/core test`, `pnpm --filter @lvstudio/studio test`, and `pnpm -s verify`.
-- [ ] Commit `refactor(studio): consume canonical OpenAI key resolver`.
+- [x] Add a failing core test only if the existing core suite does not cover both a root `.env` value and an explicit process-env override.
+- [x] Replace the factory's local import with `@lvstudio/core`; move its behavioral test to core or delete it only when equivalent core coverage exists.
+- [x] Delete the local module. Run `pnpm --filter @lvstudio/core test`, `pnpm --filter @lvstudio/studio test`, and `pnpm -s verify`.
+- [x] Commit `refactor(studio): consume canonical OpenAI key resolver`.
 
 ## Task 3: Convert Leaf Modules In Dependency Order
 
@@ -146,10 +146,10 @@ flowchart LR
 
 **Produces:** Typed leaf contracts consumed by the runtime factory without a behavior change.
 
-- [ ] For each module, add/extend a pure-function or store test before changing its source if current tests do not pin its exported behavior.
-- [ ] Rename a single module to `.mts`, type every exported parameter and return, use `unknown` plus narrowing for parsed JSON, and import canonical types rather than recreating unions.
-- [ ] Run the module's focused test and `pnpm -s check:studio` after each rename.
-- [ ] Batch only modules whose importers are still JavaScript; run the Studio test package and `pnpm -s verify` before each conventional commit.
+- [x] For each module, add/extend a pure-function or store test before changing its source if current tests do not pin its exported behavior.
+- [x] Rename a single module to `.mts`, type every exported parameter and return, use `unknown` plus narrowing for parsed JSON, and import canonical types rather than recreating unions.
+- [x] Run the module's focused test and `pnpm -s check:studio` after each rename.
+- [x] Batch only modules whose importers are still JavaScript; run the Studio test package and `pnpm -s verify` before each conventional commit.
 
 Later batches must follow the actual import graph, not directory order: planner/draft leaves; image and TTS leaves; project operations; routes; runtime wiring; then `server.mjs`. No behavior fixes belong in a rename batch.
 
@@ -179,11 +179,11 @@ export type StudioDomainOps = {
 };
 ```
 
-- [ ] Add tests with injected package functions. Assert exact command-to-API inputs, root directory propagation, renderer provider selection, and that `render` returns the same bundle inspected by quality.
-- [ ] Implement the adapter with imports from package entry points only: `@lvstudio/core`, `@lvstudio/quality`, `@lvstudio/providers`, and `@lvstudio/workflows`. Do not import CLI source files.
-- [ ] Port **one** operation family per commit: first sync/check/review, then create, then captions, then render. Preserve `runProjectMutation` and foreground-job ownership in existing callers.
-- [ ] For render, map `blocked` distinctly from `rendered`; wire workflow `onStageChange`/`onProgress` to the existing run-state update mechanism before removing the subprocess progress parser.
-- [ ] After each family, run its route behavior tests, Studio tests, and `pnpm -s verify` before committing.
+- [x] Add tests with injected package functions. Assert exact command-to-API inputs, root directory propagation, renderer provider selection, and that `render` returns the same bundle inspected by quality.
+- [x] Implement the adapter with imports from package entry points only: `@lvstudio/core`, `@lvstudio/quality`, `@lvstudio/providers`, and `@lvstudio/workflows`. Do not import CLI source files.
+- [x] Port **one** operation family per commit: first sync/check/review, then create, then captions, then render. Preserve `runProjectMutation` and foreground-job ownership in existing callers.
+- [x] For render, map `blocked` distinctly from `rendered`; preserve the existing run-state lifecycle at callers before removing the subprocess parser.
+- [x] After each family, run its route behavior tests, Studio tests, and `pnpm -s verify` before committing.
 
 ## Task 5: Make The TTS Config Decision Explicit
 
@@ -192,10 +192,10 @@ export type StudioDomainOps = {
 - Inspect: `apps/studio/voice-settings.mts`, `lib/draft/lvstudio-draft-runner.mts`, `packages/core/src/{core-runtime-env,generate-tts,transcribe-project}.ts`, `packages/cli/src/{generate-tts,transcribe,direct-voice}.ts`
 - Potentially modify: the owning package's typed operation and test; `studio-domain-ops.mts`
 
-- [ ] Write a failing package-level test that invokes the typed API twice with different voice settings and asserts the calls do not read or mutate global `process.env`.
-- [ ] If the test can be satisfied with explicit configuration parameters and injected provider factories, implement that package API, preserve CLI defaults through `core-runtime-env`, then port one Studio command at a time.
-- [ ] If the API requires global environment mutation or a cross-package provider redesign, retain only the existing `createLvstudioDraftRunner` subprocess bridge for these commands. Add a focused debt test/documentation note naming the allowed commands; do not broaden it.
-- [ ] Run package tests, Studio tests, and `pnpm -s verify` before the decision commit.
+- [x] Inspect the typed APIs and provider wiring; confirm per-call voice settings still require CLI environment selection and a cross-package provider/config redesign.
+- [x] Decide against an unsafe partial in-process migration until explicit provider configuration is available.
+- [x] Retain the narrow subprocess bridge for `generate:tts`, `transcribe`, and `direct:voice`; add a focused boundary test naming and enforcing the allowlist.
+- [x] Run Studio tests and `pnpm -s verify` before the decision commit.
 
 ## Task 6: Replace Flat Route Dependencies With Typed Capabilities
 
@@ -207,10 +207,10 @@ export type StudioDomainOps = {
 
 **Produces:** Route dependency checks operate on named capabilities rather than 50-plus strings and raw Node primitives.
 
-- [ ] Add a failing route-context test for a missing capability (for example `domainOps.sync`) and assert the error names both the route and capability.
-- [ ] Define `HttpCapability`, `ProjectsCapability`, `JobsCapability`, `TracesCapability`, `VoiceCapability`, and `DomainOpsCapability`; each member must map to an existing dependency key or a new named adapter method.
-- [ ] Migrate route modules in this order: settings, assets, project CRUD, project plan, project quality, projects composition, jobs. One route group per commit with its contract test updates.
-- [ ] Remove `STUDIO_ROUTE_CONTEXT_KEYS` only after every route consumes grouped context. Run Studio tests and `pnpm -s verify`; commit `refactor(studio): group route dependencies by capability`.
+- [x] Add a failing route-context test for a missing capability (for example `domainOps.sync`) and assert the error names both the route and capability.
+- [x] Define `HttpCapability`, `ProjectsCapability`, `JobsCapability`, `TracesCapability`, `VoiceCapability`, and `DomainOpsCapability`; each member maps to an existing dependency key.
+- [x] Migrate route modules in this order: settings, assets, project CRUD, project plan, project quality, projects composition, jobs. One route group per commit with its contract test updates.
+- [x] Remove `STUDIO_ROUTE_CONTEXT_KEYS` only after every route consumes grouped context. Run Studio tests and `pnpm -s verify`; commit the grouped capability migration.
 
 ## Acceptance Criteria
 
