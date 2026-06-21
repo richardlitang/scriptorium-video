@@ -48,6 +48,7 @@ export function makeProjectContext(overrides = {}) {
   base.appendQualityHistory = async () => {};
   base.domainOps = {
     createProject: async () => {},
+    generateTts: async () => ({ generated: [], skipped: [] }),
     sync: async () => ({}),
     check: async () => ({}),
     review: async () => ({}),
@@ -111,6 +112,7 @@ export function makeJobContext(overrides = {}) {
   base.runTrackedForegroundJob = async () => ({});
   base.domainOps = {
     createProject: async () => {},
+    generateTts: async () => ({ generated: [], skipped: [] }),
     sync: async () => ({}),
     captions: async () => ({}),
     check: async () => ({}),

@@ -6,6 +6,7 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   const activeBeatJobs = new Map();
   const upserts = [];
   const lvstudioCalls = [];
+  const narrationCalls = [];
   const captionCalls = [];
   const renderCalls = [];
   const syncCalls = [];
@@ -26,6 +27,10 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
       await fn();
     },
     domainOps: {
+      generateTts: async (input) => {
+        narrationCalls.push(input);
+        return { generated: ["beat-1"], skipped: [] };
+      },
       sync: async (projectId) => {
         syncCalls.push(projectId);
         return { projectId };
@@ -63,6 +68,10 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   assert.deepEqual(captionCalls, ["demo"]);
   assert.deepEqual(syncCalls, ["demo"]);
   assert.deepEqual(renderCalls, [{ projectId: "demo", quality: "draft", force: true }]);
+  assert.deepEqual(narrationCalls, [
+    { projectId: "demo", providerId: "chatterbox", onlyBeat: "beat-1" },
+  ]);
+  assert.equal(lvstudioCalls.some((args) => args[0] === "generate:tts"), false);
   assert.equal(
     lvstudioCalls.some((args) => args[0] === "render"),
     false,

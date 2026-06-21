@@ -53,6 +53,7 @@ const JOB_ROUTE_CAPABILITIES = [
   "traces.appendQualityHistory",
   "traces.writeRunState",
   "domainOps.captions",
+  "domainOps.generateTts",
   "domainOps.render",
   "domainOps.sync",
   "domainOps.check",
@@ -294,9 +295,11 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
               completedLabel: "Prepare draft complete",
             },
             async ({ advance }) => [
-              await advance("Generating narration", () =>
-                runLvstudio(["generate:tts", projectId, "--provider", ttsProvider, "--force"]),
-              ),
+              await advance("Generating narration", async () => ({
+                stdout: formatOutput(
+                  await domainOps.generateTts({ projectId, providerId: ttsProvider, force: true }),
+                ),
+              })),
               await advance("Syncing timeline", async () => ({
                 stdout: formatOutput(await domainOps.sync(projectId)),
               })),
