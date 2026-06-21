@@ -1,9 +1,11 @@
-export function sendJson(res, status, data) {
+import type { IncomingMessage, ServerResponse } from "node:http";
+
+export function sendJson(res: ServerResponse, status: number, data: unknown): void {
   res.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   res.end(JSON.stringify(data));
 }
 
-export function parseJsonBody(req) {
+export function parseJsonBody(req: IncomingMessage): Promise<unknown> {
   return new Promise((resolve, reject) => {
     let body = "";
     req.on("data", (chunk) => {
@@ -27,9 +29,9 @@ export function parseJsonBody(req) {
   });
 }
 
-export function parseBinaryBody(req) {
+export function parseBinaryBody(req: IncomingMessage): Promise<Buffer> {
   return new Promise((resolve, reject) => {
-    const chunks = [];
+    const chunks: Buffer[] = [];
     let size = 0;
     req.on("data", (chunk) => {
       size += chunk.length;

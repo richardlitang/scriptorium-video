@@ -113,11 +113,11 @@ flowchart LR
 
 **Produces:** TypeScript can resolve a `.mjs` import specifier to a renamed `.mts` source module while unmigrated JavaScript remains executable.
 
-- [ ] Write a focused loader test that imports one renamed leaf fixture through its `.mjs` specifier. Run it first with the fixture absent and record the expected module-resolution failure.
-- [ ] Add the Studio-local NodeNext config with `allowJs: true`, `checkJs: false`, `strict: true`, and both `lib/**/*.mjs` and `lib/**/*.mts` includes. Update the Studio test runner to load `tsx` and include `.mts` tests.
-- [ ] Update the root `check:studio`, formatting globs, lint file globs, and `studio` start script only after the quality-gate rebase. Preserve all quality-branch changes; resolve conflicts in favor of its root configuration ownership.
-- [ ] Rename only `lib/routes/http-utils.mjs` to `.mts`; retain its `.mjs` import specifiers. Run its tests and `pnpm -s check:studio`.
-- [ ] Run `pnpm --filter @lvstudio/studio test`, then `pnpm -s verify`; commit `build(studio): add incremental TypeScript migration seam`.
+- [x] Write a focused loader test that imports one renamed leaf fixture through its `.mjs` specifier. Run it first with the fixture absent and record the expected module-resolution failure.
+- [x] Add the Studio-local NodeNext config with `allowJs: true`, `checkJs: false`, `strict: true`, and both `lib/**/*.mjs` and `lib/**/*.mts` includes. Update the Studio test runner to load `tsx` and include `.mts` tests.
+- [x] Update the root `check:studio`, formatting globs, lint file globs, and `studio` start script only after the quality-gate rebase. Preserve all quality-branch changes; resolve conflicts in favor of its root configuration ownership.
+- [x] Rename only `lib/routes/http-utils.mjs` to `.mts`; retain its `.mjs` import specifiers. Run its tests and `pnpm -s check:studio`.
+- [x] Run `pnpm --filter @lvstudio/studio test`, then `pnpm -s verify`; commit `build(studio): add incremental TypeScript migration seam`.
 
 ## Task 2: Remove Proven Duplicate Before Broad Type Migration
 

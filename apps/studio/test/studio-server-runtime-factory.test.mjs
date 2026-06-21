@@ -4,6 +4,11 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { createStudioServerRuntime } from "../lib/runtime/studio-server-runtime-factory.mjs";
+import { sendJson } from "../lib/routes/http-utils.mjs";
+
+test("studio test loader resolves an .mjs specifier to an .mts module", () => {
+  assert.equal(typeof sendJson, "function");
+});
 
 test("studio server runtime factory returns handler, port, and idempotent dispose", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-runtime-factory-"));
