@@ -1,6 +1,8 @@
 import {
   createProjectScaffold,
+  generateTTSForProject,
   generateCaptionsForProject,
+  type GenerateTTSOptions,
   reviewProject,
   syncProject,
   type ReviewResult,
@@ -8,13 +10,19 @@ import {
   type TargetPlatformSchema,
   type VideoModeSchema,
 } from "@lvstudio/core";
-import { rendererProviders } from "@lvstudio/providers";
+import {
+  createChatterboxTTSProvider,
+  rendererProviders,
+  ttsProviders,
+} from "@lvstudio/providers";
 import { runQualityChecks, type QualityResult } from "@lvstudio/quality";
 import { runRenderWorkflow, type RenderWorkflowResult } from "@lvstudio/workflows";
 import type { z } from "zod";
+import { voiceRuntimeForSettings } from "./studio-voice-runtime.mjs";
 
 type VideoMode = z.infer<typeof VideoModeSchema>;
 type TargetPlatform = z.infer<typeof TargetPlatformSchema>;
+type VoiceSettings = Parameters<typeof voiceRuntimeForSettings>[0];
 
 export type StudioDomainOps = {
   createProject(input: {
@@ -31,6 +39,15 @@ export type StudioDomainOps = {
   sync(projectId: string): Promise<SyncResult>;
   check(projectId: string): Promise<QualityResult>;
   review(projectId: string): Promise<ReviewResult>;
+  generateTts(input: {
+    projectId: string;
+    providerId: string;
+    force?: boolean;
+    noCache?: boolean;
+    onlySection?: string;
+    onlyBeat?: string;
+    concurrency?: number;
+  }): Promise<{ generated: string[]; skipped: string[] }>;
 };
 
 type CreateStudioDomainOpsInput = {
@@ -41,6 +58,10 @@ type CreateStudioDomainOpsInput = {
   syncProjectImpl?: typeof syncProject;
   runQualityChecksImpl?: typeof runQualityChecks;
   reviewProjectImpl?: typeof reviewProject;
+  generateTTSForProjectImpl?: typeof generateTTSForProject;
+  readVoiceSettingsImpl?: () => Promise<VoiceSettings>;
+  createChatterboxTTSProviderImpl?: typeof createChatterboxTTSProvider;
+  processEnv?: NodeJS.ProcessEnv;
 };
 
 export function createStudioDomainOps({
@@ -51,6 +72,10 @@ export function createStudioDomainOps({
   syncProjectImpl = syncProject,
   runQualityChecksImpl = runQualityChecks,
   reviewProjectImpl = reviewProject,
+  generateTTSForProjectImpl = generateTTSForProject,
+  readVoiceSettingsImpl,
+  createChatterboxTTSProviderImpl = createChatterboxTTSProvider,
+  processEnv = process.env,
 }: CreateStudioDomainOpsInput): StudioDomainOps {
   return {
     createProject({ projectId, mode, platform }) {
@@ -70,6 +95,26 @@ export function createStudioDomainOps({
     },
     review(projectId: string) {
       return reviewProjectImpl(projectId, rootDir);
+    },
+    async generateTts({ projectId, providerId, force, noCache, onlySection, onlyBeat, concurrency }) {
+      const provider =
+        providerId === "chatterbox"
+          ? readVoiceSettingsImpl
+            ? createChatterboxTTSProviderImpl(
+                voiceRuntimeForSettings(await readVoiceSettingsImpl(), processEnv),
+              )
+            : ttsProviders.chatterbox
+          : ttsProviders[providerId];
+      if (!provider) throw new Error(`Unknown TTS provider: ${providerId}`);
+      const options: GenerateTTSOptions = {
+        rootDir,
+        ...(force === true ? { force: true } : {}),
+        ...(noCache === true ? { noCache: true } : {}),
+        ...(onlySection ? { onlySection } : {}),
+        ...(onlyBeat ? { onlyBeat } : {}),
+        ...(concurrency === undefined ? {} : { concurrency }),
+      };
+      return generateTTSForProjectImpl(projectId, provider, options);
     },
   };
 }

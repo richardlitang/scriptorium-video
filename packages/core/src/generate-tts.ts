@@ -18,6 +18,7 @@ import type { Beat } from "./schemas/video-plan.schema.js";
 import { coreTtsConcurrency } from "./core-runtime-env.js";
 
 export type GenerateTTSOptions = {
+  rootDir?: string;
   force?: boolean;
   noCache?: boolean;
   onlySection?: string;
@@ -125,7 +126,7 @@ export async function generateTTSForProject(
   provider: TTSProvider,
   options: GenerateTTSOptions = {},
 ): Promise<{ generated: string[]; skipped: string[] }> {
-  const paths = getProjectPaths(projectId);
+  const paths = getProjectPaths(projectId, options.rootDir);
   const plan = normalizeVideoPlan(await readJsonFile(paths.videoPlan, VideoPlanSchema));
   const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const providerId = provider.id;

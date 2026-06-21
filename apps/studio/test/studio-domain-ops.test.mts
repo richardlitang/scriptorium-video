@@ -22,6 +22,8 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
     summary: { critical: 0, warning: 0, suggestion: 0 },
     issues: [],
   } as ReviewResult;
+  const generatedTts = { generated: ["beat-1"], skipped: [] };
+  const configuredProviders: unknown[] = [];
 
   const domainOps = createStudioDomainOps({
     rootDir: "/repo",
@@ -59,6 +61,43 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
       calls.push(["review", projectId, rootDir]);
       return reviewResult;
     },
+    readVoiceSettingsImpl: async () => ({
+      ttsModel: "studio-model",
+      audioPromptPath: "",
+      deliveryProfile: "suspense",
+      intensity: 0.55,
+      stability: 0.65,
+      pacing: 0.5,
+      variation: 0.5,
+      exaggeration: 0.6,
+      cfgWeight: 0.4,
+      temperature: 0.8,
+      seed: "",
+    }),
+    processEnv: {
+      CHATTERBOX_TTS_URL: "http://configured.test/v1/audio/speech",
+      CHATTERBOX_TTS_API_KEY: "server-key",
+    },
+    createChatterboxTTSProviderImpl: (config) => {
+      configuredProviders.push(config);
+      return {
+        id: "chatterbox",
+        listVoices: async () => [],
+        synthesize: async () => ({
+          audioPath: "/repo/content/projects/demo/assets/audio/voice/beat-1.wav",
+          durationSeconds: 1,
+          providerId: "chatterbox",
+          voiceId: "default",
+          inputHash: "test",
+        }),
+      };
+    },
+    generateTTSForProjectImpl: async (projectId, provider, options) => {
+      assert.equal(projectId, "demo");
+      assert.equal(provider.id, "chatterbox");
+      assert.deepEqual(options, { force: true, rootDir: "/repo" });
+      return generatedTts;
+    },
   });
 
   await domainOps.createProject({
@@ -77,6 +116,22 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
   assert.equal(await domainOps.sync("demo"), syncResult);
   assert.equal(await domainOps.check("demo"), checkResult);
   assert.equal(await domainOps.review("demo"), reviewResult);
+  assert.equal(
+    await domainOps.generateTts({ projectId: "demo", providerId: "chatterbox", force: true }),
+    generatedTts,
+  );
+  assert.deepEqual(configuredProviders, [
+    {
+      speechUrl: "http://configured.test/v1/audio/speech",
+      apiKey: "server-key",
+      model: "studio-model",
+      audioPromptPath: undefined,
+      exaggeration: 0.6,
+      cfgWeight: 0.4,
+      temperature: 0.8,
+      seed: undefined,
+    },
+  ]);
   assert.deepEqual(calls, [
     ["create:long_documentary:local_only", "demo", "/repo"],
     ["captions", "demo", "/repo"],
