@@ -28,6 +28,7 @@ export function createBeatRegenerateRunner({
   getProjectDetails,
   upsertRunJob,
   runProjectMutation,
+  domainOps,
   runLvstudio,
   generateProjectImages,
   defaultImageSizeForPlan,
@@ -115,9 +116,9 @@ export function createBeatRegenerateRunner({
           await runStep("transcribe", "Transcribe narration", () =>
             runLvstudio(["transcribe", projectId, "--provider", plan.providers.transcription]),
           );
-          await runStep("captions", "Generate captions", () =>
-            runLvstudio(["captions", projectId]),
-          );
+          await runStep("captions", "Generate captions", async () => ({
+            stdout: JSON.stringify(await domainOps.captions(projectId), null, 2),
+          }));
         }
         if (options.render === true) {
           await runStep("render", "Render draft", () =>

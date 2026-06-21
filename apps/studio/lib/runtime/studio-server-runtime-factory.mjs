@@ -315,6 +315,7 @@ export function createStudioServerRuntime({
     getProjectDetails,
     upsertRunJob,
     runProjectMutation,
+    domainOps,
     runLvstudio,
     generateProjectImages,
     defaultImageSizeForPlan,

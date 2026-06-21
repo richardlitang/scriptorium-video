@@ -1,5 +1,6 @@
 import {
   createProjectScaffold,
+  generateCaptionsForProject,
   reviewProject,
   syncProject,
   type ReviewResult,
@@ -19,6 +20,7 @@ export type StudioDomainOps = {
     mode: VideoMode;
     platform: TargetPlatform;
   }): Promise<void>;
+  captions(projectId: string): Promise<{ captionsPath: string; count: number }>;
   sync(projectId: string): Promise<SyncResult>;
   check(projectId: string): Promise<QualityResult>;
   review(projectId: string): Promise<ReviewResult>;
@@ -27,6 +29,7 @@ export type StudioDomainOps = {
 type CreateStudioDomainOpsInput = {
   rootDir: string;
   createProjectScaffoldImpl?: typeof createProjectScaffold;
+  generateCaptionsForProjectImpl?: typeof generateCaptionsForProject;
   syncProjectImpl?: typeof syncProject;
   runQualityChecksImpl?: typeof runQualityChecks;
   reviewProjectImpl?: typeof reviewProject;
@@ -35,6 +38,7 @@ type CreateStudioDomainOpsInput = {
 export function createStudioDomainOps({
   rootDir,
   createProjectScaffoldImpl = createProjectScaffold,
+  generateCaptionsForProjectImpl = generateCaptionsForProject,
   syncProjectImpl = syncProject,
   runQualityChecksImpl = runQualityChecks,
   reviewProjectImpl = reviewProject,
@@ -42,6 +46,9 @@ export function createStudioDomainOps({
   return {
     createProject({ projectId, mode, platform }) {
       return createProjectScaffoldImpl(projectId, mode, platform, rootDir);
+    },
+    captions(projectId: string) {
+      return generateCaptionsForProjectImpl(projectId);
     },
     sync(projectId: string) {
       return syncProjectImpl(projectId, rootDir);

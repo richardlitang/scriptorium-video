@@ -21,6 +21,13 @@ void test("studio domain ops forwards create, sync, check, and review to typed p
       assert.equal(rootDir, "/repo");
       calls.push([`create:${mode}:${platform}`, projectId, rootDir]);
     },
+    generateCaptionsForProjectImpl: async (projectId) => {
+      calls.push(["captions", projectId, "/repo"]);
+      return {
+        captionsPath: `/repo/content/projects/${projectId}/captions/captions.json`,
+        count: 2,
+      };
+    },
     syncProjectImpl: async (projectId, rootDir) => {
       assert.equal(rootDir, "/repo");
       calls.push(["sync", projectId, rootDir]);
@@ -43,11 +50,16 @@ void test("studio domain ops forwards create, sync, check, and review to typed p
     mode: "long_documentary",
     platform: "local_only",
   });
+  assert.deepEqual(await domainOps.captions("demo"), {
+    captionsPath: "/repo/content/projects/demo/captions/captions.json",
+    count: 2,
+  });
   assert.equal(await domainOps.sync("demo"), syncResult);
   assert.equal(await domainOps.check("demo"), checkResult);
   assert.equal(await domainOps.review("demo"), reviewResult);
   assert.deepEqual(calls, [
     ["create:long_documentary:local_only", "demo", "/repo"],
+    ["captions", "demo", "/repo"],
     ["sync", "demo", "/repo"],
     ["check", "demo", "/repo"],
     ["review", "demo", "/repo"],

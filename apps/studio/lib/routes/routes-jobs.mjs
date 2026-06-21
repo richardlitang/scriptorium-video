@@ -18,6 +18,7 @@ export const JOB_ROUTE_KEYS = [
   "runDraftJob",
   "runProjectMutation",
   "runTrackedForegroundJob",
+  "domainOps",
   "runLvstudio",
   "runLvstudioReport",
   "appendQualityHistory",
@@ -62,6 +63,7 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
     runDraftJob,
     runProjectMutation,
     runTrackedForegroundJob,
+    domainOps,
     runLvstudio,
     runLvstudioReport,
     appendQualityHistory,
@@ -71,6 +73,8 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
     readFile,
     sha256,
   } = context;
+
+  const formatOutput = (value) => JSON.stringify(value, null, 2);
 
   const routes = [
     {
@@ -268,7 +272,9 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
               await advance("Transcribing narration", () =>
                 runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider]),
               ),
-              await advance("Generating captions", () => runLvstudio(["captions", projectId])),
+              await advance("Generating captions", async () => ({
+                stdout: formatOutput(await domainOps.captions(projectId)),
+              })),
               await advance("Running quality check", () => runLvstudioReport(["check", projectId])),
             ],
           );

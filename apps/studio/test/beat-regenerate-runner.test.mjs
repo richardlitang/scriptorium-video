@@ -6,6 +6,7 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   const activeBeatJobs = new Map();
   const upserts = [];
   const lvstudioCalls = [];
+  const captionCalls = [];
   const qualityHistory = [];
 
   const runBeatRegenerateJob = createBeatRegenerateRunner({
@@ -21,6 +22,12 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
     },
     runProjectMutation: async (_projectId, fn) => {
       await fn();
+    },
+    domainOps: {
+      captions: async (projectId) => {
+        captionCalls.push(projectId);
+        return { captionsPath: `/tmp/${projectId}/captions.json`, count: 2 };
+      },
     },
     runLvstudio: async (args) => {
       lvstudioCalls.push(args);
@@ -42,7 +49,11 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   assert.ok(["queued", "running", "completed"].includes(initial.status));
   await new Promise((resolve) => setTimeout(resolve, 0));
   assert.equal(activeBeatJobs.size, 0);
-  assert.equal(lvstudioCalls.length, 4);
+  assert.deepEqual(captionCalls, ["demo"]);
+  assert.equal(
+    lvstudioCalls.some((args) => args[0] === "captions"),
+    false,
+  );
   assert.equal(qualityHistory[0].kind, "beat_regenerate");
   assert.equal(upserts.length > 2, true);
 });
@@ -55,6 +66,9 @@ test("beat regenerate runner throws when beat is missing", async () => {
     }),
     upsertRunJob: async () => {},
     runProjectMutation: async () => {},
+    domainOps: {
+      captions: async () => ({}),
+    },
     runLvstudio: async () => ({ stdout: "" }),
     generateProjectImages: async () => ({ generated: [], failed: [] }),
     defaultImageSizeForPlan: () => "1024x1024",

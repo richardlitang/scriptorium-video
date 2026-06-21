@@ -104,6 +104,7 @@ export function makeJobContext(overrides = {}) {
   base.runProjectMutation = async (_id, fn) => fn();
   base.runTrackedForegroundJob = async () => ({});
   base.domainOps = {
+    captions: async () => ({}),
     check: async () => ({}),
     review: async () => ({}),
   };

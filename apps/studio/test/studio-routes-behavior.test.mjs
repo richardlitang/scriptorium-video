@@ -146,6 +146,57 @@ test("job routes reject draft requests with empty story and scaffold placeholder
   assert.match(response.body.message, /Make Draft needs story text/);
 });
 
+test("prepare-draft routes captions through domain ops", async () => {
+  const { response, sendJson } = makeJsonResponder();
+  const lvstudioCalls = [];
+  const captionCalls = [];
+  const handled = await handleJobRoutes(
+    makeJobContext({
+      sendJson,
+      getProjectDetails: async () => ({
+        plan: { providers: { tts: "chatterbox", transcription: "whisper" } },
+        runState: { status: "idle" },
+      }),
+      runProjectMutation: async (_projectId, fn) => fn(),
+      writeRunState: async () => {},
+      runTrackedForegroundJob: async (_projectId, _job, worker) =>
+        worker({
+          advance: async (_label, fn) => {
+            const result = await fn();
+            return typeof result === "string" ? { stdout: result } : result;
+          },
+        }),
+      runLvstudio: async (args) => {
+        lvstudioCalls.push(args);
+        return { ok: true, stdout: args[0] };
+      },
+      runLvstudioReport: async () => ({ ok: true, stdout: '{"status":"pass"}' }),
+      domainOps: {
+        captions: async (projectId) => {
+          captionCalls.push(projectId);
+          return { captionsPath: `/tmp/${projectId}/captions.json`, count: 2 };
+        },
+        check: async () => ({}),
+        review: async () => ({}),
+      },
+      appendQualityHistory: async () => {},
+      sha256: () => "hash",
+    }),
+    { method: "POST" },
+    {},
+    "/api/projects/demo/prepare-draft",
+    new URL("http://localhost:4173"),
+  );
+
+  assert.equal(handled, true);
+  assert.equal(response.status, 200);
+  assert.deepEqual(captionCalls, ["demo"]);
+  assert.equal(
+    lvstudioCalls.some((args) => args[0] === "captions"),
+    false,
+  );
+});
+
 test("job routes prefer active draft job over persisted run-state job", async () => {
   const { response, sendJson } = makeJsonResponder();
   const activeJob = {
