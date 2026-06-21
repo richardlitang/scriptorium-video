@@ -1,7 +1,27 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-function safeHandoffJob(job = {}) {
+type HandoffJobInput = {
+  id?: string;
+  kind?: string;
+  jobId?: string;
+  status?: string;
+  phase?: string;
+  label?: string;
+  completed?: number;
+  total?: number;
+  startedAt?: string;
+  finishedAt?: string;
+  error?: string;
+  output?: string;
+};
+
+type AgentHandoffContext = {
+  summary?: string;
+  nextAction?: string;
+};
+
+function safeHandoffJob(job: HandoffJobInput = {}) {
   return {
     kind: job.kind,
     jobId: job.jobId,
@@ -17,7 +37,17 @@ function safeHandoffJob(job = {}) {
   };
 }
 
-export function buildAgentHandoff({ projectId, job, summary, nextAction }) {
+export function buildAgentHandoff({
+  projectId,
+  job,
+  summary,
+  nextAction,
+}: {
+  projectId: string;
+  job: HandoffJobInput;
+  summary: string;
+  nextAction?: string;
+}) {
   return {
     schemaVersion: 1,
     projectId,
@@ -28,14 +58,18 @@ export function buildAgentHandoff({ projectId, job, summary, nextAction }) {
   };
 }
 
-export function createAgentHandoffStore(rootDir) {
+export function createAgentHandoffStore(rootDir: string) {
   const handoffDir = path.join(rootDir, ".studio-data", "agent-handoffs");
 
-  function handoffPath(projectId, jobId) {
+  function handoffPath(projectId: string, jobId: string): string {
     return path.join(handoffDir, projectId, `${jobId}.json`);
   }
 
-  async function writeAgentHandoff(projectId, job, context = {}) {
+  async function writeAgentHandoff(
+    projectId: string,
+    job: HandoffJobInput,
+    context: AgentHandoffContext = {},
+  ) {
     const jobId = job?.jobId || job?.id;
     if (!jobId) throw new Error("Cannot write agent handoff without a job id.");
     const filePath = handoffPath(projectId, jobId);

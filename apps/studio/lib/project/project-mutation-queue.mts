@@ -1,7 +1,12 @@
-export function createProjectMutationQueue() {
-  const queues = new Map();
+type ProjectMutation<T> = () => Promise<T> | T;
 
-  async function runProjectMutation(projectId, operation) {
+export function createProjectMutationQueue() {
+  const queues = new Map<string, Promise<unknown>>();
+
+  async function runProjectMutation<T>(
+    projectId: string,
+    operation: ProjectMutation<T>,
+  ): Promise<T> {
     const previous = queues.get(projectId) ?? Promise.resolve();
     const current = previous.catch(() => {}).then(operation);
     queues.set(projectId, current);
