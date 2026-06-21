@@ -75,9 +75,15 @@ importers:
       '@lvstudio/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@lvstudio/providers':
+        specifier: workspace:*
+        version: link:../../packages/providers
       '@lvstudio/quality':
         specifier: workspace:*
         version: link:../../packages/quality
+      '@lvstudio/workflows':
+        specifier: workspace:*
+        version: link:../../packages/workflows
       '@tanstack/react-query':
         specifier: ^5.100.14
         version: 5.100.14(react@19.2.6)

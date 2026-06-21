@@ -361,15 +361,10 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
             },
             async ({ advance }) =>
               advance(`Rendering ${quality}`, () =>
-                runLvstudio([
-                  "render",
-                  projectId,
-                  "--quality",
-                  quality,
-                  ...(force ? ["--force"] : []),
-                ]),
+                domainOps.render({ projectId, quality, force }),
               ),
           );
+          const output = formatOutput(result);
           const planHash = sha256(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
           const timelineHash = sha256(
             await readFile(path.join(projectDir, "timeline.json"), "utf8").catch(() => ""),
@@ -377,8 +372,11 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
           await appendQualityHistory(projectId, {
             timestamp: new Date().toISOString(),
             kind: "render",
-            summary: `Render ${quality} completed.`,
-            output: result.stdout.trim(),
+            summary:
+              result.status === "blocked"
+                ? `Render ${quality} blocked by quality checks.`
+                : `Render ${quality} completed.`,
+            output,
           });
           await writeRunState(projectId, {
             status: "idle",
@@ -388,7 +386,7 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
             lastRenderCompletedAt: new Date().toISOString(),
             updatedAt: new Date().toISOString(),
           });
-          return result.stdout.trim();
+          return output;
         });
         sendJson(res, 200, { ok: true, data: { output } });
         return true;

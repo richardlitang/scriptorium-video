@@ -121,9 +121,13 @@ export function createBeatRegenerateRunner({
           }));
         }
         if (options.render === true) {
-          await runStep("render", "Render draft", () =>
-            runLvstudio(["render", projectId, "--quality", "draft", "--force"]),
-          );
+          await runStep("render", "Render draft", async () => ({
+            stdout: JSON.stringify(
+              await domainOps.render({ projectId, quality: "draft", force: true }),
+              null,
+              2,
+            ),
+          }));
         }
 
         job.status = "completed";

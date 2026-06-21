@@ -51,6 +51,7 @@ export function makeProjectContext(overrides = {}) {
     sync: async () => ({}),
     check: async () => ({}),
     review: async () => ({}),
+    render: async () => ({}),
   };
   base.readRunState = async () => ({});
   base.writeRunState = async () => {};
@@ -107,6 +108,7 @@ export function makeJobContext(overrides = {}) {
     captions: async () => ({}),
     check: async () => ({}),
     review: async () => ({}),
+    render: async () => ({}),
   };
   base.runLvstudio = async () => ({});
   base.runLvstudioReport = async () => ({});

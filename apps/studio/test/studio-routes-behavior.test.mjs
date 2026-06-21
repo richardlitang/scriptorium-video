@@ -8,6 +8,7 @@ import {
   makeJsonResponder,
   makeProjectContext,
 } from "./helpers/route-test-helpers.mjs";
+import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.mjs";
 
 test("settings routes serve planner defaults payload", async () => {
   const { response, sendJson } = makeJsonResponder();
@@ -67,6 +68,63 @@ test("job routes resolve encoded trace id from project path", async () => {
   assert.deepEqual(captured, { projectId: "demo", jobId: "job/1" });
   assert.equal(response.status, 200);
   assert.deepEqual(response.body, { ok: true, data: { entries: [] } });
+});
+
+test("render route uses domain ops and preserves blocked result output", async () => {
+  const { response, sendJson } = makeJsonResponder();
+  let historyEntry = null;
+  let runStateWrite = null;
+  const renderCalls = [];
+  const projectFs = createInMemoryProjectFs({
+    "/tmp/projects/demo/video-plan.json": '{"title":"before"}\n',
+    "/tmp/projects/demo/timeline.json": '{"segments":[]}\n',
+  });
+  const handled = await handleJobRoutes(
+    makeJobContext({
+      sendJson,
+      path: await import("node:path"),
+      projectsDir: "/tmp/projects",
+      readFile: projectFs.readFile,
+      readRunState: async () => ({ status: "idle" }),
+      writeRunState: async (_projectId, state) => {
+        runStateWrite = state;
+      },
+      runProjectMutation: async (_projectId, fn) => fn(),
+      runTrackedForegroundJob: async (_projectId, _job, worker) =>
+        worker({
+          advance: async (_label, fn) => fn(),
+        }),
+      domainOps: {
+        captions: async () => ({}),
+        check: async () => ({}),
+        review: async () => ({}),
+        render: async (input) => {
+          renderCalls.push(input);
+          return {
+            status: "blocked",
+            quality: { status: "fail", checks: [{ id: "q1", severity: "error", message: "bad" }] },
+            bundle: { timeline: { segments: [] } },
+          };
+        },
+      },
+      appendQualityHistory: async (_projectId, entry) => {
+        historyEntry = entry;
+      },
+      sha256: async () => "hash-value",
+    }),
+    { method: "POST" },
+    {},
+    "/api/projects/demo/render",
+    new URL("http://localhost:4173/?quality=final"),
+  );
+
+  assert.equal(handled, true);
+  assert.equal(response.status, 200);
+  assert.deepEqual(renderCalls, [{ projectId: "demo", quality: "final", force: false }]);
+  assert.equal(response.body?.ok, true);
+  assert.match(response.body?.data?.output || "", /"status": "blocked"/);
+  assert.equal(historyEntry?.kind, "render");
+  assert.equal(runStateWrite?.lastRenderQuality, "final");
 });
 
 test("plan-from-story sends sanitized planner input to single planner", async () => {
