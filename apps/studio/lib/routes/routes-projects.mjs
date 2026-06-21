@@ -5,6 +5,7 @@ import {
   handleProjectQualityRoutes,
   PROJECT_QUALITY_ROUTE_KEYS,
 } from "./routes-projects-quality.mjs";
+import { requireRouteContext } from "./route-context.mjs";
 
 export const PROJECT_ROUTE_KEYS = Array.from(
   new Set([
@@ -16,6 +17,13 @@ export const PROJECT_ROUTE_KEYS = Array.from(
 );
 
 export async function handleProjectRoutes(context, req, res, pathname, requestUrl) {
+  requireRouteContext(context, "project routes", [
+    "http",
+    "projects",
+    "jobs",
+    "traces",
+    "domainOps",
+  ]);
   if (await handleProjectCrudRoutes(context, req, res, pathname, requestUrl)) return true;
   if (await handleProjectPlanRoutes(context, req, res, pathname, requestUrl)) return true;
   if (await handleProjectMediaRoutes(context, req, res, pathname, requestUrl)) return true;

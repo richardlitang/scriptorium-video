@@ -11,17 +11,21 @@ export const PROJECT_MEDIA_ROUTE_KEYS = [
   "readFile",
 ];
 
+const PROJECT_MEDIA_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "projects.projectsDir",
+  "projects.path",
+  "projects.getRenderDetails",
+  "projects.sendVideoFile",
+  "projects.safeProjectPath",
+  "projects.readFile",
+];
+
 export async function handleProjectMediaRoutes(context, req, res, pathname) {
-  requireRouteContext(context, "project media routes", PROJECT_MEDIA_ROUTE_KEYS);
-  const {
-    sendJson,
-    projectsDir,
-    path,
-    getRenderDetails,
-    sendVideoFile,
-    safeProjectPath,
-    readFile,
-  } = context;
+  requireRouteContext(context, "project media routes", PROJECT_MEDIA_ROUTE_CAPABILITIES);
+  const { sendJson } = context.http;
+  const { projectsDir, path, getRenderDetails, sendVideoFile, safeProjectPath, readFile } =
+    context.projects;
 
   const routes = [
     {
