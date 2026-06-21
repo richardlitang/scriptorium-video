@@ -66,7 +66,12 @@ export function makeProjectContext(overrides = {}) {
   base.safeProjectPath = () => null;
   base.runLvstudioReport = async () => ({ ok: true, stdout: "{}" });
   base.readQualityHistory = async () => [];
-  return { ...base, ...overrides };
+  const dependencies = {
+    ...base,
+    ...overrides,
+    domainOps: { ...base.domainOps, ...(overrides.domainOps ?? {}) },
+  };
+  return { ...dependencies, ...createRouteCapabilities(dependencies) };
 }
 
 export function makeAssetContext(overrides = {}) {
@@ -107,6 +112,8 @@ export function makeJobContext(overrides = {}) {
   base.runProjectMutation = async (_id, fn) => fn();
   base.runTrackedForegroundJob = async () => ({});
   base.domainOps = {
+    createProject: async () => {},
+    sync: async () => ({}),
     captions: async () => ({}),
     check: async () => ({}),
     review: async () => ({}),
@@ -142,6 +149,10 @@ export function makeStudioBaseContext(overrides = {}) {
     DEFAULT_PLANNER_SYSTEM_PROMPT: "system",
     DEFAULT_PLANNER_USER_PROMPT_TEMPLATE: "template",
   };
-  const dependencies = { ...merged, ...overrides };
+  const dependencies = {
+    ...merged,
+    ...overrides,
+    domainOps: { ...merged.domainOps, ...(overrides.domainOps ?? {}) },
+  };
   return { ...dependencies, ...createRouteCapabilities(dependencies) };
 }

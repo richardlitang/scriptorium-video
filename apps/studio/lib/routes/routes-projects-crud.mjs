@@ -18,23 +18,39 @@ export const PROJECT_CRUD_ROUTE_KEYS = [
   "getProjectDetails",
 ];
 
+const PROJECT_CRUD_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "http.parseJsonBody",
+  "projects.listProjects",
+  "projects.safeProjectId",
+  "projects.projectsDir",
+  "projects.path",
+  "projects.stat",
+  "projects.safeReadJson",
+  "projects.writeFile",
+  "projects.projectDeleteBlocker",
+  "projects.deleteProject",
+  "projects.getProjectDetails",
+  "domainOps.createProject",
+  "domainOps.sync",
+];
+
 export async function handleProjectCrudRoutes(context, req, res, pathname) {
-  requireRouteContext(context, "project crud routes", PROJECT_CRUD_ROUTE_KEYS);
+  requireRouteContext(context, "project crud routes", PROJECT_CRUD_ROUTE_CAPABILITIES);
+  const { sendJson, parseJsonBody } = context.http;
   const {
-    sendJson,
-    parseJsonBody,
     listProjects,
     safeProjectId,
     projectsDir,
     path,
     stat,
-    domainOps,
     safeReadJson,
     writeFile,
     projectDeleteBlocker,
     deleteProject,
     getProjectDetails,
-  } = context;
+  } = context.projects;
+  const { domainOps } = context;
 
   const routes = [
     {
