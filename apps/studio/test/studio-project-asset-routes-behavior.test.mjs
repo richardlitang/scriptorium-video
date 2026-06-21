@@ -30,13 +30,23 @@ test("project routes reject invalid render quality", async () => {
 test("project create canonicalizes legacy beat fields before writing plan", async () => {
   const { res, response, sendJson } = makeJsonResponder();
   const writes = new Map();
+  const createCalls = [];
+  const syncCalls = [];
   const handled = await handleProjectRoutes(
     makeProjectContext({
       sendJson,
       parseJsonBody: async () => ({ id: "demo", title: "Demo" }),
       safeProjectId: (value) => String(value || ""),
       stat: async () => null,
-      runLvstudio: async () => ({ ok: true, stdout: "ok" }),
+      domainOps: {
+        createProject: async (input) => {
+          createCalls.push(input);
+        },
+        sync: async (projectId) => {
+          syncCalls.push(projectId);
+          return {};
+        },
+      },
       safeReadJson: async (targetPath) => {
         if (targetPath.endsWith("/project.json")) {
           return { id: "demo", title: "Demo", updatedAt: "2026-01-01T00:00:00.000Z" };
@@ -93,6 +103,10 @@ test("project create canonicalizes legacy beat fields before writing plan", asyn
 
   assert.equal(handled, true);
   assert.equal(response.status, 201);
+  assert.deepEqual(createCalls, [
+    { projectId: "demo", mode: "long_documentary", platform: "local_only" },
+  ]);
+  assert.deepEqual(syncCalls, ["demo"]);
   const planWrite = [...writes.entries()].find(([targetPath]) =>
     targetPath.endsWith("/video-plan.json"),
   )?.[1];

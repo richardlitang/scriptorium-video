@@ -11,13 +11,25 @@ test("studio http handler routes project create through to filesystem writes", a
   const { res, response, sendJson } = makeJsonResponder();
   const projectFs = createInMemoryProjectFs();
   const writes = new Map();
+  const createCalls = [];
+  const syncCalls = [];
   const context = makeStudioBaseContext({
     sendJson,
     path,
     parseJsonBody: async () => ({ id: "demo", title: "Demo" }),
     safeProjectId: (value) => String(value || ""),
     stat: async () => null,
-    runLvstudio: async () => ({ ok: true, stdout: "ok" }),
+    domainOps: {
+      createProject: async (input) => {
+        createCalls.push(input);
+      },
+      sync: async (projectId) => {
+        syncCalls.push(projectId);
+        return {};
+      },
+      check: async () => ({}),
+      review: async () => ({}),
+    },
     safeReadJson: async (targetPath) => {
       if (targetPath.endsWith("/project.json")) {
         return { id: "demo", title: "Demo", updatedAt: "2026-01-01T00:00:00.000Z" };
@@ -92,6 +104,10 @@ test("studio http handler routes project create through to filesystem writes", a
 
   assert.equal(response.status, 201);
   assert.equal(response.body?.ok, true);
+  assert.deepEqual(createCalls, [
+    { projectId: "demo", mode: "long_documentary", platform: "local_only" },
+  ]);
+  assert.deepEqual(syncCalls, ["demo"]);
   const planWrite = [...writes.entries()].find(([targetPath]) =>
     targetPath.endsWith("/video-plan.json"),
   )?.[1];

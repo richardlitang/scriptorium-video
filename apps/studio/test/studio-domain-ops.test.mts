@@ -4,7 +4,7 @@ import { createStudioDomainOps } from "../lib/runtime/studio-domain-ops.mjs";
 import type { ReviewResult, SyncResult } from "@lvstudio/core";
 import type { QualityResult } from "@lvstudio/quality";
 
-void test("studio domain ops forwards sync, check, and review to typed package APIs", async () => {
+void test("studio domain ops forwards create, sync, check, and review to typed package APIs", async () => {
   const calls: Array<[string, string, string]> = [];
   const syncResult = { timeline: {}, issues: [], staleAssetIds: [] } as unknown as SyncResult;
   const checkResult = { status: "pass", checks: [] } as QualityResult;
@@ -17,6 +17,10 @@ void test("studio domain ops forwards sync, check, and review to typed package A
 
   const domainOps = createStudioDomainOps({
     rootDir: "/repo",
+    createProjectScaffoldImpl: async (projectId, mode, platform, rootDir) => {
+      assert.equal(rootDir, "/repo");
+      calls.push([`create:${mode}:${platform}`, projectId, rootDir]);
+    },
     syncProjectImpl: async (projectId, rootDir) => {
       assert.equal(rootDir, "/repo");
       calls.push(["sync", projectId, rootDir]);
@@ -34,10 +38,16 @@ void test("studio domain ops forwards sync, check, and review to typed package A
     },
   });
 
+  await domainOps.createProject({
+    projectId: "demo",
+    mode: "long_documentary",
+    platform: "local_only",
+  });
   assert.equal(await domainOps.sync("demo"), syncResult);
   assert.equal(await domainOps.check("demo"), checkResult);
   assert.equal(await domainOps.review("demo"), reviewResult);
   assert.deepEqual(calls, [
+    ["create:long_documentary:local_only", "demo", "/repo"],
     ["sync", "demo", "/repo"],
     ["check", "demo", "/repo"],
     ["review", "demo", "/repo"],

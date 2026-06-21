@@ -47,6 +47,7 @@ export function makeProjectContext(overrides = {}) {
     worker({ advance: async (_label, fn) => fn() });
   base.appendQualityHistory = async () => {};
   base.domainOps = {
+    createProject: async () => {},
     sync: async () => ({}),
     check: async () => ({}),
     review: async () => ({}),
