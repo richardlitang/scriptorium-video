@@ -13,7 +13,7 @@ export const PROJECT_PLAN_ROUTE_KEYS = [
   "restoreOptionalFile",
   "writeFile",
   "runTrackedForegroundJob",
-  "runLvstudio",
+  "domainOps",
   "appendQualityHistory",
   "readRunState",
   "writeRunState",
@@ -23,6 +23,10 @@ export const PROJECT_PLAN_ROUTE_KEYS = [
   "generateSplitPlanDraftWithOpenAi",
   "generatePlanDraftWithOpenAi",
 ];
+
+function formatOutput(value) {
+  return JSON.stringify(value, null, 2);
+}
 
 export async function handleProjectPlanRoutes(context, req, res, pathname, requestUrl) {
   requireRouteContext(context, "project plan routes", PROJECT_PLAN_ROUTE_KEYS);
@@ -36,7 +40,7 @@ export async function handleProjectPlanRoutes(context, req, res, pathname, reque
     restoreOptionalFile,
     writeFile,
     runTrackedForegroundJob,
-    runLvstudio,
+    domainOps,
     appendQualityHistory,
     readRunState,
     writeRunState,
@@ -76,16 +80,14 @@ export async function handleProjectPlanRoutes(context, req, res, pathname, reque
               completedLabel: "Plan saved",
             },
             async ({ advance }) => {
-              const syncResult = await advance("Syncing plan", () =>
-                runLvstudio(["sync", projectId]),
-              );
+              const syncResult = await advance("Syncing plan", () => domainOps.sync(projectId));
               const checkResult = skipCheck
                 ? undefined
-                : await advance("Running plan check", () => runLvstudio(["check", projectId]));
+                : await advance("Running plan check", () => domainOps.check(projectId));
               return { syncResult, checkResult };
             },
           );
-          const output = [syncResult.stdout.trim(), checkResult?.stdout.trim()]
+          const output = [formatOutput(syncResult), checkResult ? formatOutput(checkResult) : ""]
             .filter(Boolean)
             .join("\n\n");
           await appendQualityHistory(projectId, {

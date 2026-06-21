@@ -4,22 +4,19 @@ import { requireRouteContext } from "./route-context.mjs";
 export const PROJECT_QUALITY_ROUTE_KEYS = [
   "sendJson",
   "runTrackedForegroundJob",
-  "runLvstudio",
+  "domainOps",
   "appendQualityHistory",
-  "runLvstudioReport",
   "readQualityHistory",
 ];
 
+function formatOutput(value) {
+  return JSON.stringify(value, null, 2);
+}
+
 export async function handleProjectQualityRoutes(context, req, res, pathname) {
   requireRouteContext(context, "project quality routes", PROJECT_QUALITY_ROUTE_KEYS);
-  const {
-    sendJson,
-    runTrackedForegroundJob,
-    runLvstudio,
-    appendQualityHistory,
-    runLvstudioReport,
-    readQualityHistory,
-  } = context;
+  const { sendJson, runTrackedForegroundJob, domainOps, appendQualityHistory, readQualityHistory } =
+    context;
 
   const routes = [
     {
@@ -38,16 +35,16 @@ export async function handleProjectQualityRoutes(context, req, res, pathname) {
             total: 1,
             completedLabel: "Quality check complete",
           },
-          async ({ advance }) =>
-            advance("Running quality check", () => runLvstudio(["check", projectId])),
+          async ({ advance }) => advance("Running quality check", () => domainOps.check(projectId)),
         );
+        const output = formatOutput(result);
         await appendQualityHistory(projectId, {
           timestamp: new Date().toISOString(),
           kind: "quality_check",
           summary: "Manual quality check run.",
-          output: result.stdout.trim(),
+          output,
         });
-        sendJson(res, 200, { ok: true, data: { output: result.stdout.trim() } });
+        sendJson(res, 200, { ok: true, data: { output } });
         return true;
       },
     },
@@ -59,24 +56,8 @@ export async function handleProjectQualityRoutes(context, req, res, pathname) {
       },
       handle: async ({ projectId }) => {
         if (!projectId) return badRequest(res, sendJson, "Missing project id.");
-        const result = await runLvstudioReport(["review", projectId]);
-        if (!result.ok) {
-          sendJson(res, 200, {
-            ok: true,
-            data: { issues: [] },
-            warning: "Review command failed. Showing empty review list.",
-          });
-          return true;
-        }
-        try {
-          sendJson(res, 200, { ok: true, data: JSON.parse(result.stdout) });
-        } catch {
-          sendJson(res, 200, {
-            ok: true,
-            data: { issues: [] },
-            warning: "Review output was not valid JSON. Showing empty review list.",
-          });
-        }
+        const result = await domainOps.review(projectId);
+        sendJson(res, 200, { ok: true, data: result });
         return true;
       },
     },

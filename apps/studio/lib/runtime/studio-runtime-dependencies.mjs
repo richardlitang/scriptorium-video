@@ -18,6 +18,7 @@ export function buildStudioRuntimeContextDependencies(dependencies) {
     safeProjectId: dependencies.safeProjectId,
     projectsDir: dependencies.projectsDir,
     stat: dependencies.stat,
+    domainOps: dependencies.domainOps,
     runLvstudio: dependencies.runLvstudio,
     safeReadJson: dependencies.safeReadJson,
     projectDeleteBlocker: dependencies.projectDeleteBlocker,

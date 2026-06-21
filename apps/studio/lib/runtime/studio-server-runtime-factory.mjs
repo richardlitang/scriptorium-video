@@ -39,7 +39,6 @@ import { createPlanDraftTransformer } from "../draft/plan-draft-transformer.mjs"
 import { createSplitPlannerRuntime } from "../planner/split-planner-runtime.mjs";
 import { createSplitPlanBuilder } from "../planner/split-plan-builder.mjs";
 import { createRunStateStore } from "../project/run-state-store.mjs";
-import { ttsProvidersForPlan } from "../tts/tts-draft-planning.mjs";
 import { selectImageTargetsFromCandidates } from "../image/image-target-selection.mjs";
 import {
   planNarrationHealth,
@@ -100,6 +99,7 @@ import { createStudioRuntimeWiring } from "./studio-runtime-wiring.mjs";
 import { createVoiceSettingsStore } from "../tts/voice-settings-store.mjs";
 import { createStudioOps } from "./studio-ops.mjs";
 import { createStudioOpsRuntimeAdapter } from "./studio-ops-runtime-adapter.mjs";
+import { createStudioDomainOps } from "./studio-domain-ops.mjs";
 import { createStudioTestModeOps } from "../project/studio-testmode-ops.mjs";
 import { createProjectOps } from "../project/project-ops.mjs";
 import { createProjectMediaOps } from "../project/project-media-ops.mjs";
@@ -267,6 +267,7 @@ export function createStudioServerRuntime({
   const appendCommandLog = (entry) => studioOpsRuntime.appendCommandLog(entry);
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
   const runLvstudioReport = (args) => studioOpsRuntime.runLvstudioReport(args);
+  const domainOps = createStudioDomainOps({ rootDir });
 
   const { getProjectDetails } = createProjectReadOps({
     path,
@@ -515,6 +516,7 @@ export function createStudioServerRuntime({
       safeProjectId,
       projectsDir,
       stat,
+      domainOps,
       runLvstudio,
       safeReadJson,
       projectDeleteBlocker,

@@ -157,7 +157,10 @@ test("studio http handler routes plan save through sync/check and run-state upda
     restoreOptionalFile: projectFs.restoreOptionalFile,
     runTrackedForegroundJob: async (_projectId, _job, worker) =>
       worker({ advance: async (_label, fn) => fn() }),
-    runLvstudio: async (args) => ({ stdout: `ok ${args.join(" ")}` }),
+    domainOps: {
+      sync: async () => ({ timeline: { segments: [] }, issues: [], staleAssetIds: [] }),
+      check: async () => ({ summary: { error: 0, warning: 0, info: 0 }, checks: [] }),
+    },
     appendQualityHistory: async () => {},
     readRunState: async () => ({ status: "dirty" }),
     writeRunState: async (_projectId, state) => {

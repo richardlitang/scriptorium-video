@@ -128,12 +128,18 @@ test("project routes reject unsafe media paths", async () => {
 test("project quality route writes quality history and returns output", async () => {
   const { res, response, sendJson } = makeJsonResponder();
   let historyEntry = null;
+  const qualityResult = {
+    summary: { error: 0, warning: 1, info: 0 },
+    checks: [{ id: "check-1", severity: "warning", message: "Needs attention." }],
+  };
   const handled = await handleProjectRoutes(
     makeProjectContext({
       sendJson,
       runTrackedForegroundJob: async (_projectId, _job, worker) =>
         worker({ advance: async (_label, fn) => fn() }),
-      runLvstudio: async () => ({ stdout: "quality ok\n" }),
+      domainOps: {
+        check: async () => qualityResult,
+      },
       appendQualityHistory: async (_projectId, entry) => {
         historyEntry = entry;
       },
@@ -147,16 +153,24 @@ test("project quality route writes quality history and returns output", async ()
   assert.equal(handled, true);
   assert.equal(response.status, 200);
   assert.equal(response.body?.ok, true);
-  assert.equal(response.body?.data?.output, "quality ok");
+  assert.equal(response.body?.data?.output, JSON.stringify(qualityResult, null, 2));
   assert.equal(historyEntry?.kind, "quality_check");
 });
 
-test("project review route returns warning when output is not json", async () => {
+test("project review route returns structured review data from domain ops", async () => {
   const { res, response, sendJson } = makeJsonResponder();
+  const reviewResult = {
+    projectId: "demo",
+    generatedAt: "2026-06-21T00:00:00.000Z",
+    summary: { critical: 0, warning: 1, suggestion: 0 },
+    issues: [{ id: "issue-1", severity: "warning", scope: "beat", code: "warn", message: "x" }],
+  };
   const handled = await handleProjectRoutes(
     makeProjectContext({
       sendJson,
-      runLvstudioReport: async () => ({ ok: true, stdout: "not json" }),
+      domainOps: {
+        review: async () => reviewResult,
+      },
     }),
     { method: "GET" },
     res,
@@ -166,8 +180,7 @@ test("project review route returns warning when output is not json", async () =>
 
   assert.equal(handled, true);
   assert.equal(response.status, 200);
-  assert.match(response.body?.warning || "", /not valid JSON/i);
-  assert.deepEqual(response.body?.data, { issues: [] });
+  assert.deepEqual(response.body?.data, reviewResult);
 });
 
 test("asset routes decode beat id for regenerate and queue job", async () => {

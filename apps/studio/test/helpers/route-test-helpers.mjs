@@ -46,6 +46,11 @@ export function makeProjectContext(overrides = {}) {
   base.runTrackedForegroundJob = async (_projectId, _job, worker) =>
     worker({ advance: async (_label, fn) => fn() });
   base.appendQualityHistory = async () => {};
+  base.domainOps = {
+    sync: async () => ({}),
+    check: async () => ({}),
+    review: async () => ({}),
+  };
   base.readRunState = async () => ({});
   base.writeRunState = async () => {};
   base.sha256 = async () => "hash";
@@ -97,6 +102,10 @@ export function makeJobContext(overrides = {}) {
   base.runDraftJob = async () => ({});
   base.runProjectMutation = async (_id, fn) => fn();
   base.runTrackedForegroundJob = async () => ({});
+  base.domainOps = {
+    check: async () => ({}),
+    review: async () => ({}),
+  };
   base.runLvstudio = async () => ({});
   base.runLvstudioReport = async () => ({});
   base.appendQualityHistory = async () => {};

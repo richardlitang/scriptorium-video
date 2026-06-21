@@ -25,6 +25,7 @@ test("studio runtime dependency builders return scoped dependency objects", () =
     safeProjectId: (value) => value,
     projectsDir: "/tmp/projects",
     stat: async () => ({}),
+    domainOps: { sync: async () => ({}), check: async () => ({}), review: async () => ({}) },
     runLvstudio: async () => ({}),
     safeReadJson: async () => ({}),
     projectDeleteBlocker: async () => null,
@@ -75,6 +76,7 @@ test("studio runtime dependency builders return scoped dependency objects", () =
   const httpDeps = buildStudioRuntimeHttpDependencies(deps);
 
   assert.equal(contextDeps.sendJson, deps.sendJson);
+  assert.equal(contextDeps.domainOps, deps.domainOps);
   assert.equal(contextDeps.runDraftJob, deps.runDraftJob);
   assert.equal(httpDeps.port, 4173);
   assert.equal(httpDeps.handleStudioApiRoute, deps.handleStudioApiRoute);

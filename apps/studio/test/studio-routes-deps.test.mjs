@@ -6,7 +6,7 @@ import { makeStudioBaseContext } from "./helpers/route-test-helpers.mjs";
 
 test("studio route composition throws clear error when required dependency is missing", async () => {
   const context = makeStudioBaseContext();
-  delete context.runLvstudioReport;
+  delete context.domainOps;
   await assert.rejects(
     () =>
       handleStudioApiRoute(
@@ -16,7 +16,7 @@ test("studio route composition throws clear error when required dependency is mi
         "/api/planner-defaults",
         new URL("http://localhost:4173"),
       ),
-    /Missing dependency "runLvstudioReport" for project routes/,
+    /Missing dependency "domainOps" for project routes/,
   );
 });
 
