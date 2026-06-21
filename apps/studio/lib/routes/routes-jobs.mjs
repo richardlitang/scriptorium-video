@@ -20,7 +20,6 @@ export const JOB_ROUTE_KEYS = [
   "runTrackedForegroundJob",
   "domainOps",
   "runLvstudio",
-  "runLvstudioReport",
   "appendQualityHistory",
   "writeRunState",
   "path",
@@ -65,7 +64,6 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
     runTrackedForegroundJob,
     domainOps,
     runLvstudio,
-    runLvstudioReport,
     appendQualityHistory,
     writeRunState,
     path,
@@ -268,14 +266,30 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
               await advance("Generating narration", () =>
                 runLvstudio(["generate:tts", projectId, "--provider", ttsProvider, "--force"]),
               ),
-              await advance("Syncing timeline", () => runLvstudio(["sync", projectId])),
+              await advance("Syncing timeline", async () => ({
+                stdout: formatOutput(await domainOps.sync(projectId)),
+              })),
               await advance("Transcribing narration", () =>
                 runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider]),
               ),
               await advance("Generating captions", async () => ({
                 stdout: formatOutput(await domainOps.captions(projectId)),
               })),
-              await advance("Running quality check", () => runLvstudioReport(["check", projectId])),
+              await advance("Running quality check", async () => {
+                try {
+                  return {
+                    ok: true,
+                    stdout: formatOutput(await domainOps.check(projectId)),
+                    stderr: "",
+                  };
+                } catch (error) {
+                  return {
+                    ok: false,
+                    stdout: error instanceof Error ? error.message : String(error),
+                    stderr: "",
+                  };
+                }
+              }),
             ],
           );
           const checkStdout = steps[4]?.stdout?.trim() ?? "";

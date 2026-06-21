@@ -57,7 +57,6 @@ export function buildStudioRuntimeContextDependencies(dependencies) {
     process: dependencies.process,
     isScaffoldPlaceholderPlan: dependencies.isScaffoldPlaceholderPlan,
     runDraftJob: dependencies.runDraftJob,
-    runLvstudioReport: dependencies.runLvstudioReport,
   };
 }
 

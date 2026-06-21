@@ -24,6 +24,7 @@ export function createDraftAudioRunner({
   writeDraftJobState,
   runRetriedDraftStep,
   runLvstudioForDraft,
+  domainOps,
   readProjectTraceSnapshot,
 }) {
   return async function generateDraftAudioBySection(projectId, job, plan, transcriptionProvider) {
@@ -147,9 +148,7 @@ export function createDraftAudioRunner({
     }
 
     await writeDraftJobState(projectId, job, { phase: "sync" });
-    await runRetriedDraftStep(projectId, job, "Sync timeline", () =>
-      runLvstudioForDraft(job, ["sync", projectId]),
-    );
+    await runRetriedDraftStep(projectId, job, "Sync timeline", () => domainOps.sync(projectId));
     await appendRunTrace(
       projectId,
       job.id,
@@ -165,7 +164,7 @@ export function createDraftAudioRunner({
     }).catch(() => {});
     await writeDraftJobState(projectId, job, { phase: "captions" });
     await runRetriedDraftStep(projectId, job, "Generate captions", () =>
-      runLvstudioForDraft(job, ["captions", projectId]),
+      domainOps.captions(projectId),
     );
     await appendRunTrace(
       projectId,

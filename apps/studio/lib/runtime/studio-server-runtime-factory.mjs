@@ -266,7 +266,6 @@ export function createStudioServerRuntime({
     studioOpsRuntime.appendQualityHistory(projectId, entry);
   const appendCommandLog = (entry) => studioOpsRuntime.appendCommandLog(entry);
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
-  const runLvstudioReport = (args) => studioOpsRuntime.runLvstudioReport(args);
   const domainOps = createStudioDomainOps({ rootDir });
 
   const { getProjectDetails } = createProjectReadOps({
@@ -300,7 +299,7 @@ export function createStudioServerRuntime({
     dimensionsFromSize,
     appendImageHistory,
     appendImageCacheEntry,
-    runLvstudio,
+    domainOps,
     appendQualityHistory,
   });
   const selectImageTargets = imageGenerationRunner.selectImageTargets;
@@ -358,6 +357,7 @@ export function createStudioServerRuntime({
     writeDraftJobState,
     runRetriedDraftStep,
     runLvstudioForDraft,
+    domainOps,
     readProjectTraceSnapshot,
   });
 
@@ -422,7 +422,7 @@ export function createStudioServerRuntime({
     readMmsHealth,
     getOpenAiApiKey,
     runRetriedDraftStep,
-    runLvstudioForDraft,
+    domainOps,
     readProjectTraceSnapshot,
     safeReadJson,
     selectImageTargets,
@@ -452,7 +452,7 @@ export function createStudioServerRuntime({
     qualityHistoryDir,
     imageHistoryDir,
     runStatePath,
-    runLvstudio,
+    domainOps,
     appendQualityHistory,
     readRunState,
     activeDraftJobs,
@@ -556,7 +556,6 @@ export function createStudioServerRuntime({
       process,
       isScaffoldPlaceholderPlan,
       runDraftJob,
-      runLvstudioReport,
     }),
     httpDependencies: buildStudioRuntimeHttpDependencies({
       port,

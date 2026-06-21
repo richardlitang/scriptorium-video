@@ -21,7 +21,7 @@ export function createImageGenerationRunner(deps) {
     dimensionsFromSize,
     appendImageHistory,
     appendImageCacheEntry,
-    runLvstudio,
+    domainOps,
     appendQualityHistory,
   } = deps;
 
@@ -321,13 +321,14 @@ export function createImageGenerationRunner(deps) {
       `${JSON.stringify({ ...manifest, assets: nextAssets }, null, 2)}\n`,
       "utf8",
     );
-    const syncResult = await runLvstudio(["sync", projectId]);
+    const syncResult = await domainOps.sync(projectId);
+    const syncOutput = JSON.stringify(syncResult, null, 2);
     await appendQualityHistory(projectId, {
       timestamp: new Date().toISOString(),
       kind: "image_generation",
       summary: `Generated ${generated.length} OpenAI image asset(s); ${failed.length} failed.`,
       output: [
-        syncResult.stdout.trim(),
+        syncOutput,
         failed.length > 0 ? `Image failures:\n${JSON.stringify(failed, null, 2)}` : "",
       ]
         .filter(Boolean)
@@ -360,7 +361,7 @@ export function createImageGenerationRunner(deps) {
               );
               return !hasAsset;
             }).length,
-      syncOutput: syncResult.stdout.trim(),
+      syncOutput,
     };
   }
 

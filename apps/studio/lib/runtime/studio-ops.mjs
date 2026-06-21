@@ -1,3 +1,18 @@
+export const STUDIO_SUBPROCESS_COMMANDS = Object.freeze([
+  "generate:tts",
+  "transcribe",
+  "direct:voice",
+]);
+
+export function assertStudioSubprocessCommand(args) {
+  const command = args[0];
+  if (!STUDIO_SUBPROCESS_COMMANDS.includes(command)) {
+    throw new Error(
+      `Studio subprocess command not allowed: ${String(command)}. Use a typed domain operation.`,
+    );
+  }
+}
+
 export function createStudioOps({
   path,
   mkdir,
@@ -28,6 +43,7 @@ export function createStudioOps({
   }
 
   async function runLvstudio(args) {
+    assertStudioSubprocessCommand(args);
     if (studioTestMode) {
       return runLvstudioTestMode(args);
     }
@@ -73,23 +89,9 @@ export function createStudioOps({
     }
   }
 
-  async function runLvstudioReport(args) {
-    try {
-      const result = await runLvstudio(args);
-      return { ok: true, ...result };
-    } catch (error) {
-      return {
-        ok: false,
-        stdout: error instanceof Error ? error.message : String(error),
-        stderr: "",
-      };
-    }
-  }
-
   return {
     appendQualityHistory,
     appendCommandLog,
     runLvstudio,
-    runLvstudioReport,
   };
 }

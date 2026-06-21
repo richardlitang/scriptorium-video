@@ -19,8 +19,5 @@ export function createStudioOpsRuntimeAdapter() {
     async runLvstudio(args) {
       return requireRuntime().runLvstudio(args);
     },
-    async runLvstudioReport(args) {
-      return requireRuntime().runLvstudioReport(args);
-    },
   };
 }

@@ -1,3 +1,5 @@
+import { assertStudioSubprocessCommand } from "../runtime/studio-ops.mjs";
+
 export function createLvstudioDraftRunner(deps) {
   const {
     spawn,
@@ -13,6 +15,7 @@ export function createLvstudioDraftRunner(deps) {
   } = deps;
 
   return async function runLvstudioForDraft(job, args) {
+    assertStudioSubprocessCommand(args);
     if (studioTestMode) {
       if (job.cancelRequested) throw new Error("Draft job cancelled by user.");
       return runLvstudioTestModeFn()(args);

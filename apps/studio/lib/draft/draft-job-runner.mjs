@@ -40,7 +40,7 @@ export function createDraftJobRunner(deps) {
     readMmsHealth,
     getOpenAiApiKey,
     runRetriedDraftStep,
-    runLvstudioForDraft,
+    domainOps,
     readProjectTraceSnapshot,
     safeReadJson,
     selectImageTargets,
@@ -288,9 +288,7 @@ export function createDraftJobRunner(deps) {
           phase: "save",
           label: "Saving plan and syncing timeline",
         });
-        await runRetriedDraftStep(projectId, job, "Initial sync", () =>
-          runLvstudioForDraft(job, ["sync", projectId]),
-        );
+        await runRetriedDraftStep(projectId, job, "Initial sync", () => domainOps.sync(projectId));
         await appendRunTrace(
           projectId,
           job.id,
@@ -366,10 +364,11 @@ export function createDraftJobRunner(deps) {
           phase: "check",
           label: "Running quality check",
         });
-        const checkResult = await runLvstudioForDraft(job, ["check", projectId])
+        const checkResult = await domainOps
+          .check(projectId)
           .then((result) => ({
             ok: true,
-            stdout: result.stdout,
+            stdout: JSON.stringify(result, null, 2),
           }))
           .catch((error) => ({
             ok: false,
@@ -395,7 +394,7 @@ export function createDraftJobRunner(deps) {
           await readProjectTraceSnapshot(projectId),
         ).catch(() => {});
         await runRetriedDraftStep(projectId, job, "Render draft", () =>
-          runLvstudioForDraft(job, ["render", projectId, "--quality", "draft", "--force"]),
+          domainOps.render({ projectId, quality: "draft", force: true }),
         );
         await appendRunTrace(
           projectId,

@@ -95,7 +95,9 @@ export function createBeatRegenerateRunner({
           );
         }
         if (options.audio !== false) {
-          await runStep("sync", "Sync timeline", () => runLvstudio(["sync", projectId]));
+          await runStep("sync", "Sync timeline", async () => ({
+            stdout: JSON.stringify(await domainOps.sync(projectId), null, 2),
+          }));
         }
         if (options.image !== false) {
           await runStep("images", "Regenerate beat image", async () => {

@@ -17,18 +17,15 @@ test("studio ops runtime adapter forwards calls to configured runtime", async ()
     appendQualityHistory: async (...args) => calls.push(["appendQualityHistory", args]),
     appendCommandLog: async (...args) => calls.push(["appendCommandLog", args]),
     runLvstudio: async (...args) => ({ args }),
-    runLvstudioReport: async (...args) => ({ ok: true, args }),
   });
 
   await adapter.appendQualityHistory("proj-1", { score: 90 });
   await adapter.appendCommandLog({ command: "pnpm lvstudio check proj-1" });
   const runResult = await adapter.runLvstudio(["check", "proj-1"]);
-  const reportResult = await adapter.runLvstudioReport(["review", "proj-1"]);
 
   assert.deepEqual(calls, [
     ["appendQualityHistory", ["proj-1", { score: 90 }]],
     ["appendCommandLog", [{ command: "pnpm lvstudio check proj-1" }]],
   ]);
   assert.deepEqual(runResult, { args: [["check", "proj-1"]] });
-  assert.deepEqual(reportResult, { ok: true, args: [["review", "proj-1"]] });
 });

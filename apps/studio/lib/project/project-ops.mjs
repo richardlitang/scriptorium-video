@@ -22,7 +22,7 @@ export function createProjectOps(deps) {
     qualityHistoryDir,
     imageHistoryDir,
     runStatePath,
-    runLvstudio,
+    domainOps,
     appendQualityHistory,
     readRunState,
     activeDraftJobs,
@@ -46,14 +46,15 @@ export function createProjectOps(deps) {
       `${JSON.stringify({ ...manifest, assets: nextAssets }, null, 2)}\n`,
       "utf8",
     );
-    const syncResult = await runLvstudio(["sync", projectId]);
+    const syncResult = await domainOps.sync(projectId);
+    const syncOutput = JSON.stringify(syncResult, null, 2);
     await appendQualityHistory(projectId, {
       timestamp: new Date().toISOString(),
       kind: "asset_delete",
       summary: `Deleted asset ${assetId}.`,
-      output: syncResult.stdout.trim(),
+      output: syncOutput,
     });
-    return { assetId, syncOutput: syncResult.stdout.trim() };
+    return { assetId, syncOutput };
   }
 
   async function updateProjectAssetStatus(projectId, assetId, nextStatus) {
@@ -69,8 +70,8 @@ export function createProjectOps(deps) {
     asset.status = nextStatus;
     asset.updatedAt = new Date().toISOString();
     await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-    const syncResult = await runLvstudio(["sync", projectId]);
-    return { asset, syncOutput: syncResult.stdout.trim() };
+    const syncResult = await domainOps.sync(projectId);
+    return { asset, syncOutput: JSON.stringify(syncResult, null, 2) };
   }
 
   async function readQualityHistory(projectId) {

@@ -9,6 +9,7 @@ test("draft job runner queues and completes no-story flow", async () => {
   const qualityHistory = [];
   const lvstudioArgs = [];
   const handoffs = [];
+  const domainCalls = [];
 
   const runDraftJob = createDraftJobRunner({
     runTraceDisplayPath: () => "trace.ndjson",
@@ -55,6 +56,20 @@ test("draft job runner queues and completes no-story flow", async () => {
       lvstudioArgs.push(args);
       return { stdout: "ok" };
     },
+    domainOps: {
+      sync: async (projectId) => {
+        domainCalls.push(["sync", projectId]);
+        return {};
+      },
+      check: async (projectId) => {
+        domainCalls.push(["check", projectId]);
+        return { status: "pass" };
+      },
+      render: async (input) => {
+        domainCalls.push(["render", input]);
+        return { status: "rendered" };
+      },
+    },
     readProjectTraceSnapshot: async () => ({}),
     safeReadJson: async () => ({ schemaVersion: 1, assets: [] }),
     selectImageTargets: () => [],
@@ -87,9 +102,14 @@ test("draft job runner queues and completes no-story flow", async () => {
   assert.equal(qualityHistory[0].kind, "draft_job");
   assert.equal(runStates.length, 1);
   assert.equal(upserts.length > 0, true);
+  assert.deepEqual(domainCalls, [
+    ["sync", "demo"],
+    ["check", "demo"],
+    ["render", { projectId: "demo", quality: "draft", force: true }],
+  ]);
   assert.equal(
-    lvstudioArgs.some((args) => args[0] === "render"),
-    true,
+    lvstudioArgs.some((args) => ["sync", "check", "render"].includes(args[0])),
+    false,
   );
   assert.equal(handoffs.length, 1);
   assert.equal(handoffs[0].projectId, "demo");

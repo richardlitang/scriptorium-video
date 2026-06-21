@@ -204,10 +204,12 @@ test("job routes reject draft requests with empty story and scaffold placeholder
   assert.match(response.body.message, /Make Draft needs story text/);
 });
 
-test("prepare-draft routes captions through domain ops", async () => {
+test("prepare-draft uses typed safe steps and preserves quality warning responses", async () => {
   const { response, sendJson } = makeJsonResponder();
   const lvstudioCalls = [];
   const captionCalls = [];
+  const syncCalls = [];
+  const checkCalls = [];
   const handled = await handleJobRoutes(
     makeJobContext({
       sendJson,
@@ -228,13 +230,19 @@ test("prepare-draft routes captions through domain ops", async () => {
         lvstudioCalls.push(args);
         return { ok: true, stdout: args[0] };
       },
-      runLvstudioReport: async () => ({ ok: true, stdout: '{"status":"pass"}' }),
       domainOps: {
+        sync: async (projectId) => {
+          syncCalls.push(projectId);
+          return { projectId };
+        },
         captions: async (projectId) => {
           captionCalls.push(projectId);
           return { captionsPath: `/tmp/${projectId}/captions.json`, count: 2 };
         },
-        check: async () => ({}),
+        check: async (projectId) => {
+          checkCalls.push(projectId);
+          throw new Error("quality warning");
+        },
         review: async () => ({}),
       },
       appendQualityHistory: async () => {},
@@ -248,9 +256,13 @@ test("prepare-draft routes captions through domain ops", async () => {
 
   assert.equal(handled, true);
   assert.equal(response.status, 200);
+  assert.equal(response.body.data.qualityOk, false);
+  assert.match(response.body.data.output, /quality warning/);
+  assert.deepEqual(syncCalls, ["demo"]);
   assert.deepEqual(captionCalls, ["demo"]);
+  assert.deepEqual(checkCalls, ["demo"]);
   assert.equal(
-    lvstudioCalls.some((args) => args[0] === "captions"),
+    lvstudioCalls.some((args) => ["sync", "captions", "check"].includes(args[0])),
     false,
   );
 });

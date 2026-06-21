@@ -6,6 +6,7 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
   const traces = [];
   const labels = [];
   const lvstudioArgs = [];
+  const domainCalls = [];
   const job = { id: "draft-1", completed: 0 };
   const plan = {
     providers: { tts: "chatterbox", transcription: "whisper" },
@@ -41,6 +42,16 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
       lvstudioArgs.push(args);
       return { stdout: "ok" };
     },
+    domainOps: {
+      sync: async (projectId) => {
+        domainCalls.push(["sync", projectId]);
+        return {};
+      },
+      captions: async (projectId) => {
+        domainCalls.push(["captions", projectId]);
+        return {};
+      },
+    },
     readProjectTraceSnapshot: async () => ({}),
   });
 
@@ -59,6 +70,14 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
   assert.equal(
     lvstudioArgs.some((args) => args[0] === "generate:tts" && args.includes("b2")),
     true,
+  );
+  assert.deepEqual(domainCalls, [
+    ["sync", "demo"],
+    ["captions", "demo"],
+  ]);
+  assert.equal(
+    lvstudioArgs.some((args) => ["sync", "captions"].includes(args[0])),
+    false,
   );
   assert.equal(
     traces.some((entry) => entry.event === "audio.batch.start"),
