@@ -62,7 +62,7 @@ import {
   imageTagsFromPrompt,
 } from "../image/image-library-metadata.mjs";
 import { createRunTraceStore } from "../project/run-trace-store.mjs";
-import { resolveOpenAiApiKey } from "../planner/openai-api-key.mjs";
+import { resolveOpenAiApiKey } from "@lvstudio/core";
 import { createDraftAudioRunner } from "../draft/draft-audio-runner.mjs";
 import { createDraftJobRunner } from "../draft/draft-job-runner.mjs";
 import {
