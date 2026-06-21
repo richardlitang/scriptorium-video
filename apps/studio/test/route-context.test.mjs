@@ -21,3 +21,10 @@ test("route context helpers report the missing dependency and module name", () =
     /Missing dependency "readFile" for project routes/,
   );
 });
+
+test("route context reports a missing nested capability member", () => {
+  assert.throws(
+    () => requireRouteContext({ domainOps: {} }, "project routes", ["domainOps.sync"]),
+    /Missing capability "domainOps\.sync" for project routes/,
+  );
+});

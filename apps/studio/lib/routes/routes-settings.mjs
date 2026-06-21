@@ -17,12 +17,27 @@ export const SETTINGS_ROUTE_KEYS = [
   "DEFAULT_PLANNER_USER_PROMPT_TEMPLATE",
 ];
 
+const SETTINGS_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "http.parseJsonBody",
+  "http.parseBinaryBody",
+  "voice.readVoiceSettings",
+  "voice.writeVoiceSettings",
+  "voice.readTtsHealth",
+  "voice.previewVoice",
+  "voice.safeVoiceReferenceFileName",
+  "voice.voiceReferencesDir",
+  "voice.mkdir",
+  "voice.path",
+  "voice.writeFile",
+  "voice.DEFAULT_PLANNER_SYSTEM_PROMPT",
+  "voice.DEFAULT_PLANNER_USER_PROMPT_TEMPLATE",
+];
+
 export async function handleSettingsRoutes(context, req, res, pathname, requestUrl) {
-  requireRouteContext(context, "settings routes", SETTINGS_ROUTE_KEYS);
+  requireRouteContext(context, "settings routes", SETTINGS_ROUTE_CAPABILITIES);
+  const { sendJson, parseJsonBody, parseBinaryBody } = context.http;
   const {
-    sendJson,
-    parseJsonBody,
-    parseBinaryBody,
     readVoiceSettings,
     writeVoiceSettings,
     readTtsHealth,
@@ -34,7 +49,7 @@ export async function handleSettingsRoutes(context, req, res, pathname, requestU
     writeFile,
     DEFAULT_PLANNER_SYSTEM_PROMPT,
     DEFAULT_PLANNER_USER_PROMPT_TEMPLATE,
-  } = context;
+  } = context.voice;
 
   if (pathname === "/api/settings/voice" && req.method === "GET") {
     sendJson(res, 200, { ok: true, data: await readVoiceSettings() });

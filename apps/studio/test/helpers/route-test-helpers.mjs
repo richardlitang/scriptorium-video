@@ -3,6 +3,7 @@ import { PROJECT_ROUTE_KEYS } from "../../lib/routes/routes-projects.mjs";
 import { ASSET_ROUTE_KEYS } from "../../lib/routes/routes-assets.mjs";
 import { JOB_ROUTE_KEYS } from "../../lib/routes/routes-jobs.mjs";
 import { STUDIO_ROUTE_CONTEXT_KEYS } from "../../lib/routes/studio-routes.mjs";
+import { createRouteCapabilities } from "../../lib/routes/route-capabilities.mjs";
 
 export function makeJsonResponder() {
   const response = { status: 0, body: null, headers: null, endBody: null };
@@ -140,5 +141,6 @@ export function makeStudioBaseContext(overrides = {}) {
     DEFAULT_PLANNER_SYSTEM_PROMPT: "system",
     DEFAULT_PLANNER_USER_PROMPT_TEMPLATE: "template",
   };
-  return { ...merged, ...overrides };
+  const dependencies = { ...merged, ...overrides };
+  return { ...dependencies, ...createRouteCapabilities(dependencies) };
 }

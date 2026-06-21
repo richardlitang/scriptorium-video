@@ -21,3 +21,15 @@ test("createStudioApiContext omits unrelated dependency keys", () => {
   const context = createStudioApiContext(dependencies);
   assert.equal("unused_extra" in context, false);
 });
+
+test("createStudioApiContext groups route dependencies into named capabilities", () => {
+  const dependencies = Object.fromEntries(STUDIO_ROUTE_CONTEXT_KEYS.map((key) => [key, key]));
+  const context = createStudioApiContext(dependencies);
+
+  assert.equal(context.http.sendJson, dependencies.sendJson);
+  assert.equal(context.projects.getProjectDetails, dependencies.getProjectDetails);
+  assert.equal(context.jobs.runDraftJob, dependencies.runDraftJob);
+  assert.equal(context.traces.readRunState, dependencies.readRunState);
+  assert.equal(context.voice.readVoiceSettings, dependencies.readVoiceSettings);
+  assert.equal(context.domainOps, dependencies.domainOps);
+});

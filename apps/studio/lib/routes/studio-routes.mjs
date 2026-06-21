@@ -14,7 +14,7 @@ export const STUDIO_ROUTE_CONTEXT_KEYS = Array.from(
 );
 
 export async function handleStudioApiRoute(context, req, res, pathname, requestUrl) {
-  const settingsContext = pickRouteContext(context, "settings routes", SETTINGS_KEYS);
+  const settingsContext = pickRouteContext(context, "settings routes", ["http", "voice"]);
   const projectContext = pickRouteContext(context, "project routes", PROJECT_KEYS);
   const assetContext = pickRouteContext(context, "asset routes", ASSET_KEYS);
   const jobContext = pickRouteContext(context, "job routes", JOB_KEYS);
