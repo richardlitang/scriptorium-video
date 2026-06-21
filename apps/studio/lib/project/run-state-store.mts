@@ -1,17 +1,48 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-function resolveJobStatus(terminal, phase) {
+type RunJob = {
+  jobId: string;
+  kind?: string;
+  status?: string;
+  phase?: string;
+  label?: string;
+  completed?: number;
+  total?: number;
+  startedAt?: string;
+  finishedAt?: string;
+  updatedAt?: string;
+};
+
+type RunState = {
+  status?: string;
+  lastRenderPlanHash?: string;
+  lastRenderTimelineHash?: string;
+  lastRenderQuality?: string;
+  lastRenderCompletedAt?: string;
+  currentPlanHash?: string;
+  currentTimelineHash?: string;
+  updatedAt?: string;
+  jobs?: RunJob[];
+  activeJobId?: string;
+  progress?: RunJob | null;
+};
+
+type RunProgressPatch = Partial<RunState> & {
+  progress?: Partial<RunJob> & { kind: string; jobId?: string; phase?: string };
+};
+
+function resolveJobStatus(terminal: boolean, phase: string) {
   if (!terminal) return "running";
   return phase === "failed" ? "failed" : "completed";
 }
 
-function parseRunTime(value) {
+function parseRunTime(value: string | undefined) {
   const time = Date.parse(String(value || ""));
   return Number.isFinite(time) ? time : 0;
 }
 
-function jobSortTime(job) {
+function jobSortTime(job: RunJob | null | undefined) {
   return Math.max(
     parseRunTime(job?.updatedAt),
     parseRunTime(job?.finishedAt),
@@ -19,21 +50,32 @@ function jobSortTime(job) {
   );
 }
 
-export function normalizeRunState(raw = {}) {
+function normalizedJobs(raw: RunState): RunJob[] {
   const jobs = Array.isArray(raw.jobs)
     ? raw.jobs.filter((job) => job && typeof job === "object" && job.jobId)
     : [];
-  if (raw.progress?.jobId && !jobs.some((job) => job.jobId === raw.progress.jobId))
+  const progressJobId = raw.progress?.jobId;
+  if (progressJobId && raw.progress && !jobs.some((job) => job.jobId === progressJobId)) {
     jobs.push(raw.progress);
+  }
   jobs.sort((a, b) => jobSortTime(b) - jobSortTime(a));
-  const trimmed = jobs.slice(0, 30);
-  const active =
-    trimmed.find((job) => ["queued", "running"].includes(job.status)) ??
-    trimmed.find((job) => job.kind === "draft_job") ??
-    trimmed[0] ??
-    null;
+  return jobs.slice(0, 30);
+}
+
+function selectActiveJob(jobs: RunJob[]): RunJob | null {
+  return (
+    jobs.find((job) => ["queued", "running"].includes(job.status ?? "")) ??
+    jobs.find((job) => job.kind === "draft_job") ??
+    jobs[0] ??
+    null
+  );
+}
+
+export function normalizeRunState(raw: RunState = {}) {
+  const trimmed = normalizedJobs(raw);
+  const active = selectActiveJob(trimmed);
   let status = "idle";
-  if (active && ["queued", "running"].includes(active.status)) status = "queued";
+  if (active && ["queued", "running"].includes(active.status ?? "")) status = "queued";
   else if (active?.status === "failed") status = "failed";
   return {
     status,
@@ -50,27 +92,27 @@ export function normalizeRunState(raw = {}) {
   };
 }
 
-export function createRunStateStore(rootDir) {
-  function runStatePath(projectId) {
+export function createRunStateStore(rootDir: string) {
+  function runStatePath(projectId: string) {
     return path.join(rootDir, ".studio-data", "run-state", `${projectId}.json`);
   }
 
-  async function readRunState(projectId) {
+  async function readRunState(projectId: string) {
     try {
       const raw = await readFile(runStatePath(projectId), "utf8");
-      return normalizeRunState(JSON.parse(raw));
+      return normalizeRunState(JSON.parse(raw) as RunState);
     } catch {
       return normalizeRunState({});
     }
   }
 
-  async function writeRunState(projectId, state) {
+  async function writeRunState(projectId: string, state: RunState) {
     const filePath = runStatePath(projectId);
     await mkdir(path.dirname(filePath), { recursive: true });
     await writeFile(filePath, `${JSON.stringify(normalizeRunState(state), null, 2)}\n`, "utf8");
   }
 
-  async function upsertRunJob(projectId, job) {
+  async function upsertRunJob(projectId: string, job: RunJob) {
     const state = await readRunState(projectId);
     const jobs = [...(state.jobs ?? []).filter((entry) => entry.jobId !== job.jobId), job];
     await writeRunState(projectId, {
@@ -80,19 +122,20 @@ export function createRunStateStore(rootDir) {
     });
   }
 
-  async function updateRunProgress(projectId, patch) {
+  async function updateRunProgress(projectId: string, patch: RunProgressPatch) {
     const state = await readRunState(projectId);
-    if (patch?.progress?.kind) {
+    const progress = patch.progress;
+    if (progress?.kind) {
       const current = state.jobs?.find(
-        (job) => job.jobId === patch.progress.jobId || job.kind === patch.progress.kind,
+        (job) => job.jobId === progress.jobId || job.kind === progress.kind,
       );
       const startedAt = current?.startedAt || new Date().toISOString();
-      const phase = patch.progress.phase || "running";
+      const phase = progress.phase || "running";
       const terminal = ["complete", "completed", "failed", "stopped"].includes(phase);
       const job = {
         ...current,
-        ...patch.progress,
-        jobId: patch.progress.jobId || current?.jobId || `run-${patch.progress.kind}`,
+        ...progress,
+        jobId: progress.jobId || current?.jobId || `run-${progress.kind}`,
         status: resolveJobStatus(terminal, phase),
         startedAt,
         finishedAt: terminal ? new Date().toISOString() : undefined,

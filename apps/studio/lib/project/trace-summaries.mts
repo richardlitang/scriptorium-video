@@ -2,22 +2,93 @@ import { createHash } from "node:crypto";
 import path from "node:path";
 import { voiceSettingsEnv } from "../../voice-settings.mjs";
 
-function sha256(value) {
+type BeatTrace = {
+  id?: string;
+  order?: number;
+  narration?: string;
+  narrationLanguage?: string;
+  media?: unknown[];
+  visualEditCues?: unknown[];
+  silenceWindows?: unknown[];
+  voiceDirection?: { ttsProvider?: string; language?: string; narrationLanguage?: string };
+  direction?: {
+    voice?: { ttsProvider?: string };
+    editorial?: { visualEditCues?: unknown[]; silenceWindows?: unknown[] };
+  };
+};
+
+type SectionTrace = { id?: string; title?: string; beats?: BeatTrace[] };
+type PlanTrace = { title?: string; providers?: { tts?: string }; sections?: SectionTrace[] };
+type ManifestAsset = {
+  id?: string;
+  role?: string;
+  beatId?: string;
+  sectionId?: string;
+  status?: string;
+  path?: string;
+  durationSeconds?: number;
+  source?: { kind?: string; provider?: string };
+};
+type ManifestTrace = { assets?: ManifestAsset[] };
+type TimelineSegment = {
+  beatId?: string;
+  startSeconds?: number;
+  endSeconds?: number;
+  durationSeconds?: number;
+  voiceAssetId?: string;
+  mediaAssetIds?: string[];
+  visualEditCues?: unknown[];
+  silenceWindows?: unknown[];
+};
+type TimelineTrace = { durationSeconds?: number; segments?: TimelineSegment[] };
+type VoiceSettingsTrace = {
+  ttsModel?: string;
+  deliveryProfile?: string;
+  audioPromptPath?: string;
+};
+
+function beatTraceSummary(
+  beat: BeatTrace,
+  section: SectionTrace,
+  defaultProvider: string | undefined,
+) {
+  return {
+    sectionId: section.id,
+    sectionTitle: section.title,
+    beatId: beat.id,
+    order: beat.order,
+    narrationChars: String(beat.narration || "").length,
+    narrationWords: countWords(beat.narration),
+    ttsProvider:
+      beat.voiceDirection?.ttsProvider || beat.direction?.voice?.ttsProvider || defaultProvider,
+    narrationLanguage:
+      beat.voiceDirection?.language ||
+      beat.voiceDirection?.narrationLanguage ||
+      beat.narrationLanguage,
+    mediaCount: beat.media?.length ?? 0,
+    visualCueCount:
+      beat.direction?.editorial?.visualEditCues?.length ?? beat.visualEditCues?.length ?? 0,
+    silenceWindowCount:
+      beat.direction?.editorial?.silenceWindows?.length ?? beat.silenceWindows?.length ?? 0,
+  };
+}
+
+function sha256(value: string) {
   return createHash("sha256").update(value).digest("hex");
 }
 
-function countWords(value) {
+function countWords(value: string | undefined) {
   return String(value || "")
     .split(/\s+/)
     .filter(Boolean).length;
 }
 
-function redactPath(value) {
+function redactPath(value: string | undefined) {
   if (!value) return "";
   return path.basename(String(value));
 }
 
-export function directiveCandidateLines(story) {
+export function directiveCandidateLines(story: string | undefined) {
   return String(story || "")
     .split(/\r?\n/)
     .map((line, index) => ({ index: index + 1, text: line.trim() }))
@@ -33,7 +104,7 @@ export function directiveCandidateLines(story) {
     .slice(0, 40);
 }
 
-export function summarizeStoryInput(story) {
+export function summarizeStoryInput(story: string | undefined) {
   const raw = String(story || "");
   return {
     hash: sha256(raw),
@@ -44,29 +115,9 @@ export function summarizeStoryInput(story) {
   };
 }
 
-export function summarizePlanForTrace(plan, story = "") {
+export function summarizePlanForTrace(plan: PlanTrace, story = "") {
   const beats = (plan.sections ?? []).flatMap((section) =>
-    (section.beats ?? []).map((beat) => ({
-      sectionId: section.id,
-      sectionTitle: section.title,
-      beatId: beat.id,
-      order: beat.order,
-      narrationChars: String(beat.narration || "").length,
-      narrationWords: countWords(beat.narration),
-      ttsProvider:
-        beat.voiceDirection?.ttsProvider ||
-        beat.direction?.voice?.ttsProvider ||
-        plan.providers?.tts,
-      narrationLanguage:
-        beat.voiceDirection?.language ||
-        beat.voiceDirection?.narrationLanguage ||
-        beat.narrationLanguage,
-      mediaCount: beat.media?.length ?? 0,
-      visualCueCount:
-        beat.direction?.editorial?.visualEditCues?.length ?? beat.visualEditCues?.length ?? 0,
-      silenceWindowCount:
-        beat.direction?.editorial?.silenceWindows?.length ?? beat.silenceWindows?.length ?? 0,
-    })),
+    (section.beats ?? []).map((beat) => beatTraceSummary(beat, section, plan.providers?.tts)),
   );
   const narrationWords = beats.reduce((sum, beat) => sum + beat.narrationWords, 0);
   const storyWords = countWords(story);
@@ -87,7 +138,7 @@ export function summarizePlanForTrace(plan, story = "") {
   };
 }
 
-export function summarizeManifestForTrace(manifest) {
+export function summarizeManifestForTrace(manifest: ManifestTrace | undefined) {
   const assets = manifest?.assets ?? [];
   return {
     totalAssets: assets.length,
@@ -116,7 +167,10 @@ export function summarizeManifestForTrace(manifest) {
   };
 }
 
-export function summarizeTimelineForTrace(timeline, manifest) {
+export function summarizeTimelineForTrace(
+  timeline: TimelineTrace | undefined,
+  manifest: ManifestTrace | undefined,
+) {
   const assetsById = new Map((manifest?.assets ?? []).map((asset) => [asset.id, asset]));
   return {
     durationSeconds: timeline?.durationSeconds ?? 0,
@@ -138,12 +192,15 @@ export function summarizeTimelineForTrace(timeline, manifest) {
   };
 }
 
-export function summarizeVoiceSettingsForTrace(settings) {
+export function summarizeVoiceSettingsForTrace(settings: VoiceSettingsTrace) {
+  const env = voiceSettingsEnv(settings);
   return {
     ttsModel: settings.ttsModel,
     deliveryProfile: settings.deliveryProfile,
     hasAudioPromptPath: Boolean(settings.audioPromptPath),
     audioPromptFile: redactPath(settings.audioPromptPath),
-    envIncludesAudioPrompt: Boolean(voiceSettingsEnv(settings).CHATTERBOX_AUDIO_PROMPT_PATH),
+    envIncludesAudioPrompt: Boolean(
+      (env as Record<string, string | undefined>).CHATTERBOX_AUDIO_PROMPT_PATH,
+    ),
   };
 }
