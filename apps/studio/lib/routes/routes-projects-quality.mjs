@@ -9,14 +9,25 @@ export const PROJECT_QUALITY_ROUTE_KEYS = [
   "readQualityHistory",
 ];
 
+const PROJECT_QUALITY_ROUTE_CAPABILITIES = [
+  "http.sendJson",
+  "jobs.runTrackedForegroundJob",
+  "traces.appendQualityHistory",
+  "traces.readQualityHistory",
+  "domainOps.check",
+  "domainOps.review",
+];
+
 function formatOutput(value) {
   return JSON.stringify(value, null, 2);
 }
 
 export async function handleProjectQualityRoutes(context, req, res, pathname) {
-  requireRouteContext(context, "project quality routes", PROJECT_QUALITY_ROUTE_KEYS);
-  const { sendJson, runTrackedForegroundJob, domainOps, appendQualityHistory, readQualityHistory } =
-    context;
+  requireRouteContext(context, "project quality routes", PROJECT_QUALITY_ROUTE_CAPABILITIES);
+  const { sendJson } = context.http;
+  const { runTrackedForegroundJob } = context.jobs;
+  const { appendQualityHistory, readQualityHistory } = context.traces;
+  const { domainOps } = context;
 
   const routes = [
     {
