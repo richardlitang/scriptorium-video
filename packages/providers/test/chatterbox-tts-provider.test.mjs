@@ -3,8 +3,53 @@ import { test } from "node:test";
 import {
   buildPayload,
   checkChatterboxCapability,
+  createChatterboxTTSProvider,
   ChatterboxTTSProvider,
 } from "../dist/tts/chatterbox-tts-provider.js";
+
+test("explicit Chatterbox config overrides ambient endpoint and payload defaults", async () => {
+  const originalUrl = process.env.CHATTERBOX_TTS_URL;
+  const originalModel = process.env.CHATTERBOX_TTS_MODEL;
+  process.env.CHATTERBOX_TTS_URL = "http://ambient.test/v1/audio/speech";
+  process.env.CHATTERBOX_TTS_MODEL = "ambient-model";
+  const calls = [];
+  try {
+    const provider = createChatterboxTTSProvider(
+      {
+        speechUrl: "http://configured.test/v1/audio/speech",
+        apiKey: "configured-key",
+        model: "configured-model",
+        exaggeration: 0.6,
+      },
+      {
+        fetchImpl: async (url, options) => {
+          calls.push([String(url), options]);
+          return new Response(new Uint8Array([1, 2, 3]), { status: 200 });
+        },
+        probeMediaImpl: async () => ({ durationSeconds: 1.25 }),
+      },
+    );
+    const outputPath = "/tmp/lvstudio-configured-chatterbox.wav";
+    await provider.synthesize({
+      text: "hello",
+      voiceId: "clone",
+      outputPath,
+      format: "wav",
+      options: {},
+    });
+    const [url, options] = calls[0];
+    assert.equal(url, "http://configured.test/v1/audio/speech");
+    assert.equal(options.headers.authorization, "Bearer configured-key");
+    const payload = JSON.parse(options.body);
+    assert.equal(payload.model, "configured-model");
+    assert.equal(payload.exaggeration, 0.6);
+  } finally {
+    if (originalUrl === undefined) delete process.env.CHATTERBOX_TTS_URL;
+    else process.env.CHATTERBOX_TTS_URL = originalUrl;
+    if (originalModel === undefined) delete process.env.CHATTERBOX_TTS_MODEL;
+    else process.env.CHATTERBOX_TTS_MODEL = originalModel;
+  }
+});
 
 test("Chatterbox TTS reports an actionable setup error when the server is unreachable", async () => {
   const originalUrl = process.env.CHATTERBOX_TTS_URL;
