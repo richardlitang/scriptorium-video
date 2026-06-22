@@ -270,10 +270,11 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
   assert.deepEqual(syncCalls, ["demo"]);
   assert.deepEqual(captionCalls, ["demo"]);
   assert.deepEqual(checkCalls, ["demo"]);
-  assert.deepEqual(narrationCalls, [
-    { projectId: "demo", providerId: "chatterbox", force: true },
-  ]);
-  assert.equal(lvstudioCalls.some((args) => args[0] === "generate:tts"), false);
+  assert.deepEqual(narrationCalls, [{ projectId: "demo", providerId: "chatterbox", force: true }]);
+  assert.equal(
+    lvstudioCalls.some((args) => args[0] === "generate:tts"),
+    false,
+  );
   assert.equal(
     lvstudioCalls.some((args) => ["sync", "captions", "check"].includes(args[0])),
     false,

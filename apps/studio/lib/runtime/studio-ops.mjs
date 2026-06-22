@@ -1,7 +1,4 @@
-export const STUDIO_SUBPROCESS_COMMANDS = Object.freeze([
-  "transcribe",
-  "direct:voice",
-]);
+export const STUDIO_SUBPROCESS_COMMANDS = Object.freeze(["transcribe", "direct:voice"]);
 
 export function assertStudioSubprocessCommand(args) {
   const command = args[0];

@@ -72,11 +72,17 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
       ["generateTts", "demo", "chatterbox", "b2"],
     ],
   );
-  assert.equal(lvstudioArgs.some((args) => args[0] === "generate:tts"), false);
-  assert.deepEqual(domainCalls.filter(([operation]) => operation !== "generateTts"), [
-    ["sync", "demo"],
-    ["captions", "demo"],
-  ]);
+  assert.equal(
+    lvstudioArgs.some((args) => args[0] === "generate:tts"),
+    false,
+  );
+  assert.deepEqual(
+    domainCalls.filter(([operation]) => operation !== "generateTts"),
+    [
+      ["sync", "demo"],
+      ["captions", "demo"],
+    ],
+  );
   assert.equal(
     lvstudioArgs.some((args) => ["sync", "captions"].includes(args[0])),
     false,

@@ -91,8 +91,7 @@ export async function checkChatterboxCapability(
   injectedFetch?: typeof fetch,
 ): Promise<ChatterboxCapability> {
   const config = typeof configOrFetch === "function" ? {} : configOrFetch;
-  const fetchImpl =
-    typeof configOrFetch === "function" ? configOrFetch : (injectedFetch ?? fetch);
+  const fetchImpl = typeof configOrFetch === "function" ? configOrFetch : (injectedFetch ?? fetch);
   const speechUrl = config.speechUrl ?? chatterboxUrl();
   const healthUrl = chatterboxHealthUrl(speechUrl);
   try {
@@ -193,7 +192,9 @@ export function buildPayload(
   if (temperature !== undefined) payload.temperature = temperature;
 
   const seed =
-    providerNumber(request, "seed") ?? configuredNumber(config, "seed") ?? envNumber("CHATTERBOX_SEED");
+    providerNumber(request, "seed") ??
+    configuredNumber(config, "seed") ??
+    envNumber("CHATTERBOX_SEED");
   if (seed !== undefined) payload.seed = seed;
 
   return payload;

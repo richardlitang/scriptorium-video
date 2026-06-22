@@ -71,7 +71,10 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   assert.deepEqual(narrationCalls, [
     { projectId: "demo", providerId: "chatterbox", onlyBeat: "beat-1" },
   ]);
-  assert.equal(lvstudioCalls.some((args) => args[0] === "generate:tts"), false);
+  assert.equal(
+    lvstudioCalls.some((args) => args[0] === "generate:tts"),
+    false,
+  );
   assert.equal(
     lvstudioCalls.some((args) => args[0] === "render"),
     false,

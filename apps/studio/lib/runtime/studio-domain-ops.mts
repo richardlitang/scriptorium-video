@@ -10,11 +10,7 @@ import {
   type TargetPlatformSchema,
   type VideoModeSchema,
 } from "@lvstudio/core";
-import {
-  createChatterboxTTSProvider,
-  rendererProviders,
-  ttsProviders,
-} from "@lvstudio/providers";
+import { createChatterboxTTSProvider, rendererProviders, ttsProviders } from "@lvstudio/providers";
 import { runQualityChecks, type QualityResult } from "@lvstudio/quality";
 import { runRenderWorkflow, type RenderWorkflowResult } from "@lvstudio/workflows";
 import type { z } from "zod";
@@ -96,15 +92,21 @@ export function createStudioDomainOps({
     review(projectId: string) {
       return reviewProjectImpl(projectId, rootDir);
     },
-    async generateTts({ projectId, providerId, force, noCache, onlySection, onlyBeat, concurrency }) {
-      const provider =
-        providerId === "chatterbox"
-          ? readVoiceSettingsImpl
-            ? createChatterboxTTSProviderImpl(
-                voiceRuntimeForSettings(await readVoiceSettingsImpl(), processEnv),
-              )
-            : ttsProviders.chatterbox
-          : ttsProviders[providerId];
+    async generateTts({
+      projectId,
+      providerId,
+      force,
+      noCache,
+      onlySection,
+      onlyBeat,
+      concurrency,
+    }) {
+      let provider = ttsProviders[providerId];
+      if (providerId === "chatterbox" && readVoiceSettingsImpl) {
+        provider = createChatterboxTTSProviderImpl(
+          voiceRuntimeForSettings(await readVoiceSettingsImpl(), processEnv),
+        );
+      }
       if (!provider) throw new Error(`Unknown TTS provider: ${providerId}`);
       const options: GenerateTTSOptions = {
         rootDir,

@@ -31,4 +31,3 @@ Do not suppress warnings or raise the current limit. Fix warnings in small owner
 ## Validation and branch policy
 
 Every behavior change follows red-green-refactor and runs focused tests before implementation. Each logical slice runs its package tests and `pnpm -s verify` before commit. Before integration, rebase the fresh hardening branch on `main`, rerun the full gate, and inspect the diff for generated artifacts, route-contract drift, and accidental subprocess expansion.
-

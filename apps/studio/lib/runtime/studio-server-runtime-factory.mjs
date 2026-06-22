@@ -266,7 +266,11 @@ export function createStudioServerRuntime({
     studioOpsRuntime.appendQualityHistory(projectId, entry);
   const appendCommandLog = (entry) => studioOpsRuntime.appendCommandLog(entry);
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
-  const domainOps = createStudioDomainOps({ rootDir, readVoiceSettingsImpl: readVoiceSettings, processEnv });
+  const domainOps = createStudioDomainOps({
+    rootDir,
+    readVoiceSettingsImpl: readVoiceSettings,
+    processEnv,
+  });
 
   const { getProjectDetails } = createProjectReadOps({
     path,
