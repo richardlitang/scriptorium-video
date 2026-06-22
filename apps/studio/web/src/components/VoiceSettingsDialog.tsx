@@ -1,7 +1,13 @@
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { readStored, writeStored } from "@/lib/project-storage";
 import { defaultVoiceSettings } from "../../../voice-settings.mjs";
+import {
+  useSaveVoiceSettings,
+  useUploadVoiceReference,
+  useVoicePreview,
+  useVoiceSettings,
+} from "@/queries/voice-settings";
 
 type VoiceSettings = typeof defaultVoiceSettings;
 
@@ -25,8 +31,12 @@ export function VoiceSettingsDialog({ projectId, trigger }: Props) {
   const [open, setOpen] = useState(false);
   const [settings, setSettings] = useState<VoiceSettings>(defaultVoiceSettings);
   const [status, setStatus] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [previewing, setPreviewing] = useState(false);
+  const settingsQuery = useVoiceSettings(false);
+  const saveVoiceSettings = useSaveVoiceSettings();
+  const previewVoice = useVoicePreview();
+  const uploadVoiceReference = useUploadVoiceReference();
+  const saving = saveVoiceSettings.isPending;
+  const previewing = previewVoice.isPending;
   const previewControllerRef = useRef<AbortController | null>(null);
   const previewCacheRef = useRef<Map<string, string>>(new Map());
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -41,96 +51,71 @@ export function VoiceSettingsDialog({ projectId, trigger }: Props) {
   async function loadSettings() {
     setStatus("Loading…");
     try {
-      const res = await fetch("/api/settings/voice");
-      const data = await res.json();
-      if (data.ok && data.data) setSettings({ ...defaultVoiceSettings, ...data.data });
+      const { data } = await settingsQuery.refetch();
+      if (data) setSettings({ ...defaultVoiceSettings, ...data });
       setStatus("");
     } catch (err) {
       setStatus(String(err));
     }
   }
 
-  async function saveSettings(extraStatus?: string) {
-    setSaving(true);
+  async function saveSettings(extraStatus?: string, nextSettings = settings) {
     try {
-      const res = await fetch("/api/settings/voice", {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(settings),
-      });
-      const data = await res.json();
-      if (data.ok && data.data) setSettings({ ...defaultVoiceSettings, ...data.data });
+      const data = await saveVoiceSettings.mutateAsync(nextSettings);
+      setSettings({ ...defaultVoiceSettings, ...data });
       setStatus(extraStatus ?? "Saved. Regenerate narration to hear these settings.");
     } catch (err) {
       setStatus(String(err));
-    } finally {
-      setSaving(false);
     }
   }
 
-  const runPreview = useCallback(
-    async (sentence: string) => {
-      const key = JSON.stringify({ settings, sentence });
-      const cached = previewCacheRef.current.get(key);
-      if (cached) {
-        if (audioRef.current) {
-          audioRef.current.src = cached;
-          audioRef.current.play().catch(() => {});
-        }
-        setStatus("Preview ready (cached).");
-        return;
+  async function runPreview(sentence: string) {
+    const key = JSON.stringify({ settings, sentence });
+    const cached = previewCacheRef.current.get(key);
+    if (cached) {
+      if (audioRef.current) {
+        audioRef.current.src = cached;
+        audioRef.current.play().catch(() => {});
       }
-      if (previewControllerRef.current) previewControllerRef.current.abort();
-      previewControllerRef.current = new AbortController();
-      setPreviewing(true);
-      setStatus("Generating preview…");
-      try {
-        const res = await fetch("/api/settings/voice/preview", {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          signal: previewControllerRef.current.signal,
-          body: JSON.stringify({ settings, text: sentence }),
-        });
-        if (!res.ok) throw new Error((await res.text()) || "Preview failed.");
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
-        const cache = previewCacheRef.current;
-        if (cache.size >= 10) {
-          const first = cache.keys().next().value!;
-          URL.revokeObjectURL(cache.get(first)!);
-          cache.delete(first);
-        }
-        cache.set(key, url);
-        if (audioRef.current) {
-          audioRef.current.src = url;
-          audioRef.current.play().catch(() => {});
-        }
-        setStatus("Preview ready.");
-      } catch (err) {
-        if ((err as Error)?.name === "AbortError") setStatus("Preview cancelled.");
-        else setStatus(String(err));
-      } finally {
-        setPreviewing(false);
-        previewControllerRef.current = null;
+      setStatus("Preview ready (cached).");
+      return;
+    }
+    if (previewControllerRef.current) previewControllerRef.current.abort();
+    previewControllerRef.current = new AbortController();
+    setStatus("Generating preview…");
+    try {
+      const blob = await previewVoice.mutateAsync({
+        settings,
+        text: sentence,
+        signal: previewControllerRef.current.signal,
+      });
+      const url = URL.createObjectURL(blob);
+      const cache = previewCacheRef.current;
+      if (cache.size >= 10) {
+        const first = cache.keys().next().value!;
+        URL.revokeObjectURL(cache.get(first)!);
+        cache.delete(first);
       }
-    },
-    [settings],
-  );
+      cache.set(key, url);
+      if (audioRef.current) {
+        audioRef.current.src = url;
+        audioRef.current.play().catch(() => {});
+      }
+      setStatus("Preview ready.");
+    } catch (err) {
+      if ((err as Error)?.name === "AbortError") setStatus("Preview cancelled.");
+      else setStatus(String(err));
+    } finally {
+      previewControllerRef.current = null;
+    }
+  }
 
   async function uploadReference(file: File) {
     setStatus(`Uploading ${file.name}…`);
-    const res = await fetch(
-      `/api/settings/voice/reference?filename=${encodeURIComponent(file.name)}`,
-      {
-        method: "PUT",
-        headers: { "content-type": file.type || "application/octet-stream" },
-        body: await file.arrayBuffer(),
-      },
-    );
-    const payload = await res.json().catch(() => ({}));
-    if (!res.ok || !payload.ok) throw new Error(payload.message || "Upload failed.");
-    setSettings((s) => ({ ...s, audioPromptPath: payload.data.path }));
-    await saveSettings(`Reference saved: ${payload.data.path}`);
+    const { path } = await uploadVoiceReference.mutateAsync(file);
+    const nextSettings = { ...settings, audioPromptPath: path };
+    setSettings(nextSettings);
+    await saveSettings(`Reference saved: ${path}`, nextSettings);
   }
 
   function set<K extends keyof VoiceSettings>(key: K, value: VoiceSettings[K]) {
