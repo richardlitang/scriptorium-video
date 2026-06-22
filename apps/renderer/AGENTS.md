@@ -2,10 +2,6 @@
 
 `apps/renderer` owns Remotion compositions and render-time presentation.
 
-## Tooling Baseline
-
-- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new renderer workspace/bootstrap work.
-
 ## Boundaries
 
 - Renderer code may depend on core types/contracts but should not own workflow, provider, or Studio server logic.

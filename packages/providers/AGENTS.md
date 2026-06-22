@@ -2,10 +2,6 @@
 
 `packages/providers` owns concrete integrations for TTS, renderer adapters, and other external services.
 
-## Tooling Baseline
-
-- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new providers workspace/bootstrap work.
-
 ## Boundaries
 
 - Providers depend on core contracts; they should not depend on Studio server internals or CLI command wiring.

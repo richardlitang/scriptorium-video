@@ -2,10 +2,6 @@
 
 `packages/quality` owns read-only checks and reports.
 
-## Tooling Baseline
-
-- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new quality workspace/bootstrap work.
-
 ## Boundaries
 
 - Quality checks must not mutate project artifacts.
