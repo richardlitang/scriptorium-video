@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { describe, expect, it, vi } from "vitest";
 
 vi.mock("../../../../voice-settings.mjs", () => ({
@@ -21,8 +22,11 @@ import { VoiceSettingsDialog } from "../VoiceSettingsDialog";
 
 describe("VoiceSettingsDialog", () => {
   it("uses the canonical Studio voice defaults", () => {
+    const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
     render(
-      <VoiceSettingsDialog projectId="demo" trigger={<button type="button">Open voice</button>} />,
+      <QueryClientProvider client={client}>
+        <VoiceSettingsDialog projectId="demo" trigger={<button type="button">Open voice</button>} />
+      </QueryClientProvider>,
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Open voice" }));

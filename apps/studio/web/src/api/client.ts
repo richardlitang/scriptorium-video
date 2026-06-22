@@ -1,5 +1,8 @@
 import type { Asset, ReviewResult } from "@lvstudio/core";
 import type { DraftJob } from "@/lib/draft-job-ui-state";
+import type { defaultVoiceSettings } from "../../../voice-settings.mjs";
+
+export type VoiceSettings = typeof defaultVoiceSettings;
 
 export class ApiError extends Error {
   constructor(
@@ -35,6 +38,13 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
     throw new ApiError(parts.join("\n\n"), res.status, body);
   }
   return body["data"] as T;
+}
+
+async function rawRequest(url: string, options: RequestInit): Promise<Response> {
+  const response = await fetch(url, options);
+  if (response.ok) return response;
+  const message = (await response.text().catch(() => "")) || "Request failed.";
+  throw new ApiError(message, response.status, message);
 }
 
 function get<T>(url: string) {
@@ -232,6 +242,28 @@ export const api = {
   },
   tts: {
     health: () => get<TtsHealthPayload>("/api/tts/health"),
+  },
+  voice: {
+    getSettings: () => get<VoiceSettings>("/api/settings/voice"),
+    saveSettings: (settings: VoiceSettings) => put<VoiceSettings>("/api/settings/voice", settings),
+    preview: async (settings: VoiceSettings, text: string, signal?: AbortSignal) =>
+      (
+        await rawRequest("/api/settings/voice/preview", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ settings, text }),
+          signal,
+        })
+      ).blob(),
+    uploadReference: async (file: File) =>
+      request<{ path: string }>(
+        `/api/settings/voice/reference?filename=${encodeURIComponent(file.name)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": file.type || "application/octet-stream" },
+          body: await file.arrayBuffer(),
+        },
+      ),
   },
   planner: {
     defaults: () => get<PlannerDefaults>("/api/planner-defaults"),
