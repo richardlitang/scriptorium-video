@@ -177,6 +177,15 @@ export const api = {
       get<{ asset: Asset }>(
         `/api/projects/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}`,
       ),
+    patchAsset: (id: string, assetId: string, updates: Record<string, unknown>) =>
+      request<unknown>(
+        `/api/projects/${encodeURIComponent(id)}/assets/${encodeURIComponent(assetId)}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updates),
+        },
+      ),
     jobs: (id: string) => get<{ jobs: Job[] }>(`/api/projects/${encodeURIComponent(id)}/jobs`),
     jobTrace: (id: string, jobId: string) =>
       get<JobTrace>(
@@ -205,6 +214,11 @@ export const api = {
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/draft-job/stop`),
     generateImages: (id: string, body?: unknown) =>
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/generate-images`, body),
+    regenerateBeat: (id: string, beatId: string, body: Record<string, unknown>) =>
+      post<unknown>(
+        `/api/projects/${encodeURIComponent(id)}/beats/${encodeURIComponent(beatId)}/regenerate`,
+        body,
+      ),
     directVoice: (id: string) =>
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/direct-voice`),
     review: (id: string) => get<ReviewResult>(`/api/projects/${encodeURIComponent(id)}/review`),

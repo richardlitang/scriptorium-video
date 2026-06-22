@@ -1,5 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import { useAssets } from "@/queries/assets";
+import { useAssets, useRegenerateBeat } from "@/queries/assets";
 import { useProjectDetails } from "@/queries/project-details";
 import { readStored, writeStored } from "@/lib/project-storage";
 import type { Asset } from "@/api/client";
@@ -283,7 +283,8 @@ function BeatInspector({
   const imageAsset = visualAssetForBeat(assets, beat.id);
   const voiceAsset = voiceAssetForBeat(assets, beat.id);
   const dur = beatDurationSeconds(beat.id, timeline);
-  const [regenerating, setRegenerating] = useState(false);
+  const regenerateBeat = useRegenerateBeat(projectId);
+  const regenerating = regenerateBeat.isPending;
 
   function withBeat(fn: (b: Beat, s: Section) => void) {
     mutatePlan((plan) => {
@@ -298,26 +299,11 @@ function BeatInspector({
   }
 
   async function handleRegenerate(withRender: boolean) {
-    setRegenerating(true);
-    try {
-      await fetch(
-        `/api/projects/${encodeURIComponent(projectId)}/beats/${encodeURIComponent(beat.id)}/regenerate`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            audio: true,
-            image: true,
-            captions: true,
-            render: withRender,
-            force: false,
-            quality: imageQuality,
-          }),
-        },
-      );
-    } finally {
-      setRegenerating(false);
-    }
+    await regenerateBeat.mutateAsync({
+      beatId: beat.id,
+      render: withRender,
+      quality: imageQuality,
+    });
   }
 
   function toggleDirectionLock(path: string) {

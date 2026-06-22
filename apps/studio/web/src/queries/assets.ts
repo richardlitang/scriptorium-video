@@ -37,20 +37,45 @@ export function useGenerateImages(projectId: string | null) {
   });
 }
 
+export function useRegenerateBeat(projectId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      beatId,
+      render,
+      quality,
+    }: {
+      beatId: string;
+      render: boolean;
+      quality: string;
+    }) =>
+      api.projects.regenerateBeat(projectId!, beatId, {
+        audio: true,
+        image: true,
+        captions: true,
+        render,
+        force: false,
+        quality,
+      }),
+    onSuccess: () => {
+      if (!projectId) return;
+      for (const queryKey of [
+        projectKeys.assets(projectId),
+        projectKeys.detail(projectId),
+        projectKeys.draftJob(projectId),
+        projectKeys.renders(projectId),
+      ]) {
+        void qc.invalidateQueries({ queryKey });
+      }
+    },
+  });
+}
+
 export function usePatchAssetStatus(projectId: string | null) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: ({ assetId, updates }: { assetId: string; updates: Record<string, unknown> }) =>
-      api.projects.asset(projectId!, assetId).then(() =>
-        fetch(
-          `/api/projects/${encodeURIComponent(projectId!)}/assets/${encodeURIComponent(assetId)}`,
-          {
-            method: "PATCH",
-            headers: { "content-type": "application/json" },
-            body: JSON.stringify(updates),
-          },
-        ),
-      ),
+      api.projects.patchAsset(projectId!, assetId, updates),
     onSuccess: () => {
       if (projectId) void qc.invalidateQueries({ queryKey: projectKeys.assets(projectId) });
     },
