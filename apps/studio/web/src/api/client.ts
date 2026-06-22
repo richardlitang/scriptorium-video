@@ -1,4 +1,4 @@
-import type { Asset } from "@lvstudio/core";
+import type { Asset, ReviewResult } from "@lvstudio/core";
 import type { DraftJob } from "@/lib/draft-job-ui-state";
 
 export class ApiError extends Error {
@@ -207,6 +207,7 @@ export const api = {
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/generate-images`, body),
     directVoice: (id: string) =>
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/direct-voice`),
+    review: (id: string) => get<ReviewResult>(`/api/projects/${encodeURIComponent(id)}/review`),
     render: (id: string, params?: { quality?: string; force?: boolean }) => {
       const qs = new URLSearchParams();
       if (params?.quality) qs.set("quality", params.quality);

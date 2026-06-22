@@ -1,12 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-
-interface ReviewIssue {
-  severity: "error" | "warning" | "info";
-  code: string;
-  message: string;
-  beatId?: string;
-}
+import { useProjectReview } from "@/queries/review";
 
 interface Props {
   projectId: string;
@@ -14,31 +7,17 @@ interface Props {
 }
 
 const SEV_COLORS: Record<string, string> = {
-  error: "border-l-[var(--color-error)] bg-[var(--color-error)]/5",
+  critical: "border-l-[var(--color-error)] bg-[var(--color-error)]/5",
   warning: "border-l-[var(--color-warning)] bg-[var(--color-warning)]/5",
-  info: "border-l-[var(--color-text-muted)] bg-[var(--color-surface-overlay)]",
+  suggestion: "border-l-[var(--color-text-muted)] bg-[var(--color-surface-overlay)]",
 };
 
 export function ReviewPanel({ projectId, onSelectBeat }: Props) {
-  const [filter, setFilter] = useState<"all" | "error" | "warning" | "info">("all");
-
-  const {
-    data: issues = [],
-    isLoading,
-    refetch,
-  } = useQuery({
-    queryKey: ["projects", projectId, "review"],
-    queryFn: async (): Promise<ReviewIssue[]> => {
-      const res = await fetch(`/api/projects/${encodeURIComponent(projectId)}/review`);
-      const data = await res.json();
-      return data?.data?.issues ?? [];
-    },
-    enabled: !!projectId,
-    staleTime: 30_000,
-  });
+  const [filter, setFilter] = useState<"all" | "critical" | "warning" | "suggestion">("all");
+  const { data: issues = [], isLoading, refetch } = useProjectReview(projectId);
 
   const filtered = issues.filter((i) => filter === "all" || i.severity === filter);
-  const counts = { error: 0, warning: 0, info: 0 };
+  const counts = { critical: 0, warning: 0, suggestion: 0 };
   for (const i of issues) counts[i.severity] = (counts[i.severity] ?? 0) + 1;
 
   return (
@@ -51,9 +30,9 @@ export function ReviewPanel({ projectId, onSelectBeat }: Props) {
           className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded px-2 py-0.5 text-xs text-[var(--color-text)] focus:outline-none"
         >
           <option value="all">All ({issues.length})</option>
-          <option value="error">Errors ({counts.error})</option>
+          <option value="critical">Critical ({counts.critical})</option>
           <option value="warning">Warnings ({counts.warning})</option>
-          <option value="info">Info ({counts.info})</option>
+          <option value="suggestion">Suggestions ({counts.suggestion})</option>
         </select>
         <button
           onClick={() => refetch()}
@@ -73,7 +52,7 @@ export function ReviewPanel({ projectId, onSelectBeat }: Props) {
           {filtered.map((issue, i) => (
             <article
               key={i}
-              className={`border border-[var(--color-border)] border-l-4 ${SEV_COLORS[issue.severity] ?? SEV_COLORS["info"]} rounded p-2`}
+              className={`border border-[var(--color-border)] border-l-4 ${SEV_COLORS[issue.severity] ?? SEV_COLORS["suggestion"]} rounded p-2`}
             >
               <div className="text-xs font-semibold">
                 {issue.severity.toUpperCase()} · {issue.code}
