@@ -28,3 +28,18 @@ test("studio server runtime factory returns handler, port, and idempotent dispos
     await rm(root, { recursive: true, force: true });
   }
 });
+
+test("studio server runtime factory uses its injected environment for runtime config", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-runtime-env-"));
+  try {
+    const runtime = createStudioServerRuntime({
+      rootDir: root,
+      publicDir: path.join(root, "apps", "studio", "public"),
+      processEnv: { PORT: "4555", LVSTUDIO_STUDIO_TEST_MODE: "true" },
+    });
+    assert.equal(runtime.port, 4555);
+    runtime.dispose();
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});

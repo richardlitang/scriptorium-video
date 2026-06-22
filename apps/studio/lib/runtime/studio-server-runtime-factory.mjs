@@ -137,7 +137,7 @@ export function createStudioServerRuntime({
   const imageLibraryDir = path.join(rootDir, ".studio-data", "image-library");
   const voiceSettingsPath = path.join(rootDir, ".studio-data", "voice-settings.json");
   const voiceReferencesDir = path.join(rootDir, ".studio-data", "voice-references");
-  const runtimeConfig = createStudioRuntimeConfig({ rootDir });
+  const runtimeConfig = createStudioRuntimeConfig({ rootDir, env: processEnv });
   const splitPlannerConfig = {
     enabled: runtimeConfig.splitPlannerEnabled,
     minWords: runtimeConfig.splitPlannerMinWords,
