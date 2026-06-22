@@ -65,6 +65,7 @@ export default [
         "error",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
+      "@typescript-eslint/no-shadow": "error",
       "@typescript-eslint/switch-exhaustiveness-check": "error",
 
       // Warnings — complexity gates; tighten to errors once existing code is cleaned up

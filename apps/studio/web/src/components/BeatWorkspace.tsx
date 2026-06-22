@@ -287,11 +287,11 @@ function BeatInspector({
   const regenerating = regenerateBeat.isPending;
 
   function withBeat(fn: (b: Beat, s: Section) => void) {
-    mutatePlan((plan) => {
-      for (const sec of plan.sections ?? []) {
-        const b = sec.beats?.find((b) => b.id === beat.id);
-        if (b) {
-          fn(b, sec);
+    mutatePlan((currentPlan) => {
+      for (const sec of currentPlan.sections ?? []) {
+        const matchingBeat = sec.beats?.find((candidateBeat) => candidateBeat.id === beat.id);
+        if (matchingBeat) {
+          fn(matchingBeat, sec);
           break;
         }
       }
