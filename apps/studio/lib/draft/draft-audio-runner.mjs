@@ -2,7 +2,6 @@ import {
   narrationBatchLabel,
   narrationBeatProgressLabel,
   narrationBeatRunLabel,
-  ttsArgsForBeat,
 } from "./draft-audio-labels.mjs";
 import { preflightDraftTtsProviders } from "../tts/tts-preflight.mjs";
 import { ttsProviderForBeat } from "../tts/tts-draft-planning.mjs";
@@ -95,7 +94,13 @@ export function createDraftAudioRunner({
           projectId,
           job,
           narrationBeatRunLabel(section, beat, provider),
-          () => runLvstudioForDraft(job, ttsArgsForBeat(projectId, provider, beat.id)),
+          () =>
+            domainOps.generateTts({
+              projectId,
+              providerId: provider,
+              onlyBeat: beat.id,
+              force: true,
+            }),
           { countCompletion: false },
         );
         await appendRunTrace(projectId, job.id, "audio.beat.complete", {
@@ -138,7 +143,13 @@ export function createDraftAudioRunner({
           projectId,
           job,
           narrationBeatRunLabel(section, beat, provider),
-          () => runLvstudioForDraft(job, ttsArgsForBeat(projectId, provider, beat.id)),
+          () =>
+            domainOps.generateTts({
+              projectId,
+              providerId: provider,
+              onlyBeat: beat.id,
+              force: true,
+            }),
         );
         await appendRunTrace(projectId, job.id, "audio.beat.complete", {
           beatId: beat.id,

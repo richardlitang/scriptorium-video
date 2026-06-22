@@ -4,7 +4,7 @@ import { test } from "node:test";
 import { createLvstudioDraftRunner } from "../lib/draft/lvstudio-draft-runner.mjs";
 import { createStudioOps } from "../lib/runtime/studio-ops.mjs";
 
-const allowedCommands = ["generate:tts", "transcribe", "direct:voice"];
+const allowedCommands = ["transcribe", "direct:voice"];
 
 async function productionModules(directory) {
   const entries = await readdir(directory, { withFileTypes: true });

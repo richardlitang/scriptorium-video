@@ -1,5 +1,4 @@
 export const STUDIO_SUBPROCESS_COMMANDS = Object.freeze([
-  "generate:tts",
   "transcribe",
   "direct:voice",
 ]);
