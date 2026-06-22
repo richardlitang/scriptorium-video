@@ -205,8 +205,8 @@ export const api = {
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/draft-job/stop`),
     generateImages: (id: string, body?: unknown) =>
       post<unknown>(`/api/projects/${encodeURIComponent(id)}/generate-images`, body),
-    directVoice: (id: string, body: unknown) =>
-      post<unknown>(`/api/projects/${encodeURIComponent(id)}/direct-voice`, body),
+    directVoice: (id: string) =>
+      post<unknown>(`/api/projects/${encodeURIComponent(id)}/direct-voice`),
     render: (id: string, params?: { quality?: string; force?: boolean }) => {
       const qs = new URLSearchParams();
       if (params?.quality) qs.set("quality", params.quality);
