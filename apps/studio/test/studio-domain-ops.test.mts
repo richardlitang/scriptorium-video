@@ -1,8 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createStudioDomainOps } from "../lib/runtime/studio-domain-ops.mjs";
-import type { ReviewResult, SyncResult } from "@lvstudio/core";
-import type { RendererProvider, TTSProvider } from "@lvstudio/core";
+import type { RendererProvider, ReviewResult, SyncResult, TTSProvider } from "@lvstudio/core";
 import type { QualityResult } from "@lvstudio/quality";
 import type { RenderWorkflowResult } from "@lvstudio/workflows";
 

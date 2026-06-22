@@ -47,6 +47,9 @@ function rawTransformForMotion(
   dampedPan: number,
 ): string {
   switch (motionType) {
+    case undefined:
+    case "slow_zoom_in":
+      return `scale(${zoomIn})`;
     case "slow_zoom_out":
       return `scale(${zoomOut})`;
     case "pan_left":
@@ -55,8 +58,6 @@ function rawTransformForMotion(
       return `translateX(${dampedPan}px) scale(1.05)`;
     case "none":
       return "none";
-    default:
-      return `scale(${zoomIn})`;
   }
 }
 

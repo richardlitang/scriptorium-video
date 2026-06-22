@@ -1,5 +1,11 @@
-import { generateTTSForProject, type GenerateTTSOptions } from "@lvstudio/core";
-import { type VideoPlan, VideoPlanSchema, getProjectPaths, readJsonFile } from "@lvstudio/core";
+import {
+  generateTTSForProject,
+  getProjectPaths,
+  readJsonFile,
+  type GenerateTTSOptions,
+  type VideoPlan,
+  VideoPlanSchema,
+} from "@lvstudio/core";
 import { checkChatterboxCapability, ttsProviders } from "@lvstudio/providers";
 
 type CliGenerateTTSOptions = {

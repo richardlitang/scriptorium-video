@@ -23,6 +23,8 @@ export default [
     files: ["apps/studio/**/*.mjs", "apps/studio/server.mjs"],
     rules: {
       "no-nested-ternary": "error",
+      "no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
+      "prefer-const": "error",
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       complexity: ["warn", 15],
@@ -49,6 +51,8 @@ export default [
     rules: {
       // Errors — things that should never appear in new code
       "no-nested-ternary": "error",
+      "no-duplicate-imports": ["error", { allowSeparateTypeImports: true }],
+      "prefer-const": "error",
       "no-console": ["warn", { allow: ["warn", "error"] }],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-floating-promises": "error",
@@ -61,6 +65,7 @@ export default [
         "error",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
+      "@typescript-eslint/switch-exhaustiveness-check": "error",
 
       // Warnings — complexity gates; tighten to errors once existing code is cleaned up
       "no-unused-vars": "off", // handled by TS itself
@@ -73,6 +78,21 @@ export default [
       // 150 excluding blank lines and comments — JSX renders legitimately long components,
       // but functions above this threshold are real refactor candidates.
       "max-lines-per-function": ["warn", { max: 150, skipBlankLines: true, skipComments: true }],
+    },
+  },
+
+  // ── Studio component architecture ─────────────────────────────────────────
+  {
+    files: ["apps/studio/web/src/components/**/*.{ts,tsx}"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.name='fetch']",
+          message:
+            "Components must use typed API client functions and query hooks instead of fetch().",
+        },
+      ],
     },
   },
 

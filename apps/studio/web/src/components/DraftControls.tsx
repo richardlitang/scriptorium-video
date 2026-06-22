@@ -1,12 +1,11 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useDirectVoice, useDraftJob, useStartDraftJob } from "@/queries/draft-job";
+import { draftJobKeys, useDirectVoice, useDraftJob, useStartDraftJob } from "@/queries/draft-job";
 import { draftJobUiModel, draftJobProgressLine, isJobActive } from "@/lib/draft-job-ui-state";
 import { normalizeImageCoverage } from "@/lib/image-coverage";
 import { readStored, writeStored } from "@/lib/project-storage";
 import { useTtsHealth } from "@/queries/tts";
 import { ttsAvailabilityFromHealth, storyButtonState } from "@/lib/tts-ui-state";
-import { draftJobKeys } from "@/queries/draft-job";
 import { VoiceSettingsDialog } from "./VoiceSettingsDialog";
 
 interface Props {
