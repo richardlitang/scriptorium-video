@@ -68,3 +68,13 @@ export function useStopDraftJob(projectId: string | null) {
     },
   });
 }
+
+export function useDirectVoice(projectId: string | null) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.projects.directVoice(projectId!),
+    onSuccess: () => {
+      if (projectId) void qc.invalidateQueries({ queryKey: draftJobKeys.current(projectId) });
+    },
+  });
+}

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useDraftJob, useStartDraftJob } from "@/queries/draft-job";
+import { useDirectVoice, useDraftJob, useStartDraftJob } from "@/queries/draft-job";
 import { draftJobUiModel, draftJobProgressLine, isJobActive } from "@/lib/draft-job-ui-state";
 import { normalizeImageCoverage } from "@/lib/image-coverage";
 import { readStored, writeStored } from "@/lib/project-storage";
@@ -37,6 +37,7 @@ export function DraftControls({
   const qc = useQueryClient();
   const { data: job } = useDraftJob(projectId);
   const startDraft = useStartDraftJob(projectId);
+  const directVoice = useDirectVoice(projectId);
   const { data: healthState } = useTtsHealth();
   const ttsAvailability = ttsAvailabilityFromHealth(healthState ?? {});
 
@@ -108,11 +109,7 @@ export function DraftControls({
 
   async function handleDirectVoice() {
     try {
-      await fetch(`/api/projects/${encodeURIComponent(projectId)}/direct-voice`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ story, feel, pacing, visualStyle }),
-      });
+      await directVoice.mutateAsync();
       onDraftQueued();
     } catch (err) {
       onError(`Direct voice failed: ${String(err)}`);
