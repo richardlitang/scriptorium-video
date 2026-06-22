@@ -211,6 +211,7 @@ test("job routes reject draft requests with empty story and scaffold placeholder
 test("prepare-draft uses typed safe steps and preserves quality warning responses", async () => {
   const { response, sendJson } = makeJsonResponder();
   const lvstudioCalls = [];
+  const narrationCalls = [];
   const captionCalls = [];
   const syncCalls = [];
   const checkCalls = [];
@@ -235,6 +236,10 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
         return { ok: true, stdout: args[0] };
       },
       domainOps: {
+        generateTts: async (input) => {
+          narrationCalls.push(input);
+          return { generated: ["beat-1"], skipped: [] };
+        },
         sync: async (projectId) => {
           syncCalls.push(projectId);
           return { projectId };
@@ -265,6 +270,11 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
   assert.deepEqual(syncCalls, ["demo"]);
   assert.deepEqual(captionCalls, ["demo"]);
   assert.deepEqual(checkCalls, ["demo"]);
+  assert.deepEqual(narrationCalls, [{ projectId: "demo", providerId: "chatterbox", force: true }]);
+  assert.equal(
+    lvstudioCalls.some((args) => args[0] === "generate:tts"),
+    false,
+  );
   assert.equal(
     lvstudioCalls.some((args) => ["sync", "captions", "check"].includes(args[0])),
     false,

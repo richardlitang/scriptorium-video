@@ -5,6 +5,23 @@ import { probeMedia } from "@lvstudio/core";
 
 const DEFAULT_CHATTERBOX_URL = "http://127.0.0.1:8000/v1/audio/speech";
 
+export type ChatterboxRuntimeConfig = {
+  speechUrl?: string;
+  apiKey?: string;
+  model?: string;
+  voiceId?: string;
+  audioPromptPath?: string;
+  exaggeration?: number;
+  cfgWeight?: number;
+  temperature?: number;
+  seed?: number;
+};
+
+type ChatterboxDependencies = {
+  fetchImpl?: typeof fetch;
+  probeMediaImpl?: typeof probeMedia;
+};
+
 const voices: TTSVoice[] = [
   {
     id: "default",
@@ -34,6 +51,16 @@ function chatterboxUrl(): string {
   return process.env.CHATTERBOX_TTS_URL ?? DEFAULT_CHATTERBOX_URL;
 }
 
+function configuredNumber(config: ChatterboxRuntimeConfig, key: keyof ChatterboxRuntimeConfig) {
+  const value = config[key];
+  return typeof value === "number" ? value : undefined;
+}
+
+function configuredString(config: ChatterboxRuntimeConfig, key: keyof ChatterboxRuntimeConfig) {
+  const value = config[key];
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 export type ChatterboxCapability = {
   available: boolean;
   status: "ready" | "loading" | "failed" | "unreachable";
@@ -60,9 +87,12 @@ function chatterboxStartupHint(url: string): string {
 }
 
 export async function checkChatterboxCapability(
-  fetchImpl: typeof fetch = fetch,
+  configOrFetch: ChatterboxRuntimeConfig | typeof fetch = {},
+  injectedFetch?: typeof fetch,
 ): Promise<ChatterboxCapability> {
-  const speechUrl = chatterboxUrl();
+  const config = typeof configOrFetch === "function" ? {} : configOrFetch;
+  const fetchImpl = typeof configOrFetch === "function" ? configOrFetch : (injectedFetch ?? fetch);
+  const speechUrl = config.speechUrl ?? chatterboxUrl();
   const healthUrl = chatterboxHealthUrl(speechUrl);
   try {
     const response = await fetchImpl(healthUrl);
@@ -119,10 +149,17 @@ function providerString(request: TTSRequest, key: string): string | undefined {
   return text || undefined;
 }
 
-export function buildPayload(request: TTSRequest): Record<string, unknown> {
+export function buildPayload(
+  request: TTSRequest,
+  config: ChatterboxRuntimeConfig = {},
+): Record<string, unknown> {
   const payload: Record<string, unknown> = {
-    model: process.env.CHATTERBOX_TTS_MODEL ?? "chatterbox",
-    voice: request.voiceId || process.env.CHATTERBOX_TTS_VOICE_ID || "default",
+    model: configuredString(config, "model") ?? process.env.CHATTERBOX_TTS_MODEL ?? "chatterbox",
+    voice:
+      request.voiceId ||
+      configuredString(config, "voiceId") ||
+      process.env.CHATTERBOX_TTS_VOICE_ID ||
+      "default",
     input: request.text,
     response_format: request.format,
   };
@@ -131,20 +168,33 @@ export function buildPayload(request: TTSRequest): Record<string, unknown> {
   if (request.options?.language) payload.language = request.options.language;
 
   const audioPromptPath =
-    providerString(request, "audio_prompt_path") ?? process.env.CHATTERBOX_AUDIO_PROMPT_PATH;
+    providerString(request, "audio_prompt_path") ??
+    configuredString(config, "audioPromptPath") ??
+    process.env.CHATTERBOX_AUDIO_PROMPT_PATH;
   if (audioPromptPath) payload.audio_prompt_path = audioPromptPath;
 
   const exaggeration =
-    providerNumber(request, "exaggeration") ?? envNumber("CHATTERBOX_EXAGGERATION");
+    providerNumber(request, "exaggeration") ??
+    configuredNumber(config, "exaggeration") ??
+    envNumber("CHATTERBOX_EXAGGERATION");
   if (exaggeration !== undefined) payload.exaggeration = exaggeration;
 
-  const cfgWeight = providerNumber(request, "cfg_weight") ?? envNumber("CHATTERBOX_CFG_WEIGHT");
+  const cfgWeight =
+    providerNumber(request, "cfg_weight") ??
+    configuredNumber(config, "cfgWeight") ??
+    envNumber("CHATTERBOX_CFG_WEIGHT");
   if (cfgWeight !== undefined) payload.cfg_weight = cfgWeight;
 
-  const temperature = providerNumber(request, "temperature") ?? envNumber("CHATTERBOX_TEMPERATURE");
+  const temperature =
+    providerNumber(request, "temperature") ??
+    configuredNumber(config, "temperature") ??
+    envNumber("CHATTERBOX_TEMPERATURE");
   if (temperature !== undefined) payload.temperature = temperature;
 
-  const seed = providerNumber(request, "seed") ?? envNumber("CHATTERBOX_SEED");
+  const seed =
+    providerNumber(request, "seed") ??
+    configuredNumber(config, "seed") ??
+    envNumber("CHATTERBOX_SEED");
   if (seed !== undefined) payload.seed = seed;
 
   return payload;
@@ -171,6 +221,11 @@ async function readAudioResponse(response: Response): Promise<Buffer> {
 export class ChatterboxTTSProvider implements TTSProvider {
   id = "chatterbox";
 
+  constructor(
+    private readonly config: ChatterboxRuntimeConfig = {},
+    private readonly dependencies: ChatterboxDependencies = {},
+  ) {}
+
   async listVoices(): Promise<TTSVoice[]> {
     return voices;
   }
@@ -182,18 +237,19 @@ export class ChatterboxTTSProvider implements TTSProvider {
       );
     }
 
-    const url = chatterboxUrl();
+    const url = this.config.speechUrl ?? chatterboxUrl();
     const headers: Record<string, string> = {
       "content-type": "application/json",
     };
-    if (process.env.CHATTERBOX_TTS_API_KEY) {
-      headers.authorization = `Bearer ${process.env.CHATTERBOX_TTS_API_KEY}`;
+    const apiKey = this.config.apiKey ?? process.env.CHATTERBOX_TTS_API_KEY;
+    if (apiKey) {
+      headers.authorization = `Bearer ${apiKey}`;
     }
 
-    const payload = buildPayload(request);
+    const payload = buildPayload(request, this.config);
     let response: Response;
     try {
-      response = await fetch(url, {
+      response = await (this.dependencies.fetchImpl ?? fetch)(url, {
         method: "POST",
         headers,
         body: JSON.stringify(payload),
@@ -210,7 +266,7 @@ export class ChatterboxTTSProvider implements TTSProvider {
     await mkdir(path.dirname(request.outputPath), { recursive: true });
     const bytes = await readAudioResponse(response);
     await writeFile(request.outputPath, bytes);
-    const probed = await probeMedia(request.outputPath);
+    const probed = await (this.dependencies.probeMediaImpl ?? probeMedia)(request.outputPath);
 
     return {
       audioPath: request.outputPath,
@@ -230,4 +286,11 @@ export class ChatterboxTTSProvider implements TTSProvider {
       },
     };
   }
+}
+
+export function createChatterboxTTSProvider(
+  config: ChatterboxRuntimeConfig = {},
+  dependencies: ChatterboxDependencies = {},
+): TTSProvider {
+  return new ChatterboxTTSProvider(config, dependencies);
 }

@@ -82,17 +82,18 @@ export function createBeatRegenerateRunner({
         };
 
         if (options.audio !== false) {
-          await runStep("audio", "Regenerate beat narration", () =>
-            runLvstudio([
-              "generate:tts",
-              projectId,
-              "--provider",
-              plan.providers.tts,
-              "--only-beat",
-              beatId,
-              ...(force ? ["--force"] : []),
-            ]),
-          );
+          await runStep("audio", "Regenerate beat narration", async () => ({
+            stdout: JSON.stringify(
+              await domainOps.generateTts({
+                projectId,
+                providerId: plan.providers.tts,
+                onlyBeat: beatId,
+                ...(force ? { force: true } : {}),
+              }),
+              null,
+              2,
+            ),
+          }));
         }
         if (options.audio !== false) {
           await runStep("sync", "Sync timeline", async () => ({

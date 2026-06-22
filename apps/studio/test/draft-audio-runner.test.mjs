@@ -43,6 +43,10 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
       return { stdout: "ok" };
     },
     domainOps: {
+      generateTts: async ({ projectId, providerId, onlyBeat }) => {
+        domainCalls.push(["generateTts", projectId, providerId, onlyBeat]);
+        return { generated: [onlyBeat], skipped: [] };
+      },
       sync: async (projectId) => {
         domainCalls.push(["sync", projectId]);
         return {};
@@ -61,20 +65,24 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
   assert.equal(labels.includes("Sync timeline"), true);
   assert.equal(labels.includes("Transcribe narration"), true);
   assert.equal(labels.includes("Generate captions"), true);
-  assert.equal(
-    lvstudioArgs.some(
-      (args) => args[0] === "generate:tts" && args.includes("--only-beat") && args.includes("b1"),
-    ),
-    true,
+  assert.deepEqual(
+    domainCalls.filter(([operation]) => operation === "generateTts"),
+    [
+      ["generateTts", "demo", "chatterbox", "b1"],
+      ["generateTts", "demo", "chatterbox", "b2"],
+    ],
   );
   assert.equal(
-    lvstudioArgs.some((args) => args[0] === "generate:tts" && args.includes("b2")),
-    true,
+    lvstudioArgs.some((args) => args[0] === "generate:tts"),
+    false,
   );
-  assert.deepEqual(domainCalls, [
-    ["sync", "demo"],
-    ["captions", "demo"],
-  ]);
+  assert.deepEqual(
+    domainCalls.filter(([operation]) => operation !== "generateTts"),
+    [
+      ["sync", "demo"],
+      ["captions", "demo"],
+    ],
+  );
   assert.equal(
     lvstudioArgs.some((args) => ["sync", "captions"].includes(args[0])),
     false,
