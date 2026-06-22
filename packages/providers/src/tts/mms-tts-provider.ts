@@ -4,6 +4,19 @@ import type { TTSProvider, TTSRequest, TTSResult, TTSVoice } from "@lvstudio/cor
 import { probeMedia } from "@lvstudio/core";
 
 const DEFAULT_MMS_URL = "http://127.0.0.1:8001/v1/audio/speech";
+const DEFAULT_MMS_MODEL = "facebook/mms-tts-tgl";
+const DEFAULT_MMS_LANGUAGE = "tgl";
+
+export type MMSTTSRuntimeConfig = {
+  speechUrl?: string;
+  model?: string;
+  language?: string;
+};
+
+export type MMSTTSDependencies = {
+  fetchImpl?: typeof fetch;
+  probeMediaImpl?: typeof probeMedia;
+};
 
 const voices: TTSVoice[] = [
   {
@@ -20,10 +33,14 @@ function mmsUrl(): string {
   return process.env.MMS_TTS_URL ?? DEFAULT_MMS_URL;
 }
 
-function buildPayload(request: TTSRequest): Record<string, unknown> {
+function buildPayload(request: TTSRequest, config: MMSTTSRuntimeConfig): Record<string, unknown> {
   return {
-    model: process.env.MMS_TTS_MODEL ?? "facebook/mms-tts-tgl",
-    language: request.options?.language || process.env.MMS_TTS_LANGUAGE || "tgl",
+    model: config.model ?? process.env.MMS_TTS_MODEL ?? DEFAULT_MMS_MODEL,
+    language:
+      request.options?.language ??
+      config.language ??
+      process.env.MMS_TTS_LANGUAGE ??
+      DEFAULT_MMS_LANGUAGE,
     voice: request.voiceId || "default",
     input: request.text,
     response_format: request.format,
@@ -42,6 +59,11 @@ function startupHint(url: string): string {
 export class MMSTTSProvider implements TTSProvider {
   id = "mms";
 
+  constructor(
+    private readonly config: MMSTTSRuntimeConfig = {},
+    private readonly dependencies: MMSTTSDependencies = {},
+  ) {}
+
   async listVoices(): Promise<TTSVoice[]> {
     return voices;
   }
@@ -50,11 +72,11 @@ export class MMSTTSProvider implements TTSProvider {
     if (!["wav"].includes(request.format)) {
       throw new Error(`MMS TTS provider currently supports wav output, got ${request.format}.`);
     }
-    const url = mmsUrl();
-    const payload = buildPayload(request);
+    const url = this.config.speechUrl ?? mmsUrl();
+    const payload = buildPayload(request, this.config);
     let response: Response;
     try {
-      response = await fetch(url, {
+      response = await (this.dependencies.fetchImpl ?? fetch)(url, {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify(payload),
@@ -70,7 +92,7 @@ export class MMSTTSProvider implements TTSProvider {
     await mkdir(path.dirname(request.outputPath), { recursive: true });
     const bytes = Buffer.from(await response.arrayBuffer());
     await writeFile(request.outputPath, bytes);
-    const probed = await probeMedia(request.outputPath);
+    const probed = await (this.dependencies.probeMediaImpl ?? probeMedia)(request.outputPath);
     return {
       audioPath: request.outputPath,
       durationSeconds: probed.durationSeconds ?? 0,
@@ -84,4 +106,11 @@ export class MMSTTSProvider implements TTSProvider {
       },
     };
   }
+}
+
+export function createMMSTTSProvider(
+  config: MMSTTSRuntimeConfig = {},
+  dependencies: MMSTTSDependencies = {},
+): TTSProvider {
+  return new MMSTTSProvider(config, dependencies);
 }

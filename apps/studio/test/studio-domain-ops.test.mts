@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createStudioDomainOps } from "../lib/runtime/studio-domain-ops.mjs";
 import type { ReviewResult, SyncResult } from "@lvstudio/core";
+import type { RendererProvider, TTSProvider } from "@lvstudio/core";
 import type { QualityResult } from "@lvstudio/quality";
 import type { RenderWorkflowResult } from "@lvstudio/workflows";
 
@@ -24,9 +25,15 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
   } as ReviewResult;
   const generatedTts = { generated: ["beat-1"], skipped: [] };
   const configuredProviders: unknown[] = [];
+  const generatedWithProviders: TTSProvider[] = [];
+  const injectedTtsProvider = { id: "mms" } as TTSProvider;
+  const injectedTtsProviders = { mms: injectedTtsProvider };
+  const injectedRendererProviders = { remotion: { id: "remotion" } as RendererProvider };
 
   const domainOps = createStudioDomainOps({
     rootDir: "/repo",
+    ttsProviderRegistry: injectedTtsProviders,
+    rendererProviderRegistry: injectedRendererProviders,
     createProjectScaffoldImpl: async (projectId, mode, platform, rootDir) => {
       assert.equal(rootDir, "/repo");
       calls.push([`create:${mode}:${platform}`, projectId, rootDir]);
@@ -38,7 +45,8 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
         count: 2,
       };
     },
-    runRenderWorkflowImpl: async (input, _deps) => {
+    runRenderWorkflowImpl: async (input, deps) => {
+      assert.equal(deps.rendererProviders, injectedRendererProviders);
       calls.push([
         `render:${input.quality}:${String(input.force)}`,
         input.projectId,
@@ -94,8 +102,12 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
     },
     generateTTSForProjectImpl: async (projectId, provider, options) => {
       assert.equal(projectId, "demo");
-      assert.equal(provider.id, "chatterbox");
-      assert.deepEqual(options, { force: true, rootDir: "/repo" });
+      generatedWithProviders.push(provider);
+      if (provider.id === "chatterbox") {
+        assert.deepEqual(options, { force: true, rootDir: "/repo" });
+      } else {
+        assert.deepEqual(options, { rootDir: "/repo" });
+      }
       return generatedTts;
     },
   });
@@ -120,6 +132,7 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
     await domainOps.generateTts({ projectId: "demo", providerId: "chatterbox", force: true }),
     generatedTts,
   );
+  assert.equal(await domainOps.generateTts({ projectId: "demo", providerId: "mms" }), generatedTts);
   assert.deepEqual(configuredProviders, [
     {
       speechUrl: "http://configured.test/v1/audio/speech",
@@ -132,6 +145,7 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
       seed: undefined,
     },
   ]);
+  assert.equal(generatedWithProviders[1], injectedTtsProvider);
   assert.deepEqual(calls, [
     ["create:long_documentary:local_only", "demo", "/repo"],
     ["captions", "demo", "/repo"],

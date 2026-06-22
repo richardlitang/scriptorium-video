@@ -4,6 +4,18 @@ import type { TTSProvider, TTSRequest, TTSResult, TTSVoice } from "@lvstudio/cor
 import { probeMedia, resolveOpenAiApiKey } from "@lvstudio/core";
 
 const OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech";
+const DEFAULT_OPENAI_TTS_MODEL = "gpt-4o-mini-tts";
+
+export type OpenAITTSRuntimeConfig = {
+  speechUrl?: string;
+  model?: string;
+  getApiKey?: () => Promise<string>;
+};
+
+export type OpenAITTSDependencies = {
+  fetchImpl?: typeof fetch;
+  probeMediaImpl?: typeof probeMedia;
+};
 
 const voices: TTSVoice[] = [
   {
@@ -119,6 +131,11 @@ async function getOpenAiApiKey(): Promise<string> {
 export class OpenAITTSProvider implements TTSProvider {
   id = "openai";
 
+  constructor(
+    private readonly config: OpenAITTSRuntimeConfig = {},
+    private readonly dependencies: OpenAITTSDependencies = {},
+  ) {}
+
   async listVoices(): Promise<TTSVoice[]> {
     return voices;
   }
@@ -128,28 +145,31 @@ export class OpenAITTSProvider implements TTSProvider {
       throw new Error(`OpenAI TTS provider supports mp3 and wav output, got ${request.format}.`);
     }
 
-    const apiKey = await getOpenAiApiKey();
-    const model = process.env.OPENAI_TTS_MODEL ?? "gpt-4o-mini-tts";
+    const apiKey = await (this.config.getApiKey ?? getOpenAiApiKey)();
+    const model = this.config.model ?? process.env.OPENAI_TTS_MODEL ?? DEFAULT_OPENAI_TTS_MODEL;
     const voice = voices.some((entry) => entry.id === request.voiceId) ? request.voiceId : "marin";
     const instructions =
       request.options?.emotion ??
       "Narrate as an engaged suspense storyteller: intimate, alert, and controlled. Build intrigue from the first line, sharpen the turns, slow slightly on dread, and avoid sounding bored, detached, cheerful, or theatrical.";
 
-    const response = await fetch(OPENAI_SPEECH_URL, {
-      method: "POST",
-      headers: {
-        authorization: `Bearer ${apiKey}`,
-        "content-type": "application/json",
+    const response = await (this.dependencies.fetchImpl ?? fetch)(
+      this.config.speechUrl ?? OPENAI_SPEECH_URL,
+      {
+        method: "POST",
+        headers: {
+          authorization: `Bearer ${apiKey}`,
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          model,
+          voice,
+          input: request.text,
+          instructions,
+          response_format: request.format,
+          speed: request.options?.speed ?? 1,
+        }),
       },
-      body: JSON.stringify({
-        model,
-        voice,
-        input: request.text,
-        instructions,
-        response_format: request.format,
-        speed: request.options?.speed ?? 1,
-      }),
-    });
+    );
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
@@ -159,7 +179,7 @@ export class OpenAITTSProvider implements TTSProvider {
     await mkdir(path.dirname(request.outputPath), { recursive: true });
     const bytes = Buffer.from(await response.arrayBuffer());
     await writeFile(request.outputPath, bytes);
-    const probed = await probeMedia(request.outputPath);
+    const probed = await (this.dependencies.probeMediaImpl ?? probeMedia)(request.outputPath);
 
     return {
       audioPath: request.outputPath,
@@ -174,4 +194,11 @@ export class OpenAITTSProvider implements TTSProvider {
       },
     };
   }
+}
+
+export function createOpenAITTSProvider(
+  config: OpenAITTSRuntimeConfig = {},
+  dependencies: OpenAITTSDependencies = {},
+): TTSProvider {
+  return new OpenAITTSProvider(config, dependencies);
 }

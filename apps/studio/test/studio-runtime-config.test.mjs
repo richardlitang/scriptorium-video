@@ -12,6 +12,19 @@ test("createStudioRuntimeConfig builds defaults from root directory", () => {
   assert.equal(config.chatterboxSpeechUrl, "http://127.0.0.1:8000/v1/audio/speech");
   assert.equal(config.chatterboxHealthUrl, "http://127.0.0.1:8000/health");
   assert.equal(config.mmsHealthUrl, "http://127.0.0.1:8001/health");
+  assert.deepEqual(config.mmsTtsConfig, {
+    speechUrl: "http://127.0.0.1:8001/v1/audio/speech",
+    model: "facebook/mms-tts-tgl",
+    language: "tgl",
+  });
+  assert.deepEqual(config.openAiTtsConfig, {
+    speechUrl: "https://api.openai.com/v1/audio/speech",
+    model: "gpt-4o-mini-tts",
+  });
+  assert.deepEqual(config.remotionRendererConfig, {
+    port: null,
+    timeoutInMilliseconds: 120000,
+  });
   assert.equal(config.chatterboxStartCommand.script, "/repo/scripts/chatterbox_tts_server.py");
   assert.equal(config.imageConcurrency, 2);
   assert.equal(config.splitPlannerEnabled, true);
@@ -38,6 +51,11 @@ test("createStudioRuntimeConfig parses explicit env values", () => {
       LVSTUDIO_TEST_MODE: "1",
       CHATTERBOX_TTS_URL: "http://localhost:9000/v1/audio/speech?x=1",
       MMS_TTS_URL: "http://localhost:9001/v1/audio/speech",
+      MMS_TTS_MODEL: "mms-test",
+      MMS_TTS_LANGUAGE: "fil",
+      OPENAI_TTS_MODEL: "tts-test",
+      LVSTUDIO_REMOTION_PORT: "4567",
+      LVSTUDIO_REMOTION_TIMEOUT_MS: "240000",
       OPENAI_IMAGE_MODEL: "image-test",
       LVSTUDIO_IMAGE_CONCURRENCY: "4",
       LVSTUDIO_CHATTERBOX_AUTOSTART: "0",
@@ -65,6 +83,19 @@ test("createStudioRuntimeConfig parses explicit env values", () => {
   assert.equal(config.studioTestMode, true);
   assert.equal(config.chatterboxHealthUrl, "http://localhost:9000/health");
   assert.equal(config.mmsHealthUrl, "http://localhost:9001/health");
+  assert.deepEqual(config.mmsTtsConfig, {
+    speechUrl: "http://localhost:9001/v1/audio/speech",
+    model: "mms-test",
+    language: "fil",
+  });
+  assert.deepEqual(config.openAiTtsConfig, {
+    speechUrl: "https://api.openai.com/v1/audio/speech",
+    model: "tts-test",
+  });
+  assert.deepEqual(config.remotionRendererConfig, {
+    port: 4567,
+    timeoutInMilliseconds: 240000,
+  });
   assert.equal(config.openAiImageModel, "image-test");
   assert.equal(config.imageConcurrency, 4);
   assert.equal(config.chatterboxAutoStartEnabled, false);
@@ -113,6 +144,18 @@ test("createStudioRuntimeConfig rejects invalid numeric env values", () => {
       }),
     /Invalid OPENAI_PLANNER_REQUEST_MAX_ATTEMPTS: 0/,
   );
+  assert.throws(
+    () => createStudioRuntimeConfig({ rootDir: "/repo", env: { LVSTUDIO_REMOTION_PORT: "1023" } }),
+    /Invalid LVSTUDIO_REMOTION_PORT: 1023/,
+  );
+  assert.throws(
+    () =>
+      createStudioRuntimeConfig({
+        rootDir: "/repo",
+        env: { LVSTUDIO_REMOTION_TIMEOUT_MS: "6999" },
+      }),
+    /Invalid LVSTUDIO_REMOTION_TIMEOUT_MS: 6999/,
+  );
 });
 
 test("createStudioRuntimeConfig rejects invalid TTS URL env values", () => {
@@ -158,6 +201,17 @@ test(".env.example key defaults stay aligned with studio runtime defaults", asyn
   assert.equal(kv.get("LVSTUDIO_IMAGE_CONCURRENCY"), String(config.imageConcurrency));
   assert.equal(kv.get("CHATTERBOX_TTS_URL"), config.chatterboxSpeechUrl);
   assert.equal(kv.get("MMS_TTS_URL"), config.mmsSpeechUrl);
+  assert.equal(kv.get("MMS_TTS_MODEL"), config.mmsTtsConfig.model);
+  assert.equal(kv.get("MMS_TTS_LANGUAGE"), config.mmsTtsConfig.language);
+  assert.equal(kv.get("OPENAI_TTS_MODEL"), config.openAiTtsConfig.model);
+  assert.equal(
+    kv.get("LVSTUDIO_REMOTION_PORT"),
+    config.remotionRendererConfig.port === null ? "" : String(config.remotionRendererConfig.port),
+  );
+  assert.equal(
+    kv.get("LVSTUDIO_REMOTION_TIMEOUT_MS"),
+    String(config.remotionRendererConfig.timeoutInMilliseconds),
+  );
   assert.equal(
     kv.get("LVSTUDIO_CHATTERBOX_START_TIMEOUT_MS"),
     String(config.chatterboxStartTimeoutMs),

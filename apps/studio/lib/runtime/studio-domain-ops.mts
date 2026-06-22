@@ -3,6 +3,8 @@ import {
   generateTTSForProject,
   generateCaptionsForProject,
   type GenerateTTSOptions,
+  type RendererProvider,
+  type TTSProvider,
   reviewProject,
   syncProject,
   type ReviewResult,
@@ -10,7 +12,11 @@ import {
   type TargetPlatformSchema,
   type VideoModeSchema,
 } from "@lvstudio/core";
-import { createChatterboxTTSProvider, rendererProviders, ttsProviders } from "@lvstudio/providers";
+import {
+  createChatterboxTTSProvider,
+  rendererProviders as defaultRendererProviders,
+  ttsProviders as defaultTtsProviders,
+} from "@lvstudio/providers";
 import { runQualityChecks, type QualityResult } from "@lvstudio/quality";
 import { runRenderWorkflow, type RenderWorkflowResult } from "@lvstudio/workflows";
 import type { z } from "zod";
@@ -58,6 +64,8 @@ type CreateStudioDomainOpsInput = {
   readVoiceSettingsImpl?: () => Promise<VoiceSettings>;
   createChatterboxTTSProviderImpl?: typeof createChatterboxTTSProvider;
   processEnv?: NodeJS.ProcessEnv;
+  ttsProviderRegistry?: Readonly<Record<string, TTSProvider>>;
+  rendererProviderRegistry?: Readonly<Record<string, RendererProvider>>;
 };
 
 export function createStudioDomainOps({
@@ -72,6 +80,8 @@ export function createStudioDomainOps({
   readVoiceSettingsImpl,
   createChatterboxTTSProviderImpl = createChatterboxTTSProvider,
   processEnv = process.env,
+  ttsProviderRegistry = defaultTtsProviders,
+  rendererProviderRegistry = defaultRendererProviders,
 }: CreateStudioDomainOpsInput): StudioDomainOps {
   return {
     createProject({ projectId, mode, platform }) {
@@ -81,7 +91,10 @@ export function createStudioDomainOps({
       return generateCaptionsForProjectImpl(projectId);
     },
     render({ projectId, quality, force }) {
-      return runRenderWorkflowImpl({ projectId, quality, force, rootDir }, { rendererProviders });
+      return runRenderWorkflowImpl(
+        { projectId, quality, force, rootDir },
+        { rendererProviders: rendererProviderRegistry },
+      );
     },
     sync(projectId: string) {
       return syncProjectImpl(projectId, rootDir);
@@ -101,7 +114,7 @@ export function createStudioDomainOps({
       onlyBeat,
       concurrency,
     }) {
-      let provider = ttsProviders[providerId];
+      let provider = ttsProviderRegistry[providerId];
       if (providerId === "chatterbox" && readVoiceSettingsImpl) {
         provider = createChatterboxTTSProviderImpl(
           voiceRuntimeForSettings(await readVoiceSettingsImpl(), processEnv),

@@ -62,6 +62,7 @@ import {
 } from "../image/image-library-metadata.mjs";
 import { createRunTraceStore } from "../project/run-trace-store.mjs";
 import { resolveOpenAiApiKey } from "@lvstudio/core";
+import { createRendererProviders, createTTSProviderRegistry } from "@lvstudio/providers";
 import { createDraftAudioRunner } from "../draft/draft-audio-runner.mjs";
 import { createDraftJobRunner } from "../draft/draft-job-runner.mjs";
 import {
@@ -187,8 +188,19 @@ export function createStudioServerRuntime({
   });
 
   async function getOpenAiApiKey() {
-    return resolveOpenAiApiKey({ rootDir });
+    return resolveOpenAiApiKey({ rootDir, env: processEnv });
   }
+
+  const studioTtsProviders = createTTSProviderRegistry(
+    {
+      mms: runtimeConfig.mmsTtsConfig,
+      openai: { ...runtimeConfig.openAiTtsConfig, getApiKey: getOpenAiApiKey },
+    },
+    { fetchImpl },
+  );
+  const studioRendererProviders = createRendererProviders({
+    remotion: runtimeConfig.remotionRendererConfig,
+  });
 
   const { generatePlanDraftWithOpenAi, routePlanTtsWithOpenAi } = createOpenAiPlanOrchestrator({
     fetchImpl,
@@ -268,6 +280,8 @@ export function createStudioServerRuntime({
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
   const domainOps = createStudioDomainOps({
     rootDir,
+    ttsProviderRegistry: studioTtsProviders,
+    rendererProviderRegistry: studioRendererProviders,
     readVoiceSettingsImpl: readVoiceSettings,
     processEnv,
   });

@@ -1,5 +1,9 @@
 const DEFAULT_CHATTERBOX_SPEECH_URL = "http://127.0.0.1:8000/v1/audio/speech";
 const DEFAULT_MMS_SPEECH_URL = "http://127.0.0.1:8001/v1/audio/speech";
+const DEFAULT_OPENAI_SPEECH_URL = "https://api.openai.com/v1/audio/speech";
+const DEFAULT_MMS_MODEL = "facebook/mms-tts-tgl";
+const DEFAULT_MMS_LANGUAGE = "tgl";
+const DEFAULT_OPENAI_TTS_MODEL = "gpt-4o-mini-tts";
 const DEFAULT_PLANNER_MODEL = "gpt-5.4-mini";
 const DEFAULT_PLANNER_FALLBACK_MODELS = ["gpt-5-mini", "gpt-4.1-mini"];
 const DEFAULT_TTS_ROUTING_MODEL = "gpt-4o-mini";
@@ -20,6 +24,16 @@ function integerEnv(env, name, fallback, { min = 1 } = {}) {
   if (raw === undefined || raw === "") return fallback;
   const value = Number(raw);
   if (!Number.isInteger(value) || value < min) {
+    throw new Error(`Invalid ${name}: ${raw}`);
+  }
+  return value;
+}
+
+function nullableIntegerEnv(env, name, { min = 1, max = Number.MAX_SAFE_INTEGER } = {}) {
+  const raw = env[name];
+  if (raw === undefined || raw === "") return null;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < min || value > max) {
     throw new Error(`Invalid ${name}: ${raw}`);
   }
   return value;
@@ -96,6 +110,21 @@ export function createStudioRuntimeConfig({ env = process.env, rootDir } = {}) {
     },
     mmsSpeechUrl,
     mmsHealthUrl: healthUrlForSpeechUrl(mmsSpeechUrl, "http://127.0.0.1:8001/health"),
+    mmsTtsConfig: {
+      speechUrl: mmsSpeechUrl,
+      model: stringEnv(env, "MMS_TTS_MODEL", DEFAULT_MMS_MODEL),
+      language: stringEnv(env, "MMS_TTS_LANGUAGE", DEFAULT_MMS_LANGUAGE),
+    },
+    openAiTtsConfig: {
+      speechUrl: DEFAULT_OPENAI_SPEECH_URL,
+      model: stringEnv(env, "OPENAI_TTS_MODEL", DEFAULT_OPENAI_TTS_MODEL),
+    },
+    remotionRendererConfig: {
+      port: nullableIntegerEnv(env, "LVSTUDIO_REMOTION_PORT", { min: 1024, max: 65535 }),
+      timeoutInMilliseconds: integerEnv(env, "LVSTUDIO_REMOTION_TIMEOUT_MS", 120000, {
+        min: 7000,
+      }),
+    },
     splitPlannerEnabled: env.LVSTUDIO_SPLIT_PLANNER !== "0",
     splitPlannerMinWords: integerEnv(env, "LVSTUDIO_SPLIT_PLANNER_MIN_WORDS", 2500),
     splitPlannerMinUnits: integerEnv(env, "LVSTUDIO_SPLIT_PLANNER_MIN_UNITS", 40),

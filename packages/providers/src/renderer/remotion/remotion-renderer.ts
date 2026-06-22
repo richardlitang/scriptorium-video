@@ -11,6 +11,18 @@ type RemotionInputProps = {
   assetUrls: Record<string, string>;
 };
 
+export type RemotionRendererOptions = {
+  port?: number | null;
+  timeoutInMilliseconds?: number;
+};
+
+export type RemotionRendererDependencies = {
+  bundleImpl?: typeof bundle;
+  selectCompositionImpl?: typeof selectComposition;
+  renderMediaImpl?: typeof renderMedia;
+  startAssetServerImpl?: typeof startAssetServer;
+};
+
 function remotionPort(): number | null {
   if (!process.env.LVSTUDIO_REMOTION_PORT) {
     return null;
@@ -100,6 +112,11 @@ async function startAssetServer(
 export class RemotionRenderer implements RendererProvider {
   id = "remotion";
 
+  constructor(
+    private readonly options: RemotionRendererOptions = {},
+    private readonly dependencies: RemotionRendererDependencies = {},
+  ) {}
+
   capabilities = {
     supportsPreview: false,
     supportsPartialRender: false,
@@ -109,7 +126,7 @@ export class RemotionRenderer implements RendererProvider {
   };
 
   async render(request: RenderRequest): Promise<RenderResult> {
-    const assetServer = await startAssetServer(
+    const assetServer = await (this.dependencies.startAssetServerImpl ?? startAssetServer)(
       request.projectDir,
       request.renderBundle.assetManifest.assets,
     );
@@ -126,12 +143,15 @@ export class RemotionRenderer implements RendererProvider {
         assetUrls,
       };
 
-      const serveUrl = await bundle({
+      const serveUrl = await (this.dependencies.bundleImpl ?? bundle)({
         entryPoint: path.resolve(process.cwd(), "apps", "renderer", "src", "index.ts"),
       });
-      const port = remotionPort();
-      const timeoutInMilliseconds = remotionTimeout();
-      const composition = await selectComposition({
+      const port = this.options.port === undefined ? remotionPort() : this.options.port;
+      const timeoutInMilliseconds =
+        this.options.timeoutInMilliseconds === undefined
+          ? remotionTimeout()
+          : this.options.timeoutInMilliseconds;
+      const composition = await (this.dependencies.selectCompositionImpl ?? selectComposition)({
         serveUrl,
         id: request.renderBundle.resolvedConfig.templateId,
         inputProps,
@@ -139,7 +159,7 @@ export class RemotionRenderer implements RendererProvider {
         timeoutInMilliseconds,
       });
 
-      await renderMedia({
+      await (this.dependencies.renderMediaImpl ?? renderMedia)({
         serveUrl,
         composition,
         codec: "h264",
