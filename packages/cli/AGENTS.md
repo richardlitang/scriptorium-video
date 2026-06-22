@@ -2,10 +2,6 @@
 
 `packages/cli` owns command parsing, command UX, and command wiring.
 
-## Tooling Baseline
-
-- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new CLI workspace/bootstrap work.
-
 ## Boundaries
 
 - Reusable workflow logic belongs in `packages/core`, `packages/providers`, or `packages/quality`, not directly in CLI commands.

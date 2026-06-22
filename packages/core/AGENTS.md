@@ -2,10 +2,6 @@
 
 `packages/core` is the domain and workflow foundation for Local Video Studio.
 
-## Tooling Baseline
-
-- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new core workspace/bootstrap work.
-
 ## Ownership
 
 - Core owns schemas, project paths, normalization/migration, sync, captions, TTS orchestration contracts, render bundle building, review logic, and provider interfaces.

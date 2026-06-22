@@ -2,10 +2,6 @@
 
 `apps/studio` owns the local HTTP server, browser UI, job orchestration, and Studio-specific adapters.
 
-## Tooling Baseline
-
-- Follow repo-level **Bootstrap Quality Tooling (Mandatory)** in `AGENTS.md` for any new Studio workspace/bootstrap work.
-
 ## Server Boundaries
 
 - `server.mjs` is a composition/startup file. Do not add new business logic to it.
@@ -20,11 +16,9 @@
 - Any new env var must be added to `.env.example` and covered by `env-example.test.mjs`.
 - External API clients should accept injected `fetch`, URLs, timeouts, and credentials for testability.
 
-## Frontend Stack (React migration in progress)
+## Frontend Stack
 
-The browser UI is being migrated from `public/app.js` (vanilla DOM) to `web/` (React 19 + Vite + TypeScript + TanStack Query + Tailwind + Radix). See `docs/plans/2026-05-28-studio-frontend-react-migration.md` for the full strangler plan.
-
-**Migration complete** — `public/app.js`, `public/index.html`, `public/modules/`, and `public/styles.css` have been deleted. The SPA in `web/` is the only UI. `studio-ui-contract.test.mjs` now guards `web/index.html#root`.
+The browser UI is the React 19 + Vite + TypeScript SPA in `web/`, using TanStack Query, Tailwind, and Radix. Legacy vanilla UI files have been deleted; `studio-ui-contract.test.mjs` guards `web/index.html#root`. The migration record is `docs/plans/2026-05-28-studio-frontend-react-migration.md`.
 
 **React/Vite conventions:**
 
