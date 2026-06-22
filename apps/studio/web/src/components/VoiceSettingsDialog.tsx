@@ -1,34 +1,9 @@
 import { useState, useRef, useCallback } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { readStored, writeStored } from "@/lib/project-storage";
+import { defaultVoiceSettings } from "../../../voice-settings.mjs";
 
-interface VoiceSettings {
-  ttsModel: string;
-  audioPromptPath: string;
-  deliveryProfile: string;
-  intensity: number;
-  stability: number;
-  pacing: number;
-  variation: number;
-  exaggeration: number;
-  cfgWeight: number;
-  temperature: number;
-  seed: string;
-}
-
-const DEFAULTS: VoiceSettings = {
-  ttsModel: "chatterbox",
-  audioPromptPath: "",
-  deliveryProfile: "suspense",
-  intensity: 0.55,
-  stability: 0.65,
-  pacing: 0.5,
-  variation: 0.5,
-  exaggeration: 0.55,
-  cfgWeight: 0.35,
-  temperature: 0.75,
-  seed: "",
-};
+type VoiceSettings = typeof defaultVoiceSettings;
 
 const PRESETS: Record<string, Partial<VoiceSettings>> = {
   controlled: { exaggeration: 0.45, cfgWeight: 0.45, temperature: 0.6 },
@@ -48,7 +23,7 @@ interface Props {
 
 export function VoiceSettingsDialog({ projectId, trigger }: Props) {
   const [open, setOpen] = useState(false);
-  const [settings, setSettings] = useState<VoiceSettings>(DEFAULTS);
+  const [settings, setSettings] = useState<VoiceSettings>(defaultVoiceSettings);
   const [status, setStatus] = useState("");
   const [saving, setSaving] = useState(false);
   const [previewing, setPreviewing] = useState(false);
@@ -68,7 +43,7 @@ export function VoiceSettingsDialog({ projectId, trigger }: Props) {
     try {
       const res = await fetch("/api/settings/voice");
       const data = await res.json();
-      if (data.ok && data.data) setSettings({ ...DEFAULTS, ...data.data });
+      if (data.ok && data.data) setSettings({ ...defaultVoiceSettings, ...data.data });
       setStatus("");
     } catch (err) {
       setStatus(String(err));
@@ -84,7 +59,7 @@ export function VoiceSettingsDialog({ projectId, trigger }: Props) {
         body: JSON.stringify(settings),
       });
       const data = await res.json();
-      if (data.ok && data.data) setSettings({ ...DEFAULTS, ...data.data });
+      if (data.ok && data.data) setSettings({ ...defaultVoiceSettings, ...data.data });
       setStatus(extraStatus ?? "Saved. Regenerate narration to hear these settings.");
     } catch (err) {
       setStatus(String(err));
