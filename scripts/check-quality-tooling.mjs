@@ -11,8 +11,8 @@ const [packageJsonText, eslintConfig, prettierIgnore, workflow] = await Promise.
 ]);
 const packageJson = JSON.parse(packageJsonText);
 
-if (!packageJson.scripts?.lint?.includes("--max-warnings 80")) {
-  failures.push("lint must lock the current 80-warning baseline.");
+if (!packageJson.scripts?.lint?.includes("--max-warnings 55")) {
+  failures.push("lint must lock the current 55-warning baseline.");
 }
 if (!packageJson.scripts?.verify?.includes("check:quality-tooling")) {
   failures.push("verify must run check:quality-tooling.");

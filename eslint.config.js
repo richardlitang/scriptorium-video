@@ -83,6 +83,15 @@ export default [
     },
   },
 
+  // ── CLI commands ─────────────────────────────────────────────────────────
+  {
+    files: ["packages/cli/src/**/*.ts"],
+    rules: {
+      // CLI stdout/stderr is product behavior, not incidental application logging.
+      "no-console": "off",
+    },
+  },
+
   // ── Studio component architecture ─────────────────────────────────────────
   {
     files: ["apps/studio/web/src/components/**/*.{ts,tsx}"],
