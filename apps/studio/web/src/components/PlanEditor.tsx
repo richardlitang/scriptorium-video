@@ -39,7 +39,7 @@ export function PlanEditor({
     try {
       await savePlan.mutateAsync(planJson);
       onSaved();
-    } catch (err) {
+    } catch {
       // error surfaces in qualityLog via the workspace
     }
   }

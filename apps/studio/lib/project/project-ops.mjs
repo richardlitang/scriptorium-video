@@ -13,7 +13,6 @@ export function createProjectOps(deps) {
   const {
     path,
     readdir,
-    stat,
     rm,
     readFile,
     writeFile,
