@@ -32,6 +32,15 @@ export default [
     },
   },
 
+  // ── Server entrypoint ────────────────────────────────────────────────────
+  {
+    files: ["apps/studio/server.mjs"],
+    rules: {
+      // Startup status and the local URL are intentional process output.
+      "no-console": "off",
+    },
+  },
+
   // ── TypeScript source files ────────────────────────────────────────────────
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.mts"],
