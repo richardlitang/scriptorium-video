@@ -109,6 +109,36 @@ export type StoryButtonState = {
   stopRunDisabled: boolean;
 };
 
+const DRAFT_JOB_RUNNING_STATUSES = new Set(["queued", "running", "cancelling"]);
+
+function hasReadyTts(ttsAvailability: TtsAvailability): boolean {
+  return ttsAvailability === "ready" || ttsAvailability === "ready_degraded";
+}
+
+function hasWarmingTts(ttsAvailability: TtsAvailability): boolean {
+  return ttsAvailability === "loading" || ttsAvailability === "checking";
+}
+
+function isDraftJobRunning(currentDraftJobStatus: string | null): boolean {
+  return DRAFT_JOB_RUNNING_STATUSES.has(currentDraftJobStatus ?? "");
+}
+
+function idleDraftLabel({
+  hasStory,
+  ttsReady,
+  ttsWarming,
+  defaultDraftButtonLabel,
+}: {
+  hasStory: boolean;
+  ttsReady: boolean;
+  ttsWarming: boolean;
+  defaultDraftButtonLabel: string;
+}): string {
+  if (!hasStory) return "Paste Story First";
+  if (!ttsReady) return ttsWarming ? "TTS Warming..." : "TTS Unavailable";
+  return defaultDraftButtonLabel;
+}
+
 export function storyButtonState({
   selectedProjectId,
   storyValue,
@@ -118,15 +148,10 @@ export function storyButtonState({
 }: StoryButtonStateInput): StoryButtonState {
   const hasSelectedProject = Boolean(selectedProjectId);
   const hasStory = String(storyValue ?? "").trim().length > 0;
-  const draftJobRunning = ["queued", "running", "cancelling"].includes(currentDraftJobStatus ?? "");
-  const ttsReady = ttsAvailability === "ready" || ttsAvailability === "ready_degraded";
-  const ttsWarming = ttsAvailability === "loading" || ttsAvailability === "checking";
-
-  function idleDraftLabel(): string {
-    if (!hasStory) return "Paste Story First";
-    if (!ttsReady) return ttsWarming ? "TTS Warming..." : "TTS Unavailable";
-    return defaultDraftButtonLabel;
-  }
+  const draftJobRunning = isDraftJobRunning(currentDraftJobStatus);
+  const ttsReady = hasReadyTts(ttsAvailability);
+  const ttsWarming = hasWarmingTts(ttsAvailability);
+  const draftLabel = idleDraftLabel({ hasStory, ttsReady, ttsWarming, defaultDraftButtonLabel });
 
   return {
     convertStoryDisabled: !hasSelectedProject || !hasStory,
@@ -134,7 +159,7 @@ export function storyButtonState({
     clearStoryDisabled: !hasStory,
     renderDisabled: !hasStory || draftJobRunning || !ttsReady,
     draftNoImagesDisabled: !hasStory || draftJobRunning || !ttsReady,
-    renderButtonText: draftJobRunning ? null : idleDraftLabel(),
+    renderButtonText: draftJobRunning ? null : draftLabel,
     draftNoImagesText: !draftJobRunning ? "Draft Without Images" : null,
     directVoiceDisabled: !hasSelectedProject || !ttsReady,
     regenerateAudioDisabled: !hasSelectedProject || !ttsReady,
