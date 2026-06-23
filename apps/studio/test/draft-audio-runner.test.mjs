@@ -5,7 +5,6 @@ import { createDraftAudioRunner } from "../lib/draft/draft-audio-runner.mjs";
 test("draft audio runner batches single-provider beats and runs sync/transcribe/captions", async () => {
   const traces = [];
   const labels = [];
-  const lvstudioArgs = [];
   const domainCalls = [];
   const job = { id: "draft-1", completed: 0 };
   const plan = {
@@ -38,10 +37,6 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
       labels.push(label);
       await operation();
     },
-    runLvstudioForDraft: async (_job, args) => {
-      lvstudioArgs.push(args);
-      return { stdout: "ok" };
-    },
     domainOps: {
       generateTts: async ({ projectId, providerId, onlyBeat }) => {
         domainCalls.push(["generateTts", projectId, providerId, onlyBeat]);
@@ -53,6 +48,10 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
       },
       captions: async (projectId) => {
         domainCalls.push(["captions", projectId]);
+        return {};
+      },
+      transcribe: async ({ projectId, providerId }) => {
+        domainCalls.push(["transcribe", projectId, providerId]);
         return {};
       },
     },
@@ -72,20 +71,13 @@ test("draft audio runner batches single-provider beats and runs sync/transcribe/
       ["generateTts", "demo", "chatterbox", "b2"],
     ],
   );
-  assert.equal(
-    lvstudioArgs.some((args) => args[0] === "generate:tts"),
-    false,
-  );
   assert.deepEqual(
     domainCalls.filter(([operation]) => operation !== "generateTts"),
     [
       ["sync", "demo"],
+      ["transcribe", "demo", "whisper"],
       ["captions", "demo"],
     ],
-  );
-  assert.equal(
-    lvstudioArgs.some((args) => ["sync", "captions"].includes(args[0])),
-    false,
   );
   assert.equal(
     traces.some((entry) => entry.event === "audio.batch.start"),

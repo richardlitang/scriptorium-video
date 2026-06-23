@@ -214,6 +214,7 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
   const narrationCalls = [];
   const captionCalls = [];
   const syncCalls = [];
+  const transcribeCalls = [];
   const checkCalls = [];
   const handled = await handleJobRoutes(
     makeJobContext({
@@ -248,6 +249,10 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
           captionCalls.push(projectId);
           return { captionsPath: `/tmp/${projectId}/captions.json`, count: 2 };
         },
+        transcribe: async (input) => {
+          transcribeCalls.push(input);
+          return { transcriptPath: `/tmp/${input.projectId}/transcript.json`, segmentCount: 1 };
+        },
         check: async (projectId) => {
           checkCalls.push(projectId);
           throw new Error("quality warning");
@@ -268,6 +273,7 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
   assert.equal(response.body.data.qualityOk, false);
   assert.match(response.body.data.output, /quality warning/);
   assert.deepEqual(syncCalls, ["demo"]);
+  assert.deepEqual(transcribeCalls, [{ projectId: "demo", providerId: "whisper" }]);
   assert.deepEqual(captionCalls, ["demo"]);
   assert.deepEqual(checkCalls, ["demo"]);
   assert.deepEqual(narrationCalls, [{ projectId: "demo", providerId: "chatterbox", force: true }]);
@@ -276,7 +282,7 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
     false,
   );
   assert.equal(
-    lvstudioCalls.some((args) => ["sync", "captions", "check"].includes(args[0])),
+    lvstudioCalls.some((args) => ["sync", "transcribe", "captions", "check"].includes(args[0])),
     false,
   );
 });

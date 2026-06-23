@@ -108,7 +108,6 @@ import { createProjectReadOps } from "../project/project-read-ops.mjs";
 import { createAgentHandoffStore } from "../project/agent-handoff-store.mjs";
 import { createForegroundJobs } from "../draft/foreground-jobs.mjs";
 import { createDraftStepRetrier } from "../draft/draft-step-retrier.mjs";
-import { createLvstudioDraftRunner } from "../draft/lvstudio-draft-runner.mjs";
 import { createStudioRuntime } from "./studio-runtime.mjs";
 import {
   buildStudioRuntimeContextDependencies,
@@ -121,7 +120,6 @@ import {
 } from "../planner/split-plan-metadata.mjs";
 
 const execFileAsync = promisify(execFile);
-const RENDER_PROGRESS_PREFIX = "__LVSTUDIO_RENDER_PROGRESS__";
 
 export function createStudioServerRuntime({
   rootDir,
@@ -276,7 +274,6 @@ export function createStudioServerRuntime({
   } = imageCacheStore;
   const appendQualityHistory = (projectId, entry) =>
     studioOpsRuntime.appendQualityHistory(projectId, entry);
-  const appendCommandLog = (entry) => studioOpsRuntime.appendCommandLog(entry);
   const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
   const domainOps = createStudioDomainOps({
     rootDir,
@@ -353,18 +350,6 @@ export function createStudioServerRuntime({
     projectsDir,
     sha256,
   });
-  const runLvstudioForDraft = createLvstudioDraftRunner({
-    spawn,
-    rootDir,
-    processEnv,
-    voiceSettingsEnv,
-    readVoiceSettings,
-    appendCommandLog,
-    updateRunProgress,
-    renderProgressPrefix: RENDER_PROGRESS_PREFIX,
-    runLvstudioTestModeFn: () => runLvstudioTestMode,
-    studioTestMode: STUDIO_TEST_MODE,
-  });
   const generateDraftAudioBySection = createDraftAudioRunner({
     readVoiceSettings,
     appendRunTrace,
@@ -374,7 +359,6 @@ export function createStudioServerRuntime({
     getOpenAiApiKey,
     writeDraftJobState,
     runRetriedDraftStep,
-    runLvstudioForDraft,
     domainOps,
     readProjectTraceSnapshot,
   });

@@ -10,6 +10,7 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   const captionCalls = [];
   const renderCalls = [];
   const syncCalls = [];
+  const transcribeCalls = [];
   const qualityHistory = [];
 
   const runBeatRegenerateJob = createBeatRegenerateRunner({
@@ -39,6 +40,10 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
         captionCalls.push(projectId);
         return { captionsPath: `/tmp/${projectId}/captions.json`, count: 2 };
       },
+      transcribe: async (input) => {
+        transcribeCalls.push(input);
+        return { transcriptPath: `/tmp/${input.projectId}/transcript.json`, segmentCount: 1 };
+      },
       render: async (input) => {
         renderCalls.push(input);
         return { status: "rendered", renderResult: { outputPath: "/tmp/demo/renders/draft.mp4" } };
@@ -67,6 +72,7 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   assert.equal(activeBeatJobs.size, 0);
   assert.deepEqual(captionCalls, ["demo"]);
   assert.deepEqual(syncCalls, ["demo"]);
+  assert.deepEqual(transcribeCalls, [{ projectId: "demo", providerId: "whisper" }]);
   assert.deepEqual(renderCalls, [{ projectId: "demo", quality: "draft", force: true }]);
   assert.deepEqual(narrationCalls, [
     { projectId: "demo", providerId: "chatterbox", onlyBeat: "beat-1" },
@@ -77,6 +83,10 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   );
   assert.equal(
     lvstudioCalls.some((args) => args[0] === "render"),
+    false,
+  );
+  assert.equal(
+    lvstudioCalls.some((args) => args[0] === "transcribe"),
     false,
   );
   assert.equal(
@@ -97,6 +107,7 @@ test("beat regenerate runner throws when beat is missing", async () => {
     runProjectMutation: async () => {},
     domainOps: {
       sync: async () => ({}),
+      transcribe: async () => ({}),
       captions: async () => ({}),
       render: async () => ({}),
     },

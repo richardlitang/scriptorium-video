@@ -22,7 +22,6 @@ export function createDraftAudioRunner({
   getOpenAiApiKey,
   writeDraftJobState,
   runRetriedDraftStep,
-  runLvstudioForDraft,
   domainOps,
   readProjectTraceSnapshot,
 }) {
@@ -168,7 +167,7 @@ export function createDraftAudioRunner({
     ).catch(() => {});
     await writeDraftJobState(projectId, job, { phase: "transcribe" });
     await runRetriedDraftStep(projectId, job, "Transcribe narration", () =>
-      runLvstudioForDraft(job, ["transcribe", projectId, "--provider", transcriptionProvider]),
+      domainOps.transcribe({ projectId, providerId: transcriptionProvider }),
     );
     await appendRunTrace(projectId, job.id, "transcription.complete", {
       transcriptionProvider,

@@ -1,10 +1,9 @@
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { test } from "node:test";
-import { createLvstudioDraftRunner } from "../lib/draft/lvstudio-draft-runner.mjs";
 import { createStudioOps } from "../lib/runtime/studio-ops.mjs";
 
-const allowedCommands = ["transcribe", "direct:voice"];
+const allowedCommands = ["direct:voice"];
 
 async function productionModules(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -42,31 +41,6 @@ test("generic Studio subprocess calls are limited to env-coupled voice commands"
   for (const command of allowedCommands) await ops.runLvstudio([command, "demo"]);
   await assert.rejects(() => ops.runLvstudio(["sync", "demo"]), /not allowed.*sync/i);
   assert.deepEqual(executed, allowedCommands);
-});
-
-test("draft subprocess calls are limited to env-coupled audio commands", async () => {
-  let spawned = false;
-  const runLvstudioForDraft = createLvstudioDraftRunner({
-    spawn: () => {
-      spawned = true;
-      throw new Error("unexpected spawn");
-    },
-    rootDir: "/repo",
-    processEnv: {},
-    voiceSettingsEnv: () => ({}),
-    readVoiceSettings: async () => ({}),
-    appendCommandLog: async () => {},
-    updateRunProgress: async () => {},
-    renderProgressPrefix: "LVSTUDIO_RENDER_PROGRESS ",
-    runLvstudioTestModeFn: () => async () => ({ stdout: "", stderr: "" }),
-    studioTestMode: false,
-  });
-
-  await assert.rejects(
-    () => runLvstudioForDraft({ projectId: "demo" }, ["render", "demo"]),
-    /not allowed.*render/i,
-  );
-  assert.equal(spawned, false);
 });
 
 test("Studio production callsites do not send safe commands through the subprocess seam", async () => {

@@ -31,8 +31,9 @@ type TranscriptWord = z.infer<typeof TranscriptWordSchema>;
 export async function transcribeProject(
   projectId: string,
   provider: TranscriptionProvider,
+  rootDir = process.cwd(),
 ): Promise<{ transcriptPath: string; segmentCount: number; wordCount: number }> {
-  const paths = getProjectPaths(projectId);
+  const paths = getProjectPaths(projectId, rootDir);
   const plan = normalizeVideoPlan(await readJsonFile(paths.videoPlan, VideoPlanSchema));
   const manifest = await readJsonFile(paths.assetManifest, AssetManifestSchema);
   const providerId = provider.id;

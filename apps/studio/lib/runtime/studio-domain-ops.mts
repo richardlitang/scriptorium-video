@@ -5,8 +5,10 @@ import {
   type GenerateTTSOptions,
   type RendererProvider,
   type TTSProvider,
+  type TranscriptionProvider,
   reviewProject,
   syncProject,
+  transcribeProject,
   type ReviewResult,
   type SyncResult,
   type TargetPlatformSchema,
@@ -15,6 +17,7 @@ import {
 import {
   createChatterboxTTSProvider,
   rendererProviders as defaultRendererProviders,
+  transcriptionProviders as defaultTranscriptionProviders,
   ttsProviders as defaultTtsProviders,
 } from "@lvstudio/providers";
 import { runQualityChecks, type QualityResult } from "@lvstudio/quality";
@@ -50,6 +53,10 @@ export type StudioDomainOps = {
     onlyBeat?: string;
     concurrency?: number;
   }): Promise<{ generated: string[]; skipped: string[] }>;
+  transcribe(input: {
+    projectId: string;
+    providerId: string;
+  }): Promise<{ transcriptPath: string; segmentCount: number; wordCount: number }>;
 };
 
 type CreateStudioDomainOpsInput = {
@@ -61,10 +68,12 @@ type CreateStudioDomainOpsInput = {
   runQualityChecksImpl?: typeof runQualityChecks;
   reviewProjectImpl?: typeof reviewProject;
   generateTTSForProjectImpl?: typeof generateTTSForProject;
+  transcribeProjectImpl?: typeof transcribeProject;
   readVoiceSettingsImpl?: () => Promise<VoiceSettings>;
   createChatterboxTTSProviderImpl?: typeof createChatterboxTTSProvider;
   processEnv?: NodeJS.ProcessEnv;
   ttsProviderRegistry?: Readonly<Record<string, TTSProvider>>;
+  transcriptionProviderRegistry?: Readonly<Record<string, TranscriptionProvider>>;
   rendererProviderRegistry?: Readonly<Record<string, RendererProvider>>;
 };
 
@@ -77,10 +86,12 @@ export function createStudioDomainOps({
   runQualityChecksImpl = runQualityChecks,
   reviewProjectImpl = reviewProject,
   generateTTSForProjectImpl = generateTTSForProject,
+  transcribeProjectImpl = transcribeProject,
   readVoiceSettingsImpl,
   createChatterboxTTSProviderImpl = createChatterboxTTSProvider,
   processEnv = process.env,
   ttsProviderRegistry = defaultTtsProviders,
+  transcriptionProviderRegistry = defaultTranscriptionProviders,
   rendererProviderRegistry = defaultRendererProviders,
 }: CreateStudioDomainOpsInput): StudioDomainOps {
   return {
@@ -130,6 +141,11 @@ export function createStudioDomainOps({
         ...(concurrency === undefined ? {} : { concurrency }),
       };
       return generateTTSForProjectImpl(projectId, provider, options);
+    },
+    async transcribe({ projectId, providerId }) {
+      const provider = transcriptionProviderRegistry[providerId];
+      if (!provider) throw new Error(`Unknown transcription provider: ${providerId}`);
+      return transcribeProjectImpl(projectId, provider, rootDir);
     },
   };
 }

@@ -15,7 +15,7 @@
     "build": "tsc -b",
     "format": "prettier --write \"**/*.{ts,tsx,mts,js,mjs,json,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,mts,js,mjs,json,md}\"",
-    "lint": "eslint \"**/*.{ts,tsx,mts}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\" --max-warnings 87",
+    "lint": "eslint \"**/*.{ts,tsx,mts}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\" --max-warnings 85",
     "lint:fix": "eslint --fix \"**/*.{ts,tsx,mts}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\"",
     "test": "pnpm -r --if-present test",
     "verify": "pnpm -s format:check && pnpm -s lint && pnpm -s check:quality-tooling && pnpm -s check:studio && pnpm -s check:renderer-boundary && pnpm -s check:test-dist-contract && pnpm -s check:studio-server-bootstrap && pnpm -s check:planner-schema-boundary && pnpm -s check:video-plan-normalization && pnpm -s check:studio-env-boundary && pnpm -s check:core-env-boundary && pnpm -s check:focused-audit-doc && pnpm -s check:agent-harness-docs && pnpm -s build && pnpm -s test && pnpm --filter @lvstudio/studio test:web",

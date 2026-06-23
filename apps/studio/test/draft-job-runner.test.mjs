@@ -7,7 +7,6 @@ test("draft job runner queues and completes no-story flow", async () => {
   const runStates = [];
   const upserts = [];
   const qualityHistory = [];
-  const lvstudioArgs = [];
   const handoffs = [];
   const domainCalls = [];
 
@@ -52,10 +51,6 @@ test("draft job runner queues and completes no-story flow", async () => {
     readMmsHealth: async () => ({ ok: true }),
     getOpenAiApiKey: async () => "k",
     runRetriedDraftStep: async (_projectId, _job, _label, operation) => operation(),
-    runLvstudioForDraft: async (_job, args) => {
-      lvstudioArgs.push(args);
-      return { stdout: "ok" };
-    },
     domainOps: {
       sync: async (projectId) => {
         domainCalls.push(["sync", projectId]);
@@ -107,10 +102,6 @@ test("draft job runner queues and completes no-story flow", async () => {
     ["check", "demo"],
     ["render", { projectId: "demo", quality: "draft", force: true }],
   ]);
-  assert.equal(
-    lvstudioArgs.some((args) => ["sync", "check", "render"].includes(args[0])),
-    false,
-  );
   assert.equal(handoffs.length, 1);
   assert.equal(handoffs[0].projectId, "demo");
   assert.equal(handoffs[0].job.status, "completed");

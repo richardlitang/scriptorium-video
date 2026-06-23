@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { createStudioDomainOps } from "../lib/runtime/studio-domain-ops.mjs";
-import type { RendererProvider, ReviewResult, SyncResult, TTSProvider } from "@lvstudio/core";
+import type {
+  RendererProvider,
+  ReviewResult,
+  SyncResult,
+  TranscriptionProvider,
+  TTSProvider,
+} from "@lvstudio/core";
 import type { QualityResult } from "@lvstudio/quality";
 import type { RenderWorkflowResult } from "@lvstudio/workflows";
 
@@ -153,4 +159,32 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
     ["check", "demo", "/repo"],
     ["review", "demo", "/repo"],
   ]);
+});
+
+void test("studio domain ops transcribes through an injected provider registry", async () => {
+  const injectedTranscriptionProvider = { id: "mock" } as TranscriptionProvider;
+  const domainOps = createStudioDomainOps({
+    rootDir: "/repo",
+    transcriptionProviderRegistry: { mock: injectedTranscriptionProvider },
+    transcribeProjectImpl: async (projectId, provider, rootDir) => {
+      assert.equal(projectId, "demo");
+      assert.equal(provider, injectedTranscriptionProvider);
+      assert.equal(rootDir, "/repo");
+      return {
+        transcriptPath: `/repo/content/projects/${projectId}/captions/transcript.json`,
+        segmentCount: 1,
+        wordCount: 2,
+      };
+    },
+  });
+
+  assert.deepEqual(await domainOps.transcribe({ projectId: "demo", providerId: "mock" }), {
+    transcriptPath: "/repo/content/projects/demo/captions/transcript.json",
+    segmentCount: 1,
+    wordCount: 2,
+  });
+  await assert.rejects(
+    () => domainOps.transcribe({ projectId: "demo", providerId: "missing" }),
+    /Unknown transcription provider: missing/,
+  );
 });

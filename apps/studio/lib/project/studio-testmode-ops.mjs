@@ -157,44 +157,6 @@ export function createStudioTestModeOps({
       return { stdout: "tts", stderr: "" };
     }
 
-    if (command === "transcribe") {
-      const timeline = await safeReadJson(path.join(projectDir, "timeline.json"));
-      const words = [];
-      const segments = [];
-      for (const segment of timeline.segments ?? []) {
-        const text = "test line";
-        segments.push({ startSeconds: segment.startSeconds, endSeconds: segment.endSeconds, text });
-        words.push({
-          word: "test",
-          startSeconds: segment.startSeconds,
-          endSeconds: segment.startSeconds + 0.5,
-          confidence: 1,
-        });
-        words.push({
-          word: "line",
-          startSeconds: segment.startSeconds + 0.5,
-          endSeconds: segment.startSeconds + 1,
-          confidence: 1,
-        });
-      }
-      const transcript = {
-        schemaVersion: 1,
-        status: "generated",
-        source: { provider: "mock", audioAssetIds: [] },
-        text: "test line",
-        durationSeconds: timeline.durationSeconds,
-        segments,
-        words,
-      };
-      await mkdir(path.join(projectDir, "captions"), { recursive: true });
-      await writeFile(
-        path.join(projectDir, "captions", "transcript.json"),
-        `${JSON.stringify(transcript, null, 2)}\n`,
-        "utf8",
-      );
-      return { stdout: "transcribed", stderr: "" };
-    }
-
     if (command === "captions") {
       const timeline = await safeReadJson(path.join(projectDir, "timeline.json"));
       const captions = (timeline.segments || []).map((segment, index) => ({

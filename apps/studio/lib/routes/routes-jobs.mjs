@@ -56,6 +56,7 @@ const JOB_ROUTE_CAPABILITIES = [
   "domainOps.generateTts",
   "domainOps.render",
   "domainOps.sync",
+  "domainOps.transcribe",
   "domainOps.check",
 ];
 
@@ -303,9 +304,11 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
               await advance("Syncing timeline", async () => ({
                 stdout: formatOutput(await domainOps.sync(projectId)),
               })),
-              await advance("Transcribing narration", () =>
-                runLvstudio(["transcribe", projectId, "--provider", transcriptionProvider]),
-              ),
+              await advance("Transcribing narration", async () => ({
+                stdout: formatOutput(
+                  await domainOps.transcribe({ projectId, providerId: transcriptionProvider }),
+                ),
+              })),
               await advance("Generating captions", async () => ({
                 stdout: formatOutput(await domainOps.captions(projectId)),
               })),
