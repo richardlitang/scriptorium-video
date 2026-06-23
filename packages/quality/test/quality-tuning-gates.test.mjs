@@ -4,12 +4,58 @@ import os from "node:os";
 import path from "node:path";
 import { test } from "node:test";
 import { runQualityChecks, runQualityChecksForBundle } from "../dist/index.js";
+import { collectVisualPromptRepetitionChecks } from "../dist/visual-prompt-repetition.js";
 import { buildRenderBundle, syncProject } from "@lvstudio/core";
 
 async function writeJson(filePath, value) {
   await mkdir(path.dirname(filePath), { recursive: true });
   await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
+
+test("visual prompt repetition checks normalize prompts and prefer explicit visual prompts", () => {
+  const checks = collectVisualPromptRepetitionChecks([
+    {
+      id: "s1",
+      beats: [
+        {
+          id: "b1",
+          notes: "",
+          media: [{ prompt: "fallback prompt" }],
+          visual: { prompt: "  Repeat   ME " },
+        },
+        {
+          id: "b2",
+          notes: "",
+          media: [{ prompt: "different fallback" }],
+          visual: { prompt: "repeat me" },
+        },
+        {
+          id: "b3",
+          notes: "notes prompt",
+          media: [{ prompt: "ignored fallback" }],
+          visual: { prompt: "REPEAT ME" },
+        },
+        {
+          id: "b4",
+          notes: "unused notes",
+          media: [{ prompt: "fallback prompt" }],
+          visual: { prompt: "" },
+        },
+      ],
+    },
+  ]);
+
+  assert.deepEqual(checks, [
+    {
+      id: "shared.visual.prompt_repetition",
+      severity: "warning",
+      message:
+        "A visual prompt pattern repeats 3 times; expect continuity drift or repetitive shots.",
+      path: "repeat me",
+      data: { repeatedCount: 3 },
+    },
+  ]);
+});
 
 test("quality checks include tuning-related warnings", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "lvstudio-quality-gates-"));

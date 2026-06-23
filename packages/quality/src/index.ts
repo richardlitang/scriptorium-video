@@ -7,6 +7,7 @@ import {
   getProjectPaths,
   loadProject,
 } from "@lvstudio/core";
+import { collectVisualPromptRepetitionChecks } from "./visual-prompt-repetition.js";
 
 import type { QualityFinding, QualityReport, RenderBundle } from "@lvstudio/core";
 
@@ -255,33 +256,7 @@ export async function runQualityChecksForBundle(
     }
   }
 
-  const promptCounts = new Map();
-  for (const section of loaded.videoPlan.sections) {
-    for (const beat of section.beats) {
-      const prompt = String(beat.media?.[0]?.prompt || beat.notes || "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
-      const visualPrompt = String(beat.visual?.prompt || "")
-        .replace(/\s+/g, " ")
-        .trim()
-        .toLowerCase();
-      const promptText = visualPrompt || prompt;
-      if (!promptText) continue;
-      promptCounts.set(promptText, (promptCounts.get(promptText) || 0) + 1);
-    }
-  }
-  for (const [prompt, count] of promptCounts.entries()) {
-    if (count >= 3) {
-      checks.push({
-        id: "shared.visual.prompt_repetition",
-        severity: "warning",
-        message: `A visual prompt pattern repeats ${count} times; expect continuity drift or repetitive shots.`,
-        path: prompt.slice(0, 120),
-        data: { repeatedCount: count },
-      });
-    }
-  }
+  checks.push(...collectVisualPromptRepetitionChecks(loaded.videoPlan.sections));
 
   for (const asset of loaded.assetManifest.assets) {
     const absolutePath = path.resolve(paths.projectDir, asset.path);
