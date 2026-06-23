@@ -5,7 +5,7 @@ import { createStudioOpsRuntimeAdapter } from "../lib/runtime/studio-ops-runtime
 test("studio ops runtime adapter fails fast before runtime is set", async () => {
   const adapter = createStudioOpsRuntimeAdapter();
   await assert.rejects(
-    () => adapter.runLvstudio(["check", "demo"]),
+    () => adapter.appendQualityHistory("demo", {}),
     /Studio ops runtime is not initialized/,
   );
 });
@@ -15,17 +15,9 @@ test("studio ops runtime adapter forwards calls to configured runtime", async ()
   const calls = [];
   adapter.setRuntime({
     appendQualityHistory: async (...args) => calls.push(["appendQualityHistory", args]),
-    appendCommandLog: async (...args) => calls.push(["appendCommandLog", args]),
-    runLvstudio: async (...args) => ({ args }),
   });
 
   await adapter.appendQualityHistory("proj-1", { score: 90 });
-  await adapter.appendCommandLog({ command: "pnpm lvstudio check proj-1" });
-  const runResult = await adapter.runLvstudio(["check", "proj-1"]);
 
-  assert.deepEqual(calls, [
-    ["appendQualityHistory", ["proj-1", { score: 90 }]],
-    ["appendCommandLog", [{ command: "pnpm lvstudio check proj-1" }]],
-  ]);
-  assert.deepEqual(runResult, { args: [["check", "proj-1"]] });
+  assert.deepEqual(calls, [["appendQualityHistory", ["proj-1", { score: 90 }]]]);
 });

@@ -1,4 +1,4 @@
-import { execFile, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import { createReadStream } from "node:fs";
 import {
   readFile,
@@ -11,13 +11,8 @@ import {
   rm,
 } from "node:fs/promises";
 import path from "node:path";
-import { promisify } from "node:util";
 import { imageReuseKey } from "../../image-cache.mjs";
-import {
-  defaultVoiceSettings,
-  normalizeVoiceSettings,
-  voiceSettingsEnv,
-} from "../../voice-settings.mjs";
+import { defaultVoiceSettings, normalizeVoiceSettings } from "../../voice-settings.mjs";
 import { publicAssetForPath as defaultPublicAssetForPath } from "../../static-assets.mjs";
 import {
   createOpenAiPlanOrchestrator,
@@ -101,7 +96,6 @@ import { createVoiceSettingsStore } from "../tts/voice-settings-store.mjs";
 import { createStudioOps } from "./studio-ops.mjs";
 import { createStudioOpsRuntimeAdapter } from "./studio-ops-runtime-adapter.mjs";
 import { createStudioDomainOps } from "./studio-domain-ops.mjs";
-import { createStudioTestModeOps } from "../project/studio-testmode-ops.mjs";
 import { createProjectOps } from "../project/project-ops.mjs";
 import { createProjectMediaOps } from "../project/project-media-ops.mjs";
 import { createProjectReadOps } from "../project/project-read-ops.mjs";
@@ -118,8 +112,6 @@ import {
   fallbackMetadataForLockedSection,
   mergeSectionMetadataPlan,
 } from "../planner/split-plan-metadata.mjs";
-
-const execFileAsync = promisify(execFile);
 
 export function createStudioServerRuntime({
   rootDir,
@@ -146,7 +138,6 @@ export function createStudioServerRuntime({
   const activeDraftJobs = new Map();
   const activeBeatJobs = new Map();
   const studioOpsRuntime = createStudioOpsRuntimeAdapter();
-  const commandLogPath = path.join(rootDir, ".studio-data", "server-commands.ndjson");
   const MMS_HEALTH_URL = runtimeConfig.mmsHealthUrl;
   const STUDIO_TEST_MODE = runtimeConfig.studioTestMode;
   const { previewVoice, readTtsHealth, clearPreviewCache } = createVoicePreviewAndHealth({
@@ -274,7 +265,6 @@ export function createStudioServerRuntime({
   } = imageCacheStore;
   const appendQualityHistory = (projectId, entry) =>
     studioOpsRuntime.appendQualityHistory(projectId, entry);
-  const runLvstudio = (args) => studioOpsRuntime.runLvstudio(args);
   const domainOps = createStudioDomainOps({
     rootDir,
     ttsProviderRegistry: studioTtsProviders,
@@ -330,7 +320,6 @@ export function createStudioServerRuntime({
     upsertRunJob,
     runProjectMutation,
     domainOps,
-    runLvstudio,
     generateProjectImages,
     defaultImageSizeForPlan,
     appendQualityHistory,
@@ -341,14 +330,6 @@ export function createStudioServerRuntime({
     appendRunTrace,
     writeDraftJobState,
     sleep,
-  });
-  const runLvstudioTestMode = createStudioTestModeOps({
-    path,
-    mkdir,
-    writeFile,
-    safeReadJson,
-    projectsDir,
-    sha256,
   });
   const generateDraftAudioBySection = createDraftAudioRunner({
     readVoiceSettings,
@@ -487,15 +468,7 @@ export function createStudioServerRuntime({
       path,
       mkdir,
       appendFile,
-      execFileAsync,
-      readVoiceSettings,
-      voiceSettingsEnv,
-      runLvstudioTestMode,
-      studioTestMode: STUDIO_TEST_MODE,
-      rootDir,
-      processEnv,
       qualityHistoryDir,
-      commandLogPath,
     }),
   );
 
@@ -520,7 +493,6 @@ export function createStudioServerRuntime({
       projectsDir,
       stat,
       domainOps,
-      runLvstudio,
       safeReadJson,
       projectDeleteBlocker,
       deleteProject,

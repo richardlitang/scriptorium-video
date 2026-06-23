@@ -22,7 +22,6 @@ test("studio runtime composes route context and exposes request handler", () => 
     safeProjectId: (value) => value,
     projectsDir: "/tmp/projects",
     stat: async () => ({}),
-    runLvstudio: async () => ({}),
     safeReadJson: async () => ({}),
     projectDeleteBlocker: async () => null,
     deleteProject: async () => {},

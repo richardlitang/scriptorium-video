@@ -42,7 +42,6 @@ export const JOBS_CAPABILITY_KEYS = [
   "process",
   "isScaffoldPlaceholderPlan",
   "runDraftJob",
-  "runLvstudio",
   "projectsDir",
   "path",
   "readFile",

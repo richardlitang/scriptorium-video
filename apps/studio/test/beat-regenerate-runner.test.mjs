@@ -5,7 +5,6 @@ import { createBeatRegenerateRunner } from "../lib/draft/beat-regenerate-runner.
 test("beat regenerate runner completes audio/image/caption flow and clears active job", async () => {
   const activeBeatJobs = new Map();
   const upserts = [];
-  const lvstudioCalls = [];
   const narrationCalls = [];
   const captionCalls = [];
   const renderCalls = [];
@@ -49,10 +48,6 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
         return { status: "rendered", renderResult: { outputPath: "/tmp/demo/renders/draft.mp4" } };
       },
     },
-    runLvstudio: async (args) => {
-      lvstudioCalls.push(args);
-      return { stdout: "ok" };
-    },
     generateProjectImages: async () => ({ generated: [{ id: "img-1" }], failed: [] }),
     defaultImageSizeForPlan: () => "1024x1024",
     appendQualityHistory: async (_projectId, entry) => {
@@ -77,22 +72,6 @@ test("beat regenerate runner completes audio/image/caption flow and clears activ
   assert.deepEqual(narrationCalls, [
     { projectId: "demo", providerId: "chatterbox", onlyBeat: "beat-1" },
   ]);
-  assert.equal(
-    lvstudioCalls.some((args) => args[0] === "generate:tts"),
-    false,
-  );
-  assert.equal(
-    lvstudioCalls.some((args) => args[0] === "render"),
-    false,
-  );
-  assert.equal(
-    lvstudioCalls.some((args) => args[0] === "transcribe"),
-    false,
-  );
-  assert.equal(
-    lvstudioCalls.some((args) => args[0] === "captions"),
-    false,
-  );
   assert.equal(qualityHistory[0].kind, "beat_regenerate");
   assert.equal(upserts.length > 2, true);
 });
@@ -111,7 +90,6 @@ test("beat regenerate runner throws when beat is missing", async () => {
       captions: async () => ({}),
       render: async () => ({}),
     },
-    runLvstudio: async () => ({ stdout: "" }),
     generateProjectImages: async () => ({ generated: [], failed: [] }),
     defaultImageSizeForPlan: () => "1024x1024",
     appendQualityHistory: async () => {},

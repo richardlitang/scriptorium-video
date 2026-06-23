@@ -26,7 +26,6 @@ test("studio runtime dependency builders return scoped dependency objects", () =
     projectsDir: "/tmp/projects",
     stat: async () => ({}),
     domainOps: { sync: async () => ({}), check: async () => ({}), review: async () => ({}) },
-    runLvstudio: async () => ({}),
     safeReadJson: async () => ({}),
     projectDeleteBlocker: async () => null,
     deleteProject: async () => {},

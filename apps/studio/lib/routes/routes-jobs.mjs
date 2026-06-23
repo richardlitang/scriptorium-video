@@ -19,7 +19,6 @@ export const JOB_ROUTE_KEYS = [
   "runProjectMutation",
   "runTrackedForegroundJob",
   "domainOps",
-  "runLvstudio",
   "appendQualityHistory",
   "writeRunState",
   "path",
@@ -41,7 +40,6 @@ const JOB_ROUTE_CAPABILITIES = [
   "jobs.runDraftJob",
   "jobs.runProjectMutation",
   "jobs.runTrackedForegroundJob",
-  "jobs.runLvstudio",
   "jobs.path",
   "jobs.projectsDir",
   "jobs.readFile",
@@ -54,6 +52,7 @@ const JOB_ROUTE_CAPABILITIES = [
   "traces.writeRunState",
   "domainOps.captions",
   "domainOps.generateTts",
+  "domainOps.directVoice",
   "domainOps.render",
   "domainOps.sync",
   "domainOps.transcribe",
@@ -89,7 +88,6 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
     runDraftJob,
     runProjectMutation,
     runTrackedForegroundJob,
-    runLvstudio,
     path,
     projectsDir,
     readFile,
@@ -372,7 +370,11 @@ export async function handleJobRoutes(context, req, res, pathname, requestUrl) {
               completedLabel: "Voice direction ready",
             },
             async ({ advance }) =>
-              advance("Generating voice direction", () => runLvstudio(["direct:voice", projectId])),
+              advance("Generating voice direction", async () => ({
+                stdout: formatOutput(
+                  await domainOps.directVoice({ projectId, provider: "openai" }),
+                ),
+              })),
           );
           await appendQualityHistory(projectId, {
             timestamp: new Date().toISOString(),

@@ -1,8 +1,10 @@
 import {
   createProjectScaffold,
+  directVoiceProject,
   generateTTSForProject,
   generateCaptionsForProject,
   type GenerateTTSOptions,
+  type DirectVoiceProjectResult,
   type RendererProvider,
   type TTSProvider,
   type TranscriptionProvider,
@@ -57,6 +59,11 @@ export type StudioDomainOps = {
     projectId: string;
     providerId: string;
   }): Promise<{ transcriptPath: string; segmentCount: number; wordCount: number }>;
+  directVoice(input: {
+    projectId: string;
+    provider?: string;
+    force?: boolean;
+  }): Promise<DirectVoiceProjectResult>;
 };
 
 type CreateStudioDomainOpsInput = {
@@ -69,6 +76,7 @@ type CreateStudioDomainOpsInput = {
   reviewProjectImpl?: typeof reviewProject;
   generateTTSForProjectImpl?: typeof generateTTSForProject;
   transcribeProjectImpl?: typeof transcribeProject;
+  directVoiceProjectImpl?: typeof directVoiceProject;
   readVoiceSettingsImpl?: () => Promise<VoiceSettings>;
   createChatterboxTTSProviderImpl?: typeof createChatterboxTTSProvider;
   processEnv?: NodeJS.ProcessEnv;
@@ -87,6 +95,7 @@ export function createStudioDomainOps({
   reviewProjectImpl = reviewProject,
   generateTTSForProjectImpl = generateTTSForProject,
   transcribeProjectImpl = transcribeProject,
+  directVoiceProjectImpl = directVoiceProject,
   readVoiceSettingsImpl,
   createChatterboxTTSProviderImpl = createChatterboxTTSProvider,
   processEnv = process.env,
@@ -146,6 +155,13 @@ export function createStudioDomainOps({
       const provider = transcriptionProviderRegistry[providerId];
       if (!provider) throw new Error(`Unknown transcription provider: ${providerId}`);
       return transcribeProjectImpl(projectId, provider, rootDir);
+    },
+    directVoice({ projectId, provider = "openai", force }) {
+      return directVoiceProjectImpl(projectId, {
+        rootDir,
+        provider,
+        ...(force === undefined ? {} : { force }),
+      });
     },
   };
 }

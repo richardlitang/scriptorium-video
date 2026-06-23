@@ -161,6 +161,28 @@ void test("studio domain ops forwards create, captions, render, sync, check, and
   ]);
 });
 
+void test("studio domain ops runs direct voice through the typed core operation", async () => {
+  const domainOps = createStudioDomainOps({
+    rootDir: "/repo",
+    directVoiceProjectImpl: async (projectId, options) => {
+      assert.equal(projectId, "demo");
+      assert.deepEqual(options, { rootDir: "/repo", provider: "openai", force: true });
+      return {
+        beatUpdates: 2,
+        videoPlanPath: "/repo/content/projects/demo/video-plan.json",
+      };
+    },
+  });
+
+  assert.deepEqual(
+    await domainOps.directVoice({ projectId: "demo", provider: "openai", force: true }),
+    {
+      beatUpdates: 2,
+      videoPlanPath: "/repo/content/projects/demo/video-plan.json",
+    },
+  );
+});
+
 void test("studio domain ops transcribes through an injected provider registry", async () => {
   const injectedTranscriptionProvider = { id: "mock" } as TranscriptionProvider;
   const domainOps = createStudioDomainOps({

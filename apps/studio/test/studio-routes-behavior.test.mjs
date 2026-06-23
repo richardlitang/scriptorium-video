@@ -210,7 +210,6 @@ test("job routes reject draft requests with empty story and scaffold placeholder
 
 test("prepare-draft uses typed safe steps and preserves quality warning responses", async () => {
   const { response, sendJson } = makeJsonResponder();
-  const lvstudioCalls = [];
   const narrationCalls = [];
   const captionCalls = [];
   const syncCalls = [];
@@ -232,10 +231,6 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
             return typeof result === "string" ? { stdout: result } : result;
           },
         }),
-      runLvstudio: async (args) => {
-        lvstudioCalls.push(args);
-        return { ok: true, stdout: args[0] };
-      },
       domainOps: {
         generateTts: async (input) => {
           narrationCalls.push(input);
@@ -277,14 +272,45 @@ test("prepare-draft uses typed safe steps and preserves quality warning response
   assert.deepEqual(captionCalls, ["demo"]);
   assert.deepEqual(checkCalls, ["demo"]);
   assert.deepEqual(narrationCalls, [{ projectId: "demo", providerId: "chatterbox", force: true }]);
-  assert.equal(
-    lvstudioCalls.some((args) => args[0] === "generate:tts"),
-    false,
+});
+
+test("direct-voice route uses typed domain operation", async () => {
+  const { response, sendJson } = makeJsonResponder();
+  const directVoiceCalls = [];
+  const qualityHistory = [];
+  const handled = await handleJobRoutes(
+    makeJobContext({
+      sendJson,
+      runProjectMutation: async (_projectId, fn) => fn(),
+      runTrackedForegroundJob: async (_projectId, _job, worker) =>
+        worker({
+          advance: async (_label, fn) => {
+            const result = await fn();
+            return typeof result === "string" ? { stdout: result } : result;
+          },
+        }),
+      domainOps: {
+        directVoice: async (input) => {
+          directVoiceCalls.push(input);
+          return { beatUpdates: 2, videoPlanPath: "/tmp/demo/video-plan.json" };
+        },
+      },
+      appendQualityHistory: async (_projectId, entry) => {
+        qualityHistory.push(entry);
+      },
+      sha256: () => "hash",
+    }),
+    { method: "POST" },
+    {},
+    "/api/projects/demo/direct-voice",
+    new URL("http://localhost:4173"),
   );
-  assert.equal(
-    lvstudioCalls.some((args) => ["sync", "transcribe", "captions", "check"].includes(args[0])),
-    false,
-  );
+
+  assert.equal(handled, true);
+  assert.equal(response.status, 200);
+  assert.deepEqual(directVoiceCalls, [{ projectId: "demo", provider: "openai" }]);
+  assert.match(response.body.data.output, /beatUpdates/);
+  assert.equal(qualityHistory[0].kind, "direct_voice");
 });
 
 test("job routes prefer active draft job over persisted run-state job", async () => {

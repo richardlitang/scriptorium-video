@@ -34,7 +34,6 @@ export function makeProjectContext(overrides = {}) {
   base.listProjects = async () => [];
   base.safeProjectId = (value) => String(value || "");
   base.stat = async () => null;
-  base.runLvstudio = async () => ({ stdout: "", ok: true });
   base.safeReadJson = async () => ({});
   base.writeFile = async () => {};
   base.projectDeleteBlocker = () => "";
@@ -49,6 +48,7 @@ export function makeProjectContext(overrides = {}) {
   base.domainOps = {
     createProject: async () => {},
     generateTts: async () => ({ generated: [], skipped: [] }),
+    directVoice: async () => ({}),
     sync: async () => ({}),
     transcribe: async () => ({}),
     check: async () => ({}),
@@ -114,6 +114,7 @@ export function makeJobContext(overrides = {}) {
   base.domainOps = {
     createProject: async () => {},
     generateTts: async () => ({ generated: [], skipped: [] }),
+    directVoice: async () => ({}),
     sync: async () => ({}),
     transcribe: async () => ({}),
     captions: async () => ({}),
@@ -121,7 +122,6 @@ export function makeJobContext(overrides = {}) {
     review: async () => ({}),
     render: async () => ({}),
   };
-  base.runLvstudio = async () => ({});
   base.appendQualityHistory = async () => {};
   base.writeRunState = async () => {};
   base.path = path;

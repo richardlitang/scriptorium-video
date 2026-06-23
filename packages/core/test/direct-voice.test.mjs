@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
+import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
 import { test } from "node:test";
-import { applyVoiceDirectionPlan } from "../dist/direct-voice.js";
+import { applyVoiceDirectionPlan, directVoiceProject } from "../dist/direct-voice.js";
 
 function samplePlan() {
   return {
@@ -161,4 +164,42 @@ test("applyVoiceDirectionPlan respects directionMeta locks", () => {
   assert.equal(beat.direction.voice.profile, "neutral");
   assert.deepEqual(beat.caption.emphasis, ["first"]);
   assert.equal(beat.direction.sfxCues.length, 0);
+});
+
+test("directVoiceProject applies a directed voice file inside an explicit project root", async () => {
+  const rootDir = await mkdtemp(path.join(os.tmpdir(), "lvstudio-direct-voice-"));
+  const projectDir = path.join(rootDir, "content", "projects", "demo");
+  await mkdir(projectDir, { recursive: true });
+  await writeFile(path.join(projectDir, "video-plan.json"), `${JSON.stringify(samplePlan())}\n`);
+  const directionPath = path.join(rootDir, "voice-direction.json");
+  await writeFile(
+    directionPath,
+    `${JSON.stringify({
+      beats: [
+        {
+          beatId: "beat-1",
+          voiceDirection: {
+            profile: "urgent",
+            emphasis: ["now"],
+            pauseBeforeMs: 100,
+            pauseAfterMs: 200,
+            intensity: 0.9,
+            source: "llm",
+          },
+          captionEmphasis: ["now"],
+          sfxCues: [],
+        },
+      ],
+    })}\n`,
+  );
+
+  const result = await directVoiceProject("demo", { rootDir, fromFile: directionPath });
+
+  assert.deepEqual(result, {
+    beatUpdates: 1,
+    videoPlanPath: path.join(projectDir, "video-plan.json"),
+  });
+  const updated = JSON.parse(await readFile(path.join(projectDir, "video-plan.json"), "utf8"));
+  assert.equal(updated.sections[0].beats[0].direction.voice.profile, "urgent");
+  assert.deepEqual(updated.sections[0].beats[0].caption.emphasis, ["first", "now"]);
 });

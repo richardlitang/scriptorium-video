@@ -13,11 +13,5 @@ export function createStudioOpsRuntimeAdapter() {
     async appendQualityHistory(projectId, entry) {
       return requireRuntime().appendQualityHistory(projectId, entry);
     },
-    async appendCommandLog(entry) {
-      return requireRuntime().appendCommandLog(entry);
-    },
-    async runLvstudio(args) {
-      return requireRuntime().runLvstudio(args);
-    },
   };
 }
