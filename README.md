@@ -59,12 +59,12 @@ For the full production path, use a real local project and follow `validate → 
 
 ```bash
 pnpm install
-pnpm start
+pnpm start:full
 ```
 
-`pnpm start` builds the packages, builds the web SPA, and launches the Studio server in one command. It defaults to `http://localhost:4173`.
+`pnpm start:full` ensures the local Chatterbox Python environment exists, then builds the packages, builds the web SPA, and launches the Studio server in one command. It defaults to `http://localhost:4173`.
 
-The server autostarts the local Chatterbox TTS server on demand when a narration job runs. Chatterbox needs a one-time Python environment setup (Python 3.11, several GB of dependencies and model weights):
+The server autostarts the local Chatterbox TTS server on demand when a narration job runs. If you want to set up Chatterbox separately, run:
 
 ```bash
 pnpm setup:chatterbox   # one time; re-run after a reboot if the venv lives under /private/tmp

@@ -7,6 +7,7 @@
   "scripts": {
     "lvstudio": "pnpm -s build && node packages/cli/dist/index.js",
     "start": "pnpm -s build && pnpm -s --filter @lvstudio/studio build:web && node --import tsx apps/studio/server.mjs",
+    "start:full": "bash scripts/start-full.sh",
     "setup:chatterbox": "bash scripts/setup-chatterbox.sh",
     "validate": "pnpm lvstudio validate",
     "sync": "pnpm lvstudio sync",
@@ -18,8 +19,9 @@
     "lint": "eslint \"**/*.{ts,tsx,mts}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\" --max-warnings 50",
     "lint:fix": "eslint --fix \"**/*.{ts,tsx,mts}\" \"apps/studio/**/*.mjs\" \"apps/studio/server.mjs\"",
     "test": "pnpm -r --if-present test",
-    "verify": "pnpm -s format:check && pnpm -s lint && pnpm -s check:quality-tooling && pnpm -s check:studio && pnpm -s check:renderer-boundary && pnpm -s check:test-dist-contract && pnpm -s check:studio-server-bootstrap && pnpm -s check:planner-schema-boundary && pnpm -s check:video-plan-normalization && pnpm -s check:studio-env-boundary && pnpm -s check:core-env-boundary && pnpm -s check:focused-audit-doc && pnpm -s check:agent-harness-docs && pnpm -s build && pnpm -s test && pnpm --filter @lvstudio/studio test:web",
+    "verify": "pnpm -s format:check && pnpm -s lint && pnpm -s check:quality-tooling && pnpm -s check:local-dev-command && pnpm -s check:studio && pnpm -s check:renderer-boundary && pnpm -s check:test-dist-contract && pnpm -s check:studio-server-bootstrap && pnpm -s check:planner-schema-boundary && pnpm -s check:video-plan-normalization && pnpm -s check:studio-env-boundary && pnpm -s check:core-env-boundary && pnpm -s check:focused-audit-doc && pnpm -s check:agent-harness-docs && pnpm -s build && pnpm -s test && pnpm --filter @lvstudio/studio test:web",
     "check:quality-tooling": "node scripts/check-quality-tooling.mjs",
+    "check:local-dev-command": "node scripts/check-local-dev-command.mjs",
     "check:studio": "tsc -p apps/studio/tsconfig.json",
     "check:renderer-boundary": "node scripts/check-renderer-boundary.mjs",
     "check:test-dist-contract": "node scripts/check-test-dist-contract.mjs",
