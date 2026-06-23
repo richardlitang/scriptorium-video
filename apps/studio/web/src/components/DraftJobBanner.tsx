@@ -38,7 +38,7 @@ export function DraftJobBanner({ projectId, onJobFinished }: Props) {
       onJobFinished();
       setDismissed(false);
     }
-    if (job.jobId) lastSeenJobId.current = job.jobId as string;
+    if (job.jobId) lastSeenJobId.current = job.jobId;
   }, [job, projectId, qc, onJobFinished]);
 
   if (model.hideBanner || dismissed) return null;

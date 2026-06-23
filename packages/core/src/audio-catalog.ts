@@ -126,7 +126,7 @@ export async function enrichAudioCatalog(
       continue;
     }
     const absolutePath = path.resolve(paths.projectDir, asset.path);
-    const probed = await probeMedia(absolutePath).catch(() => ({}) as ProbeResult);
+    const probed = await probeMedia(absolutePath).catch((): Partial<ProbeResult> => ({}));
     const sha256 = await hashFile(absolutePath).catch(() => undefined);
     if (probed.durationSeconds !== undefined) asset.durationSeconds = probed.durationSeconds;
     if (sha256) asset.source.sha256 = sha256;

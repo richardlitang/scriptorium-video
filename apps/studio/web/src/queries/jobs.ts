@@ -14,7 +14,7 @@ export function useJobs(projectId: string | null) {
     queryFn: async () => (await api.projects.jobs(projectId!)).jobs ?? [],
     enabled: projectId != null,
     refetchInterval: (query) => {
-      const jobs = query.state.data as Job[] | undefined;
+      const jobs = query.state.data;
       return jobs?.some((j) => isActiveJob(j.status)) ? 1000 : false;
     },
   });

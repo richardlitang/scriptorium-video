@@ -33,7 +33,7 @@ export function ImagesPanel({ projectId, onLog }: Props) {
         quality: imageQuality,
       });
       const data = (
-        result as unknown as {
+        result as {
           data?: { generated?: unknown[]; failed?: unknown[]; coverage?: string };
         }
       ).data;

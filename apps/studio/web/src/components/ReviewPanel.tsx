@@ -60,7 +60,7 @@ export function ReviewPanel({ projectId, onSelectBeat }: Props) {
               <div className="text-xs text-[var(--color-text)] mt-0.5">{issue.message}</div>
               {issue.beatId && onSelectBeat && (
                 <button
-                  onClick={() => onSelectBeat(issue.beatId!)}
+                  onClick={() => onSelectBeat(issue.beatId)}
                   className="mt-1 text-xs px-2 py-0.5 rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                 >
                   Select Beat

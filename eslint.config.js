@@ -65,6 +65,7 @@ export default [
         "error",
         { prefer: "type-imports", fixStyle: "inline-type-imports" },
       ],
+      "@typescript-eslint/no-unnecessary-type-assertion": "error",
       "@typescript-eslint/no-shadow": "error",
       "@typescript-eslint/switch-exhaustiveness-check": "error",
 

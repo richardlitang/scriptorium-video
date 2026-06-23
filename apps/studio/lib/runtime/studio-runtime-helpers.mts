@@ -131,7 +131,7 @@ export function sleep(ms: number) {
 }
 
 export async function readMmsHealth({
-  fetchImpl = fetch as FetchLike,
+  fetchImpl = fetch,
   mmsHealthUrl,
 }: {
   fetchImpl?: FetchLike;

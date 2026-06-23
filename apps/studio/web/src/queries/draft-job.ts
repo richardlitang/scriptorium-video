@@ -17,7 +17,7 @@ export function useDraftJob(projectId: string | null) {
     enabled: projectId != null,
     // Poll at 2.5s while active; stop when completed/failed
     refetchInterval: (query) => {
-      const job = query.state.data as DraftJob | null | undefined;
+      const job = query.state.data;
       return isJobActive(job?.status) ? 2500 : false;
     },
     // When job finishes, refresh project details + renders
