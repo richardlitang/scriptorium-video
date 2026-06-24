@@ -4,6 +4,10 @@ Scriptorium Video is a local-first video studio for planning, assembling, review
 
 This is a personal engineering project. The repo is public for code review and portfolio use, not a hosted SaaS product or packaged npm library.
 
+![Local Video Studio: the Story, Plan, and Output panes with a live render preview](docs/media/studio-screenshot.png)
+
+_One screen, end to end: paste a story (left), generate a structured production plan with AI (center), then narrate, render, and review the video (right). Narration runs locally through Chatterbox; rendering is handled by Remotion._
+
 ## Quick Look
 
 - **Run the app:** `pnpm start:full`
@@ -27,6 +31,93 @@ This short preview was produced by the local Studio workflow using Chatterbox na
 - Remotion rendering separated from orchestration and provider logic.
 - Provider integrations for planning, image generation, transcription, narration, and local-first media flows.
 - Structural guardrails, linting, formatting, type checks, and package-owned tests composed by one verification command.
+
+## Architecture
+
+A small monorepo with a strict dependency direction: a canonical `core`, provider adapters and quality checks built on it, render orchestration on top, and three thin inbound adapters (CLI, MCP, Studio) that validate input and delegate. The renderer is consumed only through a provider, never imported directly by orchestration.
+
+```mermaid
+flowchart TD
+  subgraph adapters["Inbound adapters"]
+    cli["CLI"]
+    mcp["MCP server"]
+    ui["Studio web app - React, Vite, TanStack Query"]
+    http["Studio HTTP server"]
+  end
+
+  subgraph domain["Domain and orchestration"]
+    core["core - Zod schemas, project ops, sync, generate-tts, transcribe, review"]
+    workflows["workflows - render workflow, job manager"]
+    quality["quality - read-only checks"]
+  end
+
+  subgraph prov["providers"]
+    tts["TTS - chatterbox, mms, openai"]
+    trans["transcription"]
+    rendprov["renderer provider"]
+  end
+
+  renderer["renderer - Remotion compositions"]
+
+  subgraph ext["External and local services"]
+    openai["OpenAI API - planning, images, TTS fallback"]
+    chatterbox["Chatterbox server - local Python"]
+    ffmpeg["Remotion and ffmpeg render"]
+  end
+
+  out["Outputs - draft.mp4, final.mp4, project artifacts"]
+
+  ui --> http
+  cli --> core
+  mcp --> core
+  http --> core
+  http --> workflows
+  workflows --> quality
+  core --> tts
+  core --> trans
+  workflows --> rendprov
+  rendprov --> renderer
+  tts --> chatterbox
+  tts -. fallback .-> openai
+  trans -. fallback .-> openai
+  http -. planning, images .-> openai
+  renderer --> ffmpeg
+  workflows --> out
+```
+
+_Solid edges are explicit, verified in each package manifest and entrypoint (`core` has no internal deps; `providers`, `quality`, and `renderer` depend on `core`; `workflows` adds `quality`; CLI, MCP, and Studio depend on all four). Dashed edges are runtime fallbacks to the OpenAI API._
+
+### How a draft is produced
+
+```mermaid
+sequenceDiagram
+  participant U as User
+  participant S as Studio server
+  participant O as OpenAI
+  participant T as TTS provider
+  participant C as Chatterbox
+  participant X as Transcription
+  participant R as Remotion
+  U->>S: Paste story, generate plan
+  S->>O: Plan request with system and user prompts
+  O-->>S: Structured video plan
+  U->>S: Make draft
+  loop each beat
+    S->>T: Generate narration
+    T->>C: Speech request, optional voice clone
+    C-->>T: WAV audio
+  end
+  S->>S: Sync timeline
+  S->>X: Transcribe narration
+  X-->>S: Transcript
+  S->>S: Generate captions
+  U->>S: Render
+  S->>R: Render bundle
+  R-->>S: draft.mp4
+  S-->>U: Preview ready
+```
+
+Plan generation and optional image work go through OpenAI; per-beat narration runs locally through the Chatterbox TTS server with optional voice cloning; rendering is handled by Remotion.
 
 ## Workflow
 
@@ -94,6 +185,12 @@ pnpm start:full
 
 `pnpm start:full` ensures the local Chatterbox Python environment exists, builds the packages, builds the web SPA, and launches the Studio server in one command. It defaults to `http://localhost:4173`.
 
+To stop everything (Studio plus the detached Chatterbox process it spawns):
+
+```bash
+pnpm stop:full
+```
+
 The server autostarts the local Chatterbox TTS server on demand when a narration job runs. If you want to set up Chatterbox separately, run:
 
 ```bash
@@ -107,6 +204,7 @@ For provider-backed flows such as OpenAI planning, image generation, or TTS, cop
 | Command                | Purpose                                           |
 | ---------------------- | ------------------------------------------------- |
 | `pnpm start:full`      | Start Studio plus the local Chatterbox setup path |
+| `pnpm stop:full`       | Stop Studio and the local Chatterbox process      |
 | `pnpm -s verify`       | Run the full repository gate                      |
 | `pnpm -s build`        | TypeScript project build                          |
 | `pnpm -s test`         | Package-owned tests                               |
