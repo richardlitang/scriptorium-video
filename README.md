@@ -26,6 +26,12 @@ The useful claim here is not that this is a finished hosted video product. It is
 
 **Evidence:** runnable boundary checks protect those choices alongside linting, type checks, package-owned tests, and `pnpm -s verify`.
 
+## Sample render
+
+[![The gurl sample render](docs/media/the-gurl-sample-poster.jpg)](docs/media/the-gurl-sample.mp4)
+
+This short preview was produced by the local Studio workflow using Chatterbox narration and the Remotion renderer. The full local render used to make this preview is `content/projects/the-gurl/renders/draft.mp4`; generated project artifacts remain ignored, so only this compressed documentation sample is tracked.
+
 Run the deterministic proof locally:
 
 ```bash
@@ -103,4 +109,4 @@ The durable agent/developer contract lives in `AGENTS.md`; it is included becaus
 
 This project is active and local-first. It is suitable for reviewing architecture, testing strategy, frontend decomposition, workflow orchestration, and media-rendering boundaries. It is not yet packaged as a public npm library or deployed SaaS app.
 
-Generated media, local Studio state, rendered outputs, captions, and per-project artifacts are intentionally ignored.
+Generated media, local Studio state, rendered outputs, captions, and per-project artifacts are intentionally ignored, except for small curated documentation samples under `docs/media/`.
