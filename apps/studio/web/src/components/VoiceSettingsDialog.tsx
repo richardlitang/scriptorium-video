@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { readStored, writeStored } from "@/lib/project-storage";
 import { defaultVoiceSettings } from "../../../voice-settings.mjs";
+import { applyVoiceSettingsPreset, voiceSettingsPresetOptions } from "@/lib/voice-settings-presets";
 import {
   useSaveVoiceSettings,
   useUploadVoiceReference,
@@ -10,12 +11,6 @@ import {
 } from "@/queries/voice-settings";
 
 type VoiceSettings = typeof defaultVoiceSettings;
-
-const PRESETS: Record<string, Partial<VoiceSettings>> = {
-  controlled: { exaggeration: 0.45, cfgWeight: 0.45, temperature: 0.6 },
-  suspense: { exaggeration: 0.55, cfgWeight: 0.35, temperature: 0.75 },
-  dramatic: { exaggeration: 0.7, cfgWeight: 0.3, temperature: 0.85 },
-};
 
 const DEFAULT_LINE_A =
   "I should have turned back when the hallway lights began to flicker, but I kept walking.";
@@ -255,14 +250,21 @@ export function VoiceSettingsDialog({ projectId, trigger }: Props) {
 
             {/* Presets */}
             <div className="flex gap-1 flex-wrap">
-              {Object.entries(PRESETS).map(([name, values]) => (
+              {voiceSettingsPresetOptions.map((preset) => (
                 <button
-                  key={name}
+                  key={preset.id}
                   type="button"
-                  onClick={() => setSettings((s) => ({ ...s, ...values }))}
-                  className="text-xs px-2 py-1 rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors capitalize"
+                  onClick={() => {
+                    setSettings((s) => applyVoiceSettingsPreset(s, preset.id));
+                    setStatus(
+                      preset.clearsAudioPrompt
+                        ? `${preset.label} preset applied. Voice reference cleared; save to use it.`
+                        : `${preset.label} preset applied. Save to use it.`,
+                    );
+                  }}
+                  className="text-xs px-2 py-1 rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                 >
-                  {name}
+                  {preset.label}
                 </button>
               ))}
             </div>
