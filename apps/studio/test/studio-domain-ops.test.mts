@@ -183,6 +183,56 @@ void test("studio domain ops runs direct voice through the typed core operation"
   );
 });
 
+void test("studio domain ops resolves a repo-relative voice reference to an absolute chatterbox prompt", async () => {
+  const configuredProviders: unknown[] = [];
+  const domainOps = createStudioDomainOps({
+    rootDir: "/repo",
+    readVoiceSettingsImpl: async () => ({
+      ttsModel: "chatterbox",
+      audioPromptPath: "apps/studio/assets/voices/campfire-sage.wav",
+      deliveryProfile: "controlled",
+      intensity: 0.48,
+      stability: 0.92,
+      pacing: 0.35,
+      variation: 0.2,
+      exaggeration: 0.42,
+      cfgWeight: 0.7,
+      temperature: 0.45,
+      seed: "",
+    }),
+    processEnv: {},
+    createChatterboxTTSProviderImpl: (config) => {
+      configuredProviders.push(config);
+      return {
+        id: "chatterbox",
+        listVoices: async () => [],
+        synthesize: async () => ({
+          audioPath: "/repo/x.wav",
+          durationSeconds: 1,
+          providerId: "chatterbox",
+          voiceId: "default",
+          inputHash: "test",
+        }),
+      };
+    },
+    generateTTSForProjectImpl: async () => ({ generated: [], skipped: [] }),
+  });
+
+  await domainOps.generateTts({ projectId: "demo", providerId: "chatterbox", force: true });
+  assert.deepEqual(configuredProviders, [
+    {
+      speechUrl: undefined,
+      apiKey: undefined,
+      model: "chatterbox",
+      audioPromptPath: "/repo/apps/studio/assets/voices/campfire-sage.wav",
+      exaggeration: 0.42,
+      cfgWeight: 0.7,
+      temperature: 0.45,
+      seed: undefined,
+    },
+  ]);
+});
+
 void test("studio domain ops transcribes through an injected provider registry", async () => {
   const injectedTranscriptionProvider = { id: "mock" } as TranscriptionProvider;
   const domainOps = createStudioDomainOps({

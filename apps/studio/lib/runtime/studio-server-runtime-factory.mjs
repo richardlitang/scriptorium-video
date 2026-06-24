@@ -146,6 +146,7 @@ export function createStudioServerRuntime({
     env: processEnv,
     chatterboxSpeechUrl: runtimeConfig.chatterboxSpeechUrl,
     chatterboxHealthUrl: runtimeConfig.chatterboxHealthUrl,
+    rootDir,
     studioTestMode: STUDIO_TEST_MODE,
     normalizePreviewAudio: createVoicePreviewNormalizer(),
   });

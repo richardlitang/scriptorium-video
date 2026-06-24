@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
 import { normalizeVoiceSettings } from "../../voice-settings.mjs";
+import { resolveVoiceReferencePath } from "./voice-reference-path.mjs";
 
 function sha256(value) {
   return createHash("sha256").update(String(value)).digest("hex");
@@ -23,6 +24,7 @@ export function createVoicePreviewAndHealth({
   env = process.env,
   chatterboxSpeechUrl,
   chatterboxHealthUrl,
+  rootDir,
   studioTestMode = false,
   previewCacheMaxEntries = 24,
   normalizePreviewAudio = async (bytes) => bytes,
@@ -41,7 +43,7 @@ export function createVoicePreviewAndHealth({
       voice: "default",
       input: String(text || "").trim(),
       response_format: "wav",
-      audio_prompt_path: normalized.audioPromptPath || undefined,
+      audio_prompt_path: resolveVoiceReferencePath(normalized.audioPromptPath, rootDir),
       exaggeration: normalized.exaggeration,
       cfg_weight: normalized.cfgWeight,
       temperature: normalized.temperature,

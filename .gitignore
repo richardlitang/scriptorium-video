@@ -18,6 +18,8 @@ content/projects/**/timeline.json
 content/projects/**/asset-manifest.json
 content/projects/**/video-plan.json
 content/projects/**/project.json
+# User-supplied voice reference clips for presets (personal voice data; keep local)
+apps/studio/assets/voices/*.wav
 __pycache__/
 *.pyc
 .worktrees/

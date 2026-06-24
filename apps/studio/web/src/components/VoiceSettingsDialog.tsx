@@ -256,11 +256,7 @@ export function VoiceSettingsDialog({ projectId, trigger }: Props) {
                   type="button"
                   onClick={() => {
                     setSettings((s) => applyVoiceSettingsPreset(s, preset.id));
-                    setStatus(
-                      preset.clearsAudioPrompt
-                        ? `${preset.label} preset applied. Voice reference cleared; save to use it.`
-                        : `${preset.label} preset applied. Save to use it.`,
-                    );
+                    setStatus(`${preset.label} preset applied. Save to use it.`);
                   }}
                   className="text-xs px-2 py-1 rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors"
                 >

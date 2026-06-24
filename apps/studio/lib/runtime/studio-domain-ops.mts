@@ -26,6 +26,7 @@ import { runQualityChecks, type QualityResult } from "@lvstudio/quality";
 import { runRenderWorkflow, type RenderWorkflowResult } from "@lvstudio/workflows";
 import type { z } from "zod";
 import { voiceRuntimeForSettings } from "./studio-voice-runtime.mjs";
+import { resolveVoiceReferencePath } from "../tts/voice-reference-path.mjs";
 
 type VideoMode = z.infer<typeof VideoModeSchema>;
 type TargetPlatform = z.infer<typeof TargetPlatformSchema>;
@@ -136,8 +137,13 @@ export function createStudioDomainOps({
     }) {
       let provider = ttsProviderRegistry[providerId];
       if (providerId === "chatterbox" && readVoiceSettingsImpl) {
+        const settings = await readVoiceSettingsImpl();
+        const audioPromptPath = resolveVoiceReferencePath(settings.audioPromptPath, rootDir);
         provider = createChatterboxTTSProviderImpl(
-          voiceRuntimeForSettings(await readVoiceSettingsImpl(), processEnv),
+          voiceRuntimeForSettings(
+            { ...settings, audioPromptPath: audioPromptPath ?? "" },
+            processEnv,
+          ),
         );
       }
       if (!provider) throw new Error(`Unknown TTS provider: ${providerId}`);

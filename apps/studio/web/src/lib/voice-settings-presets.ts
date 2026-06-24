@@ -6,7 +6,6 @@ type VoiceSettingsPreset = {
   id: string;
   label: string;
   values: Partial<VoiceSettings>;
-  clearsAudioPrompt?: boolean;
 };
 
 export const voiceSettingsPresetOptions: readonly VoiceSettingsPreset[] = [
@@ -29,7 +28,10 @@ export const voiceSettingsPresetOptions: readonly VoiceSettingsPreset[] = [
     id: "campfire-sage",
     label: "Campfire Sage",
     values: {
-      audioPromptPath: "",
+      // Bundled reference clip (repo-relative); resolved to an absolute path at
+      // generation/preview time. Chatterbox clones this voice rather than using
+      // its generic default speaker. Delivery values shape the storyteller tone.
+      audioPromptPath: "apps/studio/assets/voices/campfire-sage.wav",
       deliveryProfile: "controlled",
       intensity: 0.48,
       stability: 0.92,
@@ -39,7 +41,6 @@ export const voiceSettingsPresetOptions: readonly VoiceSettingsPreset[] = [
       cfgWeight: 0.7,
       temperature: 0.45,
     },
-    clearsAudioPrompt: true,
   },
 ];
 

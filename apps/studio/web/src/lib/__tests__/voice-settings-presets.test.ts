@@ -7,7 +7,7 @@ describe("voice settings presets", () => {
     expect(voiceSettingsPresetOptions.map((preset) => preset.label)).toContain("Campfire Sage");
   });
 
-  it("applies grounded campfire sage delivery values and clears the voice reference", () => {
+  it("applies grounded campfire sage delivery values and the bundled voice reference", () => {
     const settings = {
       ...defaultVoiceSettings,
       audioPromptPath: "/tmp/current-reference.wav",
@@ -21,7 +21,7 @@ describe("voice settings presets", () => {
     };
 
     expect(applyVoiceSettingsPreset(settings, "campfire-sage")).toMatchObject({
-      audioPromptPath: "",
+      audioPromptPath: "apps/studio/assets/voices/campfire-sage.wav",
       deliveryProfile: "controlled",
       intensity: 0.48,
       stability: 0.92,
