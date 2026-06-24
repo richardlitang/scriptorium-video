@@ -1,22 +1,52 @@
 # Scriptorium Video
 
-Scriptorium Video is a TypeScript monorepo for planning, assembling, reviewing, and rendering narrated videos from structured project data. It combines a local Studio web app, a CLI, an MCP server, provider adapters, shared Zod domain schemas, and a Remotion renderer.
+Scriptorium Video is a local-first video studio for planning, assembling, reviewing, and rendering narrated videos from structured project data. It combines a Studio web app, CLI, MCP server, provider adapters, shared Zod domain schemas, quality checks, and a Remotion renderer.
 
-This is a personal engineering project. The repo is public for code review and portfolio use, not as a polished hosted product.
+This is a personal engineering project. The repo is public for code review and portfolio use, not a hosted SaaS product or packaged npm library.
 
-## What it demonstrates
+## Quick Look
+
+- **Run the app:** `pnpm start:full`
+- **Open Studio:** `http://localhost:4173`
+- **Run the full gate:** `pnpm -s verify`
+- **Run the deterministic portfolio proof:** `bash docs/portfolio-demo.sh`
+- **Sample output:** see the compressed render preview below
+
+## Sample Render
+
+[![Sample render preview](docs/media/the-gurl-sample-poster.jpg)](docs/media/the-gurl-sample.mp4)
+
+This short preview was produced by the local Studio workflow using Chatterbox narration and the Remotion renderer. The full local render used to make this preview is `content/projects/the-gurl/renders/draft.mp4`; generated project artifacts remain ignored, so only this compressed documentation sample is tracked.
+
+## What It Demonstrates
 
 - Monorepo architecture with clear package and app boundaries.
 - Shared domain contracts built around canonical Zod schemas.
 - Thin HTTP, CLI, and MCP adapters that delegate to named workflow modules.
 - React 19 + Vite + TypeScript Studio UI with TanStack Query and focused component tests.
 - Remotion rendering separated from orchestration and provider logic.
-- Provider integrations for planning, image generation, transcription/TTS-style workflows, and local-first media flows.
+- Provider integrations for planning, image generation, transcription, narration, and local-first media flows.
 - Structural guardrails, linting, formatting, type checks, and package-owned tests composed by one verification command.
 
-## Portfolio case study
+## Workflow
 
-The useful claim here is not that this is a finished hosted video product. It is that the codebase has a deliberate, testable shape for a local-first video workflow: shared contracts, thin adapters, focused orchestration, provider boundaries, and a renderer that consumes prepared bundles.
+The production path is intentionally explicit:
+
+| Stage     | What Happens                                                                  |
+| --------- | ----------------------------------------------------------------------------- |
+| Plan      | Story input or `video-plan.json` is normalized through the core schemas.      |
+| Sync      | Project data is converted into timeline and render-bundle friendly artifacts. |
+| Narration | TTS providers create beat-level voice assets.                                 |
+| Captions  | Transcription and caption generation produce timed text artifacts.            |
+| Images    | Optional image providers create or reuse visual assets.                       |
+| Quality   | Read-only checks inspect the prepared project and generated artifacts.        |
+| Render    | Remotion consumes the prepared bundle and writes `draft.mp4` or `final.mp4`.  |
+
+Generated media and per-project artifacts are local state by default. The repository tracks source code, tests, docs, and small curated documentation samples, not normal Studio output.
+
+## Portfolio Case Study
+
+The useful claim here is not that this is a finished video product. It is that the codebase has a deliberate, testable shape for a local video workflow: shared contracts, thin adapters, focused orchestration, provider boundaries, and a renderer that consumes prepared bundles.
 
 ![Deterministic portfolio proof workflow](docs/portfolio-proof-workflow.svg)
 
@@ -26,12 +56,6 @@ The useful claim here is not that this is a finished hosted video product. It is
 
 **Evidence:** runnable boundary checks protect those choices alongside linting, type checks, package-owned tests, and `pnpm -s verify`.
 
-## Sample render
-
-[![The gurl sample render](docs/media/the-gurl-sample-poster.jpg)](docs/media/the-gurl-sample.mp4)
-
-This short preview was produced by the local Studio workflow using Chatterbox narration and the Remotion renderer. The full local render used to make this preview is `content/projects/the-gurl/renders/draft.mp4`; generated project artifacts remain ignored, so only this compressed documentation sample is tracked.
-
 Run the deterministic proof locally:
 
 ```bash
@@ -40,35 +64,35 @@ bash docs/portfolio-demo.sh
 
 The script builds the workspace, creates a short-form `portfolio_site` project in a temporary directory, validates its canonical contracts, resolves its declared production policy, prints the generated project shape, and removes the temporary directory. It makes no network calls, requires no API key, and does not generate media. See the [representative output](docs/portfolio-demo-output.txt).
 
-For the full production path, use a real local project and follow `validate → sync → check → render`; provider-backed narration, images, captions, and rendered media are intentionally opt-in because they can require credentials, local services, or substantial assets.
+For the full production path, use a real local project and follow `validate -> sync -> check -> render`; provider-backed narration, images, captions, and rendered media are intentionally opt-in because they can require credentials, local services, or substantial assets.
 
-## Workspace map
+## Workspace Map
 
-| Workspace             | Responsibility                                                                             |
-| --------------------- | ------------------------------------------------------------------------------------------ |
-| `packages/core`       | Domain schemas, validation, project paths, config resolution, and render-bundle contracts. |
-| `packages/providers`  | Concrete provider adapters for external/local services.                                    |
-| `packages/quality`    | Read-only quality checks and reports.                                                      |
-| `packages/cli`        | Command-line interface wiring.                                                             |
-| `packages/mcp-server` | MCP tools for project operations.                                                          |
-| `apps/studio`         | Local HTTP server, workflow orchestration, job state, and the Studio web app.              |
-| `apps/renderer`       | Remotion compositions and render-time presentation.                                        |
+| Workspace             | Responsibility                                                                            |
+| --------------------- | ----------------------------------------------------------------------------------------- |
+| `packages/core`       | Domain schemas, validation, project paths, config resolution, and render-bundle contracts |
+| `packages/providers`  | Concrete provider adapters for external and local services                                |
+| `packages/quality`    | Read-only quality checks and reports                                                      |
+| `packages/cli`        | Command-line interface wiring                                                             |
+| `packages/mcp-server` | MCP tools for project operations                                                          |
+| `apps/studio`         | Local HTTP server, workflow orchestration, job state, and Studio web app                  |
+| `apps/renderer`       | Remotion compositions and render-time presentation                                        |
 
 ## Requirements
 
 - Node.js 22
 - pnpm 10.11.0
-- Optional local services for full media generation, depending on provider settings
 - Optional `ffmpeg` / `ffprobe` for smoke tests and rendered media inspection
+- Optional local services or API credentials for provider-backed planning, images, TTS, and transcription
 
-## Quick start
+## Quick Start
 
 ```bash
 pnpm install
 pnpm start:full
 ```
 
-`pnpm start:full` ensures the local Chatterbox Python environment exists, then builds the packages, builds the web SPA, and launches the Studio server in one command. It defaults to `http://localhost:4173`.
+`pnpm start:full` ensures the local Chatterbox Python environment exists, builds the packages, builds the web SPA, and launches the Studio server in one command. It defaults to `http://localhost:4173`.
 
 The server autostarts the local Chatterbox TTS server on demand when a narration job runs. If you want to set up Chatterbox separately, run:
 
@@ -76,26 +100,28 @@ The server autostarts the local Chatterbox TTS server on demand when a narration
 pnpm setup:chatterbox   # one time; re-run after a reboot if the venv lives under /private/tmp
 ```
 
-For provider-backed flows (OpenAI planning/images/TTS), copy `.env.example` into your local shell or an ignored env file and provide the required credentials or local service URLs. Do not commit real secrets.
+For provider-backed flows such as OpenAI planning, image generation, or TTS, copy `.env.example` into your local shell or an ignored env file and provide the required credentials or local service URLs. Do not commit real secrets.
 
-## Useful commands
+## Useful Commands
 
-```bash
-pnpm -s verify
-pnpm -s build
-pnpm -s test
-pnpm lint
-pnpm format:check
-pnpm mcp:server
-```
+| Command                | Purpose                                           |
+| ---------------------- | ------------------------------------------------- |
+| `pnpm start:full`      | Start Studio plus the local Chatterbox setup path |
+| `pnpm -s verify`       | Run the full repository gate                      |
+| `pnpm -s build`        | TypeScript project build                          |
+| `pnpm -s test`         | Package-owned tests                               |
+| `pnpm lint`            | ESLint with the current warning baseline          |
+| `pnpm format:check`    | Prettier check                                    |
+| `pnpm mcp:server`      | Build and run the MCP server                      |
+| `pnpm lvstudio --help` | CLI entry point after build                       |
 
 `pnpm -s verify` is the main gate. It runs formatting checks, linting, TypeScript builds, package tests, Studio web tests, and boundary checks that keep orchestration, schemas, renderer code, and environment access in the right layers.
 
-## Architecture notes
+## Architecture Notes
 
-The main design constraint is that adapters should not become the application. Route handlers, CLI commands, MCP tools, and React components are expected to validate input, wire dependencies, call focused workflow/domain modules, and map the result back to their surface.
+The main design constraint is that adapters should not become the application. Route handlers, CLI commands, MCP tools, and React components validate input, wire dependencies, call focused workflow or domain modules, and map the result back to their surface.
 
-The repo enforces that through small modules and runnable checks:
+The repo enforces that through focused modules and runnable checks:
 
 - Renderer code stays out of core, CLI, and Studio orchestration.
 - Planner and video-plan schemas are owned by `packages/core`.
@@ -105,8 +131,10 @@ The repo enforces that through small modules and runnable checks:
 
 The durable agent/developer contract lives in `AGENTS.md`; it is included because this repo intentionally treats architecture guidance and mechanical checks as part of the engineering system.
 
-## Current status
+## Current Status
 
-This project is active and local-first. It is suitable for reviewing architecture, testing strategy, frontend decomposition, workflow orchestration, and media-rendering boundaries. It is not yet packaged as a public npm library or deployed SaaS app.
+This project is active and local-first. It is suitable for reviewing architecture, testing strategy, frontend decomposition, workflow orchestration, and media-rendering boundaries.
+
+Known product rough edges remain. The Studio can run the full draft workflow, but workflow step visibility and true checkpoint-style resume semantics are still areas for improvement.
 
 Generated media, local Studio state, rendered outputs, captions, and per-project artifacts are intentionally ignored, except for small curated documentation samples under `docs/media/`.
