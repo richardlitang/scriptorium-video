@@ -78,6 +78,40 @@ test("Chatterbox TTS reports an actionable setup error when the server is unreac
   }
 });
 
+test("Chatterbox TTS retries without audio prompt when local cloning fails", async () => {
+  const calls = [];
+  const provider = createChatterboxTTSProvider(
+    {
+      speechUrl: "http://configured.test/v1/audio/speech",
+      audioPromptPath: "/tmp/reference.wav",
+    },
+    {
+      fetchImpl: async (url, options) => {
+        calls.push([String(url), JSON.parse(options.body)]);
+        if (calls.length === 1) {
+          return new Response("Internal Server Error", { status: 500 });
+        }
+        return new Response(new Uint8Array([1, 2, 3]), { status: 200 });
+      },
+      probeMediaImpl: async () => ({ durationSeconds: 1.25 }),
+    },
+  );
+
+  const result = await provider.synthesize({
+    text: "hello",
+    voiceId: "clone",
+    outputPath: "/tmp/lvstudio-chatterbox-prompt-fallback.wav",
+    format: "wav",
+    options: {},
+  });
+
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0][1].audio_prompt_path, "/tmp/reference.wav");
+  assert.equal(calls[1][1].audio_prompt_path, undefined);
+  assert.equal(result.metadata.audioPromptPath, undefined);
+  assert.equal(result.metadata.audioPromptFallback, "server_error_without_prompt_retry");
+});
+
 test("checkChatterboxCapability reports ready health", async () => {
   const originalUrl = process.env.CHATTERBOX_TTS_URL;
   process.env.CHATTERBOX_TTS_URL = "http://127.0.0.1:8000/v1/audio/speech";

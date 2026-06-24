@@ -218,6 +218,12 @@ async function readAudioResponse(response: Response): Promise<Buffer> {
   return Buffer.from(encoded, "base64");
 }
 
+function retryPayloadWithoutAudioPrompt(payload: Record<string, unknown>): Record<string, unknown> {
+  const nextPayload = { ...payload };
+  delete nextPayload.audio_prompt_path;
+  return nextPayload;
+}
+
 export class ChatterboxTTSProvider implements TTSProvider {
   id = "chatterbox";
 
@@ -246,21 +252,40 @@ export class ChatterboxTTSProvider implements TTSProvider {
       headers.authorization = `Bearer ${apiKey}`;
     }
 
-    const payload = buildPayload(request, this.config);
+    let payload = buildPayload(request, this.config);
     let response: Response;
-    try {
-      response = await (this.dependencies.fetchImpl ?? fetch)(url, {
+    let audioPromptFallback: string | undefined;
+    const postSpeech = (body: Record<string, unknown>) =>
+      (this.dependencies.fetchImpl ?? fetch)(url, {
         method: "POST",
         headers,
-        body: JSON.stringify(payload),
+        body: JSON.stringify(body),
       });
+
+    try {
+      response = await postSpeech(payload);
     } catch (error) {
       throw new Error(chatterboxStartupHint(url), { cause: error });
     }
 
     if (!response.ok) {
       const body = await response.text().catch(() => "");
-      throw new Error(`Chatterbox TTS request failed: ${response.status} ${body.slice(0, 300)}`);
+      if (payload.audio_prompt_path && response.status >= 500) {
+        const fallbackPayload = retryPayloadWithoutAudioPrompt(payload);
+        const fallbackResponse = await postSpeech(fallbackPayload);
+        if (fallbackResponse.ok) {
+          payload = fallbackPayload;
+          response = fallbackResponse;
+          audioPromptFallback = "server_error_without_prompt_retry";
+        } else {
+          const fallbackBody = await fallbackResponse.text().catch(() => "");
+          throw new Error(
+            `Chatterbox TTS request failed: ${response.status} ${body.slice(0, 300)}; retry without audio prompt failed: ${fallbackResponse.status} ${fallbackBody.slice(0, 300)}`,
+          );
+        }
+      } else {
+        throw new Error(`Chatterbox TTS request failed: ${response.status} ${body.slice(0, 300)}`);
+      }
     }
 
     await mkdir(path.dirname(request.outputPath), { recursive: true });
@@ -282,6 +307,7 @@ export class ChatterboxTTSProvider implements TTSProvider {
         exaggeration: payload.exaggeration,
         cfgWeight: payload.cfg_weight,
         temperature: payload.temperature,
+        ...(audioPromptFallback ? { audioPromptFallback } : {}),
         bytes: bytes.length,
       },
     };
