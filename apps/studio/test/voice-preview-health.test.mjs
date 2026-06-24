@@ -22,6 +22,53 @@ test("previewVoice caches identical requests", async () => {
   assert.deepEqual(first, second);
 });
 
+test("previewVoice normalizes preview audio before caching it", async () => {
+  let calls = 0;
+  let normalizationCalls = 0;
+  const fetchImpl = async () => {
+    calls += 1;
+    return new Response(Uint8Array.from([1, 2, 3]), { status: 200 });
+  };
+  const normalizePreviewAudio = async (bytes) => {
+    normalizationCalls += 1;
+    assert.deepEqual([...bytes], [1, 2, 3]);
+    return Buffer.from([9, 8, 7]);
+  };
+
+  const { previewVoice } = createVoicePreviewAndHealth({
+    fetchImpl,
+    normalizePreviewAudio,
+    chatterboxSpeechUrl: "http://127.0.0.1:8000/v1/audio/speech",
+    chatterboxHealthUrl: "http://127.0.0.1:8000/health",
+  });
+
+  const first = await previewVoice({}, "Hello world");
+  const second = await previewVoice({}, "Hello world");
+
+  assert.equal(calls, 1);
+  assert.equal(normalizationCalls, 1);
+  assert.deepEqual([...first], [9, 8, 7]);
+  assert.deepEqual(second, first);
+});
+
+test("previewVoice falls back to raw preview audio when normalization fails", async () => {
+  const fetchImpl = async () => new Response(Uint8Array.from([4, 5, 6]), { status: 200 });
+  const normalizePreviewAudio = async () => {
+    throw new Error("ffmpeg unavailable");
+  };
+
+  const { previewVoice } = createVoicePreviewAndHealth({
+    fetchImpl,
+    normalizePreviewAudio,
+    chatterboxSpeechUrl: "http://127.0.0.1:8000/v1/audio/speech",
+    chatterboxHealthUrl: "http://127.0.0.1:8000/health",
+  });
+
+  const bytes = await previewVoice({}, "Hello world");
+
+  assert.deepEqual([...bytes], [4, 5, 6]);
+});
+
 test("previewVoice evicts oldest cache entries when cap is reached", async () => {
   let calls = 0;
   const fetchImpl = async () => {

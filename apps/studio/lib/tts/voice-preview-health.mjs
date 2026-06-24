@@ -25,6 +25,7 @@ export function createVoicePreviewAndHealth({
   chatterboxHealthUrl,
   studioTestMode = false,
   previewCacheMaxEntries = 24,
+  normalizePreviewAudio = async (bytes) => bytes,
 } = {}) {
   if (!chatterboxSpeechUrl)
     throw new Error("createVoicePreviewAndHealth requires chatterboxSpeechUrl.");
@@ -64,7 +65,8 @@ export function createVoicePreviewAndHealth({
       const body = await response.text().catch(() => "");
       throw new Error(`Voice preview failed: ${response.status} ${body.slice(0, 300)}`.trim());
     }
-    const bytes = Buffer.from(await response.arrayBuffer());
+    const rawBytes = Buffer.from(await response.arrayBuffer());
+    const bytes = await normalizePreviewAudio(rawBytes).catch(() => rawBytes);
     applyFifoCache(voicePreviewCache, cacheKey, bytes, previewCacheMaxEntries);
     return bytes;
   }

@@ -71,6 +71,7 @@ import {
 import { createProjectMutationQueue } from "../project/project-mutation-queue.mjs";
 import { createStudioRuntimeConfig } from "./studio-runtime-config.mjs";
 import { createVoicePreviewAndHealth } from "../tts/voice-preview-health.mjs";
+import { createVoicePreviewNormalizer } from "../tts/voice-preview-normalizer.mjs";
 import { createChatterboxRuntime } from "../tts/chatterbox-runtime.mjs";
 import { beatJobProgress, createBeatRegenerateRunner } from "../draft/beat-regenerate-runner.mjs";
 import { createImageGenerationRunner } from "../image/image-generation-runner.mjs";
@@ -146,6 +147,7 @@ export function createStudioServerRuntime({
     chatterboxSpeechUrl: runtimeConfig.chatterboxSpeechUrl,
     chatterboxHealthUrl: runtimeConfig.chatterboxHealthUrl,
     studioTestMode: STUDIO_TEST_MODE,
+    normalizePreviewAudio: createVoicePreviewNormalizer(),
   });
   const { ensureChatterboxReady, warmChatterbox, resetStartState } = createChatterboxRuntime({
     readTtsHealth,
