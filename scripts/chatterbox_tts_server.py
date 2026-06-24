@@ -5,8 +5,16 @@ import subprocess
 import tempfile
 import inspect
 import threading
+import traceback
 from pathlib import Path
 from typing import Any
+
+# Chatterbox's reference-audio (voice clone) encoder uses an op that Apple
+# Silicon's MPS backend does not implement, which makes any request with an
+# audio_prompt_path fail. Allowing unsupported ops to fall back to CPU fixes
+# voice cloning on Mac. Must be set before torch is imported; setdefault keeps
+# any explicit override. No effect on CPU/CUDA backends.
+os.environ.setdefault("PYTORCH_ENABLE_MPS_FALLBACK", "1")
 
 import soundfile as sf
 import torch
@@ -127,7 +135,14 @@ def speech(request: SpeechRequest) -> Response:
         if "seed" in signature.parameters:
             generate_kwargs["seed"] = request.seed
 
-    wav = model.generate(request.input, **generate_kwargs)
+    try:
+        wav = model.generate(request.input, **generate_kwargs)
+    except Exception as exc:  # surface the real cause instead of a blank 500
+        traceback.print_exc()
+        detail = f"chatterbox generate failed: {type(exc).__name__}: {exc}"
+        if audio_prompt_path:
+            detail += f" (audio_prompt_path={audio_prompt_path})"
+        raise HTTPException(status_code=500, detail=detail) from exc
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as handle:
         temp_wav = Path(handle.name)
