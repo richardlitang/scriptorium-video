@@ -8,6 +8,7 @@
     "lvstudio": "pnpm -s build && node packages/cli/dist/index.js",
     "start": "pnpm -s build && pnpm -s --filter @lvstudio/studio build:web && node --import tsx apps/studio/server.mjs",
     "start:full": "bash scripts/start-full.sh",
+    "stop:full": "bash scripts/stop-full.sh",
     "setup:chatterbox": "bash scripts/setup-chatterbox.sh",
     "validate": "pnpm lvstudio validate",
     "sync": "pnpm lvstudio sync",
