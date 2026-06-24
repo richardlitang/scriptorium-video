@@ -7,7 +7,7 @@ describe("voice settings presets", () => {
     expect(voiceSettingsPresetOptions.map((preset) => preset.label)).toContain("Campfire Sage");
   });
 
-  it("applies campfire sage delivery values and clears the voice reference", () => {
+  it("applies grounded campfire sage delivery values and clears the voice reference", () => {
     const settings = {
       ...defaultVoiceSettings,
       audioPromptPath: "/tmp/current-reference.wav",
@@ -22,14 +22,14 @@ describe("voice settings presets", () => {
 
     expect(applyVoiceSettingsPreset(settings, "campfire-sage")).toMatchObject({
       audioPromptPath: "",
-      deliveryProfile: "suspense",
-      intensity: 0.62,
-      stability: 0.75,
-      pacing: 0.4,
-      variation: 0.45,
-      exaggeration: 0.68,
-      cfgWeight: 0.35,
-      temperature: 0.7,
+      deliveryProfile: "controlled",
+      intensity: 0.48,
+      stability: 0.92,
+      pacing: 0.35,
+      variation: 0.2,
+      exaggeration: 0.42,
+      cfgWeight: 0.7,
+      temperature: 0.45,
     });
   });
 });
