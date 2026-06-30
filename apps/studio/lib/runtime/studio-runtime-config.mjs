@@ -95,6 +95,7 @@ export function createStudioRuntimeConfig({ env = process.env, rootDir } = {}) {
     studioTestMode: env.LVSTUDIO_TEST_MODE === "1",
     openAiResponsesUrl: "https://api.openai.com/v1/responses",
     openAiImagesUrl: "https://api.openai.com/v1/images/generations",
+    openAiImageEditsUrl: "https://api.openai.com/v1/images/edits",
     openAiImageModel: env.OPENAI_IMAGE_MODEL ?? "gpt-image-2",
     imageConcurrency: integerEnv(env, "LVSTUDIO_IMAGE_CONCURRENCY", 2),
     chatterboxSpeechUrl,
