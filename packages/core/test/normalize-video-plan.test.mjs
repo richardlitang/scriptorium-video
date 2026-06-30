@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { normalizeVideoPlan, prepareVideoPlanForSchema } from "../dist/normalize-video-plan.js";
+import { VideoPlanSchema } from "../dist/schemas/video-plan.schema.js";
 
 function makePlan(overrides = {}) {
   return {
@@ -116,13 +117,50 @@ test("prepareVideoPlanForSchema strips draft-only visual metadata before strict 
   beat.editorial = { visualEditCues: [], silenceWindows: [] };
 
   const prepared = prepareVideoPlanForSchema(plan);
-  assert.equal(Object.hasOwn(prepared.visualBible, "characters"), false);
-  assert.equal(Object.hasOwn(prepared.visualBible, "locations"), false);
-  assert.equal(Object.hasOwn(prepared.visualBible, "objects"), false);
+  assert.equal(Object.hasOwn(prepared.visualBible, "characters"), true);
+  assert.equal(Object.hasOwn(prepared.visualBible, "locations"), true);
+  assert.equal(Object.hasOwn(prepared.visualBible, "objects"), true);
   assert.equal(Object.hasOwn(prepared.sections[0].beats[0].visual, "scaleMode"), false);
-  assert.equal(Object.hasOwn(prepared.sections[0].beats[0].visual, "referenceIds"), false);
+  assert.deepEqual(prepared.sections[0].beats[0].visual.referenceIds, ["lead", "door"]);
   assert.equal(Object.hasOwn(prepared.sections[0].beats[0], "voiceDirection"), false);
   assert.equal(prepared.sections[0].beats[0].direction.voice.profile, "urgent");
+});
+
+test("prepareVideoPlanForSchema retains structured bible and beat referenceIds", () => {
+  const raw = {
+    schemaVersion: 1,
+    title: "T",
+    mode: "short_story",
+    stylePackId: "default",
+    providers: { tts: "mock", transcription: "mock" },
+    voice: { provider: "mock", voiceId: "x" },
+    visualBible: {
+      characters: [{ id: "c1", name: "Mara" }],
+      locations: [{ id: "l1", name: "Inn" }],
+      objects: [],
+      bogusKey: "should be stripped",
+    },
+    sections: [
+      {
+        id: "s1",
+        title: "S",
+        beats: [
+          {
+            id: "b1",
+            order: 1,
+            narration: "n",
+            visual: { prompt: "p", referenceIds: ["c1"], referencePriority: "high" },
+          },
+        ],
+      },
+    ],
+  };
+  const prepared = prepareVideoPlanForSchema(raw);
+  const parsed = VideoPlanSchema.parse(prepared);
+  assert.equal(parsed.visualBible.characters[0].id, "c1");
+  assert.equal(parsed.visualBible.locations[0].name, "Inn");
+  assert.equal("bogusKey" in parsed.visualBible, false);
+  assert.deepEqual(parsed.sections[0].beats[0].visual.referenceIds, ["c1"]);
 });
 
 test("prepareVideoPlanForSchema removes visual objects containing only draft metadata", () => {
@@ -138,6 +176,6 @@ test("prepareVideoPlanForSchema removes visual objects containing only draft met
 
   const prepared = prepareVideoPlanForSchema(plan);
 
-  assert.equal(prepared.visualBible, undefined);
-  assert.equal(prepared.sections[0].beats[0].visual, undefined);
+  assert.deepEqual(prepared.visualBible.characters, [{ id: "lead", name: "Lead" }]);
+  assert.deepEqual(prepared.sections[0].beats[0].visual.referenceIds, ["lead"]);
 });
