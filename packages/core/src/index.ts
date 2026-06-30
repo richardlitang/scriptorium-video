@@ -24,6 +24,7 @@ export * from "./schemas/asset-manifest.schema.js";
 export * from "./schemas/captions.schema.js";
 export * from "./schemas/project.schema.js";
 export * from "./schemas/quality-report.schema.js";
+export * from "./schemas/reference-manifest.schema.js";
 export * from "./schemas/timeline.schema.js";
 export * from "./schemas/transcript.schema.js";
 export * from "./schemas/voice-director.schema.js";
