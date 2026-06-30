@@ -278,7 +278,11 @@ export function createStudioServerRuntime({
   };
   const writeReferenceManifest = async (projectId, manifest) => {
     const valid = ReferenceManifestSchema.parse(manifest);
-    await writeFile(referenceManifestPath(projectId), `${JSON.stringify(valid, null, 2)}\n`, "utf8");
+    await writeFile(
+      referenceManifestPath(projectId),
+      `${JSON.stringify(valid, null, 2)}\n`,
+      "utf8",
+    );
   };
   const writeReferenceImage = async (projectId, anchorId, bytes) => {
     const relativePath = path.join("assets", "images", "references", `${anchorId}.png`);

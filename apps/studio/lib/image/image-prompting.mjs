@@ -183,7 +183,10 @@ export function imageTargetsFromPlan(plan) {
   return plan.sections.flatMap((section) =>
     section.beats.map((beat, beatIndex) => {
       const referenceIds = normalizeReferenceIds(beat.visual?.referenceIds);
-      const referencePriority = normalizeReferencePriority(beat.visual?.referencePriority, "medium");
+      const referencePriority = normalizeReferencePriority(
+        beat.visual?.referencePriority,
+        "medium",
+      );
       const beatText = [beat.narration, beat.notes, beat.visual?.prompt].filter(Boolean).join(" ");
       const explicit = referenceIds.map((id) => anchorById.get(id)).filter(Boolean);
       const fallback =

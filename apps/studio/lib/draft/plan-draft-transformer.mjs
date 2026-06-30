@@ -13,7 +13,6 @@ export function createPlanDraftTransformer(deps) {
   const { slugify, estimateDurationSeconds, clampNumber } = deps;
 
   function buildPlanFromAiDraft(currentPlan, draft) {
-    const visualBible = draft.visualBible || {};
     const captionTuning = normalizeCaptionTuning(draft.captionTuning || {});
 
     const nextPlan = {

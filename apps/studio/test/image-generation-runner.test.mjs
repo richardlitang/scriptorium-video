@@ -3,14 +3,13 @@ import { test } from "node:test";
 import { createImageGenerationRunner } from "../lib/image/image-generation-runner.mjs";
 
 function makeRunnerDeps(overrides = {}) {
-  const plan =
-    overrides.planOverride ?? {
-      mode: "short_story",
-      title: "T",
-      targetPlatform: "local_only",
-      visualBible: {},
-      sections: [],
-    };
+  const plan = overrides.planOverride ?? {
+    mode: "short_story",
+    title: "T",
+    targetPlatform: "local_only",
+    visualBible: {},
+    sections: [],
+  };
   const manifest = { schemaVersion: 1, assets: [] };
   const written = new Map();
   const targets = plan.sections.flatMap((section) =>
@@ -46,7 +45,10 @@ function makeRunnerDeps(overrides = {}) {
     writeFile: async (file, bytes) => {
       written.set(file, bytes);
     },
-    generateImageWithOpenAi: async () => ({ bytes: Buffer.from("generated"), model: "gpt-image-2" }),
+    generateImageWithOpenAi: async () => ({
+      bytes: Buffer.from("generated"),
+      model: "gpt-image-2",
+    }),
     storeImageInLibrary: async ({ bytes }) => ({
       rootPath: `/library/${bytes.toString()}.png`,
       description: "",
@@ -123,13 +125,27 @@ test("beats with resolved references are generated via edits; others via text-to
           id: "s1",
           title: "S",
           beats: [
-            { id: "b1", order: 1, narration: "Mara appears", visual: { prompt: "Mara", referenceIds: ["c1"] } },
-            { id: "b2", order: 2, narration: "An empty road", visual: { prompt: "road", referenceIds: [] } },
+            {
+              id: "b1",
+              order: 1,
+              narration: "Mara appears",
+              visual: { prompt: "Mara", referenceIds: ["c1"] },
+            },
+            {
+              id: "b2",
+              order: 2,
+              narration: "An empty road",
+              visual: { prompt: "road", referenceIds: [] },
+            },
           ],
         },
       ],
     },
-    ensureReferenceImages: async () => ({ references: referenceMap, generated: ["c1"], skipped: [] }),
+    ensureReferenceImages: async () => ({
+      references: referenceMap,
+      generated: ["c1"],
+      skipped: [],
+    }),
     readFile: async () => Buffer.from("refbytes"),
     editImageWithOpenAi: async () => {
       calls.edit += 1;

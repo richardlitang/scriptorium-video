@@ -50,7 +50,9 @@ export function createOpenAiImageClient({
       return await response.json();
     } catch (error) {
       if (error?.name === "AbortError") {
-        throw new Error(`OpenAI ${label} request timed out after ${Math.round(timeoutMs / 1000)}s.`);
+        throw new Error(
+          `OpenAI ${label} request timed out after ${Math.round(timeoutMs / 1000)}s.`,
+        );
       }
       throw error;
     } finally {

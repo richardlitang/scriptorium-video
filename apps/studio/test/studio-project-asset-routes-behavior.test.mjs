@@ -439,10 +439,13 @@ test("project plan save strips draft-only visual metadata before sync", async ()
   const persistedPlan = JSON.parse(projectFs.files.get("/tmp/projects/demo/video-plan.json"));
   assert.deepEqual(Object.keys(persistedPlan.visualBible).sort(), [
     "characterAnchors",
+    "characters",
     "continuityRules",
     "eraAndLocation",
+    "locations",
     "lookAndFeel",
     "negativePrompt",
+    "objects",
     "palette",
     "stylePreset",
   ]);
@@ -450,7 +453,11 @@ test("project plan save strips draft-only visual metadata before sync", async ()
   assert.equal(Object.hasOwn(persistedBeat, "voiceDirection"), false);
   assert.equal(Object.hasOwn(persistedBeat, "sfxCues"), false);
   assert.equal(Object.hasOwn(persistedBeat, "editorial"), false);
-  assert.deepEqual(Object.keys(persistedBeat.visual).sort(), ["prompt"]);
+  assert.deepEqual(Object.keys(persistedBeat.visual).sort(), [
+    "prompt",
+    "referenceIds",
+    "referencePriority",
+  ]);
   assert.equal(persistedBeat.direction?.voice?.profile, "urgent");
 });
 

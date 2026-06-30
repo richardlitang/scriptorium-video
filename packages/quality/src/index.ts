@@ -7,6 +7,7 @@ import {
   getProjectPaths,
   loadProject,
 } from "@lvstudio/core";
+import { detectLegacyBibleProse } from "./legacy-bible-prose.js";
 import { collectVisualPromptRepetitionChecks } from "./visual-prompt-repetition.js";
 
 import type { QualityFinding, QualityReport, RenderBundle } from "@lvstudio/core";
@@ -14,6 +15,7 @@ import type { QualityFinding, QualityReport, RenderBundle } from "@lvstudio/core
 // Alias exports for consumers that already depend on the old names
 export type QualityCheck = QualityFinding;
 export type QualityResult = QualityReport;
+export { detectLegacyBibleProse } from "./legacy-bible-prose.js";
 
 async function fileExists(filePath: string): Promise<boolean> {
   try {
@@ -257,6 +259,13 @@ export async function runQualityChecksForBundle(
   }
 
   checks.push(...collectVisualPromptRepetitionChecks(loaded.videoPlan.sections));
+  for (const warning of detectLegacyBibleProse(loaded.videoPlan)) {
+    checks.push({
+      id: "shared.visual.legacy_bible_prose",
+      severity: "warning",
+      message: warning,
+    });
+  }
 
   for (const asset of loaded.assetManifest.assets) {
     const absolutePath = path.resolve(paths.projectDir, asset.path);

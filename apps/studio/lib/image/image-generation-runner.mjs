@@ -1,3 +1,21 @@
+async function referenceImagesForTarget({ target, referenceMap, readFile }) {
+  const targetReferenceIds = (target.references ?? [])
+    .map((ref) => ref?.id)
+    .filter((id) => id && referenceMap.has(id));
+  const referenceImages = [];
+  for (const id of targetReferenceIds) {
+    const ref = referenceMap.get(id);
+    if (!ref?.absolutePath) continue;
+    const bytes = await readFile(ref.absolutePath).catch(() => null);
+    if (bytes) referenceImages.push({ bytes, filename: `${id}.png` });
+  }
+  const referenceFingerprint = targetReferenceIds
+    .map((id) => referenceMap.get(id)?.sha256 || id)
+    .sort()
+    .join(",");
+  return { targetReferenceIds, referenceImages, referenceFingerprint };
+}
+
 export function createImageGenerationRunner(deps) {
   const {
     path,
@@ -122,20 +140,8 @@ export function createImageGenerationRunner(deps) {
             .filter((entry) => entry.assetId === target.assetId)
             .reduce((max, entry) => Math.max(max, Number(entry.version) || 0), 0) + 1;
         const model = options.openAiImageModel ?? "gpt-image-2";
-        const targetReferenceIds = (target.references ?? [])
-          .map((ref) => ref?.id)
-          .filter((id) => id && referenceMap.has(id));
-        const referenceImages = [];
-        for (const id of targetReferenceIds) {
-          const ref = referenceMap.get(id);
-          if (!ref?.absolutePath) continue;
-          const bytes = await readFile(ref.absolutePath).catch(() => null);
-          if (bytes) referenceImages.push({ bytes, filename: `${id}.png` });
-        }
-        const referenceFingerprint = targetReferenceIds
-          .map((id) => referenceMap.get(id)?.sha256 || id)
-          .sort()
-          .join(",");
+        const { targetReferenceIds, referenceImages, referenceFingerprint } =
+          await referenceImagesForTarget({ target, referenceMap, readFile });
         const inputHash = sha256(
           JSON.stringify({ prompt, size, quality, model, referenceFingerprint }),
         );
