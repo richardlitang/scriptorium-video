@@ -27,6 +27,8 @@ export const ArtifactStatusSchema = z.enum([
   "failed",
 ]);
 
+export const ReferencePrioritySchema = z.enum(["low", "medium", "high"]);
+
 export const MotionSchema = z
   .object({
     type: z
@@ -111,6 +113,8 @@ export const VisualIntentSchema = z
       .default("allow-reuse"),
     coverageRole: z.enum(["anchor", "key_moment", "supporting", "none"]).default("supporting"),
     source: z.enum(["user", "llm", "default"]).default("default"),
+    referenceIds: z.array(z.string()).default([]),
+    referencePriority: ReferencePrioritySchema.default("medium"),
   })
   .strict();
 
@@ -299,6 +303,30 @@ export const VoiceSchema = z
   })
   .strict();
 
+export const CharacterAnchorSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().default(""),
+    role: z.string().default(""),
+    age: z.string().default(""),
+    body: z.string().default(""),
+    face: z.string().default(""),
+    hair: z.string().default(""),
+    wardrobe: z.string().default(""),
+    avoid: z.string().default(""),
+  })
+  .strict();
+
+export const PlaceAnchorSchema = z
+  .object({
+    id: z.string(),
+    name: z.string().default(""),
+    description: z.string().default(""),
+    continuityNotes: z.string().default(""),
+    avoid: z.string().default(""),
+  })
+  .strict();
+
 export const VisualBibleSchema = z
   .object({
     stylePreset: z.string().default("cinematic_illustration"),
@@ -308,6 +336,9 @@ export const VisualBibleSchema = z
     characterAnchors: z.array(z.string()).default([]),
     continuityRules: z.array(z.string()).default([]),
     negativePrompt: z.string().optional(),
+    characters: z.array(CharacterAnchorSchema).default([]),
+    locations: z.array(PlaceAnchorSchema).default([]),
+    objects: z.array(PlaceAnchorSchema).default([]),
   })
   .strict();
 
@@ -373,6 +404,9 @@ export const VideoPlanSchema = z
 
 export type ArtifactStatus = z.infer<typeof ArtifactStatusSchema>;
 export type Beat = z.infer<typeof BeatSchema>;
+export type CharacterAnchor = z.infer<typeof CharacterAnchorSchema>;
+export type PlaceAnchor = z.infer<typeof PlaceAnchorSchema>;
+export type ReferencePriority = z.infer<typeof ReferencePrioritySchema>;
 export type Section = z.infer<typeof SectionSchema>;
 export type SoundCueIntent = z.infer<typeof SoundCueIntentSchema>;
 export type VisualIntent = z.infer<typeof VisualIntentSchema>;
