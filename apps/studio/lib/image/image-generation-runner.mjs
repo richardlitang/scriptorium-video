@@ -17,6 +17,8 @@ export function createImageGenerationRunner(deps) {
     readFile,
     writeFile,
     generateImageWithOpenAi,
+    editImageWithOpenAi,
+    ensureReferenceImages,
     storeImageInLibrary,
     dimensionsFromSize,
     appendImageHistory,
@@ -61,6 +63,14 @@ export function createImageGenerationRunner(deps) {
       return { generated: [], failed: [], skipped: "No image targets matched the selected mode." };
     }
 
+    const referenceResult =
+      typeof ensureReferenceImages === "function"
+        ? await ensureReferenceImages(plan, projectId, {
+            size,
+            quality: options.referenceQuality || "low",
+          })
+        : { references: new Map() };
+    const referenceMap = referenceResult.references ?? new Map();
     const generatedDir = path.join(projectDir, "assets", "images", "generated");
     await mkdir(generatedDir, { recursive: true });
     const generated = [];
@@ -112,7 +122,23 @@ export function createImageGenerationRunner(deps) {
             .filter((entry) => entry.assetId === target.assetId)
             .reduce((max, entry) => Math.max(max, Number(entry.version) || 0), 0) + 1;
         const model = options.openAiImageModel ?? "gpt-image-2";
-        const inputHash = sha256(JSON.stringify({ prompt, size, quality, model }));
+        const targetReferenceIds = (target.references ?? [])
+          .map((ref) => ref?.id)
+          .filter((id) => id && referenceMap.has(id));
+        const referenceImages = [];
+        for (const id of targetReferenceIds) {
+          const ref = referenceMap.get(id);
+          if (!ref?.absolutePath) continue;
+          const bytes = await readFile(ref.absolutePath).catch(() => null);
+          if (bytes) referenceImages.push({ bytes, filename: `${id}.png` });
+        }
+        const referenceFingerprint = targetReferenceIds
+          .map((id) => referenceMap.get(id)?.sha256 || id)
+          .sort()
+          .join(",");
+        const inputHash = sha256(
+          JSON.stringify({ prompt, size, quality, model, referenceFingerprint }),
+        );
         const reuseKey = imageReuseKey({ narration: target.beat.narration, size, quality, model });
         const fileName = `${target.beat.id}.v${version}.${inputHash.slice(0, 10)}.png`;
         const absolutePath = path.join(generatedDir, fileName);
@@ -134,7 +160,10 @@ export function createImageGenerationRunner(deps) {
           reusedFrom = cached.rootPath;
         } else {
           try {
-            result = await generateImageWithOpenAi({ prompt, size, quality });
+            result =
+              referenceImages.length > 0 && typeof editImageWithOpenAi === "function"
+                ? await editImageWithOpenAi({ prompt, images: referenceImages, size, quality })
+                : await generateImageWithOpenAi({ prompt, size, quality });
             imageBytes = result.bytes;
             await writeFile(absolutePath, result.bytes);
           } catch (error) {
@@ -208,6 +237,7 @@ export function createImageGenerationRunner(deps) {
           sectionId: target.section.id,
           beatId: target.beat.id,
           referenceIds: target.referenceIds,
+          conditionedOn: targetReferenceIds,
           prompt,
           path: relativePath,
           version,

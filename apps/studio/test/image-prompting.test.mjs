@@ -31,3 +31,33 @@ test("imageTargetsFromPlan builds primary visual targets per beat", () => {
     ["image-b1", "image-b2"],
   );
 });
+
+test("imageTargetsFromPlan falls back to relevant anchors when beat has no referenceIds", () => {
+  const plan = {
+    mode: "short_story",
+    title: "T",
+    targetPlatform: "local_only",
+    visualBible: {
+      characters: [{ id: "c1", name: "Mara", hair: "red braid" }],
+      locations: [{ id: "l1", name: "Inn", description: "mossy roof" }],
+      objects: [],
+    },
+    sections: [
+      {
+        id: "s1",
+        title: "S",
+        beats: [
+          {
+            id: "b1",
+            order: 1,
+            narration: "Mara steps into the Inn.",
+            visual: { prompt: "Mara at the inn", referenceIds: [] },
+          },
+        ],
+      },
+    ],
+  };
+  const targets = imageTargetsFromPlan(plan);
+  const ids = targets[0].references.map((r) => r.id).sort();
+  assert.ok(ids.includes("c1"), "should pick the Mara character anchor by name match");
+});

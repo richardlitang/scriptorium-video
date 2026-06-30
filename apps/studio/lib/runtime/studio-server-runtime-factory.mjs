@@ -56,7 +56,7 @@ import {
   imageTagsFromPrompt,
 } from "../image/image-library-metadata.mjs";
 import { createRunTraceStore } from "../project/run-trace-store.mjs";
-import { resolveOpenAiApiKey } from "@lvstudio/core";
+import { ReferenceManifestSchema, resolveOpenAiApiKey } from "@lvstudio/core";
 import { createRendererProviders, createTTSProviderRegistry } from "@lvstudio/providers";
 import { createDraftAudioRunner } from "../draft/draft-audio-runner.mjs";
 import { createDraftJobRunner } from "../draft/draft-job-runner.mjs";
@@ -78,6 +78,8 @@ import { createImageGenerationRunner } from "../image/image-generation-runner.mj
 import { defaultImageSizeForPlan, imageTargetsFromPlan } from "../image/image-prompting.mjs";
 import { createImageCacheStore } from "../image/image-cache-store.mjs";
 import { createOpenAiImageClient } from "../image/openai-image-client.mjs";
+import { createReferenceImageRunner } from "../image/reference-image-runner.mjs";
+import { referencePromptForAnchor } from "../image/image-reference-prompting.mjs";
 import { parseBinaryBody, parseJsonBody, sendJson } from "../routes/http-utils.mjs";
 import { isDraftJobRunning, jobProgress } from "../draft/draft-job-state.mjs";
 import {
@@ -203,10 +205,11 @@ export function createStudioServerRuntime({
     plannerRequestConfig: runtimeConfig.plannerRequestConfig,
     ttsRoutingConfig: runtimeConfig.ttsRoutingConfig,
   });
-  const generateImageWithOpenAi = createOpenAiImageClient({
+  const { generateImageWithOpenAi, editImageWithOpenAi } = createOpenAiImageClient({
     fetchImpl,
     getOpenAiApiKey,
     openAiImagesUrl: runtimeConfig.openAiImagesUrl,
+    openAiImageEditsUrl: runtimeConfig.openAiImageEditsUrl,
     openAiImageModel: runtimeConfig.openAiImageModel,
   });
 
@@ -266,6 +269,39 @@ export function createStudioServerRuntime({
     appendImageCacheEntry,
     storeImageInLibrary,
   } = imageCacheStore;
+  const referenceManifestPath = (projectId) =>
+    path.join(projectsDir, projectId, "reference-manifest.json");
+  const readReferenceManifest = async (projectId) => {
+    const raw = await safeReadJson(referenceManifestPath(projectId)).catch(() => null);
+    const parsed = ReferenceManifestSchema.safeParse(raw);
+    return parsed.success ? parsed.data : { schemaVersion: 1, references: {} };
+  };
+  const writeReferenceManifest = async (projectId, manifest) => {
+    const valid = ReferenceManifestSchema.parse(manifest);
+    await writeFile(referenceManifestPath(projectId), `${JSON.stringify(valid, null, 2)}\n`, "utf8");
+  };
+  const writeReferenceImage = async (projectId, anchorId, bytes) => {
+    const relativePath = path.join("assets", "images", "references", `${anchorId}.png`);
+    const absolutePath = path.join(projectsDir, projectId, relativePath);
+    await mkdir(path.dirname(absolutePath), { recursive: true });
+    await writeFile(absolutePath, bytes);
+    return { relativePath, absolutePath };
+  };
+  const resolveExistingReference = async (projectId, entry) => {
+    const absolutePath = path.join(projectsDir, projectId, entry.path);
+    if (!(await stat(absolutePath).catch(() => null))) return null;
+    return absolutePath;
+  };
+  const referenceImageRunner = createReferenceImageRunner({
+    generateImageWithOpenAi,
+    referencePromptForAnchor,
+    sha256,
+    readReferenceManifest,
+    writeReferenceManifest,
+    writeReferenceImage,
+    resolveExistingReference,
+    defaultImageSizeForPlan,
+  });
   const appendQualityHistory = (projectId, entry) =>
     studioOpsRuntime.appendQualityHistory(projectId, entry);
   const domainOps = createStudioDomainOps({
@@ -303,6 +339,8 @@ export function createStudioServerRuntime({
     readFile,
     writeFile,
     generateImageWithOpenAi,
+    editImageWithOpenAi,
+    ensureReferenceImages: referenceImageRunner.ensureReferenceImages,
     storeImageInLibrary,
     dimensionsFromSize,
     appendImageHistory,

@@ -179,18 +179,32 @@ export function defaultImageSizeForPlan(plan) {
 
 export function imageTargetsFromPlan(plan) {
   const anchorById = visualBibleAnchorIndex(plan.visualBible || {});
+  const visualBible = plan.visualBible || {};
   return plan.sections.flatMap((section) =>
-    section.beats.map((beat, beatIndex) => ({
-      section,
-      beat,
-      beatIndex,
-      assetId: `image-${beat.id}`,
-      defaultPrompt: imagePromptForBeat(plan, section, beat, beatIndex),
-      referenceIds: normalizeReferenceIds(beat.visual?.referenceIds),
-      referencePriority: normalizeReferencePriority(beat.visual?.referencePriority, "medium"),
-      references: normalizeReferenceIds(beat.visual?.referenceIds)
-        .map((id) => anchorById.get(id))
-        .filter((entry) => Boolean(entry)),
-    })),
+    section.beats.map((beat, beatIndex) => {
+      const referenceIds = normalizeReferenceIds(beat.visual?.referenceIds);
+      const referencePriority = normalizeReferencePriority(beat.visual?.referencePriority, "medium");
+      const beatText = [beat.narration, beat.notes, beat.visual?.prompt].filter(Boolean).join(" ");
+      const explicit = referenceIds.map((id) => anchorById.get(id)).filter(Boolean);
+      const fallback =
+        explicit.length > 0
+          ? explicit
+          : [
+              ...selectRelevantAnchors(visualBible.characters, beatText, 2),
+              ...selectRelevantAnchors(visualBible.locations, beatText, 1),
+            ]
+              .filter((entry) => entry && entry.id && scoreAnchor(entry, beatText) > 0)
+              .map((entry) => anchorById.get(entry.id) || entry);
+      return {
+        section,
+        beat,
+        beatIndex,
+        assetId: `image-${beat.id}`,
+        defaultPrompt: imagePromptForBeat(plan, section, beat, beatIndex),
+        referenceIds,
+        referencePriority,
+        references: fallback.slice(0, 4),
+      };
+    }),
   );
 }
