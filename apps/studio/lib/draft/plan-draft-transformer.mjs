@@ -15,65 +15,6 @@ export function createPlanDraftTransformer(deps) {
   function buildPlanFromAiDraft(currentPlan, draft) {
     const visualBible = draft.visualBible || {};
     const captionTuning = normalizeCaptionTuning(draft.captionTuning || {});
-    const visualBibleSuffix = [
-      visualBible.stylePreset ? `Style preset: ${visualBible.stylePreset}` : "",
-      visualBible.lookAndFeel ? `Look and feel: ${visualBible.lookAndFeel}` : "",
-      Array.isArray(visualBible.characterAnchors) && visualBible.characterAnchors.length > 0
-        ? `Character anchors: ${visualBible.characterAnchors.join("; ")}`
-        : "",
-      Array.isArray(visualBible.characters) && visualBible.characters.length > 0
-        ? `Character bible: ${visualBible.characters
-            .map((character) =>
-              [
-                character.name || character.id,
-                character.role ? `role=${character.role}` : "",
-                character.age ? `age=${character.age}` : "",
-                character.body ? `body=${character.body}` : "",
-                character.face ? `face=${character.face}` : "",
-                character.hair ? `hair=${character.hair}` : "",
-                character.wardrobe ? `wardrobe=${character.wardrobe}` : "",
-                character.avoid ? `avoid=${character.avoid}` : "",
-              ]
-                .filter(Boolean)
-                .join(", "),
-            )
-            .join(" | ")}`
-        : "",
-      Array.isArray(visualBible.locations) && visualBible.locations.length > 0
-        ? `Location bible: ${visualBible.locations
-            .map((location) =>
-              [
-                location.name || location.id,
-                location.description ? `desc=${location.description}` : "",
-                location.continuityNotes ? `continuity=${location.continuityNotes}` : "",
-                location.avoid ? `avoid=${location.avoid}` : "",
-              ]
-                .filter(Boolean)
-                .join(", "),
-            )
-            .join(" | ")}`
-        : "",
-      Array.isArray(visualBible.objects) && visualBible.objects.length > 0
-        ? `Object bible: ${visualBible.objects
-            .map((object) =>
-              [
-                object.name || object.id,
-                object.description ? `desc=${object.description}` : "",
-                object.continuityNotes ? `continuity=${object.continuityNotes}` : "",
-                object.avoid ? `avoid=${object.avoid}` : "",
-              ]
-                .filter(Boolean)
-                .join(", "),
-            )
-            .join(" | ")}`
-        : "",
-      Array.isArray(visualBible.continuityRules) && visualBible.continuityRules.length > 0
-        ? `Continuity rules: ${visualBible.continuityRules.join("; ")}`
-        : "",
-      visualBible.negativePrompt ? `Avoid: ${visualBible.negativePrompt}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n");
 
     const nextPlan = {
       ...currentPlan,
@@ -211,7 +152,6 @@ export function createPlanDraftTransformer(deps) {
                   prompt: [
                     beat.visualPrompt || beat.narration,
                     shotMetadata,
-                    visualBibleSuffix,
                     conservativeVisual
                       ? "Keep framing simple and continuity-safe. Avoid creative leaps for this beat."
                       : "",
@@ -265,7 +205,7 @@ export function createPlanDraftTransformer(deps) {
               voiceDirection: normalizeDraftVoiceDirection(beat),
               sfxCues: normalizeDraftSfxCues(beat),
               editorial: normalizeDraftEditorial(beat),
-              notes: [beat.notes || beat.visualPrompt || "", shotMetadata, visualBibleSuffix]
+              notes: [beat.notes || beat.visualPrompt || "", shotMetadata]
                 .filter(Boolean)
                 .join("\n\n"),
             };
