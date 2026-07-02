@@ -7,8 +7,8 @@ import {
   makeJobContext,
   makeJsonResponder,
   makeProjectContext,
-} from "./helpers/route-test-helpers.mjs";
-import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.mjs";
+} from "./helpers/route-test-helpers.js";
+import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.js";
 
 test("settings routes serve planner defaults payload", async () => {
   const { response, sendJson } = makeJsonResponder();

@@ -4,8 +4,8 @@ import { test } from "node:test";
 import { createStudioApiContext } from "../lib/runtime/studio-api-context.mjs";
 import { createStudioHttpHandler } from "../lib/routes/studio-http-handler.mjs";
 import { handleStudioApiRoute } from "../lib/routes/studio-routes.mjs";
-import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.mjs";
-import { makeJsonResponder, makeStudioBaseContext } from "./helpers/route-test-helpers.mjs";
+import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.js";
+import { makeJsonResponder, makeStudioBaseContext } from "./helpers/route-test-helpers.js";
 
 test("studio http handler routes project create through to filesystem writes", async () => {
   const { res, response, sendJson } = makeJsonResponder();

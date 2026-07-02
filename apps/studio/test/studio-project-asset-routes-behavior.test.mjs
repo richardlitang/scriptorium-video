@@ -6,8 +6,8 @@ import {
   makeAssetContext,
   makeJsonResponder,
   makeProjectContext,
-} from "./helpers/route-test-helpers.mjs";
-import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.mjs";
+} from "./helpers/route-test-helpers.js";
+import { createInMemoryProjectFs } from "./helpers/project-fs-helpers.js";
 
 test("project routes reject invalid render quality", async () => {
   const { res, response, sendJson } = makeJsonResponder();

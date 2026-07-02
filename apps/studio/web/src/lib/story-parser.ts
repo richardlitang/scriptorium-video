@@ -17,15 +17,6 @@ function compactWhitespace(value: string) {
     .join(" ");
 }
 
-function stripWrappingQuotes(value: string) {
-  let output = String(value ?? "").trim();
-  const quoteChars = new Set(['"', "'", "“", "”"]);
-  while (output && quoteChars.has(output[0])) output = output.slice(1).trimStart();
-  while (output && quoteChars.has(output[output.length - 1]))
-    output = output.slice(0, -1).trimEnd();
-  return output;
-}
-
 function labelValueLine(line: string, label: string) {
   const trimmed = String(line ?? "").trim();
   const prefix = `${label}:`;
@@ -188,16 +179,6 @@ export function splitStorySections(rawScript: string): StorySection[] {
 
 export function extractStoryTitle(rawScript: string, fallbackTitle: string) {
   return firstLabelValue(rawScript, "TITLE") || fallbackTitle;
-}
-
-export function projectTitleFromStory(rawStory: string) {
-  const explicitTitle = firstLabelValue(rawStory, "TITLE");
-  if (explicitTitle) return explicitTitle;
-  const firstLine = storyLines(rawStory)
-    .map((l) => l.trim())
-    .find(Boolean);
-  if (!firstLine) return "Untitled Story";
-  return stripWrappingQuotes(firstLine).slice(0, 80) || "Untitled Story";
 }
 
 export function extractThumbnailConcept(rawScript: string) {

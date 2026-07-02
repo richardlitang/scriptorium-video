@@ -70,14 +70,3 @@ export function useRegenerateBeat(projectId: string | null) {
     },
   });
 }
-
-export function usePatchAssetStatus(projectId: string | null) {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ assetId, updates }: { assetId: string; updates: Record<string, unknown> }) =>
-      api.projects.patchAsset(projectId!, assetId, updates),
-    onSuccess: () => {
-      if (projectId) void qc.invalidateQueries({ queryKey: projectKeys.assets(projectId) });
-    },
-  });
-}

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { handleStudioApiRoute } from "../lib/routes/studio-routes.mjs";
 import { handleAssetRoutes } from "../lib/routes/routes-assets.mjs";
-import { makeStudioBaseContext } from "./helpers/route-test-helpers.mjs";
+import { makeStudioBaseContext } from "./helpers/route-test-helpers.js";
 
 test("studio route composition throws clear error when required dependency is missing", async () => {
   const context = makeStudioBaseContext();
