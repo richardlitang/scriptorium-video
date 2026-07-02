@@ -1,3 +1,5 @@
+import { clampInteger, clampNumber } from "./normalization-numbers.mjs";
+
 const ALLOWED_VOICE_PROFILES = new Set([
   "neutral",
   "warm_open",
@@ -11,17 +13,6 @@ const ALLOWED_VOICE_PROFILES = new Set([
   "urgent",
   "soft_close",
 ]);
-
-function clampNumber(value, fallback, min, max) {
-  if (value === undefined || value === null || value === "") return fallback;
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return fallback;
-  return Math.min(max, Math.max(min, numeric));
-}
-
-function clampInteger(value, fallback, min, max) {
-  return Math.round(clampNumber(value, fallback, min, max));
-}
 
 export function normalizeDraftVoiceDirection(beatDraft = {}) {
   const confidence = clampNumber(beatDraft.voiceConfidence, 0.7, 0, 1);

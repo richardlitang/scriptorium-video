@@ -1,9 +1,4 @@
-function clampNumber(value, fallback, min, max) {
-  if (value === undefined || value === null || value === "") return fallback;
-  const numeric = Number(value);
-  if (!Number.isFinite(numeric)) return fallback;
-  return Math.min(max, Math.max(min, numeric));
-}
+import { clampNumber } from "./normalization-numbers.mjs";
 
 export function normalizeDraftSfxCues(beatDraft = {}) {
   if (!Array.isArray(beatDraft.sfxCues)) return [];
