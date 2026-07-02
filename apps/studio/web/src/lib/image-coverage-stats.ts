@@ -1,5 +1,3 @@
-// Ported from public/modules/image-coverage-stats.js
-
 import type { Asset } from "@/api/client";
 
 export function ownedVisualAssetForBeat(assets: Asset[], beatId: string): Asset | undefined {

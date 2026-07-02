@@ -1,6 +1,4 @@
-// Ported from public/modules/story-ui-state.js + story-draft-state.js
-
-export type StoryDirection = {
+type StoryDirection = {
   feel: string;
   pacing: string;
   visualStyle: string;

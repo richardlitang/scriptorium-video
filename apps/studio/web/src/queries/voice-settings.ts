@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type VoiceSettings } from "@/api/client";
 
-export const voiceSettingsKey = ["settings", "voice"] as const;
+const voiceSettingsKey = ["settings", "voice"] as const;
 
 export function useVoiceSettings(enabled = true) {
   return useQuery({ queryKey: voiceSettingsKey, queryFn: api.voice.getSettings, enabled });

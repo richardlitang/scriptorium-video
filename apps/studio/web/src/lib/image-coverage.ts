@@ -1,8 +1,4 @@
-// Ported from public/modules/image-coverage.js
-
-export type ImageCoverage = "llm" | "beat" | "balanced";
-export type ImageMode = "missing" | "all";
-export type ImageQuality = "low" | "medium" | "high";
+type ImageCoverage = "llm" | "beat" | "balanced";
 
 export function normalizeImageCoverage(value: string): ImageCoverage {
   if (value === "llm" || value === "story" || value === "global") return "llm";

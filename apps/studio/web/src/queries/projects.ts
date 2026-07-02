@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { api, type Project } from "@/api/client";
+import { api } from "@/api/client";
 
 export const projectKeys = {
   all: ["projects"] as const,
@@ -44,6 +44,3 @@ export function useDeleteAllProjects() {
     onSuccess: () => qc.invalidateQueries({ queryKey: projectKeys.all }),
   });
 }
-
-// Placeholder — used by later slices
-export type { Project };

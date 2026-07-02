@@ -8,7 +8,7 @@ export type TtsAvailability =
   | "failed"
   | "unreachable";
 
-export type TtsPillViewModel = {
+type TtsPillViewModel = {
   pillClass: "ok" | "warn" | "bad";
   pillText: string;
   pillTitle: string;
@@ -87,7 +87,7 @@ export function ttsPillViewModel(ttsHealthState: Partial<TtsHealthState> = {}): 
   };
 }
 
-export type StoryButtonStateInput = {
+type StoryButtonStateInput = {
   selectedProjectId: string | null;
   storyValue: string;
   currentDraftJobStatus: string | null;
@@ -95,7 +95,7 @@ export type StoryButtonStateInput = {
   defaultDraftButtonLabel: string;
 };
 
-export type StoryButtonState = {
+type StoryButtonState = {
   convertStoryDisabled: boolean;
   aiPlanDisabled: boolean;
   clearStoryDisabled: boolean;

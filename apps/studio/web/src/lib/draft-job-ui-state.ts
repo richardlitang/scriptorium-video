@@ -1,12 +1,4 @@
-// Ported from public/modules/draft-job-ui-state.js + draft-job-notification.js
-
-export type DraftJobStatus =
-  | "queued"
-  | "running"
-  | "cancelling"
-  | "completed"
-  | "failed"
-  | "cancelled";
+type DraftJobStatus = "queued" | "running" | "cancelling" | "completed" | "failed" | "cancelled";
 
 export type DraftJob = {
   kind?: string;
@@ -25,7 +17,7 @@ export type DraftJob = {
   [key: string]: unknown;
 };
 
-export type DraftJobUiModel = {
+type DraftJobUiModel = {
   hideBanner: boolean;
   bannerTitle?: string;
   bannerDetail?: string;

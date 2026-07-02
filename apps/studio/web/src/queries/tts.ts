@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/api/client";
 
-export const ttsKeys = {
+const ttsKeys = {
   health: ["tts", "health"] as const,
 };
 
