@@ -117,108 +117,184 @@ export function DraftControls({
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Image settings */}
-      <div className="flex flex-col gap-2 p-3 bg-[var(--color-surface-overlay)] rounded border border-[var(--color-border)]">
-        <label className="flex items-center gap-2 text-xs cursor-pointer">
-          <input
-            type="checkbox"
-            checked={imageEnabled}
-            onChange={(e) => {
-              setImageEnabled(e.target.checked);
-              writeStored(projectId, "imageEnabled", e.target.checked ? "true" : "false");
-            }}
-            className="accent-[var(--color-accent)]"
-          />
-          <span className="font-medium">Generate AI photos during draft</span>
-        </label>
+      <ImageDraftSettings
+        projectId={projectId}
+        imageEnabled={imageEnabled}
+        imageMode={imageMode}
+        imageBudget={imageBudget}
+        imageQuality={imageQuality}
+        onImageEnabledChange={setImageEnabled}
+        onImageModeChange={setImageMode}
+        onImageBudgetChange={setImageBudget}
+        onImageQualityChange={setImageQuality}
+      />
+      <DraftActionButtons
+        jobRunning={jobRunning}
+        startPending={startDraft.isPending}
+        renderDisabled={btnState.renderDisabled}
+        draftNoImagesDisabled={btnState.draftNoImagesDisabled}
+        renderButtonText={draftModel.renderButtonText}
+        onMakeDraft={handleMakeDraft}
+      />
+      <VoiceActions
+        projectId={projectId}
+        directVoiceDisabled={btnState.directVoiceDisabled}
+        onDirectVoice={handleDirectVoice}
+      />
+    </div>
+  );
+}
 
-        {imageEnabled && (
-          <div className="grid grid-cols-3 gap-2">
-            <SelectField
-              label="Mode"
-              value={imageMode}
-              onChange={(v) => {
-                setImageMode(v);
-                writeStored(projectId, "imageMode", v);
-              }}
-              options={[
-                { value: "missing", label: "Only missing" },
-                { value: "all", label: "Refresh all" },
-              ]}
-            />
-            <SelectField
-              label="Density"
-              value={imageBudget}
-              onChange={(v) => {
-                setImageBudget(v);
-                writeStored(projectId, "imageBudget", v);
-              }}
-              options={[
-                { value: "llm", label: "LLM-driven" },
-                { value: "balanced", label: "Balanced" },
-                { value: "beat", label: "All beats" },
-              ]}
-            />
-            <SelectField
-              label="Quality"
-              value={imageQuality}
-              onChange={(v) => {
-                setImageQuality(v);
-                writeStored(projectId, "imageQuality", v);
-              }}
-              options={[
-                { value: "low", label: "Draft" },
-                { value: "medium", label: "Medium" },
-                { value: "high", label: "High" },
-              ]}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Draft buttons */}
-      <div className="flex gap-2 flex-wrap">
-        <button
-          onClick={() => handleMakeDraft(true)}
-          disabled={btnState.renderDisabled || startDraft.isPending}
-          className={`px-4 py-2 text-xs font-semibold rounded transition-colors ${
-            jobRunning
-              ? "bg-[var(--color-running)]/20 text-[var(--color-running)] border border-[var(--color-running)]/30"
-              : "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]"
-          } disabled:opacity-40 disabled:cursor-not-allowed`}
-        >
-          {draftModel.renderButtonText}
-        </button>
-
-        {!jobRunning && (
-          <button
-            onClick={() => handleMakeDraft(false)}
-            disabled={btnState.draftNoImagesDisabled || startDraft.isPending}
-            className="px-3 py-2 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          >
-            Draft Without Images
-          </button>
-        )}
-      </div>
-
-      {/* Voice actions */}
-      <div className="flex gap-1 flex-wrap">
-        <VoiceSettingsDialog
-          projectId={projectId}
-          trigger={
-            <button className="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
-              Voice Settings
-            </button>
-          }
+function ImageDraftSettings({
+  projectId,
+  imageEnabled,
+  imageMode,
+  imageBudget,
+  imageQuality,
+  onImageEnabledChange,
+  onImageModeChange,
+  onImageBudgetChange,
+  onImageQualityChange,
+}: {
+  projectId: string;
+  imageEnabled: boolean;
+  imageMode: string;
+  imageBudget: string;
+  imageQuality: string;
+  onImageEnabledChange: (value: boolean) => void;
+  onImageModeChange: (value: string) => void;
+  onImageBudgetChange: (value: string) => void;
+  onImageQualityChange: (value: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-2 p-3 bg-[var(--color-surface-overlay)] rounded border border-[var(--color-border)]">
+      <label className="flex items-center gap-2 text-xs cursor-pointer">
+        <input
+          type="checkbox"
+          checked={imageEnabled}
+          onChange={(e) => {
+            onImageEnabledChange(e.target.checked);
+            writeStored(projectId, "imageEnabled", e.target.checked ? "true" : "false");
+          }}
+          className="accent-[var(--color-accent)]"
         />
+        <span className="font-medium">Generate AI photos during draft</span>
+      </label>
+
+      {imageEnabled && (
+        <div className="grid grid-cols-3 gap-2">
+          <SelectField
+            label="Mode"
+            value={imageMode}
+            onChange={(v) => {
+              onImageModeChange(v);
+              writeStored(projectId, "imageMode", v);
+            }}
+            options={[
+              { value: "missing", label: "Only missing" },
+              { value: "all", label: "Refresh all" },
+            ]}
+          />
+          <SelectField
+            label="Density"
+            value={imageBudget}
+            onChange={(v) => {
+              onImageBudgetChange(v);
+              writeStored(projectId, "imageBudget", v);
+            }}
+            options={[
+              { value: "llm", label: "LLM-driven" },
+              { value: "balanced", label: "Balanced" },
+              { value: "beat", label: "All beats" },
+            ]}
+          />
+          <SelectField
+            label="Quality"
+            value={imageQuality}
+            onChange={(v) => {
+              onImageQualityChange(v);
+              writeStored(projectId, "imageQuality", v);
+            }}
+            options={[
+              { value: "low", label: "Draft" },
+              { value: "medium", label: "Medium" },
+              { value: "high", label: "High" },
+            ]}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DraftActionButtons({
+  jobRunning,
+  startPending,
+  renderDisabled,
+  draftNoImagesDisabled,
+  renderButtonText,
+  onMakeDraft,
+}: {
+  jobRunning: boolean;
+  startPending: boolean;
+  renderDisabled: boolean;
+  draftNoImagesDisabled: boolean;
+  renderButtonText: string;
+  onMakeDraft: (withImages: boolean) => void;
+}) {
+  return (
+    <div className="flex gap-2 flex-wrap">
+      <button
+        onClick={() => onMakeDraft(true)}
+        disabled={renderDisabled || startPending}
+        className={`px-4 py-2 text-xs font-semibold rounded transition-colors ${
+          jobRunning
+            ? "bg-[var(--color-running)]/20 text-[var(--color-running)] border border-[var(--color-running)]/30"
+            : "bg-[var(--color-accent)] text-white hover:bg-[var(--color-accent-hover)]"
+        } disabled:opacity-40 disabled:cursor-not-allowed`}
+      >
+        {renderButtonText}
+      </button>
+
+      {!jobRunning && (
         <button
-          onClick={handleDirectVoice}
-          disabled={btnState.directVoiceDisabled}
-          className="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] disabled:opacity-40 transition-colors"
+          onClick={() => onMakeDraft(false)}
+          disabled={draftNoImagesDisabled || startPending}
+          className="px-3 py-2 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
         >
-          Direct Voice
+          Draft Without Images
         </button>
-      </div>
+      )}
+    </div>
+  );
+}
+
+function VoiceActions({
+  projectId,
+  directVoiceDisabled,
+  onDirectVoice,
+}: {
+  projectId: string;
+  directVoiceDisabled: boolean;
+  onDirectVoice: () => void;
+}) {
+  return (
+    <div className="flex gap-1 flex-wrap">
+      <VoiceSettingsDialog
+        projectId={projectId}
+        trigger={
+          <button className="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] transition-colors">
+            Voice Settings
+          </button>
+        }
+      />
+      <button
+        onClick={onDirectVoice}
+        disabled={directVoiceDisabled}
+        className="px-2 py-1 text-xs rounded border border-[var(--color-border)] text-[var(--color-text-muted)] hover:text-[var(--color-text)] disabled:opacity-40 transition-colors"
+      >
+        Direct Voice
+      </button>
     </div>
   );
 }
